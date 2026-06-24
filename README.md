@@ -28,11 +28,19 @@ docs/         Method, doctrine and security notes
 decisions/    Architecture Decision Records
 ```
 
+## Start here
+
+- [`doctrine.md`](doctrine.md) defines the core principles.
+- [`docs/public-private-split.md`](docs/public-private-split.md) explains how to separate public views from private operational data.
+- [`docs/operational-health.md`](docs/operational-health.md) defines the first health model.
+- [`docs/operia.md`](docs/operia.md) defines the future AI-assisted layer.
+- [`decisions/ADR-0001-operium-scope.md`](decisions/ADR-0001-operium-scope.md) records the initial scope decision.
+
 ## Operia
 
-Operia is the future AI-assisted layer of Operium.
+**Operia** is the future AI-assisted layer of Operium.
 
-Operium is the registry.
+Operium is the registry.  
 Operia helps read, maintain, diagnose and evolve the registry.
 
 Operia is not a separate project yet.
@@ -44,66 +52,3 @@ Early design stage.
 ## License
 
 Apache-2.0
-
-
-## Doctrine
-
-Operium applies a simple rule to operational environments:
-
-> Make the current state visible.  
-> Make intended evolutions explicit.  
-> Make operational health verifiable.
-
-An Operium registry should distinguish:
-
-1. facts;
-2. assumptions;
-3. intended evolutions;
-4. incidents;
-5. risks;
-6. decisions;
-7. private data;
-8. public views.
-
-Operium is not a monitoring tool first.
-
-It is a versioned operational memory that can later be connected to scripts, dashboards, probes, agents and AI assistants.
-
-# ADR-0001 — Operium scope
-
-## Status
-
-Accepted.
-
-## Context
-
-Operational environments tend to become opaque over time.
-
-Machines, repositories, services, domains, credentials, costs, backups, agents, scripts and dependencies evolve faster than their documentation.
-
-This creates fragility, hidden coupling, operational debt and loss of autonomy.
-
-## Decision
-
-Operium will document operational environments as versioned registries.
-
-The initial scope includes:
-
-- current state;
-- intended evolutions;
-- operational health;
-- risks;
-- incidents;
-- dependencies;
-- architectural and operational decisions.
-
-Operium will start with Markdown and YAML.
-
-Automation, dashboards and AI assistance will be added later only when justified.
-
-## Consequences
-
-- The source of truth remains human-readable.
-- The registry can be reviewed, versioned and forked.
-- Sensitive data must be separated from public views.
-- Operia remains an assistant layer, not a separate repository.
