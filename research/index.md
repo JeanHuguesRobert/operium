@@ -25,6 +25,7 @@ classification_confidence: "strong"
 - [Operia](../docs/operia.md)
 - [Public / private split](../docs/public-private-split.md)
 - [ADR-0001 — Operium scope](../decisions/ADR-0001-operium-scope.md)
+- [AGENTS.md — Operium agent mandate](../AGENTS.md)
 
 ---
 
