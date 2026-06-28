@@ -22,6 +22,7 @@ classification_confidence: "strong"
 
 - [Operium Doctrine](../doctrine.md)
 - [Operational health](../docs/operational-health.md)
+- [Cogentia Semantic Stack](../docs/cogentia-semantic-stack.md)
 - [Operia](../docs/operia.md)
 - [Public / private split](../docs/public-private-split.md)
 - [ADR-0001 — Operium scope](../decisions/ADR-0001-operium-scope.md)

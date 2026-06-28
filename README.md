@@ -33,6 +33,7 @@ decisions/    Architecture Decision Records
 - [`doctrine.md`](doctrine.md) defines the core principles.
 - [`docs/public-private-split.md`](docs/public-private-split.md) explains how to separate public views from private operational data.
 - [`docs/operational-health.md`](docs/operational-health.md) defines the first health model.
+- [`docs/cogentia-semantic-stack.md`](docs/cogentia-semantic-stack.md) defines the local and Fracta profile for Cogentia semantic retrieval.
 - [`docs/operia.md`](docs/operia.md) defines the future AI-assisted layer.
 - [`decisions/ADR-0001-operium-scope.md`](decisions/ADR-0001-operium-scope.md) records the initial scope decision.
 
