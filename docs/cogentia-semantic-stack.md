@@ -57,8 +57,8 @@ The local Magistral embedding profile should be configured in the private
 MAGISTRAL_EMBEDDINGS_ENABLED=true
 MAGISTRAL_EMBEDDING_PROVIDER=openai
 MAGISTRAL_EMBEDDING_MODEL=text-embedding-3-small
-MAGISTRAL_EMBEDDING_DIMENSIONS=1024
-MAGISTRAL_EMBEDDING_POLICY=cogentia-openai-text-embedding-3-small-1024-v1
+MAGISTRAL_EMBEDDING_DIMENSIONS=1536
+MAGISTRAL_EMBEDDING_POLICY=cogentia-openai-text-embedding-3-small-1536-v1
 MAGISTRAL_EMBEDDING_TIMEOUT_MS=20000
 ```
 
@@ -67,8 +67,13 @@ This profile matches the current public Cogentia corpus embedding target:
 ```text
 provider: openai
 model: text-embedding-3-small
-dimensions: 1024
+dimensions: 1536
 ```
+
+Earlier 1024-dimensional OpenAI embeddings were an experiment. New stable
+corpus embeddings should use the model-native 1536-dimensional profile unless a
+temporary branch/workspace overlay explicitly chooses a smaller disposable
+profile.
 
 ## Local Smoke Test
 
@@ -98,7 +103,7 @@ index_available: true
 semantic_available: true
 ai_router.capabilities.embeddings: true
 query_embedding.ok: true
-actual_dimensions: 1024
+actual_dimensions: 1536
 ```
 
 Then verify that hybrid retrieval is semantic, not keyword fallback:
@@ -112,7 +117,7 @@ The result should include:
 
 ```text
 _reasons: semantic_similarity
-Semantic retrieval used openai/text-embedding-3-small (1024d).
+Semantic retrieval used openai/text-embedding-3-small (1536d).
 ```
 
 ## Fracta Public Profile
@@ -190,11 +195,15 @@ endpoints.
 
 ## Next Implementation Slice
 
-The next useful implementation slice is remote MCP consolidation:
+The next useful implementation slice is estimate-first indexing:
 
-1. keep `scripts/cogentia-mcp.js` as the stdio adapter;
-2. add or align a remote HTTP/SSE MCP face with the same daemon context routes;
-3. keep public mode as the default view;
-4. verify that remote MCP search uses the same semantic retrieval target as the
-   conversational API;
-5. document public endpoints in Caddy without exposing admin paths.
+1. measure the broad executable corpus before spending embedding quota;
+2. separate stable `main` material from branch and workspace overlays;
+3. classify logs, secrets, generated artifacts and oversized files as non-
+   semantic by default;
+4. estimate tokens, chunks, vector storage and model spend for 512 and 1536
+   dimensions;
+5. use those numbers to decide which semantic layer should be promoted beyond
+   Markdown.
+
+The living plan is [Cogentia Agent Indexing Roadmap](cogentia-agent-indexing-roadmap.md).
