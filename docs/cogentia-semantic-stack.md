@@ -124,8 +124,16 @@ Observed public shape on 2026-06-29:
 - SSH alias used locally: `fracta`;
 - `fraca` was not a resolvable local SSH alias at observation time;
 - public domain role: `cogentia.fractavolta.com`;
+- public port 80 is handled by `caddy.service`;
+- Caddy routes `cogentia.fractavolta.com` to the local MCP HTTP adapter;
+- Caddy does not publicly proxy the Magistral/model-router backend;
 - Cogentia daemon runs on loopback, not directly on the public interface;
-- an MCP HTTP adapter is present behind the reverse proxy;
+- an MCP HTTP adapter is present behind Caddy;
+- the earlier Gabby subdomain router was an intermediate local replacement and
+  has been retired;
+- Nginx is disabled and inactive;
+- Caddy is the intended well-known lightweight open-source alternative to Nginx
+  for this node;
 - the Fracta repository mirror includes `JeanHuguesRobert`, `cogentia`,
   `inseme`, `operium` and the related public corpus repositories;
 - the remote context index was manually rebuilt on 2026-06-29 and plain
@@ -189,4 +197,4 @@ The next useful implementation slice is remote MCP consolidation:
 3. keep public mode as the default view;
 4. verify that remote MCP search uses the same semantic retrieval target as the
    conversational API;
-5. document public endpoints in the reverse proxy without exposing admin paths.
+5. document public endpoints in Caddy without exposing admin paths.
