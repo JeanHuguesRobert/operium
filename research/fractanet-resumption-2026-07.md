@@ -1,0 +1,153 @@
+---
+title: "Fractanet resumption handoff — July 2026 pause"
+description: "Cross-project memory for resuming Fractanet retrieval, Packet Attractor, and intermittent capable-node work."
+layout: default
+date: 2026-07-03
+last_modified_at: 2026-07-03
+license: Apache-2.0
+canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/research/fractanet-resumption-2026-07.md
+document_role: "operational"
+document_kind: "handoff"
+visibility: "public"
+lifecycle_state: "active"
+status: "pause checkpoint — resume when ready"
+---
+
+# Fractanet resumption handoff — July 2026 pause
+
+This note prepares **resumption** after a long session on Fractanet routing, intermittent
+capable hosts, and the **Packet Attractor** concept. It is the cross-repo entry point for a
+human or coding agent.
+
+**Operational issue (actionable):**
+[inseme#13 — Fractanet Packet Attractor proto handoff](https://github.com/JeanHuguesRobert/inseme/issues/13)
+
+**Related implementation issue:**
+[cogentia#42 — Retrieval Phase 4 Inox mandat](https://github.com/JeanHuguesRobert/cogentia/issues/42)
+
+---
+
+## North star (do not lose sight)
+
+**Fractanet** is the ambitious goal — not a fracta ops tweak.
+
+```text
+No single point of failure. No single point of capture.
+```
+
+Routing is by **capability** and **legitimacy**, not fixed URLs. The distributed blackboard is
+**attractor matching + COP traces**, not a centralized K/V store (Redis optional bootstrap only).
+
+---
+
+## What this session established
+
+### 1. Intermittent capable host
+
+The owner's laptop is a **Fractanet node**, not just a dev machine:
+
+- rich capabilities (`inox-serve`, embeddings, Supabase);
+- **not always powered on**;
+- must **advertise** availability, not be reached via a static URL alone.
+
+### 2. Resource registry vs blackboard (two layers)
+
+| Layer | Role | Where |
+|-------|------|-------|
+| **Catalogue** (slow) | node profiles, verb registry refs, secret refs, fallback policy | Operium private registry (YAML, not in git) |
+| **Blackboard** (fast) | who attracts what **now** | Packet attractors + COP events (`advertised`, `matched`, `degraded`) |
+
+Operium documents **facts and policy**. It is not the live routing table.
+
+### 3. Packet Attractor crystallized (COP)
+
+Canonical source document (pushed 2026-07-03):
+
+- [inseme/research/packet_attractor_fractanet.md](https://github.com/JeanHuguesRobert/inseme/blob/main/research/packet_attractor_fractanet.md)
+
+Key compression:
+
+```text
+pub/sub        = receive what is published on a channel
+reactive query = receive what matches a structured demand
+packet attractor = attract packets one is capable and legitimate to handle
+```
+
+Naming collision resolved in FractaVolta `concepts.md`: evolutionary attractor paper ≠ Fractanet
+routing primitive.
+
+### 4. Bootstrap vs target
+
+| Stage | Routing | Status |
+|-------|---------|--------|
+| L1 bootstrap | `COGENTIA_INOX_RETRIEVAL_URL` in `guide.env` | **code exists**, not prod on fracta |
+| L3 target | mandate carries `required_capabilities`; router matches attractors | **specified**, not implemented |
+| RAIX target | mirrored attractor advertisements | **future** |
+
+---
+
+## What was already built before this session (context)
+
+| Area | State | Ref |
+|------|-------|-----|
+| fracta Phase 0–1 retrieval | prod: Supabase backend, ~17–19 s E2E Guide | `cogentia/deploy/fracta/` |
+| inox-serve | `POST /session/turn`, continuations, sidecar pool | `Inox/bin/inox-serve.js` |
+| cogentia Inox client | `retrieval-inox-session.js`, `test:retrieval-inox` | `cogentia/scripts/lib/` |
+| operium trust perimeter | fracta `guide.env`, Phase 4 intent | `operium/docs/fracta-trust-perimeter.md` |
+
+**Not done:** fracta prod pointer to capable host; dynamic fallback when host offline; attractor
+advertisement proto.
+
+---
+
+## Open decision (must triage on resume)
+
+When the capable host is **offline**, fracta Guide should:
+
+| Option | Trade-off |
+|--------|-----------|
+| **A** — keep Supabase fallback on fracta | Guide always works; secrets stay on weak VPS |
+| **B** — degraded only (no fallback) | fracta stays weak; visitors see explicit degradation |
+| **C** — attractor routing + policy fallback | proper Fractanet; more implementation |
+
+**Recommendation from session:** **C** long-term; **A** acceptable as transitional bootstrap.
+
+---
+
+## Resume order (suggested)
+
+1. Read [packet_attractor_fractanet.md](https://github.com/JeanHuguesRobert/inseme/blob/main/research/packet_attractor_fractanet.md) and [fracta-trust-perimeter.md](../docs/fracta-trust-perimeter.md).
+2. Execute [inseme#13](https://github.com/JeanHuguesRobert/inseme/issues/13) Phase 1 (attractor advertisement proto).
+3. Wire Guide to read attractor snapshot before `session/turn` ([cogentia#42](https://github.com/JeanHuguesRobert/cogentia/issues/42)).
+4. Deploy `inox-serve` on capable host with heartbeat; document node in **private** Operium registry.
+5. Only then remove Supabase/OpenAI from fracta `guide.env` (Phase 4 completion).
+
+---
+
+## First files for a coding agent
+
+```text
+inseme/research/packet_attractor_fractanet.md     ← canonical spec
+cogentia/scripts/cogentia-mcp-http.js             ← resolveGuideRetrievalBackend (static today)
+cogentia/scripts/lib/retrieval-inox-session.js      ← inox.session.v1 client
+Inox/bin/inox-serve.js                            ← fulfiller HTTP
+operium/docs/fracta-trust-perimeter.md            ← secrets / trust model
+```
+
+---
+
+## Git commits from this arc (2026-07-03)
+
+| Repo | Commit | Content |
+|------|--------|---------|
+| inseme | `d6a2e9e` | Packet Attractor source doc |
+| Inox | `da24704` | Cross-links |
+| FractaVolta | `cabaa4a` | concepts.md split |
+
+---
+
+## Changelog
+
+| Date | Change |
+|------|--------|
+| 2026-07-03 | Initial handoff at session pause |
