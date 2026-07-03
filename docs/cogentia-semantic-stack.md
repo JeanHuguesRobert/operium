@@ -143,8 +143,10 @@ Observed public shape on 2026-06-29:
   `inseme`, `operium` and the related public corpus repositories;
 - the remote context index was manually rebuilt on 2026-06-29 and plain
   context retrieval is available;
-- remote semantic retrieval is not ready until stored embeddings and a local
-  Magistral embedding endpoint are available on the node.
+- regional Supabase retrieval (`COGENTIA_RETRIEVAL_BACKEND=supabase`) was enabled
+  on the Guide MCP in 2026-07 (Phase 1); see `cogentia/docs/retrieval-roadmap.md`;
+- Phase 4 target: `COGENTIA_INOX_RETRIEVAL_URL` on a capable host so fracta drops
+  Supabase/OpenAI keys from `guide.env` — see [Fracta trust perimeter](fracta-trust-perimeter.md).
 
 This is an operational observation, not a guarantee of future state.
 

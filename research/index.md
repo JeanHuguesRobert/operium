@@ -23,6 +23,7 @@ classification_confidence: "strong"
 - [Operium Doctrine](../doctrine.md)
 - [Operational health](../docs/operational-health.md)
 - [Cogentia Semantic Stack](../docs/cogentia-semantic-stack.md)
+- [Fracta trust perimeter and secrets](../docs/fracta-trust-perimeter.md)
 - [Cogentia Agent Indexing Roadmap](../docs/cogentia-agent-indexing-roadmap.md)
 - [Operia](../docs/operia.md)
 - [Public / private split](../docs/public-private-split.md)
