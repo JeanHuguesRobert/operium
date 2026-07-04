@@ -36,6 +36,7 @@ decisions/    Architecture Decision Records
 - [`docs/cogentia-semantic-stack.md`](docs/cogentia-semantic-stack.md) defines the local and Fracta profile for Cogentia semantic retrieval.
 - [`docs/fracta-trust-perimeter.md`](docs/fracta-trust-perimeter.md) defines fracta SSH access, the trust boundary, `guide.env` secrets (never GitHub), and Inox retrieval routing.
 - [`research/fractanet-resumption-2026-07.md`](research/fractanet-resumption-2026-07.md) is the cross-repo pause/resume handoff for Fractanet, Packet Attractor, and Phase 4 retrieval.
+- [`docs/fractanet-mesh.md`](docs/fractanet-mesh.md) records the live Tailscale + SSH mesh, Phase 1 blackboard, and inox-serve wiring (July 2026).
 - [`docs/cogentia-agent-indexing-roadmap.md`](docs/cogentia-agent-indexing-roadmap.md) defines the agile roadmap for stable indexes, branch overlays and agent-facing retrieval.
 - [`docs/operia.md`](docs/operia.md) defines the future AI-assisted layer.
 - [`decisions/ADR-0001-operium-scope.md`](decisions/ADR-0001-operium-scope.md) records the initial scope decision.

@@ -3,7 +3,7 @@ title: "Fracta trust perimeter and secrets"
 description: "How the fracta VPS fits the trusted operational boundary; where secrets live; retrieval backends including Inox session."
 layout: default
 date: 2026-07-03
-last_modified_at: 2026-07-03
+last_modified_at: 2026-07-04
 license: Apache-2.0
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/docs/fracta-trust-perimeter.md
 document_role: "operational"
@@ -25,6 +25,7 @@ Companion notes:
 - Cogentia deploy runbook: `cogentia/deploy/fracta/README.md` (procedures on the node)
 - Cogentia retrieval phases: `cogentia/docs/retrieval-roadmap.md`
 - Inox remote serve: `Inox/research/inox-remote-serve.md`, `Inox/research/inox-session-packets.md`
+- [Fractanet mesh — Tailscale and SSH](fractanet-mesh.md) — tailnet, SSH aliases, capable-host reachability
 
 ## Access
 
@@ -192,3 +193,4 @@ This public note only records the pattern.
 | Date | Change |
 |------|--------|
 | 2026-07-03 | Initial note: trust perimeter, `guide.env`, Phase 4 `inox.session.v1` |
+| 2026-07-04 | Cross-link to [fractanet-mesh.md](fractanet-mesh.md); `COGENTIA_INOX_RETRIEVAL_URL` live via Tailscale |

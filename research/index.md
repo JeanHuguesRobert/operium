@@ -25,6 +25,7 @@ classification_confidence: "strong"
 - [Cogentia Semantic Stack](../docs/cogentia-semantic-stack.md)
 - [Fracta trust perimeter and secrets](../docs/fracta-trust-perimeter.md)
 - [Fractanet resumption handoff — July 2026 pause](fractanet-resumption-2026-07.md)
+- [Fractanet mesh — Tailscale and SSH](../docs/fractanet-mesh.md)
 - [Cogentia Agent Indexing Roadmap](../docs/cogentia-agent-indexing-roadmap.md)
 - [Operia](../docs/operia.md)
 - [Public / private split](../docs/public-private-split.md)

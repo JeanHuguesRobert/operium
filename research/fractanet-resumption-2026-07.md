@@ -3,14 +3,14 @@ title: "Fractanet resumption handoff — July 2026 pause"
 description: "Cross-project memory for resuming Fractanet retrieval, Packet Attractor, and intermittent capable-node work."
 layout: default
 date: 2026-07-03
-last_modified_at: 2026-07-03
+last_modified_at: 2026-07-04
 license: Apache-2.0
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/research/fractanet-resumption-2026-07.md
 document_role: "operational"
 document_kind: "handoff"
 visibility: "public"
 lifecycle_state: "active"
-status: "pause checkpoint — resume when ready"
+status: "resumed — mesh live; Phase 2 routing pending"
 ---
 
 # Fractanet resumption handoff — July 2026 pause
@@ -80,7 +80,7 @@ routing primitive.
 
 | Stage | Routing | Status |
 |-------|---------|--------|
-| L1 bootstrap | `COGENTIA_INOX_RETRIEVAL_URL` in `guide.env` | **code exists**, not prod on fracta |
+| L1 bootstrap | `COGENTIA_INOX_RETRIEVAL_URL` in `guide.env` | **prod on fracta** (Tailscale → capable host, 2026-07-04) |
 | L3 target | mandate carries `required_capabilities`; router matches attractors | **specified**, not implemented |
 | RAIX target | mirrored attractor advertisements | **future** |
 
@@ -95,8 +95,34 @@ routing primitive.
 | cogentia Inox client | `retrieval-inox-session.js`, `test:retrieval-inox` | `cogentia/scripts/lib/` |
 | operium trust perimeter | fracta `guide.env`, Phase 4 intent | `operium/docs/fracta-trust-perimeter.md` |
 
-**Not done:** fracta prod pointer to capable host; dynamic fallback when host offline; attractor
-advertisement proto.
+**Was not done at pause (2026-07-03):** fracta prod pointer to capable host; dynamic fallback when host offline; attractor advertisement proto.
+
+---
+
+## Progress since resume (2026-07-04)
+
+Operational detail: [Fractanet mesh — Tailscale and SSH](../docs/fractanet-mesh.md).
+
+### Done
+
+| Area | State |
+|------|-------|
+| Tailscale tailnet `virteal` | `fracta` + `i7-thinkpad-jhr` connected |
+| SSH mesh (bidirectional) | `ssh fracta` / `ssh thinkpad` over Tailscale verified |
+| `fractanet-mesh` ed25519 key | deployed on workstation + fracta; Windows inbound SSH via `install-fractanet-ssh-windows.ps1` |
+| Phase 1 blackboard | deployed on fracta (`/ops/blackboard`); laptop heartbeat task |
+| `inox-serve` on capable host | Windows task, port 8792; fracta `guide.env` points to laptop Tailscale IP |
+| Pi bootstrap script | `cogentia/scripts/ops/fractanet-node-bootstrap.sh` ready for `rpi3-view` |
+
+### Still open
+
+| Area | Notes |
+|------|-------|
+| `rpi3-view` (Raspberry Pi 3) | not yet on tailnet |
+| Phase 2 Guide routing | blackboard-aware `session/turn` selection not wired |
+| Fallback policy A/B/C | when laptop offline |
+| `/guide/health` 500 on fracta | daemon timeout on 1 GB VPS (separate from mesh) |
+| Tailscale auth key hygiene | revoke reusable keys after Pi enrollment |
 
 ---
 
@@ -114,13 +140,14 @@ When the capable host is **offline**, fracta Guide should:
 
 ---
 
-## Resume order (suggested)
+## Resume order (updated 2026-07-04)
 
-1. Read [packet_attractor_fractanet.md](https://github.com/JeanHuguesRobert/inseme/blob/main/research/packet_attractor_fractanet.md) and [fracta-trust-perimeter.md](../docs/fracta-trust-perimeter.md).
-2. Execute [inseme#13](https://github.com/JeanHuguesRobert/inseme/issues/13) Phase 1 (attractor advertisement proto).
-3. Wire Guide to read attractor snapshot before `session/turn` ([cogentia#42](https://github.com/JeanHuguesRobert/cogentia/issues/42)).
-4. Deploy `inox-serve` on capable host with heartbeat; document node in **private** Operium registry.
-5. Only then remove Supabase/OpenAI from fracta `guide.env` (Phase 4 completion).
+1. ~~Execute [inseme#13](https://github.com/JeanHuguesRobert/inseme/issues/13) Phase 1~~ — **done** (blackboard + heartbeat).
+2. ~~Deploy `inox-serve` on capable host; Tailscale mesh~~ — **done** — see [fractanet-mesh.md](../docs/fractanet-mesh.md).
+3. Join `rpi3-view` (Pi 3) via `fractanet-node-bootstrap.sh`.
+4. Wire Guide to read attractor snapshot before `session/turn` ([cogentia#42](https://github.com/JeanHuguesRobert/cogentia/issues/42)) — **Phase 2**.
+5. Triage fallback policy when laptop offline (A/B/C).
+6. Remove Supabase/OpenAI from fracta `guide.env` once Phase 2 + policy are stable.
 
 ---
 
@@ -128,7 +155,9 @@ When the capable host is **offline**, fracta Guide should:
 
 ```text
 inseme/research/packet_attractor_fractanet.md     ← canonical spec
+operium/docs/fractanet-mesh.md                    ← tailnet + SSH mesh (observed state)
 cogentia/scripts/cogentia-mcp-http.js             ← resolveGuideRetrievalBackend (static today)
+cogentia/scripts/lib/packet-attractor-blackboard.js ← Phase 1 store
 cogentia/scripts/lib/retrieval-inox-session.js      ← inox.session.v1 client
 Inox/bin/inox-serve.js                            ← fulfiller HTTP
 operium/docs/fracta-trust-perimeter.md            ← secrets / trust model
@@ -151,3 +180,4 @@ operium/docs/fracta-trust-perimeter.md            ← secrets / trust model
 | Date | Change |
 |------|--------|
 | 2026-07-03 | Initial handoff at session pause |
+| 2026-07-04 | Resumed: mesh doc, Phase 1 + inox Tailscale wiring done; resume order updated |
