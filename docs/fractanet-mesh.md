@@ -175,6 +175,20 @@ Still **open** — see [resumption handoff](../research/fractanet-resumption-202
 
 ---
 
+## Operium CLI
+
+Portable observer from any trusted workstation:
+
+```bash
+cd operium && npm install
+node bin/operium.js up --human
+node bin/operium.js up --json
+```
+
+See [operium-cli.md](operium-cli.md) for `operium.up.v1` schema and exit codes.
+
+---
+
 ## Ops dashboard
 
 Browser UI on the fracta Guide MCP (public HTTPS):

@@ -1,0 +1,19 @@
+{
+  "name": "operium",
+  "version": "0.1.0",
+  "description": "Versioned operational environment registry CLI",
+  "type": "module",
+  "license": "Apache-2.0",
+  "bin": {
+    "operium": "./bin/operium.js"
+  },
+  "scripts": {
+    "test:up": "node scripts/test-operium-up.js"
+  },
+  "dependencies": {
+    "yaml": "^2.8.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

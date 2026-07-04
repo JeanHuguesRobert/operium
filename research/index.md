@@ -27,6 +27,7 @@ classification_confidence: "strong"
 - [Fractanet resumption handoff — July 2026 pause](fractanet-resumption-2026-07.md)
 - [Fractanet mesh — Tailscale and SSH](../docs/fractanet-mesh.md)
 - [fractavolta.com DNS zone](../docs/fractavolta-dns.md)
+- [Operium CLI](../docs/operium-cli.md)
 - [Cogentia Agent Indexing Roadmap](../docs/cogentia-agent-indexing-roadmap.md)
 - [Operia](../docs/operia.md)
 - [Public / private split](../docs/public-private-split.md)
