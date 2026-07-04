@@ -26,6 +26,7 @@ Companion notes:
 - Cogentia retrieval phases: `cogentia/docs/retrieval-roadmap.md`
 - Inox remote serve: `Inox/research/inox-remote-serve.md`, `Inox/research/inox-session-packets.md`
 - [Fractanet mesh — Tailscale and SSH](fractanet-mesh.md) — tailnet, SSH aliases, capable-host reachability
+- [fractavolta.com DNS zone](fractavolta-dns.md) — Gandi zone, `fracta` A record, service CNAMEs
 
 ## Access
 
@@ -62,7 +63,8 @@ fracta exposes a **governed public Cogentia face** (~1 GB RAM VPS):
 
 ```text
 Internet
-  -> Caddy (cogentia.fractavolta.com)
+  -> DNS: *.fractavolta.com CNAME fracta.fractavolta.com -> 82.70.234.207 (OCI)
+  -> Caddy (cogentia.fractavolta.com, other vhosts — see fractavolta-dns.md)
   -> mcp-cogentia.service (127.0.0.1:8791)  Guide MCP HTTP
   -> cogentia.service (127.0.0.1:8790)        Cogentia daemon
 ```
@@ -194,3 +196,4 @@ This public note only records the pattern.
 |------|--------|
 | 2026-07-03 | Initial note: trust perimeter, `guide.env`, Phase 4 `inox.session.v1` |
 | 2026-07-04 | Cross-link to [fractanet-mesh.md](fractanet-mesh.md); `COGENTIA_INOX_RETRIEVAL_URL` live via Tailscale |
+| 2026-07-04 | Cross-link to [fractavolta-dns.md](fractavolta-dns.md); public path diagram includes OCI IP |
