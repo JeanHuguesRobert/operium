@@ -29,6 +29,7 @@ classification_confidence: "strong"
 - [fractavolta.com DNS zone](../docs/fractavolta-dns.md)
 - [Operium CLI](../docs/operium-cli.md)
 - [fracta daemon health latency — July 2026 incident](fracta-daemon-health-2026-07.md)
+- [inox-serve offline on ThinkPad — July 2026 incident](inox-serve-thinkpad-2026-07.md)
 - [Cogentia Agent Indexing Roadmap](../docs/cogentia-agent-indexing-roadmap.md)
 - [Operia](../docs/operia.md)
 - [Public / private split](../docs/public-private-split.md)
