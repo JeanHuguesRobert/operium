@@ -16,7 +16,7 @@ Options:
   --registry <path>       Private registry YAML (default ~/.cogentia/registry/resources.yaml)
   --aggregator <url>      Runtime aggregator base URL (default https://cogentia.fractavolta.com)
   --section <name>        catalogue | mesh | services | blackboard | retrieval | public_face
-  --timeout <ms>          Per-probe timeout (default 8000)
+  --timeout <ms>          Per-probe timeout (default 25000)
   --quiet                 Summary headline only (human mode)
   -h, --help              Show help
 
@@ -34,7 +34,7 @@ function parseArgs(argv) {
     human: false,
     probe: true,
     quiet: false,
-    timeoutMs: 8000,
+    timeoutMs: 25000,
     registryPath: null,
     aggregatorUrl: null,
     section: null,
