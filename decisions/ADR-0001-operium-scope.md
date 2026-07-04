@@ -1,3 +1,9 @@
+---
+document_role: "source"
+document_kind: "decision-record"
+visibility: "public"
+---
+
 # ADR-0001 — Operium scope
 
 ## Status

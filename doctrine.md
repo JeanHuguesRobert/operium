@@ -1,3 +1,9 @@
+---
+document_role: "source"
+document_kind: "doctrine"
+visibility: "public"
+---
+
 # Operium Doctrine
 
 Operium applies a simple rule to operational environments:
