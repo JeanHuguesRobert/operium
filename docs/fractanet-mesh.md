@@ -175,6 +175,22 @@ Still **open** — see [resumption handoff](../research/fractanet-resumption-202
 
 ---
 
+## Ops dashboard
+
+Browser UI on the fracta Guide MCP (public HTTPS):
+
+| URL | Role |
+|-----|------|
+| `https://cogentia.fractavolta.com/ops/dashboard` | HTML dashboard — MCP/Guide health, attractors, recent COP events |
+| `https://cogentia.fractavolta.com/ops/status` | JSON aggregate for scripts and the dashboard |
+| `https://cogentia.fractavolta.com/ops/blackboard` | Raw blackboard snapshot |
+
+Source: `cogentia/scripts/ops/fractanet-dashboard.html`, `cogentia/scripts/lib/fractanet-ops-status.js`. Caddy paths: `deploy/fracta/Caddyfile.snippet`.
+
+Auto-refresh every 30 s. Does not expose secrets or Tailscale topology beyond what attractors advertise.
+
+---
+
 ## Operator checklist
 
 ```bash
@@ -186,7 +202,11 @@ ssh fracta 'ssh thinkpad hostname'
 "& 'C:\Program Files\Tailscale\tailscale.exe' status"   # Windows
 tailscale status                                        # Linux
 
-# Blackboard (from anywhere with network access to Guide)
+# Dashboard (browser or JSON)
+start https://cogentia.fractavolta.com/ops/dashboard
+curl -fsS https://cogentia.fractavolta.com/ops/status | jq .
+
+# Blackboard (raw)
 curl -fsS https://cogentia.fractavolta.com/ops/blackboard | jq .
 
 # inox-serve from fracta (Tailscale IP from private registry)
@@ -232,3 +252,4 @@ ssh fracta 'sudo /srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stack.sh 
 | Date | Change |
 |------|--------|
 | 2026-07-04 | Initial note: tailnet live, SSH mesh bidirectional, Phase 1 blackboard + inox Tailscale wiring, Pi template |
+| 2026-07-04 | Ops dashboard at `/ops/dashboard` on cogentia.fractavolta.com |
