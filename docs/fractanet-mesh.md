@@ -106,21 +106,13 @@ Trial plan (~14 days left at observation). Configured in [Settings](https://logi
 
 Auth keys (`tskey-auth-…`) are **invitation tokens** to join new machines. They are **not** the per-device private keys (those stay on each node and never appear in this list).
 
-| Key | Created | Expiry | Type | Status |
-|-----|---------|--------|------|--------|
-| bootstrap reusable auth key | 2026-07-04 | 2026-10-02 | **Reusable** | **Keep until bootstrap enrollments done** |
+| Key ID | Created | Expiry | Type | Status |
+|--------|---------|--------|------|--------|
+| `kMDGHHezga11CNTRL` | 2026-07-04 | 2026-10-02 | **Reusable** | **Revoked 2026-07-05** |
 
-`fracta`, `i7-thinkpad-jhr`, and `rpi3-view` enrolled via this bootstrap key. **Revoking it does not disconnect enrolled machines** — each node keeps its own device key. A still-valid **reusable** key remains a join ticket until expiry: anyone holding the `tskey-auth-…` string could add a rogue device before Oct 2026.
+`fracta`, `i7-thinkpad-jhr`, `rpi3-view`, and `poco-jhr` enrolled via this bootstrap key (Android via GitHub login in app). **Revoking it does not disconnect enrolled machines** — each node keeps its own device key.
 
-**Policy (2026-07-04):** keep the bootstrap reusable auth key until planned enrollments complete, then revoke immediately:
-
-| Step | Node | Join method |
-|------|------|-------------|
-| done | `fracta`, `i7-thinkpad-jhr`, `rpi3-view` | bootstrap reusable key |
-| next | operator Android phone | Tailscale app (GitHub login) or one-off auth key — **capable-mobile experiment** |
-| after planned enrollments | — | **Revoke** the bootstrap reusable auth key; future nodes → one-off keys only |
-
-Rationale: reusable key avoided regenerating during bootstrap; revoke closes the open join ticket once bootstrap ends.
+**Bootstrap complete (2026-07-05):** all planned nodes enrolled; bootstrap key revoked. Future nodes → **one-off** auth keys only (generate per device in [Settings → Keys](https://login.tailscale.com/admin/settings/keys)).
 
 No API access tokens configured.
 
@@ -177,9 +169,9 @@ Default permissive tailnet (solo operator). No `funnel` node attribute. Device a
 | `fracta` | Ubuntu VPS (OCI) | always-on public face | inbound + outbound | Cogentia Guide MCP, blackboard aggregator |
 | `i7-thinkpad-jhr` | Windows 11 | intermittent capable host | inbound + outbound | `inox-serve` :8792, attractor heartbeat |
 | `rpi3-view` | Raspberry Pi OS (Pi 3) | **site edge / kiosk** | SSH mesh | Local 1 cours Paoli — sole always-on node on LAN; see [Linux node roles](#linux-node-roles-corpus--paoli) |
-| `pco-jhr` | Android (POCO X6 5G) | mobile peer | Taildrop | TS `100.97.223.45`; renamed from `poco-x6-5g` |
+| `poco-jhr` | Android Termux (POCO X6 5G) | **capable-mobile** | SSH mesh :8022 | Layout `~/srv/cogentia`; outbound SSH to fracta/thinkpad/Pi |
 
-**Enrollment order:** Pi 3 → Android phone → revoke bootstrap auth key.
+**Enrollment order:** Pi 3 → Android phone → revoke bootstrap auth key — **done 2026-07-05**.
 
 Tailscale IPs and LAN addresses live in the **private** registry only. MagicDNS short names (`ssh fracta`, `ssh rpi3-view`) work when enabled in the tailnet admin console.
 
@@ -212,8 +204,11 @@ Local `~/.ssh/config` on the trusted workstation defines:
 | `fracta-public` | OCI public IP (break-glass) | `ubuntu` | `oci-fracta-instance-jh1` |
 | `thinkpad-ts` / `i7-thinkpad-jhr` | Tailscale IP of laptop | `admin` | `fractanet-mesh` |
 | `rpi3-view` | MagicDNS hostname | `jh` | `fractanet-mesh` |
+| `poco-jhr` | Tailscale IP, port **8022** | `jh` | `fractanet-mesh` |
 
 Routine ops use **Tailscale aliases** (`ssh fracta`). Public IP SSH remains for break-glass and initial bootstrap.
+
+**Android note:** `poco-jhr` runs **Termux sshd** on port 8022 (not the standard mesh port 22). It is **not** included in `verify-fractanet-ssh-mesh.ps1`. Termux sshd stops if the app is killed unless `~/.termux/boot/sshd` is installed (wake-lock + sshd).
 
 ### Mesh key (reference only)
 
@@ -278,7 +273,7 @@ pwsh -File cogentia/scripts/ops/verify-fractanet-ssh-mesh.ps1 -SkipConnectivity
 | Mesh pubkey | `~/.ssh/authorized_keys` |
 | Mesh private key | `~/.ssh/fractanet-mesh` (outbound to other nodes) |
 | SSH client config | `~/.ssh/config` — hosts `thinkpad`, `rpi3-view`, `fracta` |
-| Tailscale | joined via bootstrap auth key (expiry observed Oct 2026 — **revoke after Android join**) |
+| Tailscale | joined via bootstrap auth key (revoked 2026-07-05) |
 | Blackboard routes | Caddy + Guide MCP `/ops/blackboard` (Phase 1) |
 
 ## Linux node roles (corpus + Paoli)
@@ -350,7 +345,37 @@ pwsh -File cogentia/scripts/ops/verify-fractanet-ssh-mesh.ps1   # extend when Pi
 
 5. Update `~/.cogentia/registry/resources.yaml` with Pi `tailscale_ip` once assigned.
 
-The bootstrap reusable auth key remains valid until Pi **and** Android are enrolled, then revoke.
+Bootstrap auth key revoked 2026-07-05. New nodes: generate a **one-off** key in admin Settings → Keys.
+
+### Termux node — `poco-jhr` (Android capable-mobile)
+
+**Not identical to Linux** — no `apt`, no OpenSSH on port 22, no `/srv` without root. Termux mirrors the Linux layout under `$HOME` and uses **Tailscale Android app** (not `tailscale up` CLI).
+
+| Layer | Linux (`rpi3-view`) | Termux (`poco-jhr`) |
+|-------|-------------------|---------------------|
+| Tailscale | `tailscale up --auth-key` | Android app (GitHub login) |
+| Inbound SSH | `sshd :22` | Termux `sshd :8022` |
+| Layout | `fractanet-linux-layout.sh` → `/srv/cogentia`, `/var/lib/cogentia` | `fractanet-termux-layout.sh` → `~/srv/cogentia`, `~/.cogentia/var` |
+| Bootstrap | `bootstrap-rpi3-view.ps1` + `fractanet-node-bootstrap.sh` | `bootstrap-poco-jhr.ps1` + `fractanet-termux-bootstrap.sh` |
+| Outbound SSH | `~/.ssh/fractanet-mesh` + `~/.ssh/config` | same (installed by bootstrap) |
+| `inox-serve` / blackboard | no (Pi) / yes (ThinkPad) | **not yet** — research track |
+
+**Minimum mesh parity (done 2026-07-05):** inbound + outbound SSH over Tailscale; layout skeleton; `~/.termux/boot/sshd`.
+
+From ThinkPad:
+
+```powershell
+pwsh -File cogentia/scripts/ops/bootstrap-poco-jhr.ps1
+```
+
+Verify:
+
+```powershell
+ssh poco-jhr hostname
+ssh poco-jhr "ssh fracta hostname; ssh thinkpad hostname; ssh rpi3-view hostname"
+```
+
+**Limits:** Termux sshd dies if the app is killed; no `verify-fractanet-ssh-mesh.ps1` entry (port 8022). Future: `mobile.env`, optional retrieval/attractor on capable-mobile.
 
 ---
 
@@ -455,7 +480,7 @@ ssh fracta 'sudo /srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stack.sh 
 
 ## Intended evolutions (not current state)
 
-- Enroll operator Android phone; revoke the bootstrap reusable auth key after that
+- ~~Enroll operator Android phone; revoke bootstrap auth key~~ — **done 2026-07-05**
 - Map Tailscale posture attrs → Operium catalogue (sync tooling)
 - Android as Fractanet capable node (retrieval / attractor) — research track
 - Phase 2: blackboard-aware Guide routing
@@ -485,4 +510,7 @@ ssh fracta 'sudo /srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stack.sh 
 | 2026-07-04 | SSH mesh re-verified; `verify-fractanet-ssh-mesh.ps1`; fracta reboot test passed |
 | 2026-07-04 | `rpi3-view` enrolled; 3-node SSH mesh verified; exact addresses kept in private registry |
 | 2026-07-04 | Linux node roles: Paoli edge-kiosk, fractanet-linux-layout.sh, registry restructured |
-| 2026-07-05 | Android enrolled (`poco-x6-5g` → renamed `pco-jhr`, 100.97.223.45) |
+| 2026-07-05 | Android enrolled (`poco-x6-5g` → `poco-jhr`, 100.97.223.45) |
+| 2026-07-05 | `poco-jhr` Termux SSH: mesh pubkey, `~/.termux/boot/sshd`, `ssh poco-jhr` from workstation |
+| 2026-07-05 | `poco-jhr` Termux bootstrap: layout + outbound mesh SSH; scripts `fractanet-termux-*.sh`, `bootstrap-poco-jhr.ps1` |
+| 2026-07-05 | Bootstrap auth key `kMDGHHezga11CNTRL` revoked; 4-node enrollment complete |

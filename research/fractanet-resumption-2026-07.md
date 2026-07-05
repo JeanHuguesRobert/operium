@@ -119,7 +119,7 @@ Operational detail: [Fractanet mesh — Tailscale and SSH](../docs/fractanet-mes
 | Area | Notes |
 |------|-------|
 | `rpi3-view` local services | tailnet + SSH enrolled; local corpus mirror and domotics services still to deploy |
-| Operator Android phone | next enrollment — capable-mobile experiment |
+| Operator Android phone (`poco-jhr`) | enrolled; Termux mesh parity — capable-mobile experiment (retrieval TBD) |
 | Phase 2 Guide routing | blackboard-aware `session/turn` selection not wired |
 | Fallback policy A/B/C | when laptop offline |
 | `/guide/health` 500 on fracta | daemon timeout on 1 GB VPS (separate from mesh) |
