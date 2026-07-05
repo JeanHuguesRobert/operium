@@ -39,6 +39,7 @@ decisions/    Architecture Decision Records
 - [`docs/fractanet-mesh.md`](docs/fractanet-mesh.md) records the live Tailscale + SSH mesh, Phase 1 blackboard, and inox-serve wiring (July 2026).
 - [`docs/fractavolta-dns.md`](docs/fractavolta-dns.md) records the Gandi DNS zone — fracta OCI IP, service CNAMEs, mail, apex GitHub Pages.
 - [`docs/operium-cli.md`](docs/operium-cli.md) — `operium up` CLI and `operium.up.v1` JSON schema.
+- [`docs/operium-wip.md`](docs/operium-wip.md) — GitHub-backed WIP handoff/resume for PC, Termux and `fracta`.
 - [`docs/cogentia-agent-indexing-roadmap.md`](docs/cogentia-agent-indexing-roadmap.md) defines the agile roadmap for stable indexes, branch overlays and agent-facing retrieval.
 - [`docs/operia.md`](docs/operia.md) defines the future AI-assisted layer.
 - [`decisions/ADR-0001-operium-scope.md`](decisions/ADR-0001-operium-scope.md) records the initial scope decision.
