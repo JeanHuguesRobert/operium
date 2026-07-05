@@ -10,7 +10,7 @@ document_role: "operational"
 document_kind: "method"
 visibility: "public"
 lifecycle_state: "active"
-status: "mesh live (3 nodes); Android pending"
+status: "mesh live (4 nodes)"
 ---
 
 # Fractanet mesh — Tailscale and SSH (July 2026)
@@ -177,7 +177,7 @@ Default permissive tailnet (solo operator). No `funnel` node attribute. Device a
 | `fracta` | Ubuntu VPS (OCI) | always-on public face | inbound + outbound | Cogentia Guide MCP, blackboard aggregator |
 | `i7-thinkpad-jhr` | Windows 11 | intermittent capable host | inbound + outbound | `inox-serve` :8792, attractor heartbeat |
 | `rpi3-view` | Raspberry Pi OS (Pi 3) | **site edge / kiosk** | SSH mesh | Local 1 cours Paoli — sole always-on node on LAN; see [Linux node roles](#linux-node-roles-corpus--paoli) |
-| *(TBD hostname)* | Android | **planned** | not yet joined | capable-mobile experiment — often the most powerful CPU people carry |
+| `pco-jhr` | Android (POCO X6 5G) | mobile peer | Taildrop | TS `100.97.223.45`; renamed from `poco-x6-5g` |
 
 **Enrollment order:** Pi 3 → Android phone → revoke bootstrap auth key.
 
@@ -485,3 +485,4 @@ ssh fracta 'sudo /srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stack.sh 
 | 2026-07-04 | SSH mesh re-verified; `verify-fractanet-ssh-mesh.ps1`; fracta reboot test passed |
 | 2026-07-04 | `rpi3-view` enrolled; 3-node SSH mesh verified; exact addresses kept in private registry |
 | 2026-07-04 | Linux node roles: Paoli edge-kiosk, fractanet-linux-layout.sh, registry restructured |
+| 2026-07-05 | Android enrolled (`poco-x6-5g` → renamed `pco-jhr`, 100.97.223.45) |
