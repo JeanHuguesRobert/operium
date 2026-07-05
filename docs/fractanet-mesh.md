@@ -3,7 +3,7 @@ title: "Fractanet mesh — Tailscale and SSH (July 2026)"
 description: "Operational record of the virteal tailnet, bidirectional SSH mesh, capable-host wiring, and Packet Attractor Phase 1 on fracta."
 layout: default
 date: 2026-07-04
-last_modified_at: 2026-07-04
+last_modified_at: 2026-07-05
 license: Apache-2.0
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/docs/fractanet-mesh.md
 document_role: "operational"
@@ -162,36 +162,134 @@ Default permissive tailnet (solo operator). No `funnel` node attribute. Device a
 
 ---
 
-## Tailnet inventory (observed 2026-07-04)
+## Tailnet inventory (observed 2026-07-05)
 
-| Hostname | OS | Tailnet role | SSH mesh | Other services |
-|----------|-----|--------------|----------|----------------|
-| `fracta` | Ubuntu VPS (OCI) | always-on public face | inbound + outbound | Cogentia Guide MCP, blackboard aggregator |
-| `i7-thinkpad-jhr` | Windows 11 | intermittent capable host | inbound + outbound | `inox-serve` :8792, attractor heartbeat |
-| `rpi3-view` | Raspberry Pi OS (Pi 3) | **site edge / kiosk** | SSH mesh | Local 1 cours Paoli — sole always-on node on LAN; see [Linux node roles](#linux-node-roles-corpus--paoli) |
-| `poco-jhr` | Android Termux (POCO X6 5G) | **capable-mobile** | SSH mesh :8022 | Layout `~/srv/cogentia`; outbound SSH to fracta/thinkpad/Pi |
+| Hostname | OS | Tailnet role | WAN | SSH mesh | Other services |
+|----------|-----|--------------|-----|----------|----------------|
+| `fracta` | Ubuntu VPS (OCI) | always-on public face | **own** public WAN | inbound + outbound :22 | Cogentia Guide MCP, blackboard aggregator |
+| `i7-thinkpad-jhr` | Windows 11 | intermittent capable host | **via phone** (typical) | inbound + outbound :22 | `inox-serve` :8792, attractor heartbeat |
+| `rpi3-view` | Raspberry Pi OS (Pi 3) | **site edge / kiosk** | **via phone** or Paoli LAN | inbound + outbound :22 | Local 1 cours Paoli — sole always-on node on LAN; see [Linux node roles](#linux-node-roles-corpus--paoli) |
+| `poco-jhr` | Android Termux (POCO X6 5G) | **capable-mobile + WAN hub** | **cellular 5G → shared to mesh** | inbound + outbound :8022 | Corpus mirror, coding agents; layout `~/srv/cogentia` |
 
 **Enrollment order:** Pi 3 → Android phone → revoke bootstrap auth key — **done 2026-07-05**.
 
-Tailscale IPs and LAN addresses live in the **private** registry only. MagicDNS short names (`ssh fracta`, `ssh rpi3-view`) work when enabled in the tailnet admin console.
+Tailscale IPs and LAN addresses live in the **private** registry only. MagicDNS short names (`ssh fracta`, `ssh rpi3-view`, `ssh poco-jhr`) work when enabled in the tailnet admin console.
 
-**Health:** both live nodes report connected on tailnet `virteal.org.github`. fracta reaches the laptop `inox-serve` health endpoint over Tailscale (verified after Windows firewall rules for TCP 8792 and 22).
+**Health (2026-07-05):** four nodes enrolled on tailnet `virteal.org.github` (display name **Fractanet**). fracta reaches the laptop `inox-serve` health endpoint over Tailscale when the ThinkPad is online. `poco-jhr` outbound mesh SSH to fracta/thinkpad/Pi verified; inbound via Termux `:8022` when the app stays alive.
+
+---
+
+## Embryon Fractanet — node capability matrix
+
+Per-node **observed** capabilities of the four-node embryon. Hardware figures are operator-measured unless noted. Secret paths and IPs stay in `~/.cogentia/registry/resources.yaml`.
+
+### WAN topology
+
+Unlike a classic home LAN where the router provides WAN, this embryon uses the **operator phone as the mobile WAN gateway** for field nodes. Only `fracta` has its own always-on public Internet.
+
+```text
+                    Internet (public)
+                          |
+            +-------------+-------------+
+            |                           |
+        fracta (OCI)              poco-jhr (5G)
+        own WAN                   WAN hub / hotspot
+            |                           |
+            |    Tailscale mesh (100.x) |
+            +-------+-------+-----------+
+                    |       |
+            i7-thinkpad-jhr  rpi3-view
+            (intermittent)   (Paoli edge, LAN anchor)
+            typical WAN:     typical WAN:
+            phone tether     phone or Paoli LAN
+```
+
+When the phone is offline or Termux is killed, **ThinkPad and Pi lose WAN** unless another path exists (Paoli LAN only helps `rpi3-view` locally; it does not restore fracta reachability for domotics sync).
+
+### `fracta` — corpus-publisher
+
+| Dimension | Observed capability |
+|-----------|---------------------|
+| **Hardware** | OCI VPS; ~1 GB RAM (Guide daemon timeout risk on `/guide/health`) |
+| **WAN** | Independent public IP; Caddy + `fractavolta.com` |
+| **Corpus** | Publisher: `/srv/cogentia/repos` ~3.1 G, 17 repos; build index, sync `cogentia-public` |
+| **SSH mesh** | Ubuntu `sshd` :22; `fractanet-mesh` inbound + outbound; survives reboot |
+| **Cogentia services** | Guide MCP :8791, Phase 1 blackboard (`/ops/blackboard`), ops dashboard |
+| **Retrieval** | Static `guide.env` → ThinkPad `inox-serve` over Tailscale (Phase 4 bootstrap) |
+| **Coding agents** | Server-side Node tooling only; not an operator dev workstation |
+| **Limits** | No `inox-serve` locally; Supabase keys may remain as transitional fallback; not a capable retrieval host |
+
+### `i7-thinkpad-jhr` — capable-retrieval-host
+
+| Dimension | Observed capability |
+|-----------|---------------------|
+| **Hardware** | ThinkPad, Intel i7-5600U (2015), 8 GB RAM; **~8 GB disk free** (critical) |
+| **WAN** | Typically tethered via `poco-jhr`; intermittent power |
+| **Corpus** | Dev working copies; not a full fracta mirror |
+| **SSH mesh** | Windows OpenSSH `sshd` :22; `fractanet-mesh`; firewall `OpenSSH-Server-In-TCP` |
+| **Cogentia services** | `inox-serve` :8792 (`InoxServeCapableHost` task); attractor heartbeat every 3 min |
+| **Retrieval profile** | `inox.session.v1` — embeddings, Supabase RPC inline |
+| **Blackboard** | `attractor:i7-thinkpad-jhr:retrieval-inline` |
+| **Coding agents** | Full operator stack (Grok, Codex, Claude Code, etc.) on Windows |
+| **Limits** | Offline → fracta Guide needs fallback policy A/B/C; disk space tight |
+
+### `rpi3-view` — edge-kiosk (Paoli)
+
+| Dimension | Observed capability |
+|-----------|---------------------|
+| **Hardware** | Raspberry Pi 3, ARMv7, 1 GB RAM |
+| **WAN** | Paoli LAN; Internet typically via phone when on site |
+| **Corpus** | **Consumer** role — local mirror **not yet deployed**; target periodic `rsync` from fracta |
+| **SSH mesh** | Raspberry Pi OS `sshd` :22; full mesh parity (inbound + outbound) |
+| **Cogentia services** | **Target:** `viewer.env`, domotics stack, kiosk; attractor `attractor:rpi3-view:site-edge` |
+| **Degraded mode** | When WAN down: local domotics + cached corpus slice; no fracta/Supabase dependency |
+| **Limits** | No `inox-serve`, no full index build, no public Guide; ARMv7 / 1 GB constraints |
+
+### `poco-jhr` — capable-mobile + WAN gateway
+
+| Dimension | Observed capability |
+|-----------|---------------------|
+| **Hardware** | POCO X6 5G; Snapdragon 7s Gen 2; **7 GB RAM**; **~149 GB storage free** |
+| **WAN** | **Primary cellular WAN** for embryon; shares connectivity to ThinkPad/Pi via hotspot/tether |
+| **Corpus** | Full mirror `~/srv/cogentia/repos` ~3.1 G (17 repos, synced from fracta) |
+| **SSH mesh** | Termux `sshd` :8022, user `jh`; `~/.termux/boot/sshd`; outbound mesh to all peers |
+| **Layout** | `~/srv/cogentia`, `~/.cogentia/var` (`fractanet-termux-layout.sh`) |
+| **Coding agents** | See [Mobile dev environment](#mobile-dev-environment-poco-jhr) |
+| **Cogentia services** | No `inox-serve` or blackboard heartbeat yet — research track |
+| **Limits** | Termux sshd dies if app killed; port 8022 excluded from `verify-fractanet-ssh-mesh.ps1`; Codex/Claude run in Ubuntu proot (not native Termux) |
+
+### Capability summary (quick reference)
+
+| Capability | fracta | thinkpad | rpi3-view | poco-jhr |
+|------------|:------:|:--------:|:---------:|:--------:|
+| Tailscale mesh | ✓ | ✓ | ✓ | ✓ |
+| SSH mesh (bidirectional) | ✓ | ✓ | ✓ | ✓ (:8022) |
+| Own WAN | ✓ | — | — | **hub** |
+| Corpus publisher | ✓ | — | — | — |
+| Corpus full mirror | — | — | planned | ✓ |
+| `inox-serve` / inline retrieval | — | ✓ | — | — |
+| Blackboard heartbeat | aggregate | ✓ | planned | — |
+| Public Guide / Caddy | ✓ | — | — | — |
+| Paoli degraded anchor | — | — | ✓ | — |
+| Coding agents (Grok/Codex/Claude) | — | ✓ | — | ✓ |
+| Domotics (local) | — | — | planned | — |
 
 ---
 
 ## SSH mesh architecture
 
 ```text
-                    virteal tailnet (100.x.x.x)
-    +---------------------------+---------------------------+
-    |                           |                           |
- i7-thinkpad-jhr              fracta                  rpi3-view
- (admin, Windows)            (ubuntu, Linux)          (jh, Pi OS — Paoli)
- sshd :22                    sshd :22                 sshd :22
- inox-serve :8792             Guide :8791              kiosk / domotics (degraded)
-    |                           |
-    +-------- fractanet-mesh key pair (ed25519) ----------+
-              (private key on each node; pubkey in authorized_keys)
+                         virteal tailnet (100.x.x.x)
+    +------------------+------------------+------------------+
+    |                  |                  |                  |
+ i7-thinkpad-jhr     fracta           rpi3-view          poco-jhr
+ (admin, Windows)   (ubuntu, VPS)    (jh, Pi — Paoli)   (jh, Termux)
+ sshd :22           sshd :22         sshd :22           sshd :8022
+ inox-serve :8792   Guide :8791      kiosk / domotics   corpus + agents
+    |                  |             (degraded)         WAN hub (5G)
+    +------------------+------------------+------------------+
+              fractanet-mesh key pair (ed25519)
+         (private key on each node; pubkey in authorized_keys)
 ```
 
 ### SSH aliases (operator workstation)
@@ -359,8 +457,18 @@ Bootstrap auth key revoked 2026-07-05. New nodes: generate a **one-off** key in 
 | Bootstrap | `bootstrap-rpi3-view.ps1` + `fractanet-node-bootstrap.sh` | `bootstrap-poco-jhr.ps1` + `fractanet-termux-bootstrap.sh` |
 | Outbound SSH | `~/.ssh/fractanet-mesh` + `~/.ssh/config` | same (installed by bootstrap) |
 | `inox-serve` / blackboard | no (Pi) / yes (ThinkPad) | **not yet** — research track |
+| Corpus mirror | rsync from fracta (Pi planned) | `fractanet-sync-repos-from-fracta.sh` → `~/srv/cogentia/repos` (~3.1 G) |
+| Coding agents | N/A | Grok native; Codex + Claude in Ubuntu proot — see below |
 
 **Minimum mesh parity (done 2026-07-05):** inbound + outbound SSH over Tailscale; layout skeleton; `~/.termux/boot/sshd`.
+
+**Full dev bootstrap (done 2026-07-05):** corpus mirror + coding agents. From ThinkPad:
+
+```powershell
+pwsh -File cogentia/scripts/ops/bootstrap-poco-jhr-dev.ps1
+```
+
+Or stepwise: `fractanet-sync-repos-from-fracta.sh`, `fractanet-mobile-dev-setup.sh`, `fractanet-mobile-proot-agents.sh`.
 
 From ThinkPad:
 
@@ -375,7 +483,34 @@ ssh poco-jhr hostname
 ssh poco-jhr "ssh fracta hostname; ssh thinkpad hostname; ssh rpi3-view hostname"
 ```
 
-**Limits:** Termux sshd dies if the app is killed; no `verify-fractanet-ssh-mesh.ps1` entry (port 8022). Future: `mobile.env`, optional retrieval/attractor on capable-mobile.
+**Limits:** Termux sshd dies if the app is killed; no `verify-fractanet-ssh-mesh.ps1` entry (port 8022). Battery/Doze may stop background work — configure Termux wake-lock and Android battery exclusions. Future: `mobile.env`, optional `inox-serve`/attractor on capable-mobile.
+
+### Mobile dev environment (`poco-jhr`)
+
+Operator parity with the ThinkPad for corpus-backed coding sessions on the phone.
+
+| Tool | Runtime | Version (observed) | Command |
+|------|---------|-------------------|---------|
+| **Grok Build** | Native Termux `linux-aarch64` | 0.2.82 | `grok` |
+| **Codex** | Ubuntu 24.04 **proot** + Node 22 | 0.142.5 | `agent-codex` |
+| **Claude Code** | Same proot | 2.1.201 | `agent-claude` |
+
+**Why proot for Codex/Claude:** Termux has no `linux-arm64-android` native builds for these CLIs. They run inside Ubuntu proot with `bash --noprofile --norc` and a clean `PATH` so Termux Node does not leak into the container.
+
+**PATH on device:**
+
+```bash
+export PATH=$HOME/.local/bin:$HOME/.grok/bin:$PATH
+```
+
+**Auth:** credentials copied from the trusted workstation (`~/.grok/auth.json`, `~/.codex/auth.json`, `~/.claude/.credentials.json`); Codex/Claude auth lives under proot `/root/`. Re-login on device if tokens expire.
+
+**Corpus sync** (from phone, when fracta reachable):
+
+```bash
+bash ~/fractanet-sync-repos-from-fracta.sh
+# rsync ubuntu@fracta:/srv/cogentia/repos/ → ~/srv/cogentia/repos/
+```
 
 ---
 
@@ -481,10 +616,15 @@ ssh fracta 'sudo /srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stack.sh 
 ## Intended evolutions (not current state)
 
 - ~~Enroll operator Android phone; revoke bootstrap auth key~~ — **done 2026-07-05**
+- ~~Android corpus mirror + coding agents (Grok/Codex/Claude)~~ — **done 2026-07-05**
 - Map Tailscale posture attrs → Operium catalogue (sync tooling)
-- Android as Fractanet capable node (retrieval / attractor) — research track
+- `poco-jhr`: Termux reliability (boot persistence, wake-lock, battery policy)
+- `poco-jhr`: `mobile.env`, optional `inox-serve` / attractor — research track
+- `rpi3-view`: `viewer.env`, corpus rsync, domotics, site-edge attractor
+- ThinkPad disk cleanup (~8 GB free)
 - Phase 2: blackboard-aware Guide routing
 - Option C fallback policy (attractor routing + explicit degradation)
+- Extend `verify-fractanet-ssh-mesh.ps1` for `poco-jhr` :8022 (optional)
 
 ---
 
@@ -514,3 +654,6 @@ ssh fracta 'sudo /srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stack.sh 
 | 2026-07-05 | `poco-jhr` Termux SSH: mesh pubkey, `~/.termux/boot/sshd`, `ssh poco-jhr` from workstation |
 | 2026-07-05 | `poco-jhr` Termux bootstrap: layout + outbound mesh SSH; scripts `fractanet-termux-*.sh`, `bootstrap-poco-jhr.ps1` |
 | 2026-07-05 | Bootstrap auth key `kMDGHHezga11CNTRL` revoked; 4-node enrollment complete |
+| 2026-07-05 | Node capability matrix; WAN topology (`poco-jhr` as mobile WAN hub) |
+| 2026-07-05 | `poco-jhr` corpus mirror ~3.1 G (17 repos); sync script `fractanet-sync-repos-from-fracta.sh` |
+| 2026-07-05 | `poco-jhr` mobile dev: Grok native, Codex + Claude in Ubuntu proot; `bootstrap-poco-jhr-dev.ps1` |

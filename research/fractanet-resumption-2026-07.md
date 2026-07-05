@@ -3,14 +3,14 @@ title: "Fractanet resumption handoff — July 2026 pause"
 description: "Cross-project memory for resuming Fractanet retrieval, Packet Attractor, and intermittent capable-node work."
 layout: default
 date: 2026-07-03
-last_modified_at: 2026-07-04
+last_modified_at: 2026-07-05
 license: Apache-2.0
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/research/fractanet-resumption-2026-07.md
 document_role: "operational"
 document_kind: "handoff"
 visibility: "public"
 lifecycle_state: "active"
-status: "resumed — mesh live; Phase 2 routing pending"
+status: "resumed — 4-node embryon live; Phase 2 routing pending"
 ---
 
 # Fractanet resumption handoff — July 2026 pause
@@ -107,24 +107,29 @@ Operational detail: [Fractanet mesh — Tailscale and SSH](../docs/fractanet-mes
 
 | Area | State |
 |------|-------|
-| Tailscale tailnet `virteal` | `fracta` + `i7-thinkpad-jhr` + `rpi3-view` connected |
-| SSH mesh (bidirectional) | `ssh fracta` / `ssh thinkpad` / `ssh rpi3-view` over Tailscale verified |
-| `fractanet-mesh` ed25519 key | deployed on workstation + fracta + Pi; Windows inbound SSH via `install-fractanet-ssh-windows.ps1` |
+| Tailscale tailnet `virteal` (display **Fractanet**) | four nodes: `fracta`, `i7-thinkpad-jhr`, `rpi3-view`, `poco-jhr` |
+| SSH mesh (bidirectional) | all four nodes; `poco-jhr` on Termux :8022 |
+| `fractanet-mesh` ed25519 key | deployed on workstation + fracta + Pi + Termux; Windows inbound SSH via `install-fractanet-ssh-windows.ps1` |
 | Phase 1 blackboard | deployed on fracta (`/ops/blackboard`); laptop heartbeat task |
 | `inox-serve` on capable host | Windows task, port 8792; fracta `guide.env` points to laptop Tailscale IP |
 | Pi bootstrap | `rpi3-view` enrolled; script remains reusable for future Linux nodes |
+| Android (`poco-jhr`) | Termux mesh parity, layout, outbound SSH; corpus mirror ~3.1 G; Grok/Codex/Claude dev stack |
+| Bootstrap auth key | `kMDGHHezga11CNTRL` **revoked 2026-07-05** after full enrollment |
+| WAN topology documented | `poco-jhr` = mobile WAN hub; `fracta` = independent VPS WAN |
+
+Per-node capability matrix: [fractanet-mesh.md § Embryon](../docs/fractanet-mesh.md#embryon-fractanet--node-capability-matrix).
 
 ### Still open
 
 | Area | Notes |
 |------|-------|
-| `rpi3-view` local services | tailnet + SSH enrolled; local corpus mirror and domotics services still to deploy |
-| Operator Android phone (`poco-jhr`) | enrolled; Termux mesh parity — capable-mobile experiment (retrieval TBD) |
+| `rpi3-view` local services | tailnet + SSH enrolled; `viewer.env`, corpus rsync, domotics, site-edge attractor still to deploy |
+| `poco-jhr` Cogentia services | no `inox-serve` or blackboard heartbeat yet; Termux reliability (boot, wake-lock, battery) |
+| ThinkPad disk | ~8 GB free — cleanup needed |
 | Phase 2 Guide routing | blackboard-aware `session/turn` selection not wired |
 | Fallback policy A/B/C | when laptop offline |
 | `/guide/health` 500 on fracta | daemon timeout on 1 GB VPS (separate from mesh) |
-| Tailscale bootstrap auth key | keep until Android enrolled, then revoke |
-| Device Identity Collection | tailnet ON; 2/2 opted-in; attrs visible in admin (2026-07-04) |
+| Device Identity Collection | tailnet ON; 2/2 opted-in on fracta + ThinkPad; attrs visible in admin (2026-07-04) |
 
 ---
 
@@ -142,15 +147,17 @@ When the capable host is **offline**, fracta Guide should:
 
 ---
 
-## Resume order (updated 2026-07-04)
+## Resume order (updated 2026-07-05)
 
 1. ~~Execute [inseme#13](https://github.com/JeanHuguesRobert/inseme/issues/13) Phase 1~~ — **done** (blackboard + heartbeat).
 2. ~~Deploy `inox-serve` on capable host; Tailscale mesh~~ — **done** — see [fractanet-mesh.md](../docs/fractanet-mesh.md).
-3. Enroll operator Android phone; then revoke the bootstrap reusable auth key.
-4. Deploy local corpus mirror and domotics services on `rpi3-view`.
-5. Wire Guide to read attractor snapshot before `session/turn` ([cogentia#42](https://github.com/JeanHuguesRobert/cogentia/issues/42)) — **Phase 2**.
-6. Triage fallback policy when laptop offline (A/B/C).
-7. Remove Supabase/OpenAI from fracta `guide.env` once Phase 2 + policy are stable.
+3. ~~Enroll operator Android phone; revoke bootstrap reusable auth key~~ — **done 2026-07-05** (`poco-jhr`).
+4. ~~Android corpus mirror + coding agents~~ — **done 2026-07-05** — see [mobile dev section](../docs/fractanet-mesh.md#mobile-dev-environment-poco-jhr).
+5. ThinkPad disk cleanup; Termux reliability on `poco-jhr`.
+6. Deploy local corpus mirror and domotics services on `rpi3-view`.
+7. Wire Guide to read attractor snapshot before `session/turn` ([cogentia#42](https://github.com/JeanHuguesRobert/cogentia/issues/42)) — **Phase 2**.
+8. Triage fallback policy when laptop offline (A/B/C).
+9. Remove Supabase/OpenAI from fracta `guide.env` once Phase 2 + policy are stable.
 
 ---
 
@@ -184,3 +191,4 @@ operium/docs/fracta-trust-perimeter.md            ← secrets / trust model
 |------|--------|
 | 2026-07-03 | Initial handoff at session pause |
 | 2026-07-04 | Resumed: mesh doc, Phase 1 + inox Tailscale wiring done; resume order updated |
+| 2026-07-05 | 4-node embryon complete: `poco-jhr` mesh + corpus + agents; auth key revoked; capability matrix in mesh doc |
