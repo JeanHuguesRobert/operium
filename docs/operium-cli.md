@@ -21,6 +21,7 @@ Companion surfaces:
 | Surface | Role |
 |---------|------|
 | `operium up` | Observer on any trusted workstation |
+| `operium handoff wip` / `operium resume wip` | GitHub-backed WIP handoff between trusted nodes |
 | `GET /ops/status` | Runtime aggregator on fracta (same schema subset) |
 | `/ops/dashboard` | Human web UI |
 
@@ -80,7 +81,7 @@ operium up --aggregator https://cogentia.fractavolta.com --json
 
 | Variable | Default |
 |----------|---------|
-| `OPERIUM_REGISTRY` | `~/.cogentia/registry/resources.yaml` |
+| `OPERIUM_REGISTRY` | `~/.cogentia/registry/resources.yaml` (canonical copy: `registre-mariani/operium/registry/resources.yaml` in private git) |
 | `OPERIUM_AGGREGATOR_URL` | `https://cogentia.fractavolta.com` |
 
 ---
@@ -111,7 +112,7 @@ Top-level fields:
 ## Data flow
 
 ```text
-~/.cogentia/registry/resources.yaml
+OPERIUM_REGISTRY → resources.yaml (private catalogue; versioned in registre-mariani)
         +
 tailscale status --json (local)
         +
@@ -131,7 +132,23 @@ operium up --json
 ```bash
 cd operium
 npm run test:up
+npm run test:wip
 ```
+
+---
+
+## WIP handoff/resume
+
+For resumable interrupted work, see [Operium WIP handoff](operium-wip.md).
+
+```bash
+operium wip status --topic fractanet-android-node
+operium handoff wip --topic fractanet-android-node
+operium resume wip --topic fractanet-android-node
+```
+
+These commands use WIP commits on `wip/<topic>` branches instead of `git stash`, because WIP branches
+can be fetched from another trusted node.
 
 ---
 
@@ -139,4 +156,5 @@ npm run test:up
 
 | Date | Change |
 |------|--------|
+| 2026-07-05 | Added `operium handoff wip`, `operium resume wip`, and `operium wip status` |
 | 2026-07-04 | Phase 1: `operium up`, operium.up.v1, fracta `/ops/status` alignment |

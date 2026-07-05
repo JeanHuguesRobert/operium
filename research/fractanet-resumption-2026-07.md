@@ -54,7 +54,7 @@ The owner's laptop is a **Fractanet node**, not just a dev machine:
 
 | Layer | Role | Where |
 |-------|------|-------|
-| **Catalogue** (slow) | node profiles, verb registry refs, secret refs, fallback policy | Operium private registry (YAML, not in git) |
+| **Catalogue** (slow) | node profiles, verb registry refs, secret refs, fallback policy | `registre-mariani/operium/registry/resources.yaml` (private git; secret *values* stay in `~/.cogentia/secrets/`) |
 | **Blackboard** (fast) | who attracts what **now** | Packet attractors + COP events (`advertised`, `matched`, `degraded`) |
 
 Operium documents **facts and policy**. It is not the live routing table.

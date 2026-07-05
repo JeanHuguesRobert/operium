@@ -23,7 +23,7 @@ Companion notes:
 - [Fractanet resumption handoff](../research/fractanet-resumption-2026-07.md) — north star and open decisions
 - [Public / private split](public-private-split.md) — secret references, not values
 - Cogentia scripts: `cogentia/scripts/ops/` (bootstrap, heartbeat, Windows SSH install)
-- Private node catalogue: `~/.cogentia/registry/resources.yaml` (IPs, secret paths — **not in git**)
+- Private node catalogue: `registre-mariani/operium/registry/resources.yaml` (canonical, private git); local default `~/.cogentia/registry/resources.yaml` via `OPERIUM_REGISTRY`
 
 ---
 
@@ -181,7 +181,7 @@ Tailscale IPs and LAN addresses live in the **private** registry only. MagicDNS 
 
 ## Embryon Fractanet — node capability matrix
 
-Per-node **observed** capabilities of the four-node embryon. Hardware figures are operator-measured unless noted. Secret paths and IPs stay in `~/.cogentia/registry/resources.yaml`.
+Per-node **observed** capabilities of the four-node embryon. Hardware figures are operator-measured unless noted. Secret paths and IPs stay in the private catalogue (`registre-mariani/operium/registry/resources.yaml`).
 
 ### WAN topology
 
