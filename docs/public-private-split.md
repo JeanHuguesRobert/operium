@@ -51,6 +51,12 @@ A public view must not expose:
 
 A private registry contains the real operational state.
 
+**Canonical store (this operator):** private GitHub repo `JeanHuguesRobert/registre-mariani`, path `operium/registry/resources.yaml`. The corpus registry (`.cogentia.json`) marks this repo as `kind: private_registry`.
+
+**Local runtime default:** `~/.cogentia/registry/resources.yaml` — used by `operium up` when `OPERIUM_REGISTRY` is unset. Keep it in sync with the private repo (`git pull` on each authorised machine), or set `OPERIUM_REGISTRY` to the checked-out file.
+
+**Never in git (any repo):** `~/.cogentia/secrets/` — env files, SSH private keys, token values. The YAML catalogue holds `stored_in` paths only.
+
 It may include:
 
 - hosts;
