@@ -107,22 +107,24 @@ Operational detail: [Fractanet mesh — Tailscale and SSH](../docs/fractanet-mes
 
 | Area | State |
 |------|-------|
-| Tailscale tailnet `virteal` | `fracta` + `i7-thinkpad-jhr` connected |
-| SSH mesh (bidirectional) | `ssh fracta` / `ssh thinkpad` over Tailscale verified |
-| `fractanet-mesh` ed25519 key | deployed on workstation + fracta; Windows inbound SSH via `install-fractanet-ssh-windows.ps1` |
+| Tailscale tailnet `virteal` | `fracta` + `i7-thinkpad-jhr` + `rpi3-view` connected |
+| SSH mesh (bidirectional) | `ssh fracta` / `ssh thinkpad` / `ssh rpi3-view` over Tailscale verified |
+| `fractanet-mesh` ed25519 key | deployed on workstation + fracta + Pi; Windows inbound SSH via `install-fractanet-ssh-windows.ps1` |
 | Phase 1 blackboard | deployed on fracta (`/ops/blackboard`); laptop heartbeat task |
 | `inox-serve` on capable host | Windows task, port 8792; fracta `guide.env` points to laptop Tailscale IP |
-| Pi bootstrap script | `cogentia/scripts/ops/fractanet-node-bootstrap.sh` ready for `rpi3-view` |
+| Pi bootstrap | `rpi3-view` enrolled; script remains reusable for future Linux nodes |
 
 ### Still open
 
 | Area | Notes |
 |------|-------|
-| `rpi3-view` (Raspberry Pi 3) | not yet on tailnet |
+| `rpi3-view` local services | tailnet + SSH enrolled; local corpus mirror and domotics services still to deploy |
+| Operator Android phone | next enrollment — capable-mobile experiment |
 | Phase 2 Guide routing | blackboard-aware `session/turn` selection not wired |
 | Fallback policy A/B/C | when laptop offline |
 | `/guide/health` 500 on fracta | daemon timeout on 1 GB VPS (separate from mesh) |
-| Tailscale auth key hygiene | revoke reusable keys after Pi enrollment |
+| Tailscale bootstrap auth key | keep until Android enrolled, then revoke |
+| Device Identity Collection | tailnet ON; 2/2 opted-in; attrs visible in admin (2026-07-04) |
 
 ---
 
@@ -144,10 +146,11 @@ When the capable host is **offline**, fracta Guide should:
 
 1. ~~Execute [inseme#13](https://github.com/JeanHuguesRobert/inseme/issues/13) Phase 1~~ — **done** (blackboard + heartbeat).
 2. ~~Deploy `inox-serve` on capable host; Tailscale mesh~~ — **done** — see [fractanet-mesh.md](../docs/fractanet-mesh.md).
-3. Join `rpi3-view` (Pi 3) via `fractanet-node-bootstrap.sh`.
-4. Wire Guide to read attractor snapshot before `session/turn` ([cogentia#42](https://github.com/JeanHuguesRobert/cogentia/issues/42)) — **Phase 2**.
-5. Triage fallback policy when laptop offline (A/B/C).
-6. Remove Supabase/OpenAI from fracta `guide.env` once Phase 2 + policy are stable.
+3. Enroll operator Android phone; then revoke the bootstrap reusable auth key.
+4. Deploy local corpus mirror and domotics services on `rpi3-view`.
+5. Wire Guide to read attractor snapshot before `session/turn` ([cogentia#42](https://github.com/JeanHuguesRobert/cogentia/issues/42)) — **Phase 2**.
+6. Triage fallback policy when laptop offline (A/B/C).
+7. Remove Supabase/OpenAI from fracta `guide.env` once Phase 2 + policy are stable.
 
 ---
 

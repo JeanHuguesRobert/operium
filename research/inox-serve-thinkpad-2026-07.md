@@ -24,7 +24,7 @@ status: "mitigated — task manually started; install script hardened"
 | Blackboard still showed **fresh attractor** | fracta `/ops/blackboard` |
 | fracta → laptop inox failed | Tailscale curl |
 
-Guide on fracta was configured for `inox-session` → `http://100.122.121.68:8792` but the fulfiller was down.
+Guide on fracta was configured for `inox-session` over the ThinkPad Tailscale address, but the fulfiller was down.
 
 ## Root cause (observed)
 
@@ -65,7 +65,7 @@ Invoke-RestMethod http://127.0.0.1:8792/health
 ```
 
 ```bash
-ssh fracta 'curl -fsS http://100.122.121.68:8792/health | jq .ok'
+ssh fracta 'curl -fsS http://<thinkpad-tailscale-ip>:8792/health | jq .ok'
 operium up --human
 ```
 
