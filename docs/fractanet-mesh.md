@@ -470,10 +470,24 @@ pwsh -File cogentia/scripts/ops/bootstrap-poco-jhr-dev.ps1
 
 Or stepwise: `fractanet-sync-repos-from-fracta.sh`, `fractanet-mobile-dev-setup.sh`, `fractanet-mobile-proot-agents.sh`.
 
-From ThinkPad:
+From ThinkPad (full provisioning: mesh + Termux:Boot + dev stack):
+
+```powershell
+pwsh -File cogentia/scripts/ops/provision-fractanet-mobile.ps1
+```
+
+Mesh bootstrap only:
 
 ```powershell
 pwsh -File cogentia/scripts/ops/bootstrap-poco-jhr.ps1
+```
+
+Termux:Boot only (sshd survives phone reboot — requires USB ADB or one tap Install on device):
+
+```powershell
+pwsh -File cogentia/scripts/ops/install-termux-boot.ps1
+# -Method adb   # phone on USB + USB debugging
+# -Method ssh   # download APK on device via SSH, open installer
 ```
 
 Verify:
