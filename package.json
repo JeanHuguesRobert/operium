@@ -9,7 +9,9 @@
   },
   "scripts": {
     "test:up": "node scripts/test-operium-up.js",
-    "test:wip": "node scripts/test-operium-wip.js"
+    "test:wip": "node scripts/test-operium-wip.js",
+    "test:invoke-tool": "node scripts/test-operium-invoke-tool.js",
+    "invoke:tool": "node bin/operium.js invoke tool"
   },
   "dependencies": {
     "yaml": "^2.8.0"

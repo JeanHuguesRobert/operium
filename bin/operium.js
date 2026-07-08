@@ -1,14 +1,17 @@
 #!/usr/bin/env node
 
 import { formatHumanUp } from "../lib/format-human.js";
+import { formatInvokeHuman } from "../lib/format-invoke-human.js";
 import { formatWipHuman } from "../lib/format-wip-human.js";
 import { buildWipStatus, handoffWip, resumeWip } from "../lib/git-wip.js";
+import { invokeTool } from "../lib/invoke-tool.js";
 import { buildOperiumUp, exitCodeForUp } from "../lib/operium-up.js";
 
 const HELP = `operium — versioned operational environment registry CLI
 
 Usage:
   operium up [options]             Check what is up (Fractanet observer)
+  operium invoke tool [options]    Route a tool invocation via blackboard → agent-gateway
   operium wip status [options]     Inspect local Git WIP state
   operium handoff wip [options]    Commit and push a resumable WIP branch
   operium resume wip [options]     Fetch and resume a WIP branch
@@ -20,10 +23,24 @@ Options:
   --no-probe              Catalogue and docs only
   --registry <path>       Private registry YAML (default ~/.cogentia/registry/resources.yaml)
   --aggregator <url>      Runtime aggregator base URL (default https://cogentia.fractavolta.com)
-  --section <name>        catalogue | mesh | services | blackboard | retrieval | public_face
+  --section <name>        catalogue | mesh | services | blackboard | retrieval | action | public_face
   --timeout <ms>          Per-probe timeout (default 25000)
   --quiet                 Summary headline only (human mode)
   -h, --help              Show help
+
+Invoke tool options:
+  --capability <cap>      blackboard capability (e.g. dev.tools.shell)
+  --model <id>            gateway model (e.g. shell-repl) — required
+  --prompt, -p <text>     user message — required
+  --repl                  REPL adapter mode
+  --expect <pattern>      REPL expect pattern
+  --session-id <id>       reuse REPL session
+  --endpoint <url>        direct gateway URL (skip blackboard)
+  --token <bearer>        gateway bearer token
+  --attractor-id <id>     pin attractor id
+  --host <hostname>       filter attractor host
+  --content-only          print assistant text only
+  --allow-degraded        accept degraded attractors
 
 WIP options:
   --repo <path>           Git repository path (default current repo)
@@ -73,6 +90,19 @@ function parseArgs(argv) {
     allowDirty: false,
     autoHandoffFirst: false,
     autoBranch: false,
+    capability: null,
+    model: null,
+    prompt: null,
+    expect: null,
+    sessionId: null,
+    endpoint: null,
+    token: null,
+    attractorId: null,
+    invokeHost: null,
+    repl: false,
+    stream: false,
+    allowDegraded: false,
+    contentOnly: false,
   };
 
   const args = [...argv];
@@ -82,7 +112,9 @@ function parseArgs(argv) {
   }
 
   options.command = args.shift();
-  if (
+  if (options.command === "invoke" && args[0] === "tool") {
+    options.subcommand = args.shift();
+  } else if (
     (options.command === "handoff" && args[0] === "wip") ||
     (options.command === "resume" && args[0] === "wip") ||
     (options.command === "wip" && args[0] === "status")
@@ -173,11 +205,55 @@ function parseArgs(argv) {
       case "--auto-branch":
         options.autoBranch = true;
         break;
+      case "--capability":
+        options.capability = args.shift();
+        break;
+      case "--model":
+        options.model = args.shift();
+        break;
+      case "--prompt":
+      case "-p":
+        options.prompt = args.shift();
+        break;
+      case "--expect":
+        options.expect = args.shift();
+        break;
+      case "--session-id":
+        options.sessionId = args.shift();
+        break;
+      case "--endpoint":
+        options.endpoint = args.shift();
+        break;
+      case "--token":
+        options.token = args.shift();
+        break;
+      case "--attractor-id":
+        options.attractorId = args.shift();
+        break;
+      case "--host":
+        options.invokeHost = args.shift();
+        break;
+      case "--repl":
+        options.repl = true;
+        break;
+      case "--stream":
+        options.stream = true;
+        break;
+      case "--allow-degraded":
+        options.allowDegraded = true;
+        break;
+      case "--content-only":
+        options.contentOnly = true;
+        break;
       case "-h":
       case "--help":
         options.help = true;
         break;
       default:
+        if (options.command === "invoke" && options.subcommand === "tool" && !arg.startsWith("-") && !options.prompt) {
+          options.prompt = [arg, ...args].join(" ").trim();
+          break;
+        }
         throw new Error(`unknown_argument: ${arg}`);
     }
   }
@@ -207,6 +283,37 @@ async function main() {
       console.log(JSON.stringify(result, null, 2));
     }
     process.exit(result.ok ? 0 : 2);
+  }
+
+  if (isInvokeCommand(options)) {
+    const result = await invokeTool({
+      aggregatorUrl: options.aggregatorUrl,
+      capability: options.capability,
+      model: options.model,
+      prompt: options.prompt,
+      expect: options.expect,
+      sessionId: options.sessionId,
+      endpoint: options.endpoint,
+      token: options.token,
+      attractorId: options.attractorId,
+      hostname: options.invokeHost,
+      repl: options.repl,
+      stream: options.stream,
+      allowDegraded: options.allowDegraded,
+      contentOnly: options.contentOnly,
+      timeoutMs: options.timeoutMs,
+    });
+    if (options.contentOnly && result.ok) {
+      process.stdout.write(`${result.content || ""}`);
+      if (result.content && !String(result.content).endsWith("\n")) process.stdout.write("\n");
+      process.exit(0);
+    }
+    if (options.human) {
+      console.log(formatInvokeHuman(result));
+    } else {
+      console.log(JSON.stringify(result, null, 2));
+    }
+    process.exit(result.ok ? 0 : 1);
   }
 
   if (options.command !== "up") {
@@ -241,6 +348,10 @@ function isWipCommand(options) {
     (options.command === "resume" && options.subcommand === "wip") ||
     (options.command === "wip" && options.subcommand === "status")
   );
+}
+
+function isInvokeCommand(options) {
+  return options.command === "invoke" && options.subcommand === "tool";
 }
 
 async function runWipCommand(options) {

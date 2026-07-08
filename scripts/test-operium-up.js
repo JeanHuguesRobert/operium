@@ -2,7 +2,7 @@
 
 import assert from "node:assert/strict";
 import { buildOperiumUp } from "../lib/operium-up.js";
-import { mapRemoteStatus, summarizeHealth } from "../lib/runtime-map.js";
+import { mapRemoteStatus, summarizeActionLayer, summarizeHealth } from "../lib/runtime-map.js";
 import { computeDrift } from "../lib/drift.js";
 
 const legacy = {
@@ -22,6 +22,17 @@ const legacy = {
 const mapped = mapRemoteStatus(legacy);
 assert.equal(mapped.layers.retrieval.backend, "inox-session");
 assert.equal(mapped.layers.retrieval.phase2_wired, false);
+assert.equal(mapped.layers.action.phase2_wired, true);
+
+const action = summarizeActionLayer({
+  attractors: [{
+    id: "attractor:i7-thinkpad-jhr:agent-cli-gateway",
+    transport: { profile: "agent-gateway.v1", endpoint_ref: "http://i7-thinkpad-jhr:8793" },
+    availability: { status: "online", last_seen: new Date().toISOString(), ttl_seconds: 300 },
+    matches: { capabilities: ["dev.tools.shell", "model.shell-repl"] },
+  }],
+});
+assert.equal(action.online_attractor_count, 1);
 
 const summary = summarizeHealth({
   runtime: mapped,
