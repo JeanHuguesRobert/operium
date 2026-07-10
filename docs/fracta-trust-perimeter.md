@@ -39,6 +39,8 @@ ssh fracta
 `fracta` is a **local SSH alias** (not a hostname published in this doc). The node is
 part of the **trust perimeter**: configuration and credentials may be placed on the
 machine when required for production, the same way as a `.env` on a developer laptop.
+Routine deployment and maintenance scripts should also use `ssh fracta`, not public
+DNS such as `ssh fractavolta.com`. Public SSH is break-glass or bootstrap only.
 
 ## Trust model
 

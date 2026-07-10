@@ -173,6 +173,27 @@ Default permissive tailnet (solo operator). No `funnel` node attribute. Device a
 
 **Enrollment order:** Pi 3 → Android phone → revoke bootstrap auth key — **done 2026-07-05**.
 
+**Baseline transfer tool:** `rsync` is required on every FractaNode. It is used for
+corpus mirrors, repo deployment, and low-bandwidth incremental sync. Install or
+verify it from the trusted workstation with:
+
+```powershell
+pwsh -File scripts\ops\ensure-fractanet-rsync.ps1
+```
+
+Use `-CheckOnly` to audit without installing. The script uses the Tailscale SSH
+aliases below and supports Ubuntu/Debian/Raspberry Pi OS via `apt`, Termux via
+`pkg`, and Windows via an existing Chocolatey/Scoop/MSYS2 package manager.
+
+Verified 2026-07-10:
+
+| Node | rsync |
+|------|-------|
+| `fracta` | 3.2.7 |
+| `i7-thinkpad-jhr` | 3.4.1 |
+| `rpi3-view` | 3.2.7 |
+| `poco-jhr` | 3.4.4 |
+
 Tailscale IPs and LAN addresses live in the **private** registry only. MagicDNS short names (`ssh fracta`, `ssh rpi3-view`, `ssh poco-jhr`) work when enabled in the tailnet admin console.
 
 **Health (2026-07-05):** four nodes enrolled on tailnet `virteal.org.github` (display name **Fractanet**). fracta reaches the laptop `inox-serve` health endpoint over Tailscale when the ThinkPad is online. `poco-jhr` outbound mesh SSH to fracta/thinkpad/Pi verified; inbound via Termux `:8022` when the app stays alive.
@@ -241,9 +262,10 @@ When the phone is offline or Termux is killed, **ThinkPad and Pi lose WAN** unle
 | **WAN** | Paoli LAN; Internet typically via phone when on site |
 | **Corpus** | **Consumer** role — local mirror **not yet deployed**; target periodic `rsync` from fracta |
 | **SSH mesh** | Raspberry Pi OS `sshd` :22; full mesh parity (inbound + outbound) |
-| **Cogentia services** | **Target:** `viewer.env`, domotics stack, kiosk; attractor `attractor:rpi3-view:site-edge` |
+| **Cogentia services** | Edge store-and-forward (`edge-store-forward.service`); trap-directed polling to fracta; attractor `attractor:rpi3-view:site-edge` |
+| **Edge pattern** | **Trap-directed polling** (SNMP analogue): trap → fracta SSH poll → store-and-forward when manager down — see [edge trap-directed polling](../../cogentia/docs/edge-trap-directed-polling.md) |
 | **Degraded mode** | When WAN down: local domotics + cached corpus slice; no fracta/Supabase dependency |
-| **Limits** | No `inox-serve`, no full index build, no public Guide; ARMv7 / 1 GB constraints |
+| **Limits** | No `inox-serve`, no ONA/`node:sqlite` on ARMv7; no full index build; no public Guide; 1 GB RAM |
 
 ### `poco-jhr` — capable-mobile + WAN gateway
 
@@ -267,6 +289,7 @@ When the phone is offline or Termux is killed, **ThinkPad and Pi lose WAN** unle
 | Own WAN | ✓ | — | — | **hub** |
 | Corpus publisher | ✓ | — | — | — |
 | Corpus full mirror | — | — | planned | ✓ |
+| `rsync` baseline | required | required | required | required |
 | `inox-serve` / inline retrieval | — | ✓ | — | — |
 | Blackboard heartbeat | aggregate | ✓ | planned | — |
 | Public Guide / Caddy | ✓ | — | — | — |
@@ -305,6 +328,10 @@ Local `~/.ssh/config` on the trusted workstation defines:
 | `poco-jhr` | Tailscale IP, port **8022** | `jh` | `fractanet-mesh` |
 
 Routine ops use **Tailscale aliases** (`ssh fracta`). Public IP SSH remains for break-glass and initial bootstrap.
+
+Deployment scripts must use the same aliases. For example, reach the public
+`fractavolta.com` host as `ssh fracta`, not as `ssh fractavolta.com` or public
+port 22. That keeps operator traffic inside the trusted Tailscale boundary.
 
 **Android note:** `poco-jhr` runs **Termux sshd** on port 8022 (not the standard mesh port 22). It is **not** included in `verify-fractanet-ssh-mesh.ps1`. Termux sshd stops if the app is killed unless `~/.termux/boot/sshd` is installed (wake-lock + sshd).
 
