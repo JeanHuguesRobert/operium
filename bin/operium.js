@@ -1,8 +1,20 @@
 #!/usr/bin/env node
 
 import { formatHumanUp } from "../lib/format-human.js";
+import {
+  formatNodeDiagnoseHuman,
+  formatNodeDriftHuman,
+  formatNodeLogsHuman,
+  formatNodePeersHuman,
+  formatNodeSnapshotHuman,
+  formatNodeStatusHuman,
+} from "../lib/format-node-human.js";
 import { formatInvokeHuman } from "../lib/format-invoke-human.js";
 import { formatWipHuman } from "../lib/format-wip-human.js";
+import {
+  exitCodeForNodeResult,
+  runNodeCliCommand,
+} from "../lib/node-cli.js";
 import { buildWipStatus, handoffWip, resumeWip } from "../lib/git-wip.js";
 import { invokeTool } from "../lib/invoke-tool.js";
 import { buildOperiumUp, exitCodeForUp } from "../lib/operium-up.js";
@@ -15,6 +27,12 @@ Usage:
   operium wip status [options]     Inspect local Git WIP state
   operium handoff wip [options]    Commit and push a resumable WIP branch
   operium resume wip [options]     Fetch and resume a WIP branch
+  operium node status [options]    Local ONA status (GET /node/status)
+  operium node peers [options]     Known peer nodes (GET /node/peers)
+  operium node logs [options]      ONA event log (GET /node/logs)
+  operium node snapshot [options]  Full ONA projection (GET /node/snapshot)
+  operium node drift [options]     Node-local catalogue drift (GET /node/drift)
+  operium node diagnose [options]  Merge operium up + ONA status/drift (#51)
 
 Options:
   --json                  Machine-readable operium.up.v1 output (default)
@@ -27,6 +45,15 @@ Options:
   --timeout <ms>          Per-probe timeout (default 25000)
   --quiet                 Summary headline only (human mode)
   -h, --help              Show help
+
+Node options:
+  --url <base>            ONA base URL (default http://127.0.0.1:8794 or ONA_URL)
+  --token <bearer>        ONA read token (default ONA_READ_TOKEN or ONA_ADMIN_TOKEN)
+  --fresh                 Peers: fresh attractors only; snapshot: COP fetch from peer
+  --peer <node_id>        Snapshot: read peer_snapshots cache or fetch via COP
+  --kind <name>           Logs: filter by event kind
+  --limit <n>             Logs: max rows (default 20)
+  --since <iso>           Logs: logged_at >= since
 
 Invoke tool options:
   --capability <cap>      blackboard capability (e.g. dev.tools.shell)
@@ -41,6 +68,7 @@ Invoke tool options:
   --host <hostname>       filter attractor host
   --content-only          print assistant text only
   --allow-degraded        accept degraded attractors
+  --via guide             Route via fracta POST /ops/route/action (#52)
 
 WIP options:
   --repo <path>           Git repository path (default current repo)
@@ -103,6 +131,14 @@ function parseArgs(argv) {
     stream: false,
     allowDegraded: false,
     contentOnly: false,
+    via: null,
+    onaUrl: null,
+    onaToken: null,
+    fresh: false,
+    logKind: null,
+    logLimit: null,
+    logSince: null,
+    peerNodeId: null,
   };
 
   const args = [...argv];
@@ -129,6 +165,8 @@ function parseArgs(argv) {
   } else if (options.command === "wip-status") {
     options.command = "wip";
     options.subcommand = "status";
+  } else if (options.command === "node") {
+    options.subcommand = args.shift() || null;
   }
 
   while (args.length) {
@@ -245,6 +283,27 @@ function parseArgs(argv) {
       case "--content-only":
         options.contentOnly = true;
         break;
+      case "--via":
+        options.via = args.shift();
+        break;
+      case "--url":
+        options.onaUrl = args.shift();
+        break;
+      case "--kind":
+        options.logKind = args.shift();
+        break;
+      case "--limit":
+        options.logLimit = Number(args.shift());
+        break;
+      case "--since":
+        options.logSince = args.shift();
+        break;
+      case "--fresh":
+        options.fresh = true;
+        break;
+      case "--peer":
+        options.peerNodeId = args.shift();
+        break;
       case "-h":
       case "--help":
         options.help = true;
@@ -285,7 +344,69 @@ async function main() {
     process.exit(result.ok ? 0 : 2);
   }
 
+  if (options.command === "node" && !isNodeCommand(options)) {
+    console.error(`unknown_node_subcommand: ${options.subcommand || "(missing)"}`);
+    console.error("Run operium --help");
+    process.exit(2);
+  }
+
+  if (isNodeCommand(options)) {
+    const result = await runNodeCliCommand({
+      subcommand: options.subcommand,
+      url: options.onaUrl,
+      token: options.onaToken || options.token,
+      fresh: options.fresh,
+      peerNodeId: options.peerNodeId,
+      logKind: options.logKind,
+      logLimit: options.logLimit,
+      logSince: options.logSince,
+      timeoutMs: options.timeoutMs,
+      probe: options.probe,
+      registryPath: options.registryPath,
+      aggregatorUrl: options.aggregatorUrl,
+    });
+
+    if (!result.ok) {
+      console.error(JSON.stringify({
+        ok: false,
+        error: result.error,
+        status: result.status,
+        url: result.url,
+        message: result.message,
+      }, null, 2));
+      process.exit(2);
+    }
+
+    if (options.human) {
+      if (options.subcommand === "status") {
+        console.log(formatNodeStatusHuman(result.body));
+      } else if (options.subcommand === "peers") {
+        console.log(formatNodePeersHuman(result.body));
+      } else if (options.subcommand === "logs") {
+        console.log(formatNodeLogsHuman(result.body));
+      } else if (options.subcommand === "snapshot") {
+        console.log(formatNodeSnapshotHuman(result.body));
+      } else if (options.subcommand === "drift") {
+        console.log(formatNodeDriftHuman(result.body));
+      } else if (options.subcommand === "diagnose") {
+        console.log(formatNodeDiagnoseHuman(result.body));
+      } else {
+        console.log(JSON.stringify(result.body, null, 2));
+      }
+    } else {
+      console.log(JSON.stringify(result.body, null, 2));
+    }
+
+    process.exit(exitCodeForNodeResult(result, options.subcommand));
+  }
+
   if (isInvokeCommand(options)) {
+    if (options.via && options.via !== "guide") {
+      console.error(`unknown_via: ${options.via}`);
+      console.error("Run operium --help");
+      process.exit(2);
+    }
+
     const result = await invokeTool({
       aggregatorUrl: options.aggregatorUrl,
       capability: options.capability,
@@ -302,6 +423,8 @@ async function main() {
       allowDegraded: options.allowDegraded,
       contentOnly: options.contentOnly,
       timeoutMs: options.timeoutMs,
+      viaGuide: options.via === "guide",
+      via: options.via,
     });
     if (options.contentOnly && result.ok) {
       process.stdout.write(`${result.content || ""}`);
@@ -352,6 +475,10 @@ function isWipCommand(options) {
 
 function isInvokeCommand(options) {
   return options.command === "invoke" && options.subcommand === "tool";
+}
+
+function isNodeCommand(options) {
+  return options.command === "node" && ["status", "peers", "logs", "snapshot", "drift", "diagnose"].includes(options.subcommand);
 }
 
 async function runWipCommand(options) {

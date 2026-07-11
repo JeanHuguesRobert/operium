@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cop/node.envelope.v1",
+  "title": "COP node control-plane envelope",
+  "type": "object",
+  "required": ["id", "packet_type", "sender", "payload"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "packet_type": { "type": "string", "pattern": "^cop/node\\." },
+    "artifact_type": { "type": "string" },
+    "sender": {
+      "type": "object",
+      "properties": {
+        "node_id": { "type": "string" },
+        "hostname": { "type": "string" }
+      }
+    },
+    "recipient": {
+      "type": "object",
+      "properties": {
+        "node_id": { "type": "string" },
+        "hostname": { "type": "string" }
+      }
+    },
+    "payload": { "type": "object" },
+    "trace": { "type": "object" },
+    "created_at": { "type": "string", "format": "date-time" }
+  },
+  "additionalProperties": true
+}

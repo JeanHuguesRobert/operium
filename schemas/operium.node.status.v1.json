@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "operium.node.status.v1",
+  "title": "Operium Node Agent status",
+  "type": "object",
+  "required": [
+    "schema",
+    "node_id",
+    "hostname",
+    "ok",
+    "health_score",
+    "ona_version",
+    "uptime_seconds",
+    "peer_count_fresh",
+    "sqlite_stats",
+    "generated_at"
+  ],
+  "properties": {
+    "schema": { "const": "operium.node.status.v1" },
+    "node_id": { "type": "string", "pattern": "^resource://" },
+    "hostname": { "type": "string", "minLength": 1 },
+    "ok": { "type": "boolean" },
+    "health_score": { "type": "integer", "minimum": 0, "maximum": 5 },
+    "ona_version": { "type": "string" },
+    "uptime_seconds": { "type": "integer", "minimum": 0 },
+    "peer_count_fresh": { "type": "integer", "minimum": 0 },
+    "catalogue": {
+      "type": "object",
+      "properties": {
+        "matched": { "type": "boolean" },
+        "resource_id": { "type": ["string", "null"] },
+        "catalogue_hostname": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    },
+    "probes": {
+      "type": "object",
+      "properties": {
+        "last_at": { "type": ["string", "null"] },
+        "applicable_count": { "type": "integer", "minimum": 0 },
+        "failed_count": { "type": "integer", "minimum": 0 },
+        "latest": { "type": "array" },
+        "items": { "type": "array" }
+      },
+      "additionalProperties": true
+    },
+    "sqlite_stats": {
+      "type": "object",
+      "properties": {
+        "probe_history": { "type": "integer", "minimum": 0 },
+        "cop_outbox_pending": { "type": "integer", "minimum": 0 },
+        "peer_nodes": { "type": "integer", "minimum": 0 },
+        "event_log": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": true
+    },
+    "generated_at": { "type": "string", "format": "date-time" }
+  },
+  "additionalProperties": true
+}

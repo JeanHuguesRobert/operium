@@ -5,18 +5,36 @@
   "type": "module",
   "license": "Apache-2.0",
   "bin": {
-    "operium": "./bin/operium.js"
+    "operium": "./bin/operium.js",
+    "operium-node-agent": "./bin/operium-node-agent.js"
   },
   "scripts": {
     "test:up": "node scripts/test-operium-up.js",
     "test:wip": "node scripts/test-operium-wip.js",
     "test:invoke-tool": "node scripts/test-operium-invoke-tool.js",
+    "test:invoke-via-guide": "node scripts/test-operium-invoke-via-guide.js",
+    "test:console": "node scripts/test-operium-console.js",
+    "console:install": "npm install --prefix apps/console",
+    "console:dev": "npm run dev --prefix apps/console",
+    "console:build": "npm run build --prefix apps/console",
+    "test:ona-db": "node scripts/test-ona-db.js",
+    "test:ona-status": "node scripts/test-ona-status.js",
+    "test:ona-heartbeat": "node scripts/test-ona-heartbeat.js",
+    "test:ona-jobs": "node scripts/test-ona-jobs.js",
+    "test:ona-peer-sync": "node scripts/test-ona-peer-sync.js",
+    "test:ona-cop": "node scripts/test-ona-cop-roundtrip.js",
+    "test:ona-probe": "node scripts/test-ona-probe-route.js",
+    "test:node-cli": "node scripts/test-operium-node-cli.js",
+    "test:ona-drift": "node scripts/test-ona-drift.js",
+    "test:node-diagnose": "node scripts/test-operium-node-diagnose.js",
+    "node-agent": "node bin/operium-node-agent.js",
+    "ona:heartbeat": "node scripts/ona-heartbeat.js",
     "invoke:tool": "node bin/operium.js invoke tool"
   },
   "dependencies": {
     "yaml": "^2.8.0"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22.13"
   }
 }

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "operium.node.snapshot.v1",
+  "title": "Operium Node Agent snapshot",
+  "type": "object",
+  "required": [
+    "schema",
+    "node_id",
+    "hostname",
+    "status",
+    "peers",
+    "probe_history",
+    "sqlite_stats",
+    "generated_at"
+  ],
+  "properties": {
+    "schema": { "const": "operium.node.snapshot.v1" },
+    "node_id": { "type": "string", "pattern": "^resource://" },
+    "hostname": { "type": ["string", "null"] },
+    "status": { "type": "object" },
+    "local_state": { "type": ["object", "null"] },
+    "peers": { "type": "array" },
+    "probe_history": { "type": "array" },
+    "recent_events": { "type": "array" },
+    "sqlite_stats": { "type": "object" },
+    "generated_at": { "type": "string", "format": "date-time" }
+  },
+  "additionalProperties": true
+}

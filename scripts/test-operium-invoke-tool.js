@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import assert from "node:assert/strict";
-import { buildInvokeArgv } from "../lib/invoke-tool.js";
+import { buildGuideActionRouteBody, buildInvokeArgv } from "../lib/invoke-tool.js";
 import { resolveCogentiaInvokeScript } from "../lib/paths.js";
 import { summarizeActionLayer } from "../lib/runtime-map.js";
 
@@ -17,6 +17,16 @@ assert.ok(argv.includes("invoke"));
 assert.ok(argv.includes("--capability"));
 assert.ok(argv.includes("dev.tools.shell"));
 assert.ok(argv.includes("--repl"));
+
+const guideBody = buildGuideActionRouteBody({
+  capability: "dev.tools.shell",
+  model: "shell-repl",
+  prompt: "echo OK",
+  repl: true,
+});
+assert.equal(guideBody.model, "shell-repl");
+assert.equal(guideBody.repl, true);
+assert.equal(guideBody.capability, "dev.tools.shell");
 
 const script = resolveCogentiaInvokeScript();
 assert.ok(script, "cogentia invoke script should resolve from workspace sibling");
@@ -35,4 +45,7 @@ assert.equal(action.phase2_wired, true);
 assert.equal(action.fresh_attractor_count, 1);
 assert.equal(action.tool_hosts[0].models.includes("shell-repl"), true);
 
-console.log(JSON.stringify({ ok: true, tests: ["buildInvokeArgv", "resolveCogentiaInvokeScript", "summarizeActionLayer"] }, null, 2));
+console.log(JSON.stringify({
+  ok: true,
+  tests: ["buildInvokeArgv", "buildGuideActionRouteBody", "resolveCogentiaInvokeScript", "summarizeActionLayer"],
+}, null, 2));

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "operium.node.diagnose.v1",
+  "title": "Operium node diagnose",
+  "type": "object",
+  "required": [
+    "schema",
+    "ok",
+    "generated_at",
+    "summary",
+    "layers",
+    "drift",
+    "next_actions"
+  ],
+  "properties": {
+    "schema": { "const": "operium.node.diagnose.v1" },
+    "ok": { "type": "boolean" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "role": { "type": "string" },
+    "observer": { "type": "object" },
+    "summary": { "type": "object" },
+    "layers": {
+      "type": "object",
+      "required": ["node_agent"],
+      "properties": {
+        "node_agent": { "type": "object" }
+      },
+      "additionalProperties": true
+    },
+    "drift": { "type": "array" },
+    "next_actions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "open_decisions": { "type": "array" },
+    "node_status": { "type": ["object", "null"] },
+    "node_drift": { "type": ["object", "null"] },
+    "sources": { "type": "array" }
+  },
+  "additionalProperties": true
+}
