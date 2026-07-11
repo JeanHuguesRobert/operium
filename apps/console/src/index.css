@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ops-bg: #0f1419;
+  --color-ops-panel: #1a2332;
+  --color-ops-border: #2d3a4f;
+  --color-ops-text: #e8edf4;
+  --color-ops-muted: #8b9cb3;
+  --color-ops-ok: #3dd68c;
+  --color-ops-warn: #f0b429;
+  --color-ops-bad: #f56565;
+  --color-ops-accent: #6eb5ff;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--color-ops-bg);
+  color: var(--color-ops-text);
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
