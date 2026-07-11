@@ -30,6 +30,8 @@ decisions/    Architecture Decision Records
 
 ## Start here
 
+- [`research/index.md`](research/index.md) is the curated public map of doctrine, architecture, operations and current working notes.
+- [`research/corpus-status.md`](research/corpus-status.md) is the generated structural status of the Operium corpus.
 - [`doctrine.md`](doctrine.md) defines the core principles.
 - [`docs/public-private-split.md`](docs/public-private-split.md) explains how to separate public views from private operational data.
 - [`docs/operational-health.md`](docs/operational-health.md) defines the first health model.
@@ -40,6 +42,10 @@ decisions/    Architecture Decision Records
 - [`docs/fractavolta-dns.md`](docs/fractavolta-dns.md) records the Gandi DNS zone — fracta OCI IP, service CNAMEs, mail, apex GitHub Pages.
 - [`docs/operium-cli.md`](docs/operium-cli.md) — `operium up` CLI and `operium.up.v1` JSON schema.
 - [`docs/operium-wip.md`](docs/operium-wip.md) — GitHub-backed WIP handoff/resume for PC, Termux and `fracta`.
+- [`docs/operium-node-agent.md`](docs/operium-node-agent.md) describes the Operium Node Agent and its bounded execution model.
+- [`docs/operium-node-agent-install.md`](docs/operium-node-agent-install.md) covers fleet installation and operation.
+- [`docs/operium-console.md`](docs/operium-console.md) introduces the operator console.
+- [`docs/fractanet-control-center.md`](docs/fractanet-control-center.md) describes the FractaNet control-center surface.
 - [`docs/cogentia-agent-indexing-roadmap.md`](docs/cogentia-agent-indexing-roadmap.md) defines the agile roadmap for stable indexes, branch overlays and agent-facing retrieval.
 - [`docs/operia.md`](docs/operia.md) defines the future AI-assisted layer.
 - [`decisions/ADR-0001-operium-scope.md`](decisions/ADR-0001-operium-scope.md) records the initial scope decision.
@@ -55,7 +61,10 @@ Operia is not a separate project yet.
 
 ## Status
 
-Early design stage.
+Active working implementation. The registry and CLI are operational; node-agent, console and
+FractaNet control-plane work remains under active development. Consult the
+[research index](research/index.md) for the curated reading path and
+[corpus status](research/corpus-status.md) for generated coverage information.
 
 ## License
 
