@@ -40,3 +40,14 @@ classification_confidence: "strong"
 ---
 
 *Corpus index for the Operium registry.*
+
+## Newly indexed working corpus (July 2026)
+
+- [FractaNet Control Center](../docs/fractanet-control-center.md)
+- [Operium Console](../docs/operium-console.md)
+- [Operium Node Agent — fleet install](../docs/operium-node-agent-install.md)
+- [Operium Node Agent](../docs/operium-node-agent.md)
+- [Operium WIP Handoff](../docs/operium-wip.md)
+- [Handoff — Fractanet embryon](handoff-fractanet-embryon-2026-07-05.md)
+- [Generic Model Selector Design](model-selector-design.md)
+- [Open Strategy for Model Selector](open-strategy-model-selector.md)
