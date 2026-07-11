@@ -1688,25 +1688,46 @@ Neither replaces the living subject.
 
 # 18. Palettes and accessibility
 
-## 18.1. Mondrian palette
+## 18.1. Two independent semantic dimensions
 
-Semantic domain: operation, structure, control, decision.
+The interface uses two distinct but composable color systems.
 
-Colors:
+They do not classify the same property:
+
+* the **YanUg palette** identifies living presence, inhabitation, belonging, proximity, and relationships;
+* the **Mondrian palette** identifies operational structure, action, control, decision, and state.
+
+An entity may therefore receive both encodings at the same time.
 
 ```text
-primary: red
-secondary: yellow
-tertiary: blue
+YanUg answers:
+  Who or what is living, present, inhabiting, belonging, or related?
+
+Mondrian answers:
+  What is happening, what requires attention, and what is the operational state?
 ```
 
-Canonical hexadecimal values are not yet specified.
+Color MUST NOT determine ontology by itself.
+
+Entity type, relationship, and operational state MUST remain explicit in the underlying data and in textual representations.
 
 ## 18.2. YanUg palette
 
-Semantic domain: living beings, presence, relationship, proximity.
+Semantic domain:
 
-Colors:
+```text
+living beings
+inhabitants
+presence
+inhabitation
+belonging
+proximity
+relationships
+Casa membership
+hospitality
+```
+
+Internal hierarchy:
 
 ```text
 primary: orange
@@ -1714,67 +1735,150 @@ secondary: blue
 tertiary: pink
 ```
 
+`primary`, `secondary`, and `tertiary` describe the hierarchy within the YanUg palette.
+
+They do not define a global hierarchy for the whole interface.
+
 Pink is remembered as the pink of a bullfighter's stockings.
 
-Canonical hexadecimal values are not yet specified.
+Canonical color values are not yet specified.
 
-## 18.3. Separation rule
+## 18.3. Mondrian palette
 
-The Mondrian palette primarily describes operational state.
+Semantic domain:
 
-The YanUg palette primarily describes living subjects, their presence, and their relationships.
+```text
+operation
+structure
+action
+control
+decision
+attention
+system state
+```
+
+Internal hierarchy:
+
+```text
+primary: red
+secondary: yellow
+tertiary: blue
+```
+
+`primary`, `secondary`, and `tertiary` describe the hierarchy within the Mondrian palette.
+
+They MUST NOT be interpreted directly as equivalent to critical, warning, and nominal.
+
+Operational severity and state MUST be represented through explicit semantic tokens such as:
+
+```text
+nominal
+attention
+degraded
+blocked
+offline
+unknown
+synchronizing
+```
+
+The final mapping between these semantic tokens and Mondrian colors remains to be specified and tested.
+
+## 18.4. Composition rule
+
+YanUg and Mondrian encodings MAY be composed on the same object or representation.
 
 Example:
 
 ```text
-poco-jhr as a machine:
-  resource shape + Mondrian operational state
+Jean Hugues:
+  YanUg encoding as a living subject
 
-proximity relation to Jean Hugues:
-  YanUg relation encoding
+poco-jhr:
+  structural representation as a technical resource
 
-synchronization state:
-  symbol + text + Mondrian operational state
+relationship between Jean Hugues and poco-jhr:
+  YanUg encoding as attachment or proximity
+
+poco-jhr synchronization state:
+  Mondrian encoding as an operational state
 ```
 
-## 18.4. Accessibility
+Another example:
+
+```text
+a Casa inhabitant:
+  YanUg identity and relationship encoding
+
+an authorization requested from that inhabitant:
+  Mondrian operational and decision encoding
+```
+
+A YanUg encoding MUST NOT imply that a technical representation is itself alive.
+
+A Mondrian encoding MUST NOT erase the living subject, relationship, or Casa to which an operation relates.
+
+## 18.5. Shared blue
+
+Blue belongs to both palettes, but it has a different semantic role in each system.
+
+The implementation MUST therefore treat them as separate design tokens:
+
+```text
+yanug.blue
+mondrian.blue
+```
+
+They MAY use distinct shades, saturation, luminance, shapes, borders, or spatial treatments.
+
+Their visual relationship MAY express mediation between living and operational domains, but this interpretation is not normative in version 0.1.
+
+## 18.6. Shape, symbol, and text
 
 Color MUST NOT be the sole information channel.
 
-Every colored state SHALL also be expressed through one or more of:
+Every colored state or relationship SHALL also be expressed through one or more of:
 
-- text;
-- shape;
-- symbol;
-- pattern;
-- position;
-- border;
-- thickness;
-- sound or speech.
+* text;
+* shape;
+* symbol;
+* pattern;
+* position;
+* border;
+* thickness;
+* sound or speech.
 
 Example:
 
-| State | Shape | Symbol | Text |
-|---|---|---|---|
-| nominal | circle | `✓` | Available |
-| attention | triangle | `!` | Attention |
-| critical | octagon | `×` | Blocked |
-| offline | empty circle | `○` | Offline |
-| synchronizing | double arrows | `⇄` | Synchronizing |
-| local queue | box | `↑` | Events pending |
+| Meaning            | Shape                   | Symbol | Text                            |
+| ------------------ | ----------------------- | ------ | ------------------------------- |
+| nominal operation  | circle                  | `✓`    | Available                       |
+| attention required | triangle                | `!`    | Attention                       |
+| blocked operation  | octagon                 | `×`    | Blocked                         |
+| offline resource   | empty circle            | `○`    | Offline                         |
+| synchronization    | double arrows           | `⇄`    | Synchronizing                   |
+| local event queue  | box                     | `↑`    | Events pending                  |
+| living presence    | person or living marker | `●`    | Present                         |
+| Casa relationship  | explicit link           | `—`    | Member, guest, steward, or peer |
 
-Requirements:
+The exact shapes and symbols are provisional and MUST be validated through accessibility testing.
 
-- high contrast;
-- high-legibility mode;
-- configurable sizes;
-- keyboard navigation;
-- screen-reader support;
-- no hover-only information;
-- disableable animations;
-- no fast flashing;
-- optional spoken important alerts;
-- visual testing for several forms of color-vision deficiency.
+## 18.7. Accessibility requirements
+
+The interface SHALL provide:
+
+* high contrast;
+* a high-legibility mode;
+* configurable text and symbol sizes;
+* complete keyboard navigation;
+* screen-reader support;
+* no information available only on hover;
+* disableable animations;
+* no rapid flashing;
+* optional spoken alerts for important events;
+* visual testing for several forms of color-vision deficiency.
+
+Accessibility applies equally to YanUg relationships and Mondrian operational states.
+
 
 ---
 
