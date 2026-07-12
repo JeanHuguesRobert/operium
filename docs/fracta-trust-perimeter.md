@@ -3,7 +3,7 @@ title: "Fracta trust perimeter and secrets"
 description: "How the fracta VPS fits the trusted operational boundary; where secrets live; retrieval backends including Inox session."
 layout: default
 date: 2026-07-03
-last_modified_at: 2026-07-04
+last_modified_at: 2026-07-12
 license: Apache-2.0
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/docs/fracta-trust-perimeter.md
 document_role: "operational"
@@ -95,6 +95,56 @@ search order documented in `cogentia/docs/cogentia-magistral-boundary.md`).
 **Do not** copy `guide.env` into `cogentia/`, `operium/`, or any GitHub repo.
 Update it only on the VPS (or via `ssh fracta` from a trusted machine).
 
+## Secret-safe inspection protocol
+
+The abstract rule is defined by Cogentia's
+[Secret-safe operational inspection](https://github.com/JeanHuguesRobert/cogentia/blob/main/docs/secret-safe-inspection.md):
+inspect secret metadata and behavior, not secret values.
+
+On fracta, routine diagnostics must therefore report only:
+
+- file path, owner, group and permissions;
+- whether the variable is configured;
+- whether the file is inside or tracked by a Git worktree;
+- service references and authorized scope;
+- success or failure of a bounded authenticated probe.
+
+Do not use unredacted `systemctl cat`, `systemctl show --property=Environment`,
+`env`, `printenv`, `/proc/<pid>/environ`, or `cat` on secret files in diagnostics
+whose output leaves the host.
+
+Safe examples:
+
+```bash
+# Location and permissions only
+stat -c '%n owner=%U group=%G mode=%a' /srv/cogentia/secrets/guide.env
+
+# Presence only
+grep -q '^COGENTIA_GUIDE_WEB_SEARCH_API_KEY=' /srv/cogentia/secrets/guide.env \
+  && echo configured || echo missing
+
+# Unit paths and env-file references only
+systemctl show mcp-cogentia.service \
+  --property=EnvironmentFiles \
+  --property=FragmentPath \
+  --property=DropInPaths
+```
+
+Systemd drop-ins must reference an external secret file:
+
+```ini
+[Service]
+EnvironmentFile=/srv/cogentia/secrets/ona-proxy.env
+```
+
+They must not embed literal bearer values with `Environment=TOKEN=value`.
+Use `root:ubuntu` plus mode `0640` when the runtime user needs documented file
+access, or `root:root` plus mode `0600` when systemd alone loads the file before
+dropping privileges. Verify the chosen model on the actual service manager.
+
+If a value is printed into a controlled transcript, record that precise fact;
+do not claim compromise without evidence of unauthorized observation or use.
+
 ### Variable names (values only on fracta)
 
 Document **names** in git; set **values** on the node.
@@ -145,7 +195,7 @@ fracta sends mandates only.
 - `guide.env` and similar env files under `/srv/cogentia/secrets/`
 - Corpus registry and index data under `/var/lib/cogentia/`
 - Git mirrors under `/srv/cogentia/repos/`
-- Loopback service configuration (systemd units referencing env files, not embedding secrets)
+- Loopback service configuration (systemd units referencing env files, never embedding literal secrets)
 
 **Must not hold (prefer capable host or remove after Phase 4):**
 

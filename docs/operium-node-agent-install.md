@@ -46,6 +46,39 @@ Never commit token values. Reference only in catalogue (`secret://ona-*`).
 
 See [operium-console.md](operium-console.md#fracta-server-env-aggregator).
 
+### Fracta aggregator secret file
+
+Store the two aggregator tokens outside the systemd drop-in:
+
+```bash
+sudo install -d -o root -g ubuntu -m 0750 /srv/cogentia/secrets
+sudo install -o root -g ubuntu -m 0640 /dev/null /srv/cogentia/secrets/ona-proxy.env
+sudoedit /srv/cogentia/secrets/ona-proxy.env
+```
+
+The file contains the runtime assignments for `COGENTIA_OPS_READ_TOKEN` and
+`ONA_READ_TOKEN`. Do not print it, copy it into a repository, or paste it into a
+terminal transcript.
+
+The systemd override contains only:
+
+```ini
+[Service]
+EnvironmentFile=/srv/cogentia/secrets/ona-proxy.env
+```
+
+Verify metadata and presence without returning values:
+
+```bash
+stat -c '%n owner=%U group=%G mode=%a' /srv/cogentia/secrets/ona-proxy.env
+grep -q '^COGENTIA_OPS_READ_TOKEN=' /srv/cogentia/secrets/ona-proxy.env && echo ingress-configured
+grep -q '^ONA_READ_TOKEN=' /srv/cogentia/secrets/ona-proxy.env && echo peer-read-configured
+systemctl show mcp-cogentia.service --property=EnvironmentFiles --property=DropInPaths
+```
+
+Never diagnose this configuration with unredacted `systemctl cat`, `env`,
+`printenv`, or a printed env file. See [Fracta trust perimeter and secrets](fracta-trust-perimeter.md#secret-safe-inspection-protocol).
+
 ---
 
 ## fracta (Ubuntu VPS) — systemd
