@@ -4,6 +4,11 @@ This file gives operational instructions to AI agents and human assistants worki
 
 It is not the full doctrine. It is the compact local mandate for maintaining a versioned operational environment registry.
 
+Operium is the infrastructure-health evidence layer for the wider corpus. Cogentia defines the
+corpus-level mandate and traceability invariant; Operium records service health, deployment state,
+capability availability, and recovery evidence. Do not treat hidden configuration as a security
+boundary, and do not infer availability from a mandate alone.
+
 ## Repository role
 
 `operium` documents operational environments:
