@@ -1,9 +1,16 @@
 #!/usr/bin/env node
 import { spawn } from "node:child_process";
+import fs from "node:fs";
 import path from "node:path";
+import os from "node:os";
 
 const port = 8897;
-const child = spawn(process.execPath, ["bin/operium-node-agent.js"], { cwd: process.cwd(), env: { ...process.env, ONA_BIND: "127.0.0.1", ONA_PORT: String(port), ONA_COP_DELIVERY: "0", OPERIUM_GRAPH_DB: path.resolve(".operium/corpus-graph.sqlite") }, stdio: "ignore" });
+const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "operium-graph-test-"));
+const sourceDb = path.resolve(".operium/corpus-graph.sqlite");
+const testDb = path.join(tempDir, "corpus-graph.sqlite");
+fs.copyFileSync(sourceDb, testDb);
+const env = { ...process.env, ONA_COP_DELIVERY: "0", OPERIUM_GRAPH_DB: testDb, COGENTIA_OPS_STATE_DIR: tempDir };
+const child = spawn(process.execPath, ["bin/operium-node-agent.js"], { cwd: process.cwd(), env: { ...env, ONA_BIND: "127.0.0.1", ONA_PORT: String(port) }, stdio: "ignore" });
 const base = `http://127.0.0.1:${port}`;
 try {
   let health;
@@ -16,10 +23,15 @@ try {
 console.log("Node Agent graph integration: OK");
 } finally { child.kill(); }
 
-const publicChild = spawn(process.execPath, ["bin/operium-node-agent.js"], { cwd: process.cwd(), env: { ...process.env, ONA_BIND: "0.0.0.0", ONA_PORT: "8898", ONA_COP_DELIVERY: "0", ONA_READ_TOKEN: "test-read", OPERIUM_GRAPH_DB: path.resolve(".operium/corpus-graph.sqlite") }, stdio: "ignore" });
+const publicChild = spawn(process.execPath, ["bin/operium-node-agent.js"], { cwd: process.cwd(), env: { ...env, ONA_BIND: "0.0.0.0", ONA_PORT: "8898", ONA_READ_TOKEN: "test-read" }, stdio: "ignore" });
 try {
   for (let i = 0; i < 20; i++) { try { if ((await fetch("http://127.0.0.1:8898/health")).ok) break; } catch {} await new Promise((resolve) => setTimeout(resolve, 250)); }
   const denied = await fetch("http://127.0.0.1:8898/graph/continuations");
   if (denied.status !== 401) throw new Error(`expected public unauthenticated graph request to return 401, got ${denied.status}`);
   console.log("Node Agent public graph boundary: OK");
-} finally { publicChild.kill(); }
+} finally {
+  publicChild.kill();
+  try { fs.rmSync(tempDir, { recursive: true, force: true }); } catch (error) {
+    if (error.code !== "EPERM" && error.code !== "EBUSY") throw error;
+  }
+}
