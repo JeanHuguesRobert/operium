@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS repositories (
 
 CREATE TABLE IF NOT EXISTS nodes (
   node_id TEXT PRIMARY KEY,
-  node_kind TEXT NOT NULL CHECK (node_kind IN ('artifact','repository','continuation','publication','snapshot')),
+  node_kind TEXT NOT NULL CHECK (node_kind IN ('artifact','repository','continuation','publication','issue','snapshot')),
   repository_id TEXT REFERENCES repositories(repository_id),
   canonical_path TEXT,
   external_url TEXT,
