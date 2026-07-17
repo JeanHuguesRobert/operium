@@ -39,6 +39,7 @@ Environment:
   ONA_DB_PATH           sqlite path override
   ONA_LOG_PATH          structured log file path
   ONA_HEALTH_PUBLIC     allow unauthenticated /health when bind != loopback
+  OPERIUM_GRAPH_DB      optional SQLite Corpus graph cache path
 
 Endpoints:
   GET /health
@@ -49,6 +50,7 @@ Endpoints:
   GET /node/logs        (?kind=&limit=&since=)
   POST /node/probe      (ONA_ADMIN_TOKEN)
   POST /node/cop        (ONA_PEER_TOKEN or ONA_ADMIN_TOKEN)
+  GET /graph/*           read-only Corpus graph routes (read token when public)
 `);
 }
 
