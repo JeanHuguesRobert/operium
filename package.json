@@ -23,6 +23,7 @@
     "index:corpus-issues": "node scripts/index-corpus-issues.js",
     "replication:manifest": "node scripts/create-replication-manifest.js",
     "replication:verify": "node scripts/verify-replication-manifest.js",
+    "test:node-agent-graph": "node scripts/test-node-agent-graph.js",
     "test:ona-db": "node scripts/test-ona-db.js",
     "test:ona-status": "node scripts/test-ona-status.js",
     "test:ona-heartbeat": "node scripts/test-ona-heartbeat.js",
