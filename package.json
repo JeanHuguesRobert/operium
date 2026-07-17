@@ -7,6 +7,7 @@
   "bin": {
     "operium": "./bin/operium.js",
     "operium-node-agent": "./bin/operium-node-agent.js"
+    ,"operium-graph": "./bin/operium-graph.js"
   },
   "scripts": {
     "test:up": "node scripts/test-operium-up.js",
