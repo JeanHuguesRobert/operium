@@ -13,5 +13,13 @@ try {
   if (!graph.ok) throw new Error(`graph route returned ${graph.status}`);
   const post = await fetch(`${base}/graph/node/x`, { method: "POST" });
   if (post.status !== 404 && post.status !== 405) throw new Error(`unexpected write status ${post.status}`);
-  console.log("Node Agent graph integration: OK");
+console.log("Node Agent graph integration: OK");
 } finally { child.kill(); }
+
+const publicChild = spawn(process.execPath, ["bin/operium-node-agent.js"], { cwd: process.cwd(), env: { ...process.env, ONA_BIND: "0.0.0.0", ONA_PORT: "8898", ONA_COP_DELIVERY: "0", ONA_READ_TOKEN: "test-read", OPERIUM_GRAPH_DB: path.resolve(".operium/corpus-graph.sqlite") }, stdio: "ignore" });
+try {
+  for (let i = 0; i < 20; i++) { try { if ((await fetch("http://127.0.0.1:8898/health")).ok) break; } catch {} await new Promise((resolve) => setTimeout(resolve, 250)); }
+  const denied = await fetch("http://127.0.0.1:8898/graph/continuations");
+  if (denied.status !== 401) throw new Error(`expected public unauthenticated graph request to return 401, got ${denied.status}`);
+  console.log("Node Agent public graph boundary: OK");
+} finally { publicChild.kill(); }
