@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://operium.fractavolta.com/schemas/corpus-replication-manifest.schema.json",
+  "title": "Corpus replication manifest",
+  "type": "object",
+  "required": ["schema", "manifest_id", "source_node", "target_node", "generated_at", "source_commits", "artifacts"],
+  "properties": {
+    "schema": { "const": "operium.corpus-replication-manifest.v1" },
+    "manifest_id": { "type": "string", "minLength": 1 },
+    "source_node": { "type": "string", "minLength": 1 },
+    "target_node": { "type": "string", "minLength": 1 },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "source_commits": { "type": "object", "additionalProperties": { "type": "string" } },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["kind", "path", "content_hash", "size_bytes"],
+        "properties": {
+          "kind": { "type": "string", "enum": ["document-index", "embeddings", "graph", "issues", "coherence-snapshot"] },
+          "path": { "type": "string", "minLength": 1 },
+          "content_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "size_bytes": { "type": "integer", "minimum": 0 },
+          "schema_version": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
