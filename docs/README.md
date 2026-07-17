@@ -1,3 +1,23 @@
+---
+title: Documentation
+author: unknown
+date: '2026-07-12'
+document_role: source
+document_kind: documentation
+visibility: public
+lifecycle_state: working
+update_policy: UP-DEFAULT-REVIEWED
+provenance:
+  origin_type: repository
+  origin_repository: JeanHuguesRobert/operium
+  origin_ref: f603276
+  origin_date: '2026-07-12'
+  derived_from: []
+review:
+  status: unreviewed
+  reviewed_by: []
+---
+
 # Documentation
 
 This directory contains Operium documentation.
