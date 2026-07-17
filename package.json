@@ -17,6 +17,7 @@
     "console:install": "npm install --prefix apps/console",
     "console:dev": "npm run dev --prefix apps/console",
     "console:build": "npm run build --prefix apps/console",
+    "test:corpus-graph-cache": "node scripts/test-corpus-graph-cache.js",
     "test:ona-db": "node scripts/test-ona-db.js",
     "test:ona-status": "node scripts/test-ona-status.js",
     "test:ona-heartbeat": "node scripts/test-ona-heartbeat.js",
