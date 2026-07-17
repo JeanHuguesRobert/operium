@@ -7,6 +7,7 @@ import { createOnaHttpServer, startOnaHttpServer } from "../lib/node-agent/http-
 import { createJobScheduler } from "../lib/node-agent/job-scheduler.js";
 import { createProbeWorker } from "../lib/node-agent/probe-worker.js";
 import { resolveNodeMemoryPath, resolveOnaLogPath } from "../lib/node-agent/paths.js";
+import { DatabaseSync } from "node:sqlite";
 
 const startedAt = new Date().toISOString();
 
@@ -74,6 +75,10 @@ async function main() {
     nodeId: config.nodeId,
     hostname: config.hostname,
   });
+  let graphDb = null;
+  if (process.env.OPERIUM_GRAPH_DB) {
+    graphDb = new DatabaseSync(process.env.OPERIUM_GRAPH_DB);
+  }
 
   const worker = createProbeWorker({ db, config });
   const initial = await worker.runCycle();
@@ -92,6 +97,7 @@ async function main() {
   const server = createOnaHttpServer({
     config,
     db,
+    graphDb,
     startedAt,
     getNodeId: () => worker.getIdentity().node_id,
     runProbe: (options) => worker.runCycle(options),
