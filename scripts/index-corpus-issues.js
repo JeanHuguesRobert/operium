@@ -6,6 +6,8 @@ import { DatabaseSync } from "node:sqlite";
 
 const args = new Set(process.argv.slice(2));
 const apply = args.has("--apply");
+const reposArg = process.argv.find((item) => item.startsWith("--repos="));
+const repoFilter = reposArg ? new Set(reposArg.slice(8).split(",").map((value) => value.trim()).filter(Boolean)) : null;
 const registryPath = path.resolve(process.env.COGENTIA_REGISTRY || "../JeanHuguesRobert/.cogentia.json");
 const registry = JSON.parse(fs.readFileSync(registryPath, "utf8"));
 const root = path.dirname(registryPath);
@@ -23,6 +25,7 @@ function remoteSlug(repoPath) {
 }
 
 for (const repo of registry.repos || []) {
+  if (repoFilter && !repoFilter.has(repo.name) && !repoFilter.has(repo.path)) continue;
   const slug = remoteSlug(repo.path);
   if (!slug || !slug.includes("/")) { reports.push({ repository: repo.name, state: "blocked", reason: "no-github-remote" }); continue; }
   try {
