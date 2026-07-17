@@ -8,6 +8,7 @@
     "operium": "./bin/operium.js",
     "operium-node-agent": "./bin/operium-node-agent.js"
     ,"operium-graph": "./bin/operium-graph.js"
+    ,"operium-graph-http": "./bin/operium-graph-http.js"
   },
   "scripts": {
     "test:up": "node scripts/test-operium-up.js",
