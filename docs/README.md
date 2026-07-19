@@ -31,8 +31,11 @@ This directory contains Operium documentation.
 - [Operium CLI](operium-cli.md)
 - [Operium Node Agent (ONA)](operium-node-agent.md)
 - [Cogentia Agent Indexing Roadmap](cogentia-agent-indexing-roadmap.md)
+- [Workstation tooling debt and tool profiles](workstation-tooling-debt-and-profiles.md) — admin-install debt, user-space policy, PC vs fracta
 
 Operational scripts:
 
 - `scripts/ops/ensure-fractanet-rsync.ps1` — install or verify `rsync` on the
   Fractanet node set through Tailscale SSH aliases.
+- `scripts/ops/ensure-supabase-cli.ps1` — Scoop user-space Supabase CLI (no admin).
+- `profiles/tools.workstation-windows.v1.yaml` / `profiles/tools.fracta-vps.v1.yaml` — desired tooling.

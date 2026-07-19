@@ -1,0 +1,48 @@
+# Desired tooling — fracta public VPS (~1GB RAM)
+# See: docs/workstation-tooling-debt-and-profiles.md, docs/fracta-trust-perimeter.md
+
+profile_id: tools.fracta-vps.v1
+node_class: fracta-vps
+ssh_alias: fracta
+updated: "2026-07-19"
+policy:
+  install_mode: user-or-system-apt
+  forbid_sudo_npm_global: true
+  docker_supabase_stack: forbidden  # RAM + role mismatch
+  role: public_guide_and_control_plane
+
+tools:
+  - id: node
+    desired:
+      path_command: node
+      min_version: "20"
+    priority: 1
+    status: present  # observed v26.5.0 on 2026-07-19
+
+  - id: npm
+    desired:
+      path_command: npm
+    priority: 1
+    status: present
+
+  - id: supabase-cli
+    desired:
+      path_command: supabase
+      install: optional_user_binary  # ~/.local/bin — only if migrations ever run from VPS
+    default: skip
+    notes: Prefer running migrations from workstation; VPS is not the migration host
+    requires_auth: true
+    requires_docker: false
+    priority: 3
+    status: absent_by_design
+
+  - id: docker
+    desired: absent
+    reason: low RAM; not the local Supabase host
+    priority: 1
+    status: absent_ok
+
+secrets_refs:
+  - path_hint: /srv/cogentia/secrets/
+    rule: never_github
+    doc: docs/fracta-trust-perimeter.md

@@ -1,0 +1,81 @@
+# Desired developer tooling — Windows workstation (user-space first)
+# Schema: informal v0.1 — evolve toward operium.tools.profile.v1
+# See: docs/workstation-tooling-debt-and-profiles.md
+
+profile_id: tools.workstation-windows.v1
+node_class: workstation-windows
+updated: "2026-07-19"
+policy:
+  install_mode: user-space
+  forbid_admin_npm_global: true
+  npm_global_under_program_files: forbidden
+  preferred_windows_provider: scoop
+
+tools:
+  - id: supabase-cli
+    purpose: Cloud Supabase link / migrations / projects (not local Docker stack)
+    desired:
+      provider: scoop
+      package: supabase
+      path_command: supabase
+      min_version: "2.100.0"
+    forbidden:
+      - "npm install -g supabase under Program Files"
+    requires_docker: false
+    requires_auth: true
+    priority: 1
+    status: debt # broken/incomplete npm global observed 2026-07-19
+    remediation: |
+      scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
+      scoop install supabase
+      # optional once elevated: remove Program Files\nodejs\node_modules\supabase
+
+  - id: git
+    desired:
+      provider: scoop_or_system
+      path_command: git
+    priority: 1
+    status: unknown
+
+  - id: gh
+    desired:
+      provider: scoop
+      path_command: gh
+    priority: 2
+    status: unknown
+
+  - id: netlify-cli
+    desired:
+      provider: scoop_or_pnpm_dlx
+      path_command: netlify
+    notes: Prefer not Program Files npm -g long term
+    priority: 2
+    status: debt
+
+  - id: pnpm
+    desired:
+      provider: corepack_or_scoop
+      path_command: pnpm
+    priority: 1
+    status: present_but_admin_prefix_risk
+
+  - id: node
+    desired:
+      provider: system_or_fnm
+      path_command: node
+    notes: Runtime may stay system; avoid npm -g into Program Files
+    priority: 1
+    status: present
+
+  - id: docker
+    desired:
+      provider: optional
+      path_command: docker
+    notes: Not required for remote supabase db push; needed only for supabase start
+    priority: 3
+    status: absent
+
+exceptions_admin_ok:
+  - id: ona-windows-service
+    reason: NSSM/Windows service install requires elevation once
+    doc: docs/operium-node-agent-install.md

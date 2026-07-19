@@ -62,3 +62,4 @@ update_policy: UP-DEFAULT-REVIEWED
 - [Handoff — Fractanet embryon](handoff-fractanet-embryon-2026-07-05.md)
 - [Generic Model Selector Design](model-selector-design.md)
 - [Open Strategy for Model Selector](open-strategy-model-selector.md)
+- [Workstation tooling debt and tool profiles](../docs/workstation-tooling-debt-and-profiles.md)
