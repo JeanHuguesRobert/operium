@@ -22,6 +22,7 @@ review:
 
 This directory contains Operium documentation.
 
+- [Coding Infrastructure](coding-infrastructure.md) — AI coding agents, launchers, and secret management
 - [Cogentia Semantic Stack](cogentia-semantic-stack.md)
 - [Fracta trust perimeter and secrets](fracta-trust-perimeter.md)
 - [Secret-safe inspection protocol](fracta-trust-perimeter.md#secret-safe-inspection-protocol)
