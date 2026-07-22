@@ -5,7 +5,7 @@ date: '2026-07-21'
 document_role: source
 document_kind: decision
 visibility: public
-lifecycle_state: working
+lifecycle_state: active
 update_policy: UP-DEFAULT-REVIEWED
 provenance:
   origin_type: repository
@@ -53,88 +53,42 @@ cogentia.js (local) → rsync → fracta:/srv/views/ → Caddy → views-server.
 
 ## Installation
 
-### 1. Create directories on fracta
+### ✅ Deployment Status: COMPLETE (2026-07-22)
+
+All components deployed and operational on fracta VPS.
+
+#### 1. Directories created
+```bash
+/srv/views          # View storage
+/srv/views-server   # Server code
+```
+
+#### 2. views-server.mjs deployed
+- Location: `/srv/views-server/views-server.mjs`
+- Port: 3423
+- systemd service: `views-store.service`
+
+#### 3. Caddy configured
+- Domain: `cogentia.fractavolta.com`
+- SSL: Auto-HTTPS (Let's Encrypt)
+- Proxy: `localhost:3423`
+
+#### 4. DNS
+- Record: `cogentia.fractavolta.com` → `fracta.fractavolta.com` (CNAME)
+- Status: Active (pre-existing)
+
+### Verification Commands
 
 ```bash
-ssh fracta "mkdir -p /srv/views /srv/views-server"
+# Check service status
+ssh fracta "systemctl status views-store"
+
+# Check API locally
+ssh fracta "curl http://localhost:3423/api/views"
+
+# Check external HTTPS
+curl -sk https://cogentia.fractavolta.com/api/views
 ```
-
-### 2. Deploy views-server.mjs
-
-```bash
-scp cogentia/scripts/views-server.mjs fracta:/srv/views-server/
-```
-
-### 3. Create systemd service
-
-On fracta:
-
-```bash
-cat > /etc/systemd/system/views-store.service << 'EOF'
-[Unit]
-Description=Views Store API Server
-After=network.target
-
-[Service]
-Type=simple
-User=root
-WorkingDirectory=/srv/views-server
-ExecStart=/usr/bin/node /srv/views-server/views-server.mjs
-Restart=always
-RestartSec=10
-Environment=PORT=3423
-Environment=VIEWS_DIR=/srv/views
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-systemctl daemon-reload
-systemctl enable --now views-store
-```
-
-### 4. Configure Caddy
-
-Add to Caddy config on fracta:
-
-```caddyfile
-cogentia.fractavolta {
-    # API server reverse proxy
-    handle_path /api/* {
-        reverse_proxy localhost:3423
-    }
-
-    # Default index
-    handle / {
-        reverse_proxy localhost:3423
-    }
-
-    # Individual views with rendering
-    handle /views/* {
-        reverse_proxy localhost:3423
-    }
-
-    encode gzip
-    log {
-        output file /var/log/caddy/cogentia-access.log
-    }
-}
-```
-
-Then reload Caddy:
-
-```bash
-caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile
-```
-
-### 5. DNS (Gandi)
-
-One-time setup in Gandi DNS:
-
-| Type | Name | Value |
-|------|-----|-------|
-| A | `*.fractavolta.com` | fracta VPS IP |
-| A | `fractavolta.com` | fracta VPS IP |
 
 ## Usage
 
@@ -142,10 +96,10 @@ One-time setup in Gandi DNS:
 
 ```bash
 # Export issues
-COGENTIA_REGISTRY=/c/tweesic/JeanHuguesReference node cogentia/scripts/cogentia.js issues export
+COGENTIA_REGISTRY=/c/tweesic/JeanHuguesRobert node cogentia/scripts/cogentia.js issues export
 
 # Publish to fracta
-COGENTIA_REGISTRY=/c/tweesic/JeanHuguesReference node cogentia/scripts/cogentia.js publish push current-issues
+COGENTIA_REGISTRY=/c/tweesic/JeanHuguesRobert node cogentia/scripts/cogentia.js publish push current-issues
 ```
 
 ### Access URLs
@@ -175,10 +129,24 @@ visibility: confidential
 
 ## Consequences
 
-- Cogentia generated views accessible without Git tracking
-- Single rsync deployment, no manual file management
-- Frontmatter-based privacy guard
-- Wildcard DNS `*.fractavolta.com` enables future subdomains
+- ✅ Cogentia generated views accessible without Git tracking
+- ✅ Single rsync deployment, no manual file management
+- ✅ Frontmatter-based privacy guard ("design in the open")
+- ✅ HTTPS with automatic certificate management
+- ✅ Wildcard DNS `*.fractavolta.com` enables future subdomains
+
+## Current State (2026-07-22)
+
+| Component | Status | Details |
+|-----------|--------|---------|
+| views-server.mjs | ✅ Running | Port 3423, systemd active |
+| Caddy proxy | ✅ Active | HTTPS, Let's Encrypt cert |
+| DNS | ✅ Configured | cogentia.fractavolta.com CNAME |
+| current-issues.md | ✅ Published | 115 issues, 25KB |
+
+### Published Views
+
+- `current-issues.md` — 115 open issues across 12 repos (FractaVolta, cogentia, inseme, barons-Mariani, etc.)
 
 ## Alternatives Considered
 
