@@ -23,6 +23,8 @@ review:
 This directory contains Operium documentation.
 
 - [Coding Infrastructure](coding-infrastructure.md) — AI coding agents, launchers, and secret management
+- [Secrets management](secrets-management.md) — dual authority (`inseme/.env` vs vault), `COGENTIA_API_KEY`, rotation
+- [Magistral → coding-agent routing](magistral-coding-agent-routing.md) — Guide synthesis path + map apply
 - [Cogentia Semantic Stack](cogentia-semantic-stack.md)
 - [Fracta trust perimeter and secrets](fracta-trust-perimeter.md)
 - [Secret-safe inspection protocol](fracta-trust-perimeter.md#secret-safe-inspection-protocol)

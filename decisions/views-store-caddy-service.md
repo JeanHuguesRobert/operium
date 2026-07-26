@@ -44,8 +44,10 @@ cogentia.js (local) → rsync → fracta:/srv/views/ → Caddy → views-server.
 
 2. **Views Store** (`views-server.mjs`)
    - Runs on fracta as systemd service
+   - Gmail-style **tag browser** UI + JSON API (`/api/views`, `/api/docs`, `/docs`)
    - Serves views with markdown rendering, raw, and download options
    - Checks frontmatter for `visibility: private/confidential/secret`
+   - Canonical docs: `cogentia/docs/views-store.md` · live: https://cogentia.fractavolta.com/docs
 
 3. **Caddy** reverse proxy
    - Route `cogentia.fractavolta.com` → `localhost:3423`

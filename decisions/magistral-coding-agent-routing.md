@@ -34,12 +34,19 @@ second ops control plane.
 4. **Guide** keeps `COGENTIA_GUIDE_AGENT_GATEWAY=0` so synthesis goes
    Guide → Cogentia daemon → Magistral → coding-agent gateway (stateless router).
    Client owns conversation history.
-5. **Secrets** — the shared system bearer is **`COGENTIA_API_KEY`** (authority:
-   `inseme/.env`; copies on nodes). Legacy `AGENT_GATEWAY_*` token names are
-   migration aliases only. Values stay on the node under `/etc/cogentia/` and
-   `/srv/cogentia/secrets/` — never GitHub. Operium stores **references and
-   procedure**, not values. FractaVolta is the commercial deployment face of
-   Cogentia, not a separate secret namespace.
+5. **Secrets** — the shared system bearer is **`COGENTIA_API_KEY` only**
+   (do not also store the same secret as `AGENT_GATEWAY_TOKEN=`).
+   - **Workstation FS authority:** `inseme/.env`
+   - **Edge authority:** Supabase `instance_config` vault key `cogentia_api_key`
+     (`is_secret=true`) — edge functions have no FS for `inseme/.env`; push with
+     `sync-secrets.js --apply --vault`
+   - **Runtime copies:** `/etc/cogentia/magistral.env`, tool-host
+     `~/.cogentia/secrets/agent-gateway.env` (etc.)
+   Legacy `AGENT_GATEWAY_*` names remain **code read aliases** only. Values
+   never GitHub. Operium stores **names, authorities, and procedure** — not
+   values. FractaVolta is the commercial deployment face of Cogentia, not a
+   separate secret namespace. Full catalog:
+   [`docs/secrets-management.md`](../docs/secrets-management.md).
 6. **Operational apply and health** use Operium (`operium up`, node diagnose,
    invoke tool) and the procedures in
    [`docs/magistral-coding-agent-routing.md`](../docs/magistral-coding-agent-routing.md).
@@ -64,6 +71,7 @@ second ops control plane.
 ## Related
 
 - [`docs/magistral-coding-agent-routing.md`](../docs/magistral-coding-agent-routing.md)
+- [`docs/secrets-management.md`](../docs/secrets-management.md) — dual authority + `COGENTIA_API_KEY` rotation
 - [`docs/fracta-trust-perimeter.md`](../docs/fracta-trust-perimeter.md)
 - [`docs/fractanet-mesh.md`](../docs/fractanet-mesh.md)
 - [`profiles/magistral-map.coding-agents.v1.json`](../profiles/magistral-map.coding-agents.v1.json)

@@ -3,7 +3,7 @@ title: "Fractanet mesh — Tailscale and SSH (July 2026)"
 description: "Operational record of the virteal tailnet, bidirectional SSH mesh, capable-host wiring, and Packet Attractor Phase 1 on fracta."
 layout: default
 date: 2026-07-04
-last_modified_at: 2026-07-05
+last_modified_at: 2026-07-26
 license: Apache-2.0
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/docs/fractanet-mesh.md
 document_role: "operational"
@@ -526,6 +526,29 @@ ssh poco-jhr "ssh fracta hostname; ssh thinkpad hostname; ssh rpi3-view hostname
 
 **Limits:** Termux sshd dies if the app is killed; no `verify-fractanet-ssh-mesh.ps1` entry (port 8022). Battery/Doze may stop background work — configure Termux wake-lock and Android battery exclusions. Future: `mobile.env`, optional `inox-serve`/attractor on capable-mobile.
 
+### Troubleshooting: `ssh fracta` fails
+
+`fracta` is a **local SSH alias**, not a public DNS name. `ssh fractavolta.com` is wrong for routine ops (apex is GitHub Pages; public VPS is `fracta.fractavolta.com` / break-glass `ssh fracta-public`).
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| `Could not resolve hostname fracta` | No `Host fracta` in `~/.ssh/config` | Install mesh config (Termux: `fractanet-termux-bootstrap.sh`; workstation: see SSH aliases table) |
+| Same error **inside Ubuntu proot** (Codex/Claude) | proot `HOME=/root` has no mesh config (Termux `~/.ssh` is separate) | Re-run `fractanet-mobile-proot-agents.sh`, or copy mesh `config` + `fractanet-mesh` into proot `/root/.ssh/` |
+| `Permission denied (publickey)` | Missing or wrong key | Need `~/.ssh/fractanet-mesh` (mesh) or OCI key for `fracta-public` only |
+| Timeout / no route to `100.x` | Tailscale down on this node | Android: open Tailscale app, ensure `poco-jhr` is connected; Linux/Windows: `tailscale status` |
+| Works on ThinkPad, fails on phone native Termux | Rare after bootstrap; config/key missing | `ls -la ~/.ssh/{config,fractanet-mesh}`; re-run `bootstrap-poco-jhr.ps1` from ThinkPad |
+| Need break-glass without Tailscale | Public SSH | `ssh fracta-public` (OCI IP + `oci-fracta-instance-jh1` key) — **not** installed on Termux by default |
+
+**Verified paths (2026-07-26):**
+
+```bash
+# Native Termux (poco-jhr) — mesh config + key under Termux $HOME
+ssh fracta hostname   # -> fracta
+
+# Ubuntu proot (Codex/Claude) — needs /root/.ssh/config (separate from Termux)
+proot-distro login ubuntu -- ssh fracta hostname
+```
+
 ### Mobile dev environment (`poco-jhr`)
 
 Operator parity with the ThinkPad for corpus-backed coding sessions on the phone.
@@ -698,3 +721,4 @@ ssh fracta 'sudo /srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stack.sh 
 | 2026-07-05 | Node capability matrix; WAN topology (`poco-jhr` as mobile WAN hub) |
 | 2026-07-05 | `poco-jhr` corpus mirror ~3.1 G (17 repos); sync script `fractanet-sync-repos-from-fracta.sh` |
 | 2026-07-05 | `poco-jhr` mobile dev: Grok native, Codex + Claude in Ubuntu proot; `bootstrap-poco-jhr-dev.ps1` |
+| 2026-07-26 | Troubleshooting: `ssh fracta` / proot HOME split; proot agents script installs mesh SSH into `/root/.ssh` |

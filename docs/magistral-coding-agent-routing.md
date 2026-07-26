@@ -53,12 +53,15 @@ Live file on fracta (not in git):
 
 ### Secret authority (copies vs overrides)
 
+**Operium owns** the operational secret registry and rotation procedures
+([secrets-management.md](secrets-management.md)). Summary for this path:
+
 | Location | Role |
 |----------|------|
-| **`inseme/.env`** | Workstation **authority** for `COGENTIA_API_KEY` (and provider keys) |
-| **`instance_config` vault** (Inseme platform / Supabase) | Authority for **edge functions** (no FS `.env`); push via platform vault scripts from workstation SoT |
+| **`inseme/.env`** | Workstation **FS authority** for `COGENTIA_API_KEY` (and provider keys) |
+| **`instance_config` vault** (`cogentia_api_key`, `is_secret`) | **Edge authority** — edge functions have no FS; push with `sync-secrets.js --apply --vault` |
 | `/etc/cogentia/magistral.env` | Runtime **copy** for `magistral.service` |
-| Tool-host secrets (ThinkPad, etc.) | Runtime **copy** for Agent CLI Gateway |
+| Tool-host secrets (ThinkPad `~/.cogentia/secrets/agent-gateway.env`) | Runtime **copy** for Agent CLI Gateway |
 
 **Naming:** **Cogentia** is the system name; **FractaVolta.com** is the commercial entity
 that may deploy Cogentia in customer contexts. The shared bearer is **`COGENTIA_API_KEY` only**
@@ -94,8 +97,8 @@ sudo cp /path/to/operium/profiles/magistral-map.coding-agents.v1.json \
   /etc/cogentia/magistral-openai-map.json
 sudo chown root:ubuntu /etc/cogentia/magistral-openai-map.json
 sudo chmod 640 /etc/cogentia/magistral-openai-map.json
-# COGENTIA_API_KEY: copy from inseme/.env authority (or set once in inseme/.env then sync).
-# Legacy AGENT_GATEWAY_TOKEN still accepted by code during migration.
+# COGENTIA_API_KEY: copy from inseme/.env (FS authority). Name COGENTIA_API_KEY only.
+# Also push vault for edge: cd inseme/apps/platform && node scripts/sync-secrets.js --apply --vault
 # If /etc/cogentia/magistral.env must differ, comment the override above the value.
 # Value never logged / never git.
 sudo systemctl restart magistral.service
@@ -103,7 +106,8 @@ sudo systemctl restart magistral.service
 sudo /srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stack.sh restart
 ```
 
-Helper on fracta (after pull): `operium/scripts/ops/apply-magistral-coding-map-fracta.sh`
+Helper on fracta (after pull): `operium/scripts/ops/apply-magistral-coding-map-fracta.sh`  
+Rotate system bearer: see [secrets-management.md — Rotating COGENTIA_API_KEY](secrets-management.md).
 
 
 ## Health (Operium tools)

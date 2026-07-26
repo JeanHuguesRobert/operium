@@ -21,8 +21,20 @@ related:
 
 Complete inventory of coding AI agents operational on the workstation, their launchers, and integration architecture.
 
-**Last verified:** 2026-07-20
-**Status:** ✅ All systems operational
+**Last verified:** 2026-07-23  
+**Status:** ✅ All systems operational  
+
+### Cogentia MCP (agent corpus access)
+
+Coding agents that support MCP should use the **thin Cogentia MCP adapter**
+(`cogentia/scripts/cogentia-mcp.js`), not a second corpus implementation.
+
+- **Bootstrap tool:** `cogentia_views_snapshot` (alive work + corpus signals + view URLs)  
+- **Recipes:** [cogentia/docs/connect-mcp-clients.md](https://github.com/JeanHuguesRobert/cogentia/blob/main/docs/connect-mcp-clients.md)  
+- **Operium pointer:** [cogentia-mcp-clients.md](cogentia-mcp-clients.md)  
+- **Requires:** local daemon on `127.0.0.1:8790` (or Fracta public `https://cogentia.fractavolta.com/mcp`)  
+
+CLI without MCP: `node cogentia/scripts/cogentia.js --json views snapshot`
 
 ## Architecture
 
@@ -180,7 +192,9 @@ node apps/platform/scripts/sync-secrets.js
 
 2. **Create launcher:** Copy existing `.bat` file, update model name
 
-3. **Add secret key to vault:** Edit `C:/tweesic/inseme/.env`
+3. **Add secret:** Edit `C:/tweesic/inseme/.env`, then push vault if edge needs it
+   (`sync-secrets.js --apply --vault`). See `secrets-management.md` for
+   `COGENTIA_API_KEY` dual authority (FS vs vault).
 
 4. **Test:**
    ```bash
@@ -209,13 +223,14 @@ node apps/platform/scripts/sync-secrets.js
 |-----------|--------|-------|
 | Launchers | ✅ Operational | All tested |
 | Command Code | ✅ v0.52.1 | 43 models available |
-| Secret vault | ✅ Functional | Inseme .env |
+| Secret vault | ✅ Functional | `inseme/.env` + `instance_config` (see secrets-management.md) |
 | Local agents | ✅ AGY working | Sovereign/Magistral configured |
 | Multi-machine sync | ✅ Tailscale | scripts available |
 
 ## Related Documentation
 
-- `secrets-management.md` — Secret architecture and sync
+- `secrets-management.md` — Dual authority, catalog, `COGENTIA_API_KEY` rotation
+- `magistral-coding-agent-routing.md` — Guide → Magistral → Agent Gateway
 - `cogentia-agent-indexing-roadmap.md` — Agent indexing strategy
 - `workstation-tooling-debt-and-profiles.md` — Tool inventory
 
