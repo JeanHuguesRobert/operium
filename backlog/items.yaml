@@ -1,0 +1,188 @@
+# Operium Bug/Feature register (authority for Fix Bugs First).
+# Schema notes: backlog/README.md · doctrine: docs/fix-bugs-first.md
+# Do not store secret values here.
+
+schema: operium.backlog.v1
+updated_at: "2026-07-26"
+owner: Operium
+
+items:
+  # ── Bugs (fix first) ─────────────────────────────────────────────
+
+  - id: OP-BUG-001
+    kind: bug
+    title: Agent CLI Gateway Tailscale reachability intermittent from fracta
+    subsystem: agent-gateway
+    severity: critical
+    status: open
+    evidence: >
+      2026-07-26 — gateway reports listen on 100.122.121.68:8793 with
+      token_configured=true; local/fracta probes still timeout or connection
+      refused after short windows. Guide conversational path depends on this hop.
+    next_action: >
+      Stabilize Windows service/listen + inbound firewall for Tailscale;
+      smoke from fracta curl :8793/health with COGENTIA_API_KEY bearer until
+      reliable; record procedure in mesh/gateway ops docs.
+    github_issue: 11
+    blocks_features: true
+    opened_at: "2026-07-26"
+    closed_at: null
+    notes: |
+      Blocks meaningful feature work on Guide conversational quality until fixed
+      or waived with a temporary extractive-only product stance.
+
+  - id: OP-BUG-002
+    kind: bug
+    title: System bearer rotation leaves runtime copies out of sync
+    subsystem: secrets
+    severity: high
+    status: open
+    evidence: >
+      Dual authority (inseme/.env + vault) is documented, but refreshing
+      /etc/cogentia/magistral.env and ThinkPad agent-gateway.env is still
+      manual multi-step; easy to desync after COGENTIA_API_KEY change.
+    next_action: >
+      Add a single apply script or operium procedure that updates SoT → vault →
+      known copies → restarts consumers, with dry-run and verify.
+    github_issue: 12
+    blocks_features: true
+    opened_at: "2026-07-26"
+    closed_at: null
+
+  - id: OP-BUG-003
+    kind: bug
+    title: Open Operium GitHub issues lack kind/subsystem labels
+    subsystem: meta
+    severity: medium
+    status: done
+    evidence: >
+      2026-07-26: labels severity:* subsystem:* fbf created; open issues 1–15
+      labeled; backlog ids linked on bug issues 11–15.
+    next_action: "Keep labeling new issues; no further work"
+    github_issue: 13
+    blocks_features: false
+    opened_at: "2026-07-26"
+    closed_at: "2026-07-26"
+
+  - id: OP-BUG-004
+    kind: bug
+    title: Workstation admin-scoped npm tooling breaks user-space installs
+    subsystem: tooling
+    severity: medium
+    status: open
+    evidence: >
+      docs/workstation-tooling-debt-and-profiles.md (2026-07-19) — EPERM under
+      Program Files, incomplete global packages (e.g. supabase@).
+    next_action: >
+      Enforce Scoop/user prefix profile; remove or quarantine admin globals;
+      verify supabase/gh/node CLIs in user PATH.
+    github_issue: 14
+    blocks_features: false
+    opened_at: "2026-07-19"
+    closed_at: null
+
+  - id: OP-BUG-005
+    kind: bug
+    title: Secrets research notes drift from operational secrets-management.md
+    subsystem: docs
+    severity: low
+    status: open
+    evidence: >
+      research/secrets-architecture-2026-07.md and secrets-sovereign-architecture.md
+      predate dual-authority COGENTIA_API_KEY write-up (2026-07-26).
+    next_action: >
+      Mark research notes historical or merge residual claims into
+      docs/secrets-management.md; single pointer from research/index.md.
+    github_issue: 15
+    blocks_features: false
+    opened_at: "2026-07-26"
+    closed_at: null
+
+  # ── Features (blocked by subsystem bugs when severity high+) ─────
+
+  - id: OP-FEAT-001
+    kind: feature
+    title: Automate Magistral coding-agent map apply + verify on fracta
+    subsystem: magistral-routing
+    priority: p1
+    status: open
+    evidence: "operium issue #10; apply script exists but end-to-end verify incomplete"
+    next_action: "Close only after OP-BUG-001 smoke green and map health documented"
+    github_issue: 10
+    opened_at: "2026-07-26"
+    closed_at: null
+    notes: |
+      Depends on agent-gateway stability (OP-BUG-001). Gate subsystem
+      agent-gateway / magistral-routing before expanding map features.
+
+  - id: OP-FEAT-002
+    kind: feature
+    title: FractaNet observed-state reconciliation
+    subsystem: mesh
+    priority: p1
+    status: open
+    evidence: "operium issue #9"
+    next_action: "Triage against Fix Bugs First; implement only if mesh bugs clear"
+    github_issue: 9
+    opened_at: "2026-07-17"
+    closed_at: null
+
+  - id: OP-FEAT-003
+    kind: feature
+    title: Cross-device WIP handoff/resume polish
+    subsystem: cli
+    priority: p2
+    status: open
+    evidence: "operium issue #7; core docs exist (operium-wip.md)"
+    next_action: "Audit remaining gaps vs docs; close issue if already shipped"
+    github_issue: 7
+    opened_at: "2026-07-08"
+    closed_at: null
+
+  - id: OP-FEAT-004
+    kind: feature
+    title: poco-jhr Termux:Boot + MIUI autostart fallback
+    subsystem: mesh
+    priority: p2
+    status: open
+    evidence: "operium issue #6"
+    next_action: "Continue as mesh reliability feature after labeling"
+    github_issue: 6
+    opened_at: "2026-07-07"
+    closed_at: null
+
+  - id: OP-FEAT-005
+    kind: feature
+    title: Ephemeral job runner for large CPU/RAM work
+    subsystem: ona
+    priority: p2
+    status: open
+    evidence: "operium issue #3"
+    next_action: "Defer behind ONA stability bugs if any open high+"
+    github_issue: 3
+    opened_at: "2026-07-04"
+    closed_at: null
+
+  - id: OP-FEAT-006
+    kind: feature
+    title: Content-addressed storage doctrine (buckets / Plakar)
+    subsystem: replication
+    priority: p3
+    status: open
+    evidence: "operium issue #2"
+    next_action: "Keep as doctrine/feature; no gate conflict unless replication bugs"
+    github_issue: 2
+    opened_at: "2026-07-04"
+    closed_at: null
+
+  - id: OP-FEAT-007
+    kind: feature
+    title: Vendor-neutral API usage and billing monitoring
+    subsystem: docs
+    priority: p3
+    status: open
+    evidence: "operium issue #1"
+    next_action: "Low priority observability feature"
+    github_issue: 1
+    opened_at: "2026-06-29"
+    closed_at: null

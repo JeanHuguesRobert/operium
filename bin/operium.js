@@ -18,11 +18,21 @@ import {
 import { buildWipStatus, handoffWip, resumeWip } from "../lib/git-wip.js";
 import { invokeTool } from "../lib/invoke-tool.js";
 import { buildOperiumUp, exitCodeForUp } from "../lib/operium-up.js";
+import {
+  defaultBacklogPath,
+  evaluateGate,
+  filterItems,
+  formatBacklogHuman,
+  formatGateHuman,
+  loadBacklog,
+} from "../lib/backlog.js";
 
 const HELP = `operium — versioned operational environment registry CLI
 
 Usage:
   operium up [options]             Check what is up (Fractanet observer)
+  operium backlog list [options]   List Bug/Feature register (Fix Bugs First)
+  operium backlog gate --subsystem <slug>   Feature gate for a subsystem
   operium invoke tool [options]    Route a tool invocation via blackboard → agent-gateway
   operium wip status [options]     Inspect local Git WIP state
   operium handoff wip [options]    Commit and push a resumable WIP branch
@@ -69,6 +79,13 @@ Invoke tool options:
   --content-only          print assistant text only
   --allow-degraded        accept degraded attractors
   --via guide             Route via fracta POST /ops/route/action (#52)
+
+Backlog options (Fix Bugs First — docs/fix-bugs-first.md):
+  --kind <bug|feature|incident|debt>
+  --status <open|openish|in_progress|blocked|deferred|done>
+  --subsystem <slug>      Required for gate; filter for list
+  --severity <level>      critical|high|medium|low
+  --backlog <path>        Default backlog/items.yaml
 
 WIP options:
   --repo <path>           Git repository path (default current repo)
@@ -139,6 +156,11 @@ function parseArgs(argv) {
     logLimit: null,
     logSince: null,
     peerNodeId: null,
+    filterKind: null,
+    filterStatus: null,
+    filterSeverity: null,
+    subsystem: null,
+    backlogPath: null,
   };
 
   const args = [...argv];
@@ -167,6 +189,8 @@ function parseArgs(argv) {
     options.subcommand = "status";
   } else if (options.command === "node") {
     options.subcommand = args.shift() || null;
+  } else if (options.command === "backlog") {
+    options.subcommand = args.shift() || "list";
   }
 
   while (args.length) {
@@ -290,7 +314,23 @@ function parseArgs(argv) {
         options.onaUrl = args.shift();
         break;
       case "--kind":
-        options.logKind = args.shift();
+        if (options.command === "backlog") {
+          options.filterKind = args.shift();
+        } else {
+          options.logKind = args.shift();
+        }
+        break;
+      case "--status":
+        options.filterStatus = args.shift();
+        break;
+      case "--subsystem":
+        options.subsystem = args.shift();
+        break;
+      case "--severity":
+        options.filterSeverity = args.shift();
+        break;
+      case "--backlog":
+        options.backlogPath = args.shift();
         break;
       case "--limit":
         options.logLimit = Number(args.shift());
@@ -342,6 +382,11 @@ async function main() {
       console.log(JSON.stringify(result, null, 2));
     }
     process.exit(result.ok ? 0 : 2);
+  }
+
+  if (isBacklogCommand(options)) {
+    runBacklogCommand(options);
+    return;
   }
 
   if (options.command === "node" && !isNodeCommand(options)) {
@@ -471,6 +516,73 @@ function isWipCommand(options) {
     (options.command === "resume" && options.subcommand === "wip") ||
     (options.command === "wip" && options.subcommand === "status")
   );
+}
+
+function isBacklogCommand(options) {
+  return options.command === "backlog";
+}
+
+function runBacklogCommand(options) {
+  const sub = options.subcommand || "list";
+  if (!["list", "gate"].includes(sub)) {
+    console.error(`unknown_backlog_subcommand: ${sub}`);
+    console.error("Use: operium backlog list|gate");
+    process.exit(2);
+  }
+
+  let backlog;
+  try {
+    backlog = loadBacklog(options.backlogPath || defaultBacklogPath());
+  } catch (error) {
+    console.error(
+      JSON.stringify(
+        { ok: false, error: error.code || "backlog_error", message: error.message },
+        null,
+        2
+      )
+    );
+    process.exit(2);
+  }
+
+  if (sub === "gate") {
+    if (!options.subsystem) {
+      console.error("gate requires --subsystem <slug>");
+      process.exit(2);
+    }
+    const gate = evaluateGate(backlog, options.subsystem);
+    if (options.human) {
+      console.log(formatGateHuman(gate));
+    } else {
+      console.log(JSON.stringify({ ok: !gate.blocked, ...gate }, null, 2));
+    }
+    process.exit(gate.blocked ? 1 : 0);
+  }
+
+  const filtered = filterItems(backlog.items, {
+    kind: options.filterKind,
+    status: options.filterStatus,
+    subsystem: options.subsystem,
+    severity: options.filterSeverity,
+  });
+  const payload = {
+    schema: "operium.backlog.list.v1",
+    path: backlog.path,
+    updated_at: backlog.updated_at,
+    query: {
+      kind: options.filterKind,
+      status: options.filterStatus,
+      subsystem: options.subsystem,
+      severity: options.filterSeverity,
+    },
+    count: filtered.length,
+    items: filtered,
+  };
+  if (options.human) {
+    console.log(formatBacklogHuman(backlog, filtered));
+  } else {
+    console.log(JSON.stringify(payload, null, 2));
+  }
+  process.exit(0);
 }
 
 function isInvokeCommand(options) {

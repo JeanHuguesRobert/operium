@@ -52,6 +52,18 @@ Do not present an intended evolution as current state.
 Do not present an assumption as a verified fact.  
 Do not expose private operational details in public views.
 
+## Fix Bugs First (mandatory for interactive work)
+
+When Operium (or an ops-touching session) feels **out of control**, apply
+[`docs/fix-bugs-first.md`](docs/fix-bugs-first.md):
+
+1. `operium backlog list --kind bug --status openish --human`
+2. `operium backlog gate --subsystem <slug>` before feature work in that slug
+3. Prefer fixing or waiving **bugs** over opening new features
+4. Update `backlog/items.yaml` (authority); GitHub Issues are the discussion mirror
+
+Do not invent a parallel ops path that bypasses the backlog.
+
 ## Direct-main rule
 
 This repository follows **Optimistic Mainline Governance** by reference, not by copying the doctrine here.

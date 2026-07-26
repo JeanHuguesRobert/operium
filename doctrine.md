@@ -37,6 +37,20 @@ An Operium registry should answer three operational questions:
 2. What changes are intended, active, blocked or abandoned?
 3. How healthy, fragile or reproducible is the operational environment?
 
+## Fix Bugs First (when out of control)
+
+When the operational plane or a product surface becomes hard to steer, **do not
+add features first**. Restore control with a **Bug/Feature tracking system**:
+
+- typed items (`bug` vs `feature` vs `incident`);
+- subsystem scope;
+- severity and evidence for bugs;
+- a **gate**: known high/critical bugs block new features in the same subsystem
+  unless waived in the register.
+
+The versioned register is `backlog/items.yaml`. Method:
+[`docs/fix-bugs-first.md`](docs/fix-bugs-first.md). CLI: `operium backlog list|gate`.
+
 ## Design constraints
 
 Operium should remain:

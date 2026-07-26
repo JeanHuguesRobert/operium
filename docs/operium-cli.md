@@ -21,6 +21,7 @@ Companion surfaces:
 | Surface | Role |
 |---------|------|
 | `operium up` | Observer on any trusted workstation |
+| `operium backlog list` / `operium backlog gate` | Fix Bugs First register (`backlog/items.yaml`) |
 | `operium handoff wip` / `operium resume wip` | GitHub-backed WIP handoff between trusted nodes |
 | `GET /ops/status` | Runtime aggregator on fracta (same schema subset) |
 | `/ops/dashboard` | Human web UI |

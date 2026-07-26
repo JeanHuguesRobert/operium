@@ -62,6 +62,7 @@ decisions/    Architecture Decision Records
 - [`docs/fractavolta-dns.md`](docs/fractavolta-dns.md) records the Gandi DNS zone — fracta OCI IP, service CNAMEs, mail, apex GitHub Pages.
 - [`docs/operium-cli.md`](docs/operium-cli.md) — `operium up` CLI and `operium.up.v1` JSON schema.
 - [`docs/operium-wip.md`](docs/operium-wip.md) — GitHub-backed WIP handoff/resume for PC, Termux and `fracta`.
+- [`docs/fix-bugs-first.md`](docs/fix-bugs-first.md) — Fix Bugs First; Bug/Feature register (`backlog/`, `operium backlog`).
 - [`docs/operium-node-agent.md`](docs/operium-node-agent.md) describes the Operium Node Agent and its bounded execution model.
 - [`docs/operium-node-agent-install.md`](docs/operium-node-agent-install.md) covers fleet installation and operation.
 - [`docs/operium-console.md`](docs/operium-console.md) introduces the operator console.
