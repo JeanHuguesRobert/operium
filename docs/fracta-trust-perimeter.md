@@ -74,6 +74,11 @@ Internet
 Magistral / model-router stays **loopback-only**. The MCP adapter is the public
 retrieval and chat boundary for visitors.
 
+**Guide synthesis routing** (Magistral → Agent CLI Gateway / coding agents) is
+owned by Operium — see [Magistral coding-agent routing](magistral-coding-agent-routing.md)
+and [decision](../decisions/magistral-coding-agent-routing.md). Do not invent
+parallel runbooks under application repos.
+
 ## Secrets file on the node
 
 Runtime secrets for the Guide MCP are loaded from:

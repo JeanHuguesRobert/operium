@@ -63,3 +63,5 @@ update_policy: UP-DEFAULT-REVIEWED
 - [Generic Model Selector Design](model-selector-design.md)
 - [Open Strategy for Model Selector](open-strategy-model-selector.md)
 - [Workstation tooling debt and tool profiles](../docs/workstation-tooling-debt-and-profiles.md)
+- [Magistral → coding-agent routing (Guide synthesis)](../docs/magistral-coding-agent-routing.md)
+- [ADR — Magistral coding-agent routing](../decisions/magistral-coding-agent-routing.md)

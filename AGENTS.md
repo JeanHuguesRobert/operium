@@ -62,6 +62,21 @@ For `operium`, direct-main work is appropriate for small documentation updates, 
 
 Use an issue, checkpoint, branch, PR, staged patch or human validation when a change touches private operational details, broad structural changes, public/private boundaries, or several repositories at once.
 
+## Operational deployments
+
+**Operium owns operational deploy state** for Fractanet/fracta (health, desired
+routing, secret *references*, apply procedure, evidence). Application repos
+(cogentia, inseme, …) may ship unit scripts and config *fragments*; agents must
+not invent a second control plane under those repos.
+
+- Observe: `operium up`, `operium node diagnose`
+- Action plane: `operium invoke tool` (optionally `--via guide`)
+- Fracta Guide synthesis routing: `docs/magistral-coding-agent-routing.md`
+
+When changing live routing (Caddy, Magistral map, systemd), record the decision
+in Operium and update health notes. Do not leave operational runbooks only under
+`cogentia/deploy/`.
+
 ## Operational discipline
 
 When editing registry material, preserve:
