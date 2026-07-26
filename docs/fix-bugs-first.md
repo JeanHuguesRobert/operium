@@ -142,3 +142,17 @@ When an agent or human starts work in Operium (or ops-touching corpus work):
 - [`operational-health.md`](operational-health.md) — health scores
 - [`operium-wip.md`](operium-wip.md) — session handoff (not the backlog)
 - Classic XP-adjacent slogan: [Fix Bugs First (c2)](https://wiki.c2.com/?FixBugsFirst) — same impulse; Operium makes it **tracked and gated**
+
+## Provenance (historical, not ops)
+
+The idea predates Operium. It was practiced at **Perform** (Aix-en-Provence,
+software house, ~1987–1997) as a way to regain control of product work when
+what later became widely called **technical debt** still lacked a stable common
+name — and it was discussed on the original c2 wiki. The **historical** note
+(Perform, SAGE/X, selling multi-vendor **negotiation power**, evidence
+statuses) lives in barons-Mariani, not here:
+
+[perform_fixbugsfirst_technical_debt_negotiation_power.md](https://github.com/JeanHuguesRobert/barons-Mariani/blob/main/research/perform_fixbugsfirst_technical_debt_negotiation_power.md)
+
+Operium owns the **current** Bug/Feature gate. barons-Mariani owns the
+**lineage and memory**.
