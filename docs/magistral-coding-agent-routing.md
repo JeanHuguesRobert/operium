@@ -55,13 +55,15 @@ Live file on fracta (not in git):
 
 | Location | Role |
 |----------|------|
-| **`inseme/.env`** | **Authority** for `COGENTIA_API_KEY` and provider keys |
-| `/etc/cogentia/magistral.env` | Runtime **copy** for `magistral.service` (`EnvironmentFile=`) |
-| Other agent-gateway / tool-host env files | Runtime **copies** |
+| **`inseme/.env`** | Workstation **authority** for `COGENTIA_API_KEY` (and provider keys) |
+| **`instance_config` vault** (Inseme platform / Supabase) | Authority for **edge functions** (no FS `.env`); push via platform vault scripts from workstation SoT |
+| `/etc/cogentia/magistral.env` | Runtime **copy** for `magistral.service` |
+| Tool-host secrets (ThinkPad, etc.) | Runtime **copy** for Agent CLI Gateway |
 
 **Naming:** **Cogentia** is the system name; **FractaVolta.com** is the commercial entity
-that may deploy Cogentia in customer contexts. The shared bearer is **`COGENTIA_API_KEY`**.
-Legacy `AGENT_GATEWAY_TOKEN` / `AGENT_GATEWAY_INVOKE_TOKEN` remain migration aliases only.
+that may deploy Cogentia in customer contexts. The shared bearer is **`COGENTIA_API_KEY` only**
+(do not also set the same secret under `AGENT_GATEWAY_TOKEN=`). Legacy names remain code
+aliases for reading only.
 
 If a copy **must** differ from `inseme/.env`, put a **comment immediately above** the
 override explaining why. No silent divergence. Prefer `EnvironmentFile=` over hardcoding
