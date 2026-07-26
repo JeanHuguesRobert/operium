@@ -55,15 +55,19 @@ Live file on fracta (not in git):
 
 | Location | Role |
 |----------|------|
-| **`inseme/.env`** | **Authority** for `AGENT_GATEWAY_TOKEN` and provider keys |
+| **`inseme/.env`** | **Authority** for `COGENTIA_API_KEY` and provider keys |
 | `/etc/cogentia/magistral.env` | Runtime **copy** for `magistral.service` (`EnvironmentFile=`) |
-| Other agent-gateway env files | Runtime **copies** |
+| Other agent-gateway / tool-host env files | Runtime **copies** |
+
+**Naming:** **Cogentia** is the system name; **FractaVolta.com** is the commercial entity
+that may deploy Cogentia in customer contexts. The shared bearer is **`COGENTIA_API_KEY`**.
+Legacy `AGENT_GATEWAY_TOKEN` / `AGENT_GATEWAY_INVOKE_TOKEN` remain migration aliases only.
 
 If a copy **must** differ from `inseme/.env`, put a **comment immediately above** the
 override explaining why. No silent divergence. Prefer `EnvironmentFile=` over hardcoding
 `Environment=TOKEN=…` in systemd drop-ins.
 
-Bearer for gateway nodes: `AGENT_GATEWAY_TOKEN` must reach Magistral’s process env so
+Bearer for gateway nodes: `COGENTIA_API_KEY` must reach Magistral’s process env so
 `buildMagistralApiKeys()` can send `Authorization: Bearer …`. **Never** commit values.
 
 Attractor (blackboard): `attractor:i7-thinkpad-jhr:agent-cli-gateway`  
@@ -88,7 +92,8 @@ sudo cp /path/to/operium/profiles/magistral-map.coding-agents.v1.json \
   /etc/cogentia/magistral-openai-map.json
 sudo chown root:ubuntu /etc/cogentia/magistral-openai-map.json
 sudo chmod 640 /etc/cogentia/magistral-openai-map.json
-# AGENT_GATEWAY_TOKEN: copy from inseme/.env authority (or set once in inseme/.env then sync).
+# COGENTIA_API_KEY: copy from inseme/.env authority (or set once in inseme/.env then sync).
+# Legacy AGENT_GATEWAY_TOKEN still accepted by code during migration.
 # If /etc/cogentia/magistral.env must differ, comment the override above the value.
 # Value never logged / never git.
 sudo systemctl restart magistral.service

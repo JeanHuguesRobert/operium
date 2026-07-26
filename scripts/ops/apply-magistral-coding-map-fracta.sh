@@ -53,12 +53,9 @@ candidates = [
     "/srv/cogentia/secrets/agent-gateway.env",
     "/srv/cogentia/secrets/guide.env",
 ]
-token = None
-src = None
-for p in candidates:
-    raw = read_text(p)
-    if not raw:
-        continue
+def pick_token(raw: str):
+    """Prefer COGENTIA_API_KEY over legacy AGENT_GATEWAY_* names."""
+    found = {}
     for line in raw.splitlines():
         line = line.strip()
         if not line or line.startswith("#") or "=" not in line:
@@ -66,24 +63,45 @@ for p in candidates:
         k, v = line.split("=", 1)
         k, v = k.strip(), v.strip().strip('"').strip("'")
         if k in (
+            "COGENTIA_API_KEY",
             "AGENT_GATEWAY_TOKEN",
             "AGENT_GATEWAY_INVOKE_TOKEN",
             "AGENT_GATEWAY_ACCEPT_TOKEN",
         ) and v:
-            token, src = v, p
-            break
-    if token:
+            found[k] = v
+    if "COGENTIA_API_KEY" in found:
+        return found["COGENTIA_API_KEY"]
+    for k in (
+        "AGENT_GATEWAY_TOKEN",
+        "AGENT_GATEWAY_INVOKE_TOKEN",
+        "AGENT_GATEWAY_ACCEPT_TOKEN",
+    ):
+        if k in found:
+            return found[k]
+    return None
+
+token = None
+src = None
+for p in candidates:
+    raw = read_text(p)
+    if not raw:
+        continue
+    t = pick_token(raw)
+    if t:
+        token, src = t, p
         break
 
-has = any(l.startswith("AGENT_GATEWAY_TOKEN=") for l in text.splitlines())
-if token and not has:
+has_cogentia = any(l.startswith("COGENTIA_API_KEY=") for l in text.splitlines())
+has_legacy = any(l.startswith("AGENT_GATEWAY_TOKEN=") for l in text.splitlines())
+if token and not has_cogentia:
     Path("/tmp/magistral.env.append").write_text(
-        "\n# added for coding-agent map\nAGENT_GATEWAY_TOKEN=" + token + "\n"
+        "\n# Authority: inseme/.env — Cogentia system bearer (not FractaVolta-specific)\n"
+        "COGENTIA_API_KEY=" + token + "\n"
     )
-    print("TOKEN_APPEND from", src, "len", len(token))
-elif token and has:
+    print("TOKEN_APPEND COGENTIA_API_KEY from", src, "len", len(token))
+elif token and (has_cogentia or has_legacy):
     print("TOKEN_ALREADY_PRESENT len", len(token))
-elif has:
+elif has_cogentia or has_legacy:
     print("TOKEN_ALREADY_PRESENT no_refresh")
 else:
     print("TOKEN_MISSING")

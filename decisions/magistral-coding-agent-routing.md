@@ -34,9 +34,12 @@ second ops control plane.
 4. **Guide** keeps `COGENTIA_GUIDE_AGENT_GATEWAY=0` so synthesis goes
    Guide → Cogentia daemon → Magistral → coding-agent gateway (stateless router).
    Client owns conversation history.
-5. **Secrets** (`AGENT_GATEWAY_TOKEN`, map keys) stay on the node under
-   `/etc/cogentia/` and `/srv/cogentia/secrets/` — never GitHub. Operium stores
-   **references and procedure**, not values.
+5. **Secrets** — the shared system bearer is **`COGENTIA_API_KEY`** (authority:
+   `inseme/.env`; copies on nodes). Legacy `AGENT_GATEWAY_*` token names are
+   migration aliases only. Values stay on the node under `/etc/cogentia/` and
+   `/srv/cogentia/secrets/` — never GitHub. Operium stores **references and
+   procedure**, not values. FractaVolta is the commercial deployment face of
+   Cogentia, not a separate secret namespace.
 6. **Operational apply and health** use Operium (`operium up`, node diagnose,
    invoke tool) and the procedures in
    [`docs/magistral-coding-agent-routing.md`](../docs/magistral-coding-agent-routing.md).
