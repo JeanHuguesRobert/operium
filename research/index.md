@@ -32,21 +32,33 @@ update_policy: UP-DEFAULT-REVIEWED
 ## Start here
 
 - [Operium Doctrine](../doctrine.md)
+- [AGENTS.md — Operium agent mandate](../AGENTS.md) — includes **ops ownership** (no dual runbooks under app repos)
 - [Operational health](../docs/operational-health.md)
-- [Cogentia Semantic Stack](../docs/cogentia-semantic-stack.md)
+- [Public / private split](../docs/public-private-split.md)
 - [Fracta trust perimeter and secrets](../docs/fracta-trust-perimeter.md)
-- [Fractanet resumption handoff — July 2026 pause](fractanet-resumption-2026-07.md)
+- [Operium CLI](../docs/operium-cli.md) — `operium up`, invoke, node diagnose
+
+### Live ops priorities (July 2026)
+
+- [Magistral → coding-agent routing (Guide synthesis)](../docs/magistral-coding-agent-routing.md) — desired map + apply; **issue [#10](https://github.com/JeanHuguesRobert/operium/issues/10)**
+- [ADR — Magistral coding-agent routing](../decisions/magistral-coding-agent-routing.md)
+- Map template: [`profiles/magistral-map.coding-agents.v1.json`](../profiles/magistral-map.coding-agents.v1.json)
 - [Fractanet mesh — Tailscale and SSH](../docs/fractanet-mesh.md)
 - [fractavolta.com DNS zone](../docs/fractavolta-dns.md)
-- [Operium CLI](../docs/operium-cli.md)
+
+### Doctrine & method
+
+- [Cogentia Semantic Stack](../docs/cogentia-semantic-stack.md)
+- [Cogentia Agent Indexing Roadmap](../docs/cogentia-agent-indexing-roadmap.md)
+- [Operia](../docs/operia.md)
+- [ADR-0001 — Operium scope](../decisions/ADR-0001-operium-scope.md)
+
+### Incidents & handoffs
+
+- [Fractanet resumption handoff — July 2026 pause](fractanet-resumption-2026-07.md)
 - [fracta daemon health latency — July 2026 incident](fracta-daemon-health-2026-07.md)
 - [inox-serve offline on ThinkPad — July 2026 incident](inox-serve-thinkpad-2026-07.md)
 - [Serra corpus integration plan](serra-corpus-integration-plan.md)
-- [Cogentia Agent Indexing Roadmap](../docs/cogentia-agent-indexing-roadmap.md)
-- [Operia](../docs/operia.md)
-- [Public / private split](../docs/public-private-split.md)
-- [ADR-0001 — Operium scope](../decisions/ADR-0001-operium-scope.md)
-- [AGENTS.md — Operium agent mandate](../AGENTS.md)
 
 ---
 
@@ -63,5 +75,4 @@ update_policy: UP-DEFAULT-REVIEWED
 - [Generic Model Selector Design](model-selector-design.md)
 - [Open Strategy for Model Selector](open-strategy-model-selector.md)
 - [Workstation tooling debt and tool profiles](../docs/workstation-tooling-debt-and-profiles.md)
-- [Magistral → coding-agent routing (Guide synthesis)](../docs/magistral-coding-agent-routing.md)
-- [ADR — Magistral coding-agent routing](../decisions/magistral-coding-agent-routing.md)
+
