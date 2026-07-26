@@ -77,6 +77,10 @@ When changing live routing (Caddy, Magistral map, systemd), record the decision
 in Operium and update health notes. Do not leave operational runbooks only under
 `cogentia/deploy/`.
 
+**Stigmergy for other agents:** the same rule is mirrored in the Cogentia corpus
+(`cogentia/research/operium_owns_operational_deploy.md`), workspace `Claude.md` /
+`GROK.md`, and Claude memory `feedback_operium_owns_ops.md`.
+
 ## Operational discipline
 
 When editing registry material, preserve:
