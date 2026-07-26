@@ -45,7 +45,10 @@ def read_text(path: str) -> str:
 
 env_path = "/etc/cogentia/magistral.env"
 text = read_text(env_path)
+# Authority first: inseme/.env; other files are copies (override only with comment).
 candidates = [
+    "/srv/cogentia/repos/inseme/.env",
+    "/home/ubuntu/repos/inseme/.env",
     "/etc/cogentia/agent-gateway.env",
     "/srv/cogentia/secrets/agent-gateway.env",
     "/srv/cogentia/secrets/guide.env",

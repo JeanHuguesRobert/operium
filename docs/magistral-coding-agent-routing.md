@@ -51,8 +51,20 @@ Live file on fracta (not in git):
 /etc/cogentia/magistral-openai-map.json
 ```
 
-Bearer for gateway nodes: `AGENT_GATEWAY_TOKEN` in `/etc/cogentia/magistral.env`
-(must match ThinkPad gateway token). **Never** commit the value.
+### Secret authority (copies vs overrides)
+
+| Location | Role |
+|----------|------|
+| **`inseme/.env`** | **Authority** for `AGENT_GATEWAY_TOKEN` and provider keys |
+| `/etc/cogentia/magistral.env` | Runtime **copy** for `magistral.service` (`EnvironmentFile=`) |
+| Other agent-gateway env files | Runtime **copies** |
+
+If a copy **must** differ from `inseme/.env`, put a **comment immediately above** the
+override explaining why. No silent divergence. Prefer `EnvironmentFile=` over hardcoding
+`Environment=TOKEN=…` in systemd drop-ins.
+
+Bearer for gateway nodes: `AGENT_GATEWAY_TOKEN` must reach Magistral’s process env so
+`buildMagistralApiKeys()` can send `Authorization: Bearer …`. **Never** commit values.
 
 Attractor (blackboard): `attractor:i7-thinkpad-jhr:agent-cli-gateway`  
 Transport ref (observed): Tailscale `100.122.121.68` / MagicDNS `i7-thinkpad-jhr`.
@@ -76,10 +88,16 @@ sudo cp /path/to/operium/profiles/magistral-map.coding-agents.v1.json \
   /etc/cogentia/magistral-openai-map.json
 sudo chown root:ubuntu /etc/cogentia/magistral-openai-map.json
 sudo chmod 640 /etc/cogentia/magistral-openai-map.json
-# Ensure AGENT_GATEWAY_TOKEN is set in /etc/cogentia/magistral.env (value not logged)
+# AGENT_GATEWAY_TOKEN: copy from inseme/.env authority (or set once in inseme/.env then sync).
+# If /etc/cogentia/magistral.env must differ, comment the override above the value.
+# Value never logged / never git.
 sudo systemctl restart magistral.service
+# After inseme deploy of buildMagistralApiKeys fix, restart is required so router picks env.
 sudo /srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stack.sh restart
 ```
+
+Helper on fracta (after pull): `operium/scripts/ops/apply-magistral-coding-map-fracta.sh`
+
 
 ## Health (Operium tools)
 
