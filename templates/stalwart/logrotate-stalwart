@@ -1,0 +1,12 @@
+/var/log/stalwart/* {
+	daily
+	rotate 14
+	missingok
+	notifempty
+	compress
+	delaycompress
+	copytruncate
+	su stalwart stalwart
+	# Operational logs only; do not archive indefinitely on the public VPS.
+	maxsize 50M
+}

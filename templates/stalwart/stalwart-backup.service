@@ -1,0 +1,10 @@
+[Unit]
+Description=Encrypted Stalwart backup (Operium)
+After=network-online.target stalwart.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/stalwart-backup.sh
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7

@@ -23,7 +23,7 @@ Companion notes:
 - [Fracta trust perimeter and secrets](fracta-trust-perimeter.md) — VPS role, `guide.env`, Caddy
 - [Fractanet mesh — Tailscale and SSH](fractanet-mesh.md) — Tailscale vs public IP access
 
-**Registrar / DNS host:** Gandi (`ns1.gandi.net`, SOA serial `1783010296` at observation).
+**Registrar / DNS host:** Gandi (`ns1.gandi.net`, SOA serial `1785162108` at observation).
 
 ---
 
@@ -34,7 +34,8 @@ Companion notes:
 | Apex `@` (`fractavolta.com`) | **GitHub Pages** — four A records `185.199.108–111.153` |
 | `fracta.fractavolta.com` | **OCI Free Tier VPS** — A `82.70.234.207` |
 | `*.fractavolta.com` (most app hosts) | CNAME → `fracta.fractavolta.com` (Caddy reverse proxy on VPS) |
-| Mail | Gandi (`spool.mail.gandi.net`, `fb.mail.gandi.net`, DKIM, webmail) |
+| Apex mail `@fractavolta.com` | Gandi (`spool.mail.gandi.net`, `fb.mail.gandi.net`, DKIM, webmail) |
+| Twin mail `@mail.fractavolta.com` | Stalwart on fracta — A/MX `82.70.234.207`; TCP 25 ingress operational |
 
 Routine **operator SSH** to the VPS uses the public IP `82.70.234.207` (alias `fracta-public`) or Tailscale — see [fractanet-mesh.md](fractanet-mesh.md). Visitor HTTPS hits CNAMEs that resolve to this IP via `fracta.fractavolta.com`.
 
@@ -61,9 +62,14 @@ _submission._tcp SRV  0 1 465 mail.gandi.net.
 _imap._tcp      SRV   0 0 0 .
 _pop3._tcp      SRV   0 0 0 .
 mailsa          TXT   dccc24c423a220b87bab1ef5a6b4e7fb634e6b567852b2287a1b041898c24b1f
+mail            A     82.70.234.207
+mail            MX    10 mail.fractavolta.com.
 ```
 
-The apex points at **GitHub Pages**, not the fracta VPS. Project sites on `*.github.io` may use dedicated records (see exceptions below).
+The apex points at **GitHub Pages**, not the fracta VPS. Its MX records and
+Gandi forwarding rules remain independent from the Stalwart MX on the `mail`
+subdomain. Project sites on `*.github.io` may use dedicated records (see
+exceptions below).
 
 ---
 

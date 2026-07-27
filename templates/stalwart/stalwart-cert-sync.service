@@ -1,0 +1,7 @@
+[Unit]
+Description=Synchronize Caddy certificate into Stalwart
+After=caddy.service stalwart.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/stalwart-sync-caddy-cert.sh
