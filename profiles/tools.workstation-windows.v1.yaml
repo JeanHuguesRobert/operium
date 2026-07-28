@@ -4,7 +4,7 @@
 
 profile_id: tools.workstation-windows.v1
 node_class: workstation-windows
-updated: "2026-07-27"
+updated: "2026-07-28"
 policy:
   install_mode: user-space
   forbid_admin_npm_global: true
@@ -96,6 +96,30 @@ tools:
     priority: 1
     status: managed
     doc: docs/claude-code-mode.md
+
+  - id: winfsp
+    purpose: User-space filesystem layer for the Fracta SFTP network drive
+    desired:
+      provider: winget
+      package: WinFsp.WinFsp
+    priority: 1
+    status: present
+    observed_version: "2.1.25156"
+
+  - id: rclone
+    purpose: Mount and synchronize the private Operium store over SFTP
+    desired:
+      provider: winget
+      package: Rclone.Rclone
+      path_command: rclone
+    priority: 1
+    status: present
+    observed_version: "1.74.4"
+    remote: fracta-store
+    remote_path: /srv/operium-store
+    current_mount: "H:"
+    persistence: user_session_only
+    doc: docs/operium-shared-store.md
 
 exceptions_admin_ok:
   - id: ona-windows-service

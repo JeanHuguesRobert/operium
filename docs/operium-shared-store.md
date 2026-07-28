@@ -20,7 +20,12 @@ Bootstrapped and verified on 2026-07-28:
 - an SCP/SFTP upload-download round trip produced the same SHA-256 locally,
   remotely and after download;
 - the disposable verification artifact was removed after the check;
-- rclone and WinFsp were not yet installed on the Windows workstation.
+- WinFsp 2.1.25156 and rclone 1.74.4 are installed on the Windows workstation;
+- rclone remote `fracta-store` delegates authentication to `ssh fracta`;
+- `H:` was mounted successfully in network mode and exposed all six spaces.
+
+The current `H:` mount is a user-session process, not yet a persistent
+logon task. Its log is `C:\tmp\operium-rclone.log`.
 
 ## Purpose
 
@@ -80,8 +85,8 @@ SSH alias for Fracta. Do not put a private key or password in the repository.
 After `rclone config`, verify before mounting:
 
 ```powershell
-rclone lsd fracta-store:
-rclone mount fracta-store: H: --network-mode --vfs-cache-mode writes --volname Operium-Handoff
+rclone lsd fracta-store:/srv/operium-store
+rclone mount fracta-store:/srv/operium-store H: --network-mode --vfs-cache-mode writes --volname Operium-Handoff
 ```
 
 The remote root should be `/srv/operium-store`. Run the mount as the normal
