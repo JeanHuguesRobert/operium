@@ -4,7 +4,7 @@
 
 profile_id: tools.workstation-windows.v1
 node_class: workstation-windows
-updated: "2026-07-19"
+updated: "2026-07-27"
 policy:
   install_mode: user-space
   forbid_admin_npm_global: true
@@ -74,6 +74,28 @@ tools:
     notes: Not required for remote supabase db push; needed only for supabase start
     priority: 3
     status: absent
+
+  - id: claude-code
+    purpose: Interactive coding agent (Claude Code CLI)
+    desired:
+      path_command: claude
+      mode_tool: operium/scripts/ops/claude-mode.js
+      default_mode: pro
+      modes:
+        pro:
+          auth: claude_ai_oauth
+          settings: "~/.claude/settings.json without ANTHROPIC_BASE_URL/AUTH_TOKEN"
+          login: "claude auth login"
+        zai:
+          auth: ZAI_API_KEY from inseme/.env
+          base_url: "https://api.z.ai/api/anthropic"
+      apply_mesh: scripts/ops/apply-claude-mode-nodes.ps1
+    forbidden:
+      - "Require ANTHROPIC_API_KEY Console key for default interactive use"
+      - "Store OAuth refresh tokens in git"
+    priority: 1
+    status: managed
+    doc: docs/claude-code-mode.md
 
 exceptions_admin_ok:
   - id: ona-windows-service

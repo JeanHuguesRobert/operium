@@ -2,7 +2,7 @@
 document_role: "source"
 document_kind: "operational"
 visibility: "private"
-last_updated: "2026-07-26"
+last_updated: "2026-07-27"
 owner: Operium
 health:
   score: 3
@@ -80,8 +80,8 @@ tailscale-rsync-secrets.js  →  Rossignol · ThinkPad · Cloud backup
 | Vault Key | .env Variable | Purpose | Provider | Rotation | Notes |
 |-----------|---------------|---------|----------|----------|-------|
 | **`cogentia_api_key`** | **`COGENTIA_API_KEY`** | Shared system bearer: Magistral coding nodes ↔ Agent CLI Gateway (Guide synthesis path) | Operium / Cogentia | On compromise or scheduled | **Name only this key** — do **not** also store the same value as `AGENT_GATEWAY_TOKEN=` |
-| `anthropic_api_key` | `ANTHROPIC_API_KEY` | Claude Code (default) | Anthropic | Quarterly | age (future) |
-| `zai_api_key` | `ZAI_API_KEY` | Claude Code (GLM models) | z.ai | As needed | age (future) |
+| `anthropic_api_key` | `ANTHROPIC_API_KEY` | **Legacy / unused for interactive Claude Code** — prefer claude.ai OAuth (`claude auth login`) | Anthropic Console | — | Do not require for `claude-mode pro` |
+| `zai_api_key` | `ZAI_API_KEY` | Claude Code **zai** mode (GLM proxy) | z.ai | As needed | Written into `~/.claude/settings.json` only when mode=zai |
 | `openai_api_key` | `OPENAI_API_KEY` | Embeddings, GPT-4 fallback | OpenAI | Quarterly | .env + vault |
 | `gemini_api_key` | `GEMINI_API_KEY` | Google AI | Google | As needed | .env (current) |
 | `github_token` | `GITHUB_TOKEN` | GitHub operations | GitHub | As needed | .env (current) |
@@ -176,15 +176,18 @@ node apps/platform/scripts/encrypt-secrets.js decrypt
 3. Encrypt secrets: `encrypt` → commit `.env.age`
 4. On new machine: clone repo, run `decrypt`
 
-## Claude Code Launchers
+## Claude Code mode (Operium-owned)
 
-**Location:** `C:/tweesic/`
+**Canonical:** [`docs/claude-code-mode.md`](claude-code-mode.md) · `scripts/ops/claude-mode.js`
 
-| Script | Purpose | Reads From |
-|--------|---------|------------|
-| `claude-zai.ps1/.bat` | Switch to z.ai (GLM) | Vault via get-api-keys.js |
-| `claude-anthropic.ps1/.bat` | Switch to Anthropic | Vault via get-api-keys.js |
-| `claude-status.ps1/.bat` | Show current config | Local settings.json |
+| Command | Purpose | Auth / secret |
+|---------|---------|----------------|
+| `claude-mode pro` | Official Claude via **claude.ai OAuth** (Pro) | `~/.claude/.credentials.json` — **no** Console API key |
+| `claude-mode zai` | z.ai GLM Anthropic-compatible proxy | `ZAI_API_KEY` from `inseme/.env` → `~/.claude/settings.json` |
+| `claude-mode status` / `doctor` | Observe / probe | No secret output |
+
+Workstation wrappers: `C:/tweesic/claude-mode.bat` (thin).  
+Mesh: `scripts/ops/apply-claude-mode-nodes.ps1`.
 
 ## Security Posture
 

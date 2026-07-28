@@ -2,7 +2,7 @@
 document_role: "source"
 document_kind: "operational"
 visibility: "private"
-last_updated: "2026-07-20"
+last_updated: "2026-07-27"
 health:
   score: 4
   status: "functional"
@@ -21,8 +21,10 @@ related:
 
 Complete inventory of coding AI agents operational on the workstation, their launchers, and integration architecture.
 
-**Last verified:** 2026-07-23  
-**Status:** ✅ All systems operational  
+**Last verified:** 2026-07-27  
+**Status:** Claude mode switch owned by Operium (`claude-mode`); multi-model cmdc launchers separate.  
+
+**Claude Code backends:** see [claude-code-mode.md](claude-code-mode.md) (`pro` OAuth vs `zai` proxy).
 
 ### Cogentia MCP (agent corpus access)
 
@@ -43,8 +45,7 @@ CLI without MCP: `node cogentia/scripts/cogentia.js --json views snapshot`
 │                    C:/tweesic/                              │
 │                                                              │
 │  Launchers Layer (User Interface)                           │
-│  ├── claude-zai.bat          ──► Z.AI (GLM) direct         │
-│  ├── claude-anthropic.bat    ──► Anthropic direct          │
+│  ├── claude-mode.bat         ──► Operium pro|zai|status    │
 │  ├── cmdc.bat                ──► Command Code (multi-model)│
 │  ├── muse.bat                ──► Muse Spark via cmdc        │
 │  ├── grok.bat                ──► Grok via cmdc             │
@@ -55,11 +56,11 @@ CLI without MCP: `node cogentia/scripts/cogentia.js --json views snapshot`
                            │
                            ↓
 ┌─────────────────────────────────────────────────────────────┐
-│              Inseme Vault (Secrets Layer)                    │
+│              Inseme SoT + per-tool auth                      │
 │              C:/tweesic/inseme/.env                          │
 │                                                              │
-│  ZAI_API_KEY          → api.z.ai                             │
-│  ANTHROPIC_API_KEY    → api.anthropic.com                    │
+│  ZAI_API_KEY          → claude-mode zai → api.z.ai           │
+│  (Pro Claude)         → claude auth login (OAuth, no key)    │
 │  GROK_API_KEY         → api.x.ai                             │
 │  GEMINI_API_KEY       → googleapis.com                       │
 │  META_API_KEY         → api.meta.com (future)                │
@@ -76,23 +77,27 @@ CLI without MCP: `node cogentia/scripts/cogentia.js --json views snapshot`
 
 ## Launchers Reference
 
-### Claude Code (Direct Configuration)
+### Claude Code (Operium `claude-mode`)
 
-| Launcher | Provider | Base URL | Config Location |
-|----------|----------|----------|-----------------|
-| `claude-zai.bat` | Z.AI (GLM) | api.z.ai/api/anthropic | ~/.claude/settings.json |
-| `claude-anthropic.bat` | Anthropic | api.anthropic.com | ~/.claude/settings.json |
-| `claude-status.bat` | — | — | Shows current config |
+| Command | Provider | Auth | Config |
+|---------|----------|------|--------|
+| `claude-mode pro` | Anthropic official | claude.ai **OAuth / Pro** | clears proxy env in `~/.claude/settings.json` |
+| `claude-mode zai` | Z.AI (GLM) | `ZAI_API_KEY` | sets base URL + token in settings |
+| `claude-mode status` / `doctor` | — | — | observe / probe |
+
+**Canonical script:** `operium/scripts/ops/claude-mode.js`  
+**Doc:** [claude-code-mode.md](claude-code-mode.md)
 
 **Usage:**
 ```bash
 cd C:/tweesic
-.\claude-zai.bat          # Switch to Z.AI
-.\claude-anthropic.bat    # Switch to Anthropic
-.\claude-status.bat       # Show current
+.\claude-mode.bat status
+.\claude-mode.bat doctor
+.\claude-mode.bat pro          # Pro OAuth (not Console API key)
+.\claude-mode.bat zai          # Z.AI GLM
 ```
 
-**⚠️ Important:** After switching, **restart Claude Code** for changes to take effect.
+**⚠️ Important:** After `pro`/`zai`, **restart Claude Code**. If doctor reports `oauth_expired`, run `claude auth login`.
 
 ### Command Code (Multi-Model Interface)
 
@@ -152,20 +157,17 @@ agy --print "your prompt"
 
 | Script | Location | Purpose |
 |--------|----------|---------|
-| `get-api-keys.js` | inseme/apps/platform/scripts/ | Read keys from vault |
-| `sync-secrets.js` | inseme/apps/platform/scripts/ | Sync all secrets |
+| `claude-mode.js` | operium/scripts/ops/ | Claude Code pro/zai switch + doctor |
+| `sync-secrets.js` | inseme/apps/platform/scripts/ | Secrets SoT / vault |
 | `tailscale-rsync-secrets.js` | inseme/apps/platform/scripts/ | Multi-machine sync |
 
 **Usage:**
 ```bash
-# Show all keys (masked)
+# Claude Code mode + health
+node C:/tweesic/operium/scripts/ops/claude-mode.js doctor
+
+# Secrets SoT
 cd C:/tweesic/inseme
-node apps/platform/scripts/get-api-keys.js
-
-# Get specific key
-node apps/platform/scripts/get-api-keys.js --key zai_api_key --quiet
-
-# Sync secrets
 node apps/platform/scripts/sync-secrets.js
 ```
 
@@ -210,25 +212,28 @@ node apps/platform/scripts/sync-secrets.js
 - Reinstall: `npm i -g command-code@latest`
 
 **API key errors:**
-- Check key exists: `node inseme/apps/platform/scripts/get-api-keys.js --key <key>`
-- Verify in `.env`: `grep <KEY> inseme/.env`
+- Verify in `.env`: `Select-String -Path inseme/.env -Pattern '^[A-Z_]+='` (names only)
+- For z.ai Claude: `claude-mode doctor` → look for `zai_insufficient_balance` / `no_key`
 
 **Claude Code not switching:**
-- Run launcher: `.\claude-zai.bat` or `.\claude-anthropic.bat`
+- Run: `.\claude-mode.bat pro` or `.\claude-mode.bat zai`
 - **Restart Claude Code** (required!)
+- Clear process env if needed: `Remove-Item Env:ANTHROPIC_AUTH_TOKEN, Env:ANTHROPIC_BASE_URL -ErrorAction SilentlyContinue`
+- If pro mode fails inference: `claude auth login` (OAuth)
 
 ## Health Status
 
 | Component | Status | Notes |
 |-----------|--------|-------|
-| Launchers | ✅ Operational | All tested |
-| Command Code | ✅ v0.52.1 | 43 models available |
-| Secret vault | ✅ Functional | `inseme/.env` + `instance_config` (see secrets-management.md) |
+| claude-mode | ✅ Operium-owned | pro OAuth / zai proxy |
+| Command Code | ✅ v0.52.1 | multi-model launchers |
+| Secret SoT | ✅ Functional | `inseme/.env` + vault (see secrets-management.md) |
 | Local agents | ✅ AGY working | Sovereign/Magistral configured |
-| Multi-machine sync | ✅ Tailscale | scripts available |
+| Multi-machine sync | ✅ Tailscale | apply-claude-mode-nodes.ps1 |
 
 ## Related Documentation
 
+- `claude-code-mode.md` — pro ↔ z.ai desired-state and mesh apply
 - `secrets-management.md` — Dual authority, catalog, `COGENTIA_API_KEY` rotation
 - `magistral-coding-agent-routing.md` — Guide → Magistral → Agent Gateway
 - `cogentia-agent-indexing-roadmap.md` — Agent indexing strategy
