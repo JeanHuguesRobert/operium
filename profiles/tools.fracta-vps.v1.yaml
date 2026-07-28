@@ -71,3 +71,16 @@ secrets_refs:
   - path_hint: /srv/cogentia/secrets/
     rule: never_github
     doc: docs/fracta-trust-perimeter.md
+
+shared_store:
+  schema: operium.shared-store.v1
+  status: present
+  observed: "2026-07-28"
+  transport: sftp
+  ssh_alias: fracta
+  path: /srv/operium-store
+  owner: ubuntu
+  group: ubuntu
+  mode: "0700"
+  public: false
+  runbook: docs/operium-shared-store.md
