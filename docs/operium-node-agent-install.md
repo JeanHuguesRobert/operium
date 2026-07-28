@@ -36,6 +36,23 @@ The public Caddy route forwards `/soma/*` so descriptor-relative resource URLs
 remain correct. ONA itself enforces the boundary: `/soma/object` and
 `/soma/observations` return `401` without a valid read token.
 
+### SOMA v0 fleet rollout — 2026-07-28
+
+| Node | Runtime | Persistence | Verified identity |
+|------|---------|-------------|-------------------|
+| `fracta` | Git checkout `dd724db` | systemd | `resource://fracta` |
+| `i7-thinkpad-jhr` | Git checkout `dd724db` | NSSM Windows service | `resource://i7-thinkpad-jhr` |
+| `rpi3-view` | immutable 3 MB runtime artifact, no Git checkout | systemd | `resource://rpi3-view` |
+| `poco-jhr` | `runtime/soma-fractanet` tracking the published checkpoint | Termux:Boot hook | `resource://poco-jhr` |
+
+All four nodes passed `soma.descriptor.v0` discovery. Detailed object access
+returned `401` without a read token on every tested node.
+
+The Pi runs Node `22.23.1` from the Node.js unofficial ARM build because
+`22.12.0` did not expose `node:sqlite`. The downloaded archive was verified
+against its published SHA-256 checksum before activation. The former binary is
+retained as `~/.local/bin/node-v22.12.0`.
+
 ---
 
 ## Secrets layout

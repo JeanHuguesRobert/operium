@@ -15,10 +15,11 @@ policy:
 tools:
   - id: node
     status: present
-    version: "22.12.0"
+    version: "22.23.1"
     path: /home/jh/.local/bin/node
     architecture: armv7
-    notes: Not on the default non-interactive SSH PATH; systemd units add ~/.local/bin explicitly
+    source: nodejs-unofficial-builds-armv6l
+    notes: node:sqlite verified; previous v22.12.0 binary retained as ~/.local/bin/node-v22.12.0
   - id: ssh
     status: present
   - id: rsync
@@ -68,14 +69,17 @@ edge_portal:
 operational_checkouts:
   observed: "2026-07-28"
   root: ~/srv/cogentia/repos
-  repositories:
-    - cogentia
-    - operium
-    - registre-mariani
-  rule: Keep only checkouts required by deployed edge services; do not treat the Pi as a general coding workspace
+  repositories: []
+  rule: No Git checkout. Edge services use small immutable runtime artifacts; do not treat the Pi as a coding workspace.
 
 node_agent:
   service: operium-node-agent.service
-  observed_status: inactive
-  observed_enablement: disabled
+  observed_status: active
+  observed_enablement: enabled
   observed: "2026-07-28"
+  profile: operium.soma.node.v0
+  runtime: ~/srv/operium-runtime/releases/dd724db
+  runtime_size: 3MB
+  cop_delivery: disabled
+  jobs: disabled
+  discovery: http://127.0.0.1:8794/.well-known/soma

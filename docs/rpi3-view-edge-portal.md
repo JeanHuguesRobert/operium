@@ -35,8 +35,9 @@ The first snapshot reported the Views Store and all four currently known nodes
 as reachable. This is an observation at one instant, not a continuous
 availability guarantee.
 
-`operium-node-agent.service` was observed as disabled and inactive during a
-follow-up correction audit. This is separate from the active edge portal.
+`operium-node-agent.service` was initially observed as disabled and inactive.
+It is now enabled with the read-only SOMA profile from a small immutable
+runtime artifact. This is separate from the active edge portal.
 
 ## Role
 
@@ -51,11 +52,11 @@ authority. The portal provides:
 The portal itself requires no Node process or client-side secret. BusyBox
 serves one static page and one JSON file.
 
-The host does have a separate ARMv7 Node.js `v22.12.0` installation at
+The host has a separate ARMv7 Node.js `v22.23.1` installation at
 `/home/jh/.local/bin/node`. It is absent from the default non-interactive SSH
 `PATH`, which is why an initial `command -v node` probe incorrectly reported
-it as missing. Existing operational checkouts are also present under
-`~/srv/cogentia/repos`: `cogentia`, `operium`, and `registre-mariani`.
+it as missing. The Pi has no Git worktree; the SOMA agent uses the 3 MB runtime
+artifact under `~/srv/operium-runtime/releases/dd724db`.
 
 These facts do not make the Pi a general development node. They support
 existing edge services and should be kept distinct from the lightweight portal

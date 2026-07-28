@@ -50,6 +50,17 @@ workspace:
   manifest: profiles/workspace.fracta-coding.v1.tsv
   repositories_verified: 23
   wip_branch: wip/fractanet-android-node
+  runtime_branch: runtime/soma-fractanet
+
+node_agent:
+  status: active
+  observed: "2026-07-28"
+  profile: operium.soma.node.v0
+  persistence: ~/.termux/boot/operium-node-agent
+  identity: resource://poco-jhr
+  discovery: http://127.0.0.1:8794/.well-known/soma
+  source_branch: runtime/soma-fractanet
+  preserved_wip_branch: wip/fractanet-android-node
 
 secrets:
   authority_mirror: ~/srv/cogentia/repos/inseme/.env
