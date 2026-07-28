@@ -41,6 +41,15 @@ tools:
     priority: 1
     status: present  # 2.1.220 observed 2026-07-28
 
+  - id: grok-build
+    desired:
+      path_command: grok
+      install: official_user_installer
+      source: https://x.ai/cli/install.sh
+    auth: native OIDC auth file
+    priority: 1
+    status: present  # 0.2.112 observed and model listing verified 2026-07-28
+
   - id: supabase-cli
     desired:
       path_command: supabase

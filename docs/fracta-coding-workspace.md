@@ -100,11 +100,17 @@ The initial live bootstrap on 2026-07-28 established:
 ```text
 Codex 0.144.5       authenticated with ChatGPT
 Claude Code 2.1.220 authenticated with claude.ai Pro
+Grok Build 0.2.112  authenticated with its existing Fracta OIDC identity
 GitHub CLI          authenticated as JeanHuguesRobert
 ```
 
 Codex already existed as a standalone user install under `~/.codex`. Claude
 Code is installed under `~/.local`; `.profile` adds `~/.local/bin` to `PATH`.
+Grok Build is installed from the official `https://x.ai/cli/install.sh` under
+`~/.grok/bin`; `.profile` adds that directory to `PATH`. `grok doctor` and
+`grok models` were used as non-generative runtime/authentication checks. Fracta
+already held a valid OIDC identity, so the workstation identity was not copied
+over it.
 
 The `GITHUB_TOKEN` value found in the transferred `.env` returned HTTP 401.
 GitHub CLI was therefore authenticated from the workstation's valid native
