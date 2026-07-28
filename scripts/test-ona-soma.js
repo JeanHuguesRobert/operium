@@ -78,7 +78,7 @@ try {
   assert.equal(object.attributes["system.memory.free"].unit, "byte");
   assert.equal(object.children.length, 2);
   assert.equal(object.children[0].class, "operium.service");
-  assert.equal(object.actions.length, 0);
+  assert.deepEqual(object.actions, ["observation.refresh", "agent.restart"]);
 
   const observations = buildSomaObservations({
     config,
@@ -111,6 +111,10 @@ try {
     assert.ok(liveVocabulary.body.attributes["core.user-label"]);
     const liveObservations = await fetchJson(`http://127.0.0.1:${port}/soma/observations`, { headers });
     assert.ok(liveObservations.body.observations.length >= 4);
+    const liveActions = await fetchJson(`http://127.0.0.1:${port}/soma/actions`, { headers });
+    assert.equal(liveActions.body.definitions["observation.refresh"].implemented, true);
+    assert.equal(liveActions.body.definitions["agent.restart"].implemented, true);
+    assert.equal(liveActions.body.definitions["agent.upgrade"].implemented, false);
   } finally {
     await new Promise(resolve => server.close(resolve));
   }
@@ -124,6 +128,7 @@ try {
       "soma_observations",
       "soma_http_auth",
       "soma_http_resources",
+      "soma_action_catalogue",
     ],
   }, null, 2));
 } finally {

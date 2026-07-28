@@ -454,6 +454,46 @@ canonical action definition.
 ReactiveSets may consume SOMA observations and notifications, but SOMA does
 not require a particular reactive runtime.
 
+### 10.1 Initial Operium action profile
+
+The first node-agent profile defines three distinct operations:
+
+| Semantic identity | Effect | Initial status |
+|---|---|---|
+| `observation.refresh` | Run an immediate observation cycle | Implemented |
+| `agent.restart` | Replace the management-agent process incarnation | Implemented |
+| `agent.upgrade` | Install and activate a newer agent runtime | Defined, not implemented |
+
+`agent.restart` MUST NOT reboot the managed machine. A successful restart is
+confirmed only when a new agent incarnation observes and completes the
+persisted action.
+
+An upgrade is broader than a repository pull. Depending on the node profile it
+may change the agent source or immutable runtime artifact, dependencies,
+semantic vocabulary, SQLite migrations, configuration, or supervisor wrapper.
+An implementation SHOULD stage a known target, validate it, switch atomically,
+restart the agent, verify the new incarnation, and retain a rollback target.
+
+### 10.2 Homeostasis
+
+Homeostasis is a policy layer over SOMA observations and actions, not a new
+attribute behaviour type. A homeostatic controller tries to keep explicitly
+named vital functions within declared viable ranges while preserving local
+node autonomy.
+
+A future policy SHOULD state:
+
+- the observed variable and its viable, preferred, and critical ranges;
+- sampling and persistence windows, including hysteresis;
+- the permitted response: observe, recommend, request approval, act
+  autonomously, or take an emergency action;
+- action rate limits, cooldowns, rollback, and escalation;
+- the evidence that proves recovery or terminates an unsuccessful loop.
+
+This specification does not yet authorize autonomous remediation. The initial
+implementation provides the observation and action primitives from which
+carefully scoped homeostatic policies may later be composed.
+
 ## 11. Identity, containment, and references
 
 SOMA identities SHOULD be stable, readable, and scoped. One candidate form is:

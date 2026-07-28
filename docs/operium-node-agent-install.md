@@ -197,13 +197,22 @@ Task: `CogentiaOperiumNodeHeartbeat` (every 3 min + at logon). Launcher: `%USERP
 
 ---
 
-## poco-jhr (Termux) — planned
+## poco-jhr (Termux)
 
-After agent-gateway bootstrap:
+The node uses:
 
 - `~/srv/cogentia/secrets/ona.env`
-- `operium/scripts/ona-heartbeat.js` via Termux boot script (mirror `agent-gateway-heartbeat`)
+- a Termux:Boot hook that starts `scripts/ops/run-ona-supervised.js`
+- `operium/scripts/ona-heartbeat.js` via the boot hook
 - Bind `0.0.0.0:8794` with bearer tokens (no tailscale CLI on device)
+
+The Node supervisor is intentionally small. Exit code `75` means that a SOMA
+`agent.restart` action requested a new process incarnation. Other non-zero
+exits are also retried with a bounded delay; a clean exit stops the loop.
+
+```bash
+exec node ~/srv/cogentia/repos/operium/scripts/ops/run-ona-supervised.js
+```
 
 ---
 

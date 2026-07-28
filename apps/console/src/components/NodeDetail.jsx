@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { HealthBadge } from "./HealthBadge.jsx";
-import { getOpsConfig } from "../lib/ops-api.js";
+import { getOpsConfig, setOpsToken } from "../lib/ops-api.js";
 import { SomaInspector } from "./SomaInspector.jsx";
 
 export function NodeDetail({
@@ -10,6 +11,7 @@ export function NodeDetail({
   somaVocabulary,
   loading,
   error,
+  onAuthChange,
   onBack,
 }) {
   const config = getOpsConfig();
@@ -36,11 +38,25 @@ export function NodeDetail({
       {!config.hasToken ? (
         <Panel title="Authentication">
           <p className="text-sm text-ops-warn">
-            Set <code className="text-ops-text">VITE_COGENTIA_OPS_TOKEN</code> at build time for node detail
-            routes. Fleet views work without a token.
+            Enter the Operium read token to inspect private node details. It is
+            kept in this browser tab only and is not part of the public bundle.
           </p>
+          <TokenForm onAuthChange={onAuthChange} />
         </Panel>
-      ) : null}
+      ) : (
+        <div className="flex justify-end">
+          <button
+            type="button"
+            className="text-xs text-ops-muted hover:text-ops-accent"
+            onClick={() => {
+              setOpsToken("");
+              onAuthChange?.();
+            }}
+          >
+            Forget node token
+          </button>
+        </div>
+      )}
 
       {error ? (
         <Panel title="Node fetch error">
@@ -101,6 +117,36 @@ export function NodeDetail({
         </Panel>
       ) : null}
     </div>
+  );
+}
+
+function TokenForm({ onAuthChange }) {
+  const [token, setToken] = useState("");
+  return (
+    <form
+      className="mt-3 flex flex-col gap-2 sm:flex-row"
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (!setOpsToken(token)) return;
+        setToken("");
+        onAuthChange?.();
+      }}
+    >
+      <input
+        type="password"
+        value={token}
+        onChange={event => setToken(event.target.value)}
+        autoComplete="off"
+        placeholder="Operium read token"
+        className="min-w-0 flex-1 rounded-md border border-ops-border bg-black/20 px-3 py-2 text-sm text-ops-text outline-none focus:border-ops-accent"
+      />
+      <button
+        type="submit"
+        className="rounded-md bg-ops-accent px-3 py-2 text-sm font-semibold text-black"
+      >
+        Inspect node
+      </button>
+    </form>
   );
 }
 

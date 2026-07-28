@@ -1,6 +1,26 @@
 const viteEnv = typeof import.meta !== "undefined" && import.meta.env ? import.meta.env : {};
 const OPS_BASE = String(viteEnv.VITE_COGENTIA_OPS_BASE_URL || "").replace(/\/$/, "");
-const OPS_TOKEN = String(viteEnv.VITE_COGENTIA_OPS_TOKEN || "").trim();
+const BUILD_OPS_TOKEN = String(viteEnv.VITE_COGENTIA_OPS_TOKEN || "").trim();
+const TOKEN_STORAGE_KEY = "operium.ops.token";
+
+function runtimeOpsToken() {
+  try {
+    return String(globalThis.sessionStorage?.getItem(TOKEN_STORAGE_KEY) || BUILD_OPS_TOKEN).trim();
+  } catch {
+    return BUILD_OPS_TOKEN;
+  }
+}
+
+export function setOpsToken(value) {
+  const token = String(value || "").trim();
+  try {
+    if (token) globalThis.sessionStorage?.setItem(TOKEN_STORAGE_KEY, token);
+    else globalThis.sessionStorage?.removeItem(TOKEN_STORAGE_KEY);
+  } catch {
+    // Session storage is an optional browser convenience, not an authority.
+  }
+  return Boolean(token);
+}
 
 export function encodeNodeId(nodeId) {
   return encodeURIComponent(String(nodeId || "").trim());
@@ -14,15 +34,16 @@ export function buildNodeOpsPath(nodeId, suffix) {
 export function getOpsConfig() {
   return {
     baseUrl: OPS_BASE,
-    hasToken: Boolean(OPS_TOKEN),
+    hasToken: Boolean(runtimeOpsToken()),
   };
 }
 
 export async function fetchOpsJson(path, options = {}) {
   const url = `${OPS_BASE}${path.startsWith("/") ? path : `/${path}`}`;
   const headers = { Accept: "application/json" };
-  if (options.auth && OPS_TOKEN) {
-    headers.Authorization = `Bearer ${OPS_TOKEN}`;
+  const token = runtimeOpsToken();
+  if (options.auth && token) {
+    headers.Authorization = `Bearer ${token}`;
   }
 
   const response = await fetch(url, { headers, signal: options.signal });

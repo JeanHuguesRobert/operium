@@ -22,6 +22,7 @@ const { db, migration } = openNodeMemoryDb({
 assert.equal(migration.latest, LATEST_SCHEMA_VERSION);
 assert.ok(migration.applied.includes(1));
 assert.ok(migration.applied.includes(2));
+assert.ok(migration.applied.includes(3));
 
 for (const table of tableNames()) {
   const row = db.prepare(

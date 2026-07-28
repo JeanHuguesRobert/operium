@@ -29,6 +29,7 @@ export default function App() {
   const [fleetError, setFleetError] = useState(null);
   const [nodeError, setNodeError] = useState(null);
   const [lastRefresh, setLastRefresh] = useState(null);
+  const [authRevision, setAuthRevision] = useState(0);
 
   const nodes = listOnaAttractors(fleetBlackboard?.body || {});
 
@@ -101,7 +102,7 @@ export default function App() {
       controller.abort();
       clearInterval(timer);
     };
-  }, [view, selectedNode, refreshNode]);
+  }, [view, selectedNode, refreshNode, authRevision]);
 
   const config = getOpsConfig();
 
@@ -146,6 +147,7 @@ export default function App() {
             somaVocabulary={nodeSomaVocabulary}
             loading={nodeLoading}
             error={nodeError}
+            onAuthChange={() => setAuthRevision(value => value + 1)}
             onBack={() => {
               setView("fleet");
               setSelectedNode(null);
