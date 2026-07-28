@@ -23,9 +23,16 @@ Bootstrapped and verified on 2026-07-28:
 - WinFsp 2.1.25156 and rclone 1.74.4 are installed on the Windows workstation;
 - rclone remote `fracta-store` delegates authentication to `ssh fracta`;
 - `H:` was mounted successfully in network mode and exposed all six spaces.
+- scheduled task `Operium-Fracta-Store` remounts `H:` at interactive logon;
+- the task was started manually once and returned a fresh working mount.
 
-The current `H:` mount is a user-session process, not yet a persistent
-logon task. Its log is `C:\tmp\operium-rclone.log`.
+The persistent mount log is
+`C:\Users\admin\AppData\Local\Operium\logs\rclone-fracta-store.log`.
+
+On `poco-jhr`, rclone 1.74.4 is installed in native Termux. Its
+`fracta-store` remote also delegates to `ssh fracta`; the local offline root is
+`~/operium-handoffs`. An upload-download round trip was verified by three
+matching SHA-256 hashes.
 
 ## Purpose
 
@@ -105,6 +112,19 @@ rclone check ~/operium-handoffs/outbox fracta-store:inbox
 
 Operium will later wrap these operations as `handoff pull`, `push` and
 `resume`.
+
+Until then, the portable Node wrapper provides the transfer operations on both
+Windows and Termux:
+
+```bash
+node scripts/ops/fracta-shared-store-client.js status
+node scripts/ops/fracta-shared-store-client.js pull
+node scripts/ops/fracta-shared-store-client.js push
+node scripts/ops/fracta-shared-store-client.js check-outbox
+```
+
+`push` intentionally lands files in `inbox/`; it does not claim that they are
+published handoff objects.
 
 ## Publication invariant
 

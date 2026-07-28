@@ -118,7 +118,9 @@ tools:
     remote: fracta-store
     remote_path: /srv/operium-store
     current_mount: "H:"
-    persistence: user_session_only
+    persistence: scheduled_task_at_logon
+    scheduled_task: Operium-Fracta-Store
+    log: "%LOCALAPPDATA%/Operium/logs/rclone-fracta-store.log"
     doc: docs/operium-shared-store.md
 
 exceptions_admin_ok:

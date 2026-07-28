@@ -36,6 +36,15 @@ tools:
     runtime: termux-native
     auth: native OIDC
     source: https://x.ai/cli/install.sh
+  - id: rclone
+    status: present
+    version: "1.74.4"
+    runtime: termux-native
+    remote: fracta-store
+    transport: sftp
+    remote_path: /srv/operium-store
+    offline_root: ~/operium-handoffs
+    doc: docs/operium-shared-store.md
 
 workspace:
   manifest: profiles/workspace.fracta-coding.v1.tsv
