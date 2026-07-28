@@ -153,3 +153,16 @@ routing and change control** are Operium concerns (this doc +
 | S7 ok but no prose | Synthesis path only — map/token |
 | `operium up` action degraded | Blackboard attractor stale; ThinkPad sleep |
 | OpenAI 401 in Magistral logs | Expected if cloud fallback key bad; keep fallback only |
+| `magistral_router:false` / chat hits `:8081` | **`MAGISTRAL_API_KEY` empty in process env** (common if `inseme/.env` has a blank assignment after unit `Environment=`). Router enable only — not the gateway bearer. Health shows `chat_completions:false`. Fix: non-empty value (e.g. `local-loopback`) in the **last** systemd `EnvironmentFile=` (see `/etc/cogentia/magistral-router.env` + `zzz-router-key.conf`). |
+| Daemon `ai_router_unavailable` ~15s while Magistal traffic log shows 200 | **`COGENTIA_AI_ROUTER_TIMEOUT_MS`** default 15s aborts Magistal→ThinkPad hops (often 15–30s). Set ≥90000 on `cogentia.service`. Also raise **`COGENTIA_MCP_TIMEOUT_MS`** on `mcp-cogentia` (planner + synthesis each need a hop). |
+| Fracta cannot reach `:8793` | ThinkPad gateway process down (not Tailscale). Prefer `health?quick=1`; full `/health` is slow (adapter probes). |
+
+### Observed timeouts (2026-07-28)
+
+| Layer | Env | Working value on fracta |
+|-------|-----|-------------------------|
+| Cogentia daemon → Magistal | `COGENTIA_AI_ROUTER_TIMEOUT_MS` | `90000` (`cogentia.service.d/ai-router-timeout.conf`) |
+| MCP Guide → daemon | `COGENTIA_MCP_TIMEOUT_MS` | `90000` (`mcp-cogentia.service.d/timeout.conf`) |
+| Magistal router enable | `MAGISTRAL_API_KEY` | `local-loopback` (not `COGENTIA_API_KEY`) |
+
+Public smoke expects `mode=conversational` and `s7.ok` for Potentics when gateway + Magistal + timeouts are healthy (allow ~60–120s wall clock for planner+synthesis).

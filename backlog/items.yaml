@@ -3,7 +3,7 @@
 # Do not store secret values here.
 
 schema: operium.backlog.v1
-updated_at: "2026-07-26"
+updated_at: "2026-07-28"
 owner: Operium
 
 items:
@@ -16,24 +16,31 @@ items:
     severity: critical
     status: in_progress
     evidence: >
-      2026-07-28 retest: after start-agent-gateway-windows.js, fracta can reach
-      100.122.121.68:8793 — GET /v1/models 200, GET /health?quick=1 200 (~fast),
-      full /health slow (adapter probes), POST chat/completions model=grok 200
-      ("Hi there, friend!"), wrong bearer 401. Root issues were (1) process down
-      when not started, (2) full /health timeouts mistaken for network failure.
-      Firewall rule Cogentia-Agent-Gateway-8793 + logon task CogentiaAgentGateway
-      applied on ThinkPad.
+      2026-07-28 end-to-end: with gateway listening on ThinkPad Tailscale
+      100.122.121.68:8793, fracta GET /v1/models + health?quick=1 200; POST
+      chat model=grok 200. Guide smoke green after two companion fixes on
+      fracta: (1) MAGISTRAL_API_KEY was empty in process env (inseme/.env
+      blank override) so magistral_router stayed false and chat hit dead
+      :8081 — fixed with MAGISTRAL_API_KEY=local-loopback + drop-in
+      zzz-router-key.conf; (2) COGENTIA_AI_ROUTER_TIMEOUT_MS default 15s
+      aborted successful Magistal→gateway hops (often 15–30s) — set 90s on
+      cogentia.service; COGENTIA_MCP_TIMEOUT_MS=90s on mcp-cogentia.
+      Public Guide POST /guide/chat Potentics → mode=conversational, s7.ok.
+      start-agent-gateway-windows.js can report health OK then child exits
+      (Job/detach); durable foreground/background node keeps process up.
     next_action: >
-      Confirm logon task survives reboot; prefer health?quick=1 for probes;
-      optional ONA/watchdog if process dies mid-session; then close OP-BUG-001
-      and smoke Guide conversational path via Magistral.
+      Confirm CogentiaAgentGateway logon task survives reboot; fix Windows
+      detached start so gateway stays up without a parent shell; optional
+      admin firewall rule; then close OP-BUG-001.
     github_issue: 11
     blocks_features: true
     opened_at: "2026-07-26"
     closed_at: null
     notes: |
       Not fully closed until gateway auto-starts reliably after reboot/logout.
-      Sesame: COGENTIA_API_KEY only (Sesame42).
+      Sesame: COGENTIA_API_KEY only (Sesame42). Guide path also needs
+      non-empty MAGISTRAL_API_KEY (router enable, not the gateway bearer)
+      and AI-router/MCP timeouts ≥ Magistal hop latency.
 
   - id: OP-BUG-002
     kind: bug
