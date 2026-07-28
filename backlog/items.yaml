@@ -14,22 +14,26 @@ items:
     title: Agent CLI Gateway Tailscale reachability intermittent from fracta
     subsystem: agent-gateway
     severity: critical
-    status: open
+    status: in_progress
     evidence: >
-      2026-07-26 — gateway reports listen on 100.122.121.68:8793 with
-      token_configured=true; local/fracta probes still timeout or connection
-      refused after short windows. Guide conversational path depends on this hop.
+      2026-07-28 retest: after start-agent-gateway-windows.js, fracta can reach
+      100.122.121.68:8793 — GET /v1/models 200, GET /health?quick=1 200 (~fast),
+      full /health slow (adapter probes), POST chat/completions model=grok 200
+      ("Hi there, friend!"), wrong bearer 401. Root issues were (1) process down
+      when not started, (2) full /health timeouts mistaken for network failure.
+      Firewall rule Cogentia-Agent-Gateway-8793 + logon task CogentiaAgentGateway
+      applied on ThinkPad.
     next_action: >
-      Stabilize Windows service/listen + inbound firewall for Tailscale;
-      smoke from fracta curl :8793/health with COGENTIA_API_KEY bearer until
-      reliable; record procedure in mesh/gateway ops docs.
+      Confirm logon task survives reboot; prefer health?quick=1 for probes;
+      optional ONA/watchdog if process dies mid-session; then close OP-BUG-001
+      and smoke Guide conversational path via Magistral.
     github_issue: 11
     blocks_features: true
     opened_at: "2026-07-26"
     closed_at: null
     notes: |
-      Blocks meaningful feature work on Guide conversational quality until fixed
-      or waived with a temporary extractive-only product stance.
+      Not fully closed until gateway auto-starts reliably after reboot/logout.
+      Sesame: COGENTIA_API_KEY only (Sesame42).
 
   - id: OP-BUG-002
     kind: bug
