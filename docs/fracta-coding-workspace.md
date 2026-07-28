@@ -26,6 +26,8 @@ versioned act, inspect the differential, and correct by commit when needed.
   mode `0600`.
 - Consumers refer to that one file through explicit symlinks. There are no
   derived copies to drift and no second local authority.
+- Native coding-agent identities remain native opaque files:
+  `~/.codex/auth.json` and `~/.claude/.credentials.json`, both mode `0600`.
 
 ## Bootstrap the checkouts
 
@@ -90,6 +92,24 @@ Compare hashes without printing contents:
 ```bash
 sha256sum /srv/cogentia/repos/inseme/.env
 ```
+
+## Coding agents and GitHub
+
+The initial live bootstrap on 2026-07-28 established:
+
+```text
+Codex 0.144.5       authenticated with ChatGPT
+Claude Code 2.1.220 authenticated with claude.ai Pro
+GitHub CLI          authenticated as JeanHuguesRobert
+```
+
+Codex already existed as a standalone user install under `~/.codex`. Claude
+Code is installed under `~/.local`; `.profile` adds `~/.local/bin` to `PATH`.
+
+The `GITHUB_TOKEN` value found in the transferred `.env` returned HTTP 401.
+GitHub CLI was therefore authenticated from the workstation's valid native
+credential store. Refresh the `.env` entry when convenient; it does not block
+Git work on Fracta.
 
 ## Resume from another coding agent
 

@@ -4,12 +4,12 @@
 profile_id: tools.fracta-vps.v1
 node_class: fracta-vps
 ssh_alias: fracta
-updated: "2026-07-19"
+updated: "2026-07-28"
 policy:
   install_mode: user-or-system-apt
   forbid_sudo_npm_global: true
   docker_supabase_stack: forbidden  # RAM + role mismatch
-  role: public_guide_and_control_plane
+  role: public_guide_control_plane_and_coding_node
 
 tools:
   - id: node
@@ -24,6 +24,22 @@ tools:
       path_command: npm
     priority: 1
     status: present
+
+  - id: codex
+    desired:
+      path_command: codex
+      install: user
+    auth: native ChatGPT auth file
+    priority: 1
+    status: present  # standalone 0.144.5 observed 2026-07-28
+
+  - id: claude-code
+    desired:
+      path_command: claude
+      install: user_npm
+    auth: native claude.ai OAuth credentials
+    priority: 1
+    status: present  # 2.1.220 observed 2026-07-28
 
   - id: supabase-cli
     desired:

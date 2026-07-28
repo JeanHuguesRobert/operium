@@ -108,6 +108,7 @@ tailscale-rsync-secrets.js  →  Rossignol · ThinkPad · Cloud backup
 | Machine | Path | Last Sync |
 |---------|------|-----------|
 | Rossignol (Corte) | `/c/tweesic/inseme/.env` | 2026-07-19 |
+| fracta | `/srv/cogentia/repos/inseme/.env` | 2026-07-28 |
 | ThinkPad (Portable) | `~/tweesic/inseme/.env` | TBD |
 | Cloud Backup | `~/backups/tweesic/inseme/.env` | TBD |
 
@@ -268,6 +269,7 @@ Helper (host copy only): `cogentia/scripts/ops/set-cogentia-api-key-host.ps1`.
 
 | Date | Issue | Resolution | Postmortem |
 |------|-------|------------|------------|
+| 2026-07-28 | `GITHUB_TOKEN` in the FS authority returned HTTP 401 on Fracta | Authenticated `gh` from the workstation native credential store; `.env` refresh remains due | Verify a provider credential after propagation; do not confuse file equality with provider validity |
 | TBD | Example placeholder | N/A | N/A |
 
 ## Risks
