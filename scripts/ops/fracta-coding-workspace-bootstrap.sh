@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 OPERIUM_ROOT="$(cd -- "$SCRIPT_DIR/../.." && pwd)"
 MANIFEST="${OPERIUM_WORKSPACE_MANIFEST:-$OPERIUM_ROOT/profiles/workspace.fracta-coding.v1.tsv}"
-WORKSPACE_ROOT="${OPERIUM_WORKSPACE_ROOT:-$HOME/tweesic}"
+WORKSPACE_ROOT="${OPERIUM_WORKSPACE_ROOT:-/srv/cogentia/repos}"
 DRY_RUN=0
 
 if [[ "${1:-}" == "--dry-run" ]]; then
@@ -16,7 +16,6 @@ fi
 
 [[ -f "$MANIFEST" ]] || { echo "manifest missing: $MANIFEST" >&2; exit 1; }
 mkdir -p "$WORKSPACE_ROOT"
-chmod 700 "$WORKSPACE_ROOT"
 
 run() {
   if [[ $DRY_RUN -eq 1 ]]; then
@@ -29,7 +28,6 @@ run() {
 }
 
 ok=0
-skipped=0
 failed=0
 
 while IFS=$'\t' read -r name remote branch extra; do
@@ -45,34 +43,18 @@ while IFS=$'\t' read -r name remote branch extra; do
     continue
   fi
 
-  if [[ $DRY_RUN -eq 1 && ! -d "$target/.git" ]]; then
-    run git -C "$target" fetch origin --prune
-    run git -C "$target" switch --track -c "$branch" "origin/$branch"
-    ok=$((ok + 1))
-    continue
-  fi
-
-  if [[ -n "$(git -C "$target" status --porcelain)" ]]; then
-    echo "SKIP $name: dirty worktree"
-    skipped=$((skipped + 1))
-    continue
-  fi
-
   run git -C "$target" fetch origin --prune
-  if git -C "$target" show-ref --verify --quiet "refs/remotes/origin/$branch"; then
-    if git -C "$target" show-ref --verify --quiet "refs/heads/$branch"; then
-      run git -C "$target" switch "$branch"
-    else
-      run git -C "$target" switch --track -c "$branch" "origin/$branch"
-    fi
-    run git -C "$target" merge --ff-only "origin/$branch"
-    ok=$((ok + 1))
-  else
-    echo "REFUSE $name: origin/$branch is missing" >&2
+  if [[ $DRY_RUN -eq 0 ]] && ! git -C "$target" show-ref --verify --quiet "refs/remotes/origin/$branch"; then
+    echo "WARN $name: resume hint origin/$branch is missing" >&2
     failed=$((failed + 1))
+    continue
   fi
+  current="$(git -C "$target" branch --show-current)"
+  dirty="$(git -C "$target" status --porcelain | wc -l)"
+  printf 'OK %s current=%s dirty=%s resume_hint=%s\n' "$name" "$current" "$dirty" "$branch"
+  ok=$((ok + 1))
 done < "$MANIFEST"
 
-printf 'workspace=%s ok=%d skipped=%d failed=%d dry_run=%d\n' \
-  "$WORKSPACE_ROOT" "$ok" "$skipped" "$failed" "$DRY_RUN"
+printf 'workspace=%s ok=%d failed=%d dry_run=%d\n' \
+  "$WORKSPACE_ROOT" "$ok" "$failed" "$DRY_RUN"
 [[ $failed -eq 0 ]]

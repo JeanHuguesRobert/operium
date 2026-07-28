@@ -10,36 +10,36 @@ update_policy: UP-DEFAULT-REVIEWED
 
 # Fracta coding workspace bootstrap
 
-This runbook turns Fracta into a resumable coding node without modifying its
-production checkouts.
+This runbook turns the living Fracta checkouts into a resumable coding node.
+It follows Optimistic Mainline Governance: read the current state, make a small
+versioned act, inspect the differential, and correct by commit when needed.
 
 ## Boundaries
 
-- Production checkouts remain under `/srv/cogentia/repos`.
-- Interactive coding checkouts live under `/home/ubuntu/tweesic`.
+- The existing checkouts under `/srv/cogentia/repos` are the working checkouts.
+- The bootstrap clones missing repositories and fetches remote state. It does
+  not impose a branch or rewrite a dirty worktree.
 - GitHub branches carry source and WIP state; Git never carries secret values.
 - `C:\tweesic\inseme\.env` remains the operator authority until authority is
   deliberately transferred.
-- Its Fracta mirror is `/home/ubuntu/tweesic/inseme/.env`, owned by `ubuntu`,
+- Its Fracta mirror is `/srv/cogentia/repos/inseme/.env`, owned by `ubuntu`,
   mode `0600`.
-- A disaster-recovery copy is stored at
-  `/srv/cogentia/secrets/workstation/inseme.env`, owned by `root`, mode `0600`.
-- Other repositories do not receive the full file. Operium derives allowlisted
-  runtime views.
+- Consumers refer to that one file through explicit symlinks. There are no
+  derived copies to drift and no second local authority.
 
 ## Bootstrap the checkouts
 
-From an existing Operium checkout on Fracta:
+From the existing Operium checkout on Fracta:
 
 ```bash
-cd ~/tweesic/operium
+cd /srv/cogentia/repos/operium
 scripts/ops/fracta-coding-workspace-bootstrap.sh --dry-run
 scripts/ops/fracta-coding-workspace-bootstrap.sh
 ```
 
-The manifest is `profiles/workspace.fracta-coding.v1.tsv`. Backup branches are
-selected for repositories saved on 2026-07-28; stable branches are selected for
-the remaining corpus repositories. Existing dirty worktrees are refused.
+The manifest is `profiles/workspace.fracta-coding.v1.tsv`. Its branch column is
+a resume hint. The bootstrap fetches it but leaves the current branch and local
+changes visible for the next agent to inspect.
 
 ## Publish the authority file
 
@@ -53,7 +53,7 @@ cd C:\tweesic\operium
 
 The command uses `scp`, installs both copies atomically with restrictive modes,
 then calls `fracta-secret-propagate.sh`. Output contains only paths, modes,
-owners, hashes and key counts—never values.
+owners and hashes—never values.
 
 ## Derived secret views
 
@@ -61,15 +61,14 @@ owners, hashes and key counts—never values.
 
 | Target | Scope | Mode |
 |---|---|---:|
-| `~/tweesic/inseme/.env` | Full Inseme/workstation authority mirror | `0600 ubuntu` |
-| `~/.config/cogentia/secrets/coding.env` | Allowlisted coding-provider and system keys | `0600 ubuntu` |
-| `/etc/cogentia/magistral.env` | Allowlisted Magistral runtime keys | `0640 root:ubuntu` |
-| `/srv/cogentia/secrets/workstation/inseme.env` | Full root-only recovery copy | `0600 root` |
+| `/srv/cogentia/repos/inseme/.env` | Fracta authority mirror | `0600 ubuntu` |
+| `cogentia/.env` | Link to `../inseme/.env` | symlink |
+| `operium/.env` | Link to `../inseme/.env` | symlink |
+| `survey/.env` | Link to `../inseme/.env` | symlink |
+| `ubikia/.env` | Link to `../inseme/.env` | symlink |
+| `magistral.service.d/inseme-authority.conf` | Adds the same authority as a systemd `EnvironmentFile` | public config, secret remains `0600` |
 
-Consumers should load the smallest applicable view. Do not symlink the complete
-Inseme authority into Cogentia, Operium, or other repositories.
-
-After refreshing `/etc/cogentia/magistral.env`:
+After refreshing the authority:
 
 ```bash
 sudo systemctl restart magistral
@@ -80,17 +79,16 @@ systemctl is-active magistral
 
 ```bash
 find ~/tweesic -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort
-stat -c '%a %U:%G %n' ~/tweesic/inseme/.env
-stat -c '%a %U:%G %n' ~/.config/cogentia/secrets/coding.env
-sudo stat -c '%a %U:%G %n' /srv/cogentia/secrets/workstation/inseme.env
-sudo stat -c '%a %U:%G %n' /etc/cogentia/magistral.env
+stat -c '%a %U:%G %n' /srv/cogentia/repos/inseme/.env
+readlink /srv/cogentia/repos/cogentia/.env
+readlink /srv/cogentia/repos/operium/.env
+systemctl cat magistral | grep -F 'EnvironmentFile=/srv/cogentia/repos/inseme/.env'
 ```
 
 Compare hashes without printing contents:
 
 ```bash
-sha256sum ~/tweesic/inseme/.env
-sudo sha256sum /srv/cogentia/secrets/workstation/inseme.env
+sha256sum /srv/cogentia/repos/inseme/.env
 ```
 
 ## Resume from another coding agent
@@ -98,7 +96,8 @@ sudo sha256sum /srv/cogentia/secrets/workstation/inseme.env
 1. Read this runbook and `docs/operium-wip.md`.
 2. Inspect `git status --short` in the intended repository.
 3. Run `git fetch origin --prune`.
-4. Continue the checked-out Backup/WIP branch or use
+4. Continue the current living branch, switch to the fetched Backup/WIP branch,
+   or use
    `operium resume wip --topic <topic>`.
 5. Never copy `/srv/cogentia/repos` changes into the coding workspace without
    first classifying and committing them.
