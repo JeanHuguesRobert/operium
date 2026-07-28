@@ -6,12 +6,19 @@ updated: "2026-07-28"
 
 policy:
   role: read_only_edge_consumer
-  repositories: forbidden
+  development_worktrees: forbidden
+  repository_scope: minimal_operational_checkouts
   persistent_remote_mount: forbidden
   synchronization: explicit_on_demand
   local_cache_max_bytes: 524288000
 
 tools:
+  - id: node
+    status: present
+    version: "22.12.0"
+    path: /home/jh/.local/bin/node
+    architecture: armv7
+    notes: Not on the default non-interactive SSH PATH; systemd units add ~/.local/bin explicitly
   - id: ssh
     status: present
   - id: rsync
@@ -53,3 +60,18 @@ edge_portal:
   refresh_interval: 5min
   degraded_mode: cached_last_completed_snapshot
   runbook: docs/rpi3-view-edge-portal.md
+
+operational_checkouts:
+  observed: "2026-07-28"
+  root: ~/srv/cogentia/repos
+  repositories:
+    - cogentia
+    - operium
+    - registre-mariani
+  rule: Keep only checkouts required by deployed edge services; do not treat the Pi as a general coding workspace
+
+node_agent:
+  service: operium-node-agent.service
+  observed_status: inactive
+  observed_enablement: disabled
+  observed: "2026-07-28"

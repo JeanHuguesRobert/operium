@@ -32,6 +32,9 @@ The first snapshot reported the Views Store and all four currently known nodes
 as reachable. This is an observation at one instant, not a continuous
 availability guarantee.
 
+`operium-node-agent.service` was observed as disabled and inactive during a
+follow-up correction audit. This is separate from the active edge portal.
+
 ## Role
 
 The Pi is a consultation endpoint, not a development node or control-plane
@@ -42,8 +45,18 @@ authority. The portal provides:
 - a compact reachability dashboard;
 - a cached degraded mode when the WAN path disappears.
 
-No repository, Node runtime or client-side secret is required. BusyBox serves
-one static page and one JSON file.
+The portal itself requires no Node process or client-side secret. BusyBox
+serves one static page and one JSON file.
+
+The host does have a separate ARMv7 Node.js `v22.12.0` installation at
+`/home/jh/.local/bin/node`. It is absent from the default non-interactive SSH
+`PATH`, which is why an initial `command -v node` probe incorrectly reported
+it as missing. Existing operational checkouts are also present under
+`~/srv/cogentia/repos`: `cogentia`, `operium`, and `registre-mariani`.
+
+These facts do not make the Pi a general development node. They support
+existing edge services and should be kept distinct from the lightweight portal
+runtime.
 
 ## Degraded mode
 
