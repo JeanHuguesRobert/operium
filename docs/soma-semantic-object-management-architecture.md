@@ -448,6 +448,41 @@ A notification definition SHOULD state:
 - ordering and delivery expectations;
 - whether state can be reconstructed without receiving it.
 
+### 10.3 Notification-directed retrieval
+
+SOMA adopts the useful combination historically found in SNMP
+trap-directed polling and the Notification Log MIB:
+
+1. the producer durably appends an event to a bounded local journal;
+2. it attempts to push a compact notification containing the journal
+   identity, producer incarnation, and monotonically increasing sequence;
+3. the consumer compares that cursor with the last contiguous sequence it
+   has observed;
+4. a gap, reconnect, or interesting notification directs the consumer to
+   retrieve journal entries from the producer;
+5. normal polling remains a fallback because a notification is a hint, not
+   proof that all earlier events were delivered.
+
+Each journal projection SHOULD expose:
+
+- `journal_id` and `producer_incarnation`;
+- `first_available_sequence`, `last_sequence`, and `discarded_count`;
+- ordered entries addressable from an exclusive or inclusive cursor;
+- retention limits and overflow policy;
+- enough payload or references to reconstruct the original event;
+- an explicit discontinuity when restart, compaction, or data loss invalidates
+  a previous cursor.
+
+The journal is finite. If a requested cursor predates
+`first_available_sequence`, the producer MUST report a gap rather than imply
+complete replay.
+
+This pattern is transport-independent. FractaLog and OpenTelemetry projections
+may carry or derive the same cursors and causal identifiers. An MCP connector
+may expose retrieval resources, tools, or subscription notifications, but MCP
+transport notifications are not themselves the durable journal and MUST NOT be
+treated as a delivery guarantee.
+
 MCP tools may project SOMA actions, but an MCP tool name alone is not the
 canonical action definition.
 
