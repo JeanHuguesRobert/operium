@@ -128,10 +128,26 @@ Git work on Fracta.
 5. Never copy `/srv/cogentia/repos` changes into the coding workspace without
    first classifying and committing them.
 
-## Android next phase
+## Android / Termux node
 
-The Android/Termux node will reuse the workspace manifest and Git handoff model,
-but it must receive its own restricted secret projection. Do not copy the full
-Inseme authority to the phone by default. The phone phase begins only after
-Fracta bootstrap, secret propagation, Git authentication and a complete
-round-trip WIP test are verified.
+`poco-jhr` became operational on 2026-07-28 using the same living-workspace
+manifest at `~/srv/cogentia/repos`.
+
+- GitHub CLI is authenticated as `JeanHuguesRobert`.
+- Codex and Claude Code run in Ubuntu proot through Termux wrappers.
+- Grok Build runs natively as the official Linux ARM64 binary.
+- The complete `inseme/.env` authority mirror is installed mode `0600`; the
+  same four repository links are used as on Fracta.
+- Existing Android work was committed before bootstrap on
+  `wip/fractanet-android-node` in Cogentia, Operium and registre-mariani.
+- SSH from the Ubuntu proot environment to `fracta` was verified.
+
+Re-publish the authority from Windows with:
+
+```powershell
+.\scripts\ops\publish-inseme-env-to-termux.ps1
+```
+
+Desired tool state is recorded in
+`profiles/tools.termux-android.v1.yaml`. Agent installation/update is owned by
+`cogentia/scripts/ops/fractanet-mobile-proot-agents.sh`.

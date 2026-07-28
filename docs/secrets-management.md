@@ -109,6 +109,7 @@ tailscale-rsync-secrets.js  →  Rossignol · ThinkPad · Cloud backup
 |---------|------|-----------|
 | Rossignol (Corte) | `/c/tweesic/inseme/.env` | 2026-07-19 |
 | fracta | `/srv/cogentia/repos/inseme/.env` | 2026-07-28 |
+| poco-jhr (Android / Termux) | `~/srv/cogentia/repos/inseme/.env` | 2026-07-28 |
 | ThinkPad (Portable) | `~/tweesic/inseme/.env` | TBD |
 | Cloud Backup | `~/backups/tweesic/inseme/.env` | TBD |
 
