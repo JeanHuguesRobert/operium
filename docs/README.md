@@ -30,6 +30,7 @@ This directory contains Operium documentation.
 - `profiles/tools.termux-android.v1.yaml` / `scripts/ops/publish-inseme-env-to-termux.ps1` — Android coding-node state and authority refresh
 - [Magistral → coding-agent routing](magistral-coding-agent-routing.md) — Guide synthesis path + map apply
 - [Cogentia Semantic Stack](cogentia-semantic-stack.md)
+- [SOMA — Semantic Object Management Architecture](soma-semantic-object-management-architecture.md) — lightweight semantic model for managed objects, attributes, observations, actions, and projections
 - [Fracta trust perimeter and secrets](fracta-trust-perimeter.md)
 - [Secret-safe inspection protocol](fracta-trust-perimeter.md#secret-safe-inspection-protocol)
 - [Fractanet mesh — Tailscale and SSH](fractanet-mesh.md)

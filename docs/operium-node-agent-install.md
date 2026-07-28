@@ -14,6 +14,28 @@ Production rollout for **ONA** (`:8794`) on fracta and capable nodes. Catalogue 
 | **ONA** | **8794** | Control |
 | cogentia MCP (fracta) | 8791 | Aggregator |
 
+ONA also serves the SOMA read plane:
+
+| Endpoint | Access | Role |
+|----------|--------|------|
+| `GET /.well-known/soma` | public when `ONA_HEALTH_PUBLIC=1` | Safe node descriptor and discovery |
+| `GET /soma/vocabulary` | public when `ONA_HEALTH_PUBLIC=1` | Classes, facets, and attribute semantics |
+| `GET /soma/object` | read token | Managed node and contained service objects |
+| `GET /soma/observations` | read token | Current sampleable observations |
+
+SOMA v0 is read-only. Write actions are deliberately deferred.
+
+The first public node publishes safe discovery at:
+
+```text
+https://fracta.fractavolta.com/.well-known/soma
+https://fracta.fractavolta.com/soma/vocabulary
+```
+
+The public Caddy route forwards `/soma/*` so descriptor-relative resource URLs
+remain correct. ONA itself enforces the boundary: `/soma/object` and
+`/soma/observations` return `401` without a valid read token.
+
 ---
 
 ## Secrets layout

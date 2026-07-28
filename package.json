@@ -28,6 +28,7 @@
     "test:replication-roundtrip": "node scripts/test-replication-roundtrip.js",
     "test:ona-db": "node scripts/test-ona-db.js",
     "test:ona-status": "node scripts/test-ona-status.js",
+    "test:ona-soma": "node scripts/test-ona-soma.js",
     "test:ona-heartbeat": "node scripts/test-ona-heartbeat.js",
     "test:ona-jobs": "node scripts/test-ona-jobs.js",
     "test:ona-peer-sync": "node scripts/test-ona-peer-sync.js",

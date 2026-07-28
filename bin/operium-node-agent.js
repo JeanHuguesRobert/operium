@@ -43,6 +43,10 @@ Environment:
 
 Endpoints:
   GET /health
+  GET /.well-known/soma  (safe SOMA descriptor; public with ONA_HEALTH_PUBLIC=1)
+  GET /soma/vocabulary  (SOMA semantics; public with ONA_HEALTH_PUBLIC=1)
+  GET /soma/object      (managed node and contained services; read token)
+  GET /soma/observations (sampleable observations; read token)
   GET /node/status      (read token when not loopback-only)
   GET /node/peers       (?fresh=1 for fresh attractors only)
   GET /node/snapshot    (full local projection)
