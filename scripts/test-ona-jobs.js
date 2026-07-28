@@ -74,6 +74,11 @@ assert.ok(attractorScript && fs.existsSync(attractorScript), "attractor heartbea
 
 const env = loadEnvFiles([mockNode.operium_node_agent.blackboard_env], {});
 assert.equal(env.COGENTIA_BLACKBOARD_URL, "https://example.test/ops/blackboard");
+const rotatedEnv = loadEnvFiles(
+  [mockNode.operium_node_agent.blackboard_env],
+  { COGENTIA_BLACKBOARD_URL: "https://stale.example.test" },
+);
+assert.equal(rotatedEnv.COGENTIA_BLACKBOARD_URL, "https://example.test/ops/blackboard");
 
 const { db, migration } = openNodeMemoryDb({
   dbPath,
