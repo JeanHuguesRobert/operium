@@ -52,9 +52,13 @@ edge_portal:
   status: present
   observed: "2026-07-28"
   role: read_only_consultation
-  url: http://rpi3-view:8780/
+  kiosk_url: http://localhost/
+  url: http://rpi3-view/
+  local_mdns_url: http://rpi3-view.local/
   static_root: /srv/operium-edge-portal
   server: busybox-httpd
+  port: 80
+  privilege_model: systemd_CAP_NET_BIND_SERVICE
   service: operium-edge-portal.service
   refresh_timer: operium-edge-portal-refresh.timer
   refresh_interval: 5min

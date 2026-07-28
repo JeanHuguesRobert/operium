@@ -16,9 +16,12 @@ Deployed and verified on 2026-07-28:
 
 | Surface | Value |
 |---|---|
-| Local and tailnet URL | `http://rpi3-view:8780/` |
+| Primary kiosk URL | `http://localhost/` |
+| Tailnet URL | `http://rpi3-view/` |
+| Local mDNS URL | `http://rpi3-view.local/` when local name resolution is available |
 | Static root | `/srv/operium-edge-portal` |
 | HTTP server | BusyBox `httpd` |
+| Port | `80` through systemd `CAP_NET_BIND_SERVICE`; process remains user `jh` |
 | Service | `operium-edge-portal.service` |
 | Refresh timer | `operium-edge-portal-refresh.timer` |
 | Refresh interval | 5 minutes with a small randomized delay |
@@ -93,7 +96,7 @@ instead of linking to a service that is not deployed.
 ssh rpi3-view "systemctl status operium-edge-portal.service"
 ssh rpi3-view "systemctl status operium-edge-portal-refresh.timer"
 ssh rpi3-view "sudo systemctl start operium-edge-portal-refresh.service"
-curl http://rpi3-view:8780/status.json
+curl http://rpi3-view/status.json
 ```
 
 Runtime files are owned by Operium source:
