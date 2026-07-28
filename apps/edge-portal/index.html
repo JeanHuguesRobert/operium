@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Fractanet Edge Portal</title>
+  <style>
+    :root { --bg:#0b1118; --panel:#121c27; --line:#26384a; --text:#e8eef5; --muted:#91a4b7; --ok:#52d18b; --bad:#ff6b72; --accent:#73b7ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; background:linear-gradient(145deg,#0b1118,#101c28); color:var(--text); font:16px/1.45 system-ui,sans-serif; }
+    main { width:min(1100px,calc(100% - 2rem)); margin:auto; padding:2rem 0 3rem; }
+    header { display:flex; justify-content:space-between; align-items:end; gap:1rem; border-bottom:1px solid var(--line); padding-bottom:1rem; }
+    h1 { margin:0; font-size:clamp(1.5rem,4vw,2.5rem); }
+    h2 { margin:0 0 .8rem; font-size:1rem; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem; margin-top:1rem; }
+    .card { background:rgba(18,28,39,.92); border:1px solid var(--line); border-radius:12px; padding:1rem; }
+    .status { display:flex; justify-content:space-between; gap:.75rem; padding:.55rem 0; border-bottom:1px solid var(--line); }
+    .status:last-child { border:0; }
+    .dot { width:.7rem; height:.7rem; margin-top:.35rem; border-radius:50%; background:var(--muted); flex:none; }
+    .dot.ok { background:var(--ok); box-shadow:0 0 12px color-mix(in srgb,var(--ok),transparent 45%); }
+    .dot.bad { background:var(--bad); }
+    a { color:var(--accent); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    .link { display:block; padding:.7rem 0; border-bottom:1px solid var(--line); }
+    .link:last-child { border:0; }
+    button { background:var(--accent); color:#07111c; border:0; border-radius:8px; padding:.55rem .9rem; font-weight:700; cursor:pointer; }
+    footer { margin-top:1rem; color:var(--muted); font-size:.85rem; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>Fractanet Edge Portal</h1>
+      <div class="muted">Local consultation surface · cached degraded mode</div>
+    </div>
+    <button id="refresh" type="button">Refresh</button>
+  </header>
+
+  <section class="grid">
+    <article class="card">
+      <h2>Network and services</h2>
+      <div id="health"><span class="muted">Loading the last local snapshot…</span></div>
+    </article>
+    <article class="card">
+      <h2>Web experiences</h2>
+      <a class="link" href="https://cogentia.fractavolta.com/">Cogentia Views Store</a>
+      <a class="link" href="https://cogentia.fractavolta.com/docs">Views Store API documentation</a>
+      <a class="link" href="https://github.com/JeanHuguesRobert/operium/issues/18">Operium handoff roadmap</a>
+      <div class="link muted">Operium Console · planned on Fracta</div>
+    </article>
+  </section>
+
+  <footer id="meta">This page and its last successful snapshot remain available without Internet.</footer>
+</main>
+<script>
+  const health = document.querySelector("#health");
+  const meta = document.querySelector("#meta");
+
+  function row(label, value) {
+    const ok = value === true;
+    const state = value === null ? "unknown" : ok ? "reachable" : "unreachable";
+    return `<div class="status"><span><i class="dot ${value === null ? "" : ok ? "ok" : "bad"}"></i></span><span style="flex:1">${label}</span><strong>${state}</strong></div>`;
+  }
+
+  async function load() {
+    try {
+      const response = await fetch(`/status.json?t=${Date.now()}`, { cache:"no-store" });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      health.innerHTML = [
+        row("Internet / Views Store", data.services?.views_store ?? null),
+        row("Fracta", data.nodes?.fracta ?? null),
+        row("Office workstation", data.nodes?.workstation ?? null),
+        row("Android / Termux", data.nodes?.phone ?? null),
+        row("This Raspberry Pi", true),
+      ].join("");
+      meta.textContent = `Snapshot ${data.generated_at || "unknown"} · ${data.mode || "cached"} · local page survives WAN loss`;
+    } catch (error) {
+      health.innerHTML = `<span class="muted">No cached status is available yet: ${error.message}</span>`;
+    }
+  }
+
+  document.querySelector("#refresh").addEventListener("click", load);
+  load();
+  setInterval(load, 60_000);
+</script>
+</body>
+</html>

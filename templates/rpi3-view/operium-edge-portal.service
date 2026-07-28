@@ -1,0 +1,13 @@
+[Unit]
+Description=Operium edge consultation portal
+After=network.target
+
+[Service]
+Type=simple
+User=jh
+ExecStart=/usr/bin/busybox httpd -f -p 8780 -h /srv/operium-edge-portal
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

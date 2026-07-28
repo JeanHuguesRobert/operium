@@ -40,3 +40,16 @@ shared_store:
     - kiosk_start_when_needed
     - future_reactive_signal
   runbook: docs/operium-shared-store.md
+
+edge_portal:
+  status: present
+  observed: "2026-07-28"
+  role: read_only_consultation
+  url: http://rpi3-view:8780/
+  static_root: /srv/operium-edge-portal
+  server: busybox-httpd
+  service: operium-edge-portal.service
+  refresh_timer: operium-edge-portal-refresh.timer
+  refresh_interval: 5min
+  degraded_mode: cached_last_completed_snapshot
+  runbook: docs/rpi3-view-edge-portal.md
