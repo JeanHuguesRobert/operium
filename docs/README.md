@@ -26,6 +26,7 @@ This directory contains Operium documentation.
 - [Claude Code mode (pro ↔ z.ai)](claude-code-mode.md) — Operium-owned backend switch + mesh apply
 - [Fix Bugs First](fix-bugs-first.md) — Bug/Feature tracking + feature gate when out of control
 - [Secrets management](secrets-management.md) — dual authority (`inseme/.env` vs vault), `COGENTIA_API_KEY`, rotation
+- [Fracta coding workspace](fracta-coding-workspace.md) — isolated development clones, secure authority transfer, and allowlisted runtime secret views
 - [Magistral → coding-agent routing](magistral-coding-agent-routing.md) — Guide synthesis path + map apply
 - [Cogentia Semantic Stack](cogentia-semantic-stack.md)
 - [Fracta trust perimeter and secrets](fracta-trust-perimeter.md)
