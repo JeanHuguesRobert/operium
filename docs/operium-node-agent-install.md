@@ -243,6 +243,34 @@ COGENTIA_ATTRACTOR_WITHDRAW=1 node operium/scripts/ona-heartbeat.js
 | Console node detail | `COGENTIA_OPS_READ_TOKEN` set on fracta MCP |
 | Diagnose | `operium node diagnose --human` on capable host |
 
+## SOMA action rollout evidence — 2026-07-28
+
+Release `92a45f2` was activated and the two initial administrative actions
+were exercised locally on every current FractaNode:
+
+| Node | Supervisor | Schema | `observation.refresh` | `agent.restart` |
+|---|---|---:|---|---|
+| `fracta` | systemd | 3 | completed | completed by a new incarnation |
+| `i7-thinkpad-jhr` | NSSM | 3 | completed | completed by a new incarnation |
+| `rpi3-view` | systemd, immutable release `92a45f2-git` | 3 | completed | completed by a new incarnation |
+| `poco-jhr` | Termux Node supervisor | 3 | completed | completed by a new incarnation |
+
+Operational notes:
+
+- The Pi's `~/srv/cogentia/repos/operium` path was a minimal source copy, not
+  a Git worktree. Its immutable release was therefore built from the verified
+  Git archive supplied by the workstation.
+- The Pi `ona.env` contained three CRLF lines. They were normalized to LF
+  without changing values because carriage returns cannot be transported in
+  HTTP header values.
+- The Termux boot hook now executes `run-ona-supervised.js`; the pre-change
+  hook remains available as `operium-node-agent.pre-soma-actions`.
+- Windows service activation required a local UAC elevation because the NSSM
+  service runs as `LocalSystem`.
+- Refresh results still report low health scores on several nodes. These are
+  existing probe results and require diagnosis independently of the action
+  transport, persistence, and restart lifecycle validated here.
+
 ---
 
 ## References
