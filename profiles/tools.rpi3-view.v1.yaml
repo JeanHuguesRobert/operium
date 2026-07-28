@@ -1,0 +1,42 @@
+profile_id: tools.rpi3-view.v1
+node_id: rpi3-view
+node_class: raspberry-pi-edge-kiosk
+ssh_alias: rpi3-view
+updated: "2026-07-28"
+
+policy:
+  role: read_only_edge_consumer
+  repositories: forbidden
+  persistent_remote_mount: forbidden
+  synchronization: explicit_on_demand
+  local_cache_max_bytes: 524288000
+
+tools:
+  - id: ssh
+    status: present
+  - id: rsync
+    status: present
+  - id: rclone
+    status: present
+    version: "1.60.1-DEV"
+    provider: raspberry-pi-os
+    architecture: armhf
+    remote: fracta-store
+    transport: sftp
+    remote_path: /srv/operium-store
+    auth: existing_local_ssh_key
+
+shared_store:
+  local_cache: ~/.cache/operium/shared-store
+  observed_size_bytes: 8192
+  allowed_sources:
+    - /srv/operium-store/FORMAT
+    - /srv/operium-store/snapshots/rpi3-view
+  forbidden_sources:
+    - /srv/operium-store/objects
+    - /srv/operium-store/handoffs
+  refresh_trigger:
+    - explicit_operator_request
+    - kiosk_start_when_needed
+    - future_reactive_signal
+  runbook: docs/operium-shared-store.md

@@ -34,6 +34,13 @@ On `poco-jhr`, rclone 1.74.4 is installed in native Termux. Its
 `~/operium-handoffs`. An upload-download round trip was verified by three
 matching SHA-256 hashes.
 
+On `rpi3-view`, Raspberry Pi OS rclone 1.60.1 is configured as a lightweight
+read-only consumer. It uses the existing local SSH key and Fracta's Tailscale
+address. There is no repository checkout, mount, timer, service or persistent
+rclone process. The local cache is `~/.cache/operium/shared-store`; its initial
+8 KiB contains only the 24-byte `FORMAT` marker, verified against Fracta by
+SHA-256.
+
 ## Purpose
 
 Fracta is currently the only permanently reachable Fractanet coding node.
@@ -125,6 +132,29 @@ node scripts/ops/fracta-shared-store-client.js check-outbox
 
 `push` intentionally lands files in `inbox/`; it does not claim that they are
 published handoff objects.
+
+## Raspberry Pi edge access
+
+The Pi is not a development node. Its desired profile is
+`profiles/tools.rpi3-view.v1.yaml`.
+
+Only explicitly addressed projections are copied:
+
+```bash
+rclone copyto \
+  fracta-store:/srv/operium-store/FORMAT \
+  ~/.cache/operium/shared-store/FORMAT
+
+# Future kiosk projection, when present:
+rclone copy \
+  fracta-store:/srv/operium-store/snapshots/rpi3-view \
+  ~/.cache/operium/shared-store/views
+```
+
+The cache target is bounded by policy to 500 MiB. `objects/` and `handoffs/`
+are excluded from the Pi profile. A timer should be added only after a real
+kiosk refresh cadence exists; until then refresh is explicit and leaves no
+resident process.
 
 ## Publication invariant
 
