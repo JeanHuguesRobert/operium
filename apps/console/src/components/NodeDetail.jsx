@@ -1,10 +1,13 @@
 import { HealthBadge } from "./HealthBadge.jsx";
 import { getOpsConfig } from "../lib/ops-api.js";
+import { SomaInspector } from "./SomaInspector.jsx";
 
 export function NodeDetail({
   node,
   status,
   drift,
+  somaObject,
+  somaVocabulary,
   loading,
   error,
   onBack,
@@ -63,6 +66,13 @@ export function NodeDetail({
           <ProbeList probes={statusBody.probes?.latest || []} />
         </Panel>
       ) : null}
+
+      <Panel title="SOMA Object Inspector">
+        <SomaInspector
+          object={somaObject?.body?.schema === "soma.object.v0" ? somaObject.body : null}
+          vocabulary={somaVocabulary?.body?.schema === "soma.vocabulary.v0" ? somaVocabulary.body : null}
+        />
+      </Panel>
 
       {driftBody ? (
         <Panel title="Drift">

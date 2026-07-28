@@ -5,6 +5,8 @@ import {
   fetchFleetBlackboard,
   fetchFleetStatus,
   fetchNodeDrift,
+  fetchNodeSomaObject,
+  fetchNodeSomaVocabulary,
   fetchNodeStatus,
   getOpsConfig,
   listOnaAttractors,
@@ -20,6 +22,8 @@ export default function App() {
   const [fleetBlackboard, setFleetBlackboard] = useState(null);
   const [nodeStatus, setNodeStatus] = useState(null);
   const [nodeDrift, setNodeDrift] = useState(null);
+  const [nodeSomaObject, setNodeSomaObject] = useState(null);
+  const [nodeSomaVocabulary, setNodeSomaVocabulary] = useState(null);
   const [fleetLoading, setFleetLoading] = useState(true);
   const [nodeLoading, setNodeLoading] = useState(false);
   const [fleetError, setFleetError] = useState(null);
@@ -56,12 +60,16 @@ export default function App() {
     setNodeLoading(true);
     setNodeError(null);
     try {
-      const [status, drift] = await Promise.all([
+      const [status, drift, somaObject, somaVocabulary] = await Promise.all([
         fetchNodeStatus(node.node_id, signal),
         fetchNodeDrift(node.node_id, signal),
+        fetchNodeSomaObject(node.node_id, signal),
+        fetchNodeSomaVocabulary(node.node_id, signal),
       ]);
       setNodeStatus(status);
       setNodeDrift(drift);
+      setNodeSomaObject(somaObject);
+      setNodeSomaVocabulary(somaVocabulary);
       if (!status.ok && !drift.ok) {
         setNodeError(status.body?.error || drift.body?.error || `HTTP ${status.status}`);
       }
@@ -134,6 +142,8 @@ export default function App() {
             node={selectedNode}
             status={nodeStatus}
             drift={nodeDrift}
+            somaObject={nodeSomaObject}
+            somaVocabulary={nodeSomaVocabulary}
             loading={nodeLoading}
             error={nodeError}
             onBack={() => {
@@ -141,6 +151,8 @@ export default function App() {
               setSelectedNode(null);
               setNodeStatus(null);
               setNodeDrift(null);
+              setNodeSomaObject(null);
+              setNodeSomaVocabulary(null);
               setNodeError(null);
             }}
           />

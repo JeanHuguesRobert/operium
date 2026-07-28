@@ -20,6 +20,10 @@ assert.equal(
   buildNodeOpsPath("resource://i7-thinkpad-jhr", "status"),
   "/ops/node/resource%3A%2F%2Fi7-thinkpad-jhr/status",
 );
+assert.equal(
+  buildNodeOpsPath("resource://fracta", "soma/object"),
+  "/ops/node/resource%3A%2F%2Ffracta/soma/object",
+);
 assert.equal(healthTone(4), "ok");
 assert.equal(healthTone(2), "bad");
 

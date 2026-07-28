@@ -58,6 +58,14 @@ export async function fetchNodeDrift(nodeId, signal) {
   return fetchOpsJson(buildNodeOpsPath(nodeId, "drift"), { auth: true, signal });
 }
 
+export async function fetchNodeSomaObject(nodeId, signal) {
+  return fetchOpsJson(buildNodeOpsPath(nodeId, "soma/object"), { auth: true, signal });
+}
+
+export async function fetchNodeSomaVocabulary(nodeId, signal) {
+  return fetchOpsJson(buildNodeOpsPath(nodeId, "soma/vocabulary"), { auth: true, signal });
+}
+
 export function listOnaAttractors(blackboard = {}) {
   const attractors = Array.isArray(blackboard.attractors) ? blackboard.attractors : [];
   return attractors
