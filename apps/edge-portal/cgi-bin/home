@@ -1,0 +1,74 @@
+#!/bin/sh
+# Full HTML home for light browsers (Dillo has no JS). Reads status.json.
+set -eu
+PORTAL_DIR="${OPERIUM_EDGE_PORTAL_DIR:-/srv/operium-edge-portal}"
+STATUS="$PORTAL_DIR/status.json"
+GENERATED="unknown"
+VS="?"; FR="?"; WS="?"; PH="?"
+
+if [ -f "$STATUS" ]; then
+  GENERATED="$(sed -n 's/.*"generated_at"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$STATUS" | head -1)"
+  echo "$STATUS" | grep -q '"views_store"[[:space:]]*:[[:space:]]*true' && VS=ok || VS=down
+  # crude parse
+  VS="$(grep -o '"views_store"[[:space:]]*:[[:space:]]*[a-z]*' "$STATUS" | head -1 | awk -F: '{gsub(/ /,"",$2); print $2}')"
+  FR="$(grep -o '"fracta"[[:space:]]*:[[:space:]]*[a-z]*' "$STATUS" | head -1 | awk -F: '{gsub(/ /,"",$2); print $2}')"
+  WS="$(grep -o '"workstation"[[:space:]]*:[[:space:]]*[a-z]*' "$STATUS" | head -1 | awk -F: '{gsub(/ /,"",$2); print $2}')"
+  PH="$(grep -o '"phone"[[:space:]]*:[[:space:]]*[a-z]*' "$STATUS" | head -1 | awk -F: '{gsub(/ /,"",$2); print $2}')"
+  GENERATED="$(grep -o '"generated_at"[[:space:]]*:[[:space:]]*"[^"]*"' "$STATUS" | head -1 | sed 's/.*"\([^"]*\)"$/\1/')"
+fi
+
+flag() {
+  case "$1" in
+    true) echo OK ;;
+    false) echo down ;;
+    *) echo "?" ;;
+  esac
+}
+
+printf 'Content-Type: text/html; charset=utf-8\r\n'
+printf 'Cache-Control: no-store\r\n'
+printf '\r\n'
+cat <<EOF
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="refresh" content="60">
+  <title>Fractanet Edge Portal</title>
+  <style>
+    body { font-family: sans-serif; margin: 1.2rem; background: #0b1118; color: #e8eef5; }
+    h1 { color: #73b7ff; }
+    a { color: #73b7ff; }
+    .card { border: 1px solid #26384a; padding: 0.8rem 1rem; margin: 0.8rem 0; background: #121c27; }
+    .muted { color: #91a4b7; font-size: 0.9rem; }
+    table { border-collapse: collapse; width: 100%; }
+    td { padding: 0.35rem 0.5rem; border-bottom: 1px solid #26384a; }
+  </style>
+</head>
+<body>
+  <h1>Fractanet Edge Portal</h1>
+  <p class="muted">Local home on this Pi · auto-refresh 60s · no JavaScript required</p>
+  <div class="card">
+    <h2>Network status</h2>
+    <table>
+      <tr><td>Views Store</td><td>$(flag "$VS")</td></tr>
+      <tr><td>Fracta</td><td>$(flag "$FR")</td></tr>
+      <tr><td>Workstation</td><td>$(flag "$WS")</td></tr>
+      <tr><td>Phone</td><td>$(flag "$PH")</td></tr>
+      <tr><td>This Pi</td><td>OK</td></tr>
+    </table>
+    <p class="muted">Snapshot: ${GENERATED:-unknown}</p>
+    <p><a href="/cgi-bin/refresh">Re-probe now</a> (JSON) ·
+       <a href="/cgi-bin/home">Reload this page</a></p>
+  </div>
+  <div class="card">
+    <h2>Links</h2>
+    <p><a href="https://cogentia.fractavolta.com/">Cogentia Views Store</a></p>
+    <p><a href="https://cogentia.fractavolta.com/docs">Views Store documentation</a></p>
+    <p><a href="/status.json">status.json</a> ·
+       <a href="/">Full UI (heavy browser)</a> ·
+       <a href="/simple.html">Simple UI + JS</a></p>
+  </div>
+</body>
+</html>
+EOF

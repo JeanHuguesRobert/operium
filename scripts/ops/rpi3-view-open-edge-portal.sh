@@ -1,152 +1,73 @@
 #!/usr/bin/env bash
-# Wait for the local edge portal, then open Firefox without ANY profile picker.
+# Wait for the local edge portal, then open a LIGHT browser window.
 #
-# Critical: use absolute -profile PATH (not -P name). With multiple profiles and a
-# Locked Install section in profiles.ini, -P often still shows the profile manager
-# and the "remember" checkbox does not stick for -P launches.
+# Pi 3 has ~1 GB RAM. Firefox ESR multi-process often thrashes (300–500 MB+)
+# and the UI looks like "127.0.0.1 does not respond". Default browser is therefore
+# Dillo (already on Raspberry Pi OS). Override with BROWSER=firefox-esr if needed.
 #
-# Hard reboot must not block on "which profile?" or "restore session?".
+# Profile picker: Firefox path uses absolute -profile only (never -P name).
 set -u
 
-PORTAL_URL="${PORTAL_URL:-http://127.0.0.1/}"
+# cgi-bin/home: server-rendered HTML (Dillo has no JS). Falls back in wait loop.
+PORTAL_URL="${PORTAL_URL:-http://127.0.0.1/cgi-bin/home}"
 BROWSER="${BROWSER:-}"
 MAX_WAIT_SEC="${MAX_WAIT_SEC:-120}"
 FF_PROFILE_NAME="${FF_PROFILE_NAME:-operium-edge}"
-# Always resolve under $HOME — never rely on profiles.ini for the launch path.
 FF_PROFILE_DIR="${FF_PROFILE_DIR:-$HOME/.mozilla/firefox/${FF_PROFILE_NAME}.profile}"
 LOG="${HOME}/.cogentia/var/edge-portal-open.log"
-USER_JS_SRC="${USER_JS_SRC:-}"
+# After HTTP 200, wait for boot load to drop a bit (optional).
+POST_READY_SLEEP="${POST_READY_SLEEP:-5}"
 
 mkdir -p "$(dirname "$LOG")" 2>/dev/null || true
 log() { echo "$@" >>"$LOG" 2>/dev/null || true; }
 
 log "---- $(date -Is) open edge portal ----"
-log "url=$PORTAL_URL max_wait=${MAX_WAIT_SEC}s profile_dir=$FF_PROFILE_DIR"
+log "url=$PORTAL_URL max_wait=${MAX_WAIT_SEC}s"
 
-if [ -z "$BROWSER" ]; then
-  if command -v firefox-esr >/dev/null 2>&1; then
-    BROWSER=firefox-esr
-  elif command -v firefox >/dev/null 2>&1; then
-    BROWSER=firefox
-  elif command -v chromium-browser >/dev/null 2>&1; then
-    BROWSER=chromium-browser
-  elif command -v chromium >/dev/null 2>&1; then
-    BROWSER=chromium
-  else
-    log "no browser found"
-    exit 1
+pick_browser() {
+  if [ -n "$BROWSER" ]; then
+    command -v "$BROWSER" >/dev/null 2>&1 && { command -v "$BROWSER"; return; }
   fi
-fi
+  # Prefer light UI for home portal on Pi 3.
+  for c in dillo chromium-browser chromium firefox-esr firefox; do
+    if command -v "$c" >/dev/null 2>&1; then
+      command -v "$c"
+      return
+    fi
+  done
+  return 1
+}
 
-# Prefer loopback IPv4; some stacks resolve localhost to ::1 first.
+BROWSER_PATH="$(pick_browser || true)"
+if [ -z "${BROWSER_PATH:-}" ]; then
+  log "no browser found"
+  exit 1
+fi
+BROWSER_BASE="$(basename "$BROWSER_PATH")"
+log "browser=$BROWSER_PATH ($BROWSER_BASE)"
+
 case "$PORTAL_URL" in
   http://localhost/*|http://localhost)
     PORTAL_URL="http://127.0.0.1/${PORTAL_URL#http://localhost/}"
     PORTAL_URL="${PORTAL_URL%/}"
-    [ "$PORTAL_URL" = "http://127.0.0.1" ] && PORTAL_URL="http://127.0.0.1/"
+    [ "$PORTAL_URL" = "http://127.0.0.1" ] && PORTAL_URL="http://127.0.0.1/simple.html"
     ;;
 esac
 
-write_user_js() {
-  local dest="$1"
-  if [ -z "$USER_JS_SRC" ]; then
-    for c in \
-      "${HOME}/bin/firefox-edge-portal-user.js" \
-      "${HOME}/firefox-edge-portal-user.js" \
-      "$(dirname "$0")/../templates/rpi3-view/firefox-edge-portal-user.js"
-    do
-      if [ -f "$c" ]; then USER_JS_SRC="$c"; break; fi
-    done
-  fi
-  if [ -n "${USER_JS_SRC:-}" ] && [ -f "$USER_JS_SRC" ]; then
-    cp -f "$USER_JS_SRC" "$dest"
-    log "user.js from $USER_JS_SRC"
-  else
-    cat >"$dest" <<'EOF'
-user_pref("browser.sessionstore.resume_from_crash", false);
-user_pref("browser.sessionstore.resume_session_once", false);
-user_pref("browser.sessionstore.max_resumed_crashes", 0);
-user_pref("toolkit.startup.max_resumed_crashes", -1);
-user_pref("browser.startup.page", 0);
-user_pref("browser.startup.homepage", "http://127.0.0.1/");
-user_pref("browser.shell.checkDefaultBrowser", false);
-user_pref("browser.tabs.warnOnClose", false);
-user_pref("browser.warnOnQuit", false);
-user_pref("browser.aboutwelcome.enabled", false);
-user_pref("network.proxy.type", 0);
-user_pref("network.proxy.no_proxies_on", "localhost, 127.0.0.1");
-user_pref("dom.security.https_only_mode", false);
-user_pref("dom.security.https_only_mode_pbm", false);
-user_pref("network.dns.disableIPv6", true);
-EOF
-    log "user.js written inline"
-  fi
-}
-
 ensure_firefox_profile() {
-  case "$BROWSER" in
-    *firefox*) ;;
-    *) return 0 ;;
-  esac
-
   mkdir -p "$FF_PROFILE_DIR"
-
-  # Optional registration in profiles.ini (for human Profile Manager only).
-  # Launch path does NOT use -P / profiles.ini.
-  local ff_home profiles_ini
-  ff_home="${HOME}/.mozilla/firefox"
-  profiles_ini="${ff_home}/profiles.ini"
-  mkdir -p "$ff_home"
-  if [ ! -f "$profiles_ini" ]; then
-    printf '%s\n' '[General]' 'StartWithLastProfile=0' 'Version=2' >"$profiles_ini"
+  local ujs="${HOME}/bin/firefox-edge-portal-user.js"
+  if [ -f "$ujs" ]; then
+    cp -f "$ujs" "${FF_PROFILE_DIR}/user.js"
   fi
-  if ! grep -q "Name=${FF_PROFILE_NAME}" "$profiles_ini" 2>/dev/null; then
-    {
-      echo ""
-      echo "[Profile${FF_PROFILE_NAME}]"
-      echo "Name=${FF_PROFILE_NAME}"
-      echo "IsRelative=1"
-      echo "Path=${FF_PROFILE_NAME}.profile"
-    } >>"$profiles_ini"
-    log "registered ${FF_PROFILE_NAME} in profiles.ini (launch still uses -profile path)"
-  fi
-
-  write_user_js "${FF_PROFILE_DIR}/user.js"
-
-  # Also seed prefs.js so first cold start is not a half-empty profile.
-  if [ ! -f "${FF_PROFILE_DIR}/prefs.js" ]; then
-    # Firefox will merge user.js on start; a tiny prefs.js reduces first-run UI.
-    cat >"${FF_PROFILE_DIR}/prefs.js" <<'EOF'
-// Generated by rpi3-view-open-edge-portal.sh — first-run seed
-user_pref("browser.shell.checkDefaultBrowser", false);
-user_pref("browser.aboutwelcome.enabled", false);
-user_pref("toolkit.telemetry.reportingpolicy.firstRun", false);
-user_pref("datareporting.policy.firstRunURL", "");
-user_pref("app.normandy.first_run", false);
-user_pref("browser.startup.homepage_override.mstone", "ignore");
-user_pref("network.proxy.type", 0);
-user_pref("dom.security.https_only_mode", false);
-EOF
-    log "seeded prefs.js for first run"
-  fi
-
-  # Drop crash/session restore artifacts after hard reboot.
   rm -f "${FF_PROFILE_DIR}/sessionstore.jsonlz4" \
         "${FF_PROFILE_DIR}/sessionCheckpoints.json" \
         "${FF_PROFILE_DIR}/.parentlock" \
         "${FF_PROFILE_DIR}/lock" 2>/dev/null || true
   rm -rf "${FF_PROFILE_DIR}/sessionstore-backups" 2>/dev/null || true
   mkdir -p "${FF_PROFILE_DIR}/sessionstore-backups"
-
-  # Stale lock from brutal reboot can force odd profile UI.
-  find "$FF_PROFILE_DIR" -maxdepth 1 \( -name 'lock' -o -name '.parentlock' -o -name '*.lock' \) -delete 2>/dev/null || true
-
-  log "profile ready: $FF_PROFILE_DIR"
 }
 
-ensure_firefox_profile
-
-# Wait until the portal answers HTTP 200 (not just TCP open).
 ready=0
 i=0
 while [ "$i" -lt "$MAX_WAIT_SEC" ]; do
@@ -155,25 +76,55 @@ while [ "$i" -lt "$MAX_WAIT_SEC" ]; do
     ready=1
     break
   fi
+  # Also accept root if simple.html not yet deployed
+  code2="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 2 http://127.0.0.1/ 2>/dev/null || echo 000)"
+  if [ "$code2" = "200" ]; then
+    ready=1
+    break
+  fi
   i=$((i + 1))
   sleep 1
 done
 
 if [ "$ready" != "1" ]; then
-  log "portal not ready after ${MAX_WAIT_SEC}s (last check non-200) — opening anyway"
+  log "portal not ready after ${MAX_WAIT_SEC}s — opening anyway"
 else
   log "portal ready after ${i}s (HTTP 200)"
-  # Brief settle: autostart can race systemd unit activation vs accept().
-  sleep 2
+  sleep "$POST_READY_SLEEP"
 fi
 
-# Absolute -profile path: never opens Profile Manager.
-# --no-remote: do not attach to another Firefox instance / default profile.
-# Avoid -P entirely.
-if [ "${KIOSK_MODE:-window}" = "kiosk" ]; then
-  log "exec $BROWSER -profile $FF_PROFILE_DIR --no-remote --kiosk $PORTAL_URL"
-  exec "$BROWSER" -profile "$FF_PROFILE_DIR" --no-remote --kiosk "$PORTAL_URL"
-else
-  log "exec $BROWSER -profile $FF_PROFILE_DIR --no-remote --new-window $PORTAL_URL"
-  exec "$BROWSER" -profile "$FF_PROFILE_DIR" --no-remote --new-window "$PORTAL_URL"
-fi
+case "$BROWSER_BASE" in
+  dillo)
+    log "exec dillo $PORTAL_URL"
+    exec dillo "$PORTAL_URL"
+    ;;
+  chromium|chromium-browser)
+    # Light-ish flags for Pi; dedicated temp profile avoids baronpi lock.
+    CH_PROF="${HOME}/.config/operium-edge-chromium"
+    mkdir -p "$CH_PROF"
+    log "exec $BROWSER_PATH --user-data-dir=$CH_PROF --no-first-run --disable-session-crashed-bubble $PORTAL_URL"
+    exec "$BROWSER_PATH" \
+      --user-data-dir="$CH_PROF" \
+      --no-first-run \
+      --disable-session-crashed-bubble \
+      --check-for-update-interval=31536000 \
+      --disable-features=TranslateUI \
+      --new-window \
+      "$PORTAL_URL"
+    ;;
+  firefox|firefox-esr)
+    ensure_firefox_profile
+    export MOZ_WEBRENDER="${MOZ_WEBRENDER:-0}"
+    if [ "${KIOSK_MODE:-window}" = "kiosk" ]; then
+      log "exec $BROWSER_PATH -profile $FF_PROFILE_DIR --no-remote --kiosk $PORTAL_URL"
+      exec "$BROWSER_PATH" -profile "$FF_PROFILE_DIR" --no-remote --kiosk "$PORTAL_URL"
+    else
+      log "exec $BROWSER_PATH -profile $FF_PROFILE_DIR --no-remote --new-window $PORTAL_URL"
+      exec "$BROWSER_PATH" -profile "$FF_PROFILE_DIR" --no-remote --new-window "$PORTAL_URL"
+    fi
+    ;;
+  *)
+    log "exec $BROWSER_PATH $PORTAL_URL"
+    exec "$BROWSER_PATH" "$PORTAL_URL"
+    ;;
+esac

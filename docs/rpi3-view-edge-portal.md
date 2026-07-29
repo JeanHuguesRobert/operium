@@ -116,11 +116,15 @@ The portal is HTTP-only at **`http://127.0.0.1/`** (also `http://localhost/`).
 operator keeps the Pi panel menus, browser chrome, **Back**, and right-click.
 Full-screen lock-down is optional: `KIOSK_MODE=kiosk`.
 
-**Profile:** dedicated directory
-`~/.mozilla/firefox/operium-edge.profile`, opened with **absolute**
-`firefox -profile /path/...` (never `-P name`, which reopens the profile
-manager after hard reboots despite “remember”). Opener also waits for
-HTTP 200 on `http://127.0.0.1/` before launch.
+**Home browser (Pi 3 / 1 GB):** default **Dillo** opening
+`http://127.0.0.1/cgi-bin/home` (server-rendered HTML, no JS). Firefox ESR
+multi-process often thrashing on this hardware looks like “127.0.0.1 does not
+respond” even though busybox httpd returns HTTP 200 to `curl`. Use the menu
+to open Firefox for heavy sites (Views Store). Override:
+`BROWSER=firefox-esr` or `BROWSER=chromium-browser`.
+
+**Firefox (optional):** absolute `-profile …/operium-edge.profile` only — never
+`-P name` (profile manager after hard reboot).
 
 **Observed stack (2026-07):** Raspberry Pi OS Bookworm with **labwc Wayland**
 (`DESKTOP_SESSION=LXDE-pi-labwc`). Primary autostart:

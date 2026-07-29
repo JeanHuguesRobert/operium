@@ -14,12 +14,14 @@
 #   CLEAR_CHROMIUM_LOCK=1 bash install-rpi3-edge-kiosk-browser.sh
 set -euo pipefail
 
-PORTAL_URL="${PORTAL_URL:-http://127.0.0.1/}"
-KIOSK_BROWSER="${KIOSK_BROWSER:-firefox-esr}"
+# cgi-bin/home: server-rendered status (works in Dillo without JS). Full UI at /.
+PORTAL_URL="${PORTAL_URL:-http://127.0.0.1/cgi-bin/home}"
+# dillo default: Firefox thrashing on Pi 3 looks like "127.0.0.1 down".
+KIOSK_BROWSER="${KIOSK_BROWSER:-dillo}"
 # window (default): normal browser chrome, panel menus, Back / right-click.
 # kiosk: full-screen lock-down (too restrictive for operator desk use).
 KIOSK_MODE="${KIOSK_MODE:-window}"
-# Wrapper waits for httpd before opening Firefox (avoids boot race).
+# Wrapper waits for httpd before opening the browser (avoids boot race).
 OPENER="${OPENER:-$HOME/bin/rpi3-view-open-edge-portal.sh}"
 LABWC_AUTOSTART="${HOME}/.config/labwc/autostart"
 XDG_AUTOSTART_DIR="${HOME}/.config/autostart"
@@ -69,14 +71,7 @@ browser_cmd() {
       "$KIOSK_MODE" "$PORTAL_URL" "$BROWSER" "$OPENER"
     return 0
   fi
-  case "$KIOSK_MODE" in
-    kiosk)
-      printf '%s --kiosk %s' "$BROWSER" "$PORTAL_URL"
-      ;;
-    window|*)
-      printf '%s --new-window %s' "$BROWSER" "$PORTAL_URL"
-      ;;
-  esac
+  printf '%s %s' "$BROWSER" "$PORTAL_URL"
 }
 
 pick_browser() {

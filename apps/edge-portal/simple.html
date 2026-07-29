@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fractanet Edge Portal</title>
+  <style>
+    body { font-family: sans-serif; margin: 1.5rem; background: #0b1118; color: #e8eef5; }
+    h1 { color: #73b7ff; }
+    a { color: #73b7ff; }
+    .card { border: 1px solid #26384a; padding: 1rem; margin: 1rem 0; background: #121c27; }
+    .muted { color: #91a4b7; font-size: 0.9rem; }
+    button { font-size: 1rem; padding: 0.4rem 0.8rem; }
+  </style>
+</head>
+<body>
+  <h1>Fractanet Edge Portal</h1>
+  <p class="muted">Local home on this Pi · works offline with last snapshot</p>
+
+  <div class="card">
+    <h2>Status</h2>
+    <pre id="health">Loading…</pre>
+    <p><button type="button" id="refresh">Refresh status</button>
+       <button type="button" id="reload" onclick="location.reload()">Reload page</button></p>
+    <p class="muted" id="meta"></p>
+  </div>
+
+  <div class="card">
+    <h2>Links</h2>
+    <p><a href="https://cogentia.fractavolta.com/">Cogentia Views Store</a></p>
+    <p><a href="https://cogentia.fractavolta.com/docs">Views Store docs</a></p>
+    <p><a href="/status.json">status.json</a> · <a href="/">Full portal UI</a></p>
+  </div>
+
+  <script>
+    function paint(data, checked) {
+      var n = data.nodes || {};
+      var s = data.services || {};
+      var lines = [
+        "Views Store: " + (s.views_store === true ? "ok" : s.views_store === false ? "down" : "?"),
+        "Fracta: " + (n.fracta === true ? "ok" : n.fracta === false ? "down" : "?"),
+        "Workstation: " + (n.workstation === true ? "ok" : n.workstation === false ? "down" : "?"),
+        "Phone: " + (n.phone === true ? "ok" : n.phone === false ? "down" : "?"),
+        "This Pi: ok"
+      ];
+      document.getElementById("health").textContent = lines.join("\n");
+      document.getElementById("meta").textContent =
+        "Snapshot " + (data.generated_at || "?") + " · checked " + checked;
+    }
+    function load(reprobe) {
+      var url = reprobe ? ("/cgi-bin/refresh?t=" + Date.now()) : ("/status.json?t=" + Date.now());
+      var checked = new Date().toISOString();
+      document.getElementById("meta").textContent = "Refreshing…";
+      fetch(url, { cache: "no-store" })
+        .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+        .then(function (data) { paint(data, checked); })
+        .catch(function (e) {
+          document.getElementById("health").textContent = "Error: " + e.message;
+          document.getElementById("meta").textContent = "Failed at " + checked;
+        });
+    }
+    document.getElementById("refresh").onclick = function () { load(true); };
+    load(false);
+    setInterval(function () { load(false); }, 60000);
+  </script>
+</body>
+</html>
