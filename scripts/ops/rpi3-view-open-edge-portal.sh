@@ -1,12 +1,19 @@
 #!/usr/bin/env bash
-# Wait for the local edge portal, then open it in Firefox without session-restore UI.
-# Used from labwc autostart. Hard reboot must not block on "Restore session?".
+# Wait for the local edge portal, then open Firefox without ANY profile picker.
+#
+# Critical: use absolute -profile PATH (not -P name). With multiple profiles and a
+# Locked Install section in profiles.ini, -P often still shows the profile manager
+# and the "remember" checkbox does not stick for -P launches.
+#
+# Hard reboot must not block on "which profile?" or "restore session?".
 set -u
 
 PORTAL_URL="${PORTAL_URL:-http://127.0.0.1/}"
 BROWSER="${BROWSER:-}"
-MAX_WAIT_SEC="${MAX_WAIT_SEC:-90}"
+MAX_WAIT_SEC="${MAX_WAIT_SEC:-120}"
 FF_PROFILE_NAME="${FF_PROFILE_NAME:-operium-edge}"
+# Always resolve under $HOME — never rely on profiles.ini for the launch path.
+FF_PROFILE_DIR="${FF_PROFILE_DIR:-$HOME/.mozilla/firefox/${FF_PROFILE_NAME}.profile}"
 LOG="${HOME}/.cogentia/var/edge-portal-open.log"
 USER_JS_SRC="${USER_JS_SRC:-}"
 
@@ -14,7 +21,7 @@ mkdir -p "$(dirname "$LOG")" 2>/dev/null || true
 log() { echo "$@" >>"$LOG" 2>/dev/null || true; }
 
 log "---- $(date -Is) open edge portal ----"
-log "url=$PORTAL_URL max_wait=${MAX_WAIT_SEC}s profile=$FF_PROFILE_NAME"
+log "url=$PORTAL_URL max_wait=${MAX_WAIT_SEC}s profile_dir=$FF_PROFILE_DIR"
 
 if [ -z "$BROWSER" ]; then
   if command -v firefox-esr >/dev/null 2>&1; then
@@ -40,73 +47,22 @@ case "$PORTAL_URL" in
     ;;
 esac
 
-# --- Firefox dedicated profile (no restore dialog after brutal reboot) ---
-ensure_firefox_profile() {
-  case "$BROWSER" in
-    *firefox*) ;;
-    *) return 0 ;;
-  esac
-
-  local ff_home profiles_ini prof_path abs_path
-  ff_home="${HOME}/.mozilla/firefox"
-  profiles_ini="${ff_home}/profiles.ini"
-  mkdir -p "$ff_home"
-
-  if [ ! -f "$profiles_ini" ]; then
-    cat >"$profiles_ini" <<EOF
-[General]
-StartWithLastProfile=0
-Version=2
-EOF
-  fi
-
-  if ! grep -q "Name=${FF_PROFILE_NAME}" "$profiles_ini" 2>/dev/null; then
-    log "creating Firefox profile ${FF_PROFILE_NAME}"
-    # Create empty profile dir + register (do not touch default-esr browsing profile)
-    prof_path="${FF_PROFILE_NAME}.profile"
-    mkdir -p "${ff_home}/${prof_path}"
-    {
-      echo ""
-      echo "[Profile$(date +%s)]"
-      echo "Name=${FF_PROFILE_NAME}"
-      echo "IsRelative=1"
-      echo "Path=${prof_path}"
-    } >>"$profiles_ini"
-  fi
-
-  # Resolve profile directory
-  abs_path="$(awk -v n="$FF_PROFILE_NAME" '
-    $0 ~ /^\[Profile/ { blk=1; name=""; path="" }
-    blk && $0 ~ /^Name=/ { name=substr($0,6) }
-    blk && $0 ~ /^Path=/ { path=substr($0,6) }
-    blk && name==n && path!="" { print path; exit }
-  ' "$profiles_ini")"
-  if [ -z "$abs_path" ]; then
-    abs_path="${FF_PROFILE_NAME}.profile"
-    mkdir -p "${ff_home}/${abs_path}"
-  fi
-  case "$abs_path" in
-    /*) ;;
-    *) abs_path="${ff_home}/${abs_path}" ;;
-  esac
-  mkdir -p "$abs_path"
-
-  # Install / refresh user.js prefs
+write_user_js() {
+  local dest="$1"
   if [ -z "$USER_JS_SRC" ]; then
     for c in \
-      "$(dirname "$0")/../templates/rpi3-view/firefox-edge-portal-user.js" \
       "${HOME}/bin/firefox-edge-portal-user.js" \
-      "${HOME}/firefox-edge-portal-user.js"
+      "${HOME}/firefox-edge-portal-user.js" \
+      "$(dirname "$0")/../templates/rpi3-view/firefox-edge-portal-user.js"
     do
       if [ -f "$c" ]; then USER_JS_SRC="$c"; break; fi
     done
   fi
-  if [ -n "$USER_JS_SRC" ] && [ -f "$USER_JS_SRC" ]; then
-    cp -f "$USER_JS_SRC" "${abs_path}/user.js"
+  if [ -n "${USER_JS_SRC:-}" ] && [ -f "$USER_JS_SRC" ]; then
+    cp -f "$USER_JS_SRC" "$dest"
     log "user.js from $USER_JS_SRC"
   else
-    # Inline minimal prefs if template missing
-    cat >"${abs_path}/user.js" <<'EOF'
+    cat >"$dest" <<'EOF'
 user_pref("browser.sessionstore.resume_from_crash", false);
 user_pref("browser.sessionstore.resume_session_once", false);
 user_pref("browser.sessionstore.max_resumed_crashes", 0);
@@ -116,28 +72,86 @@ user_pref("browser.startup.homepage", "http://127.0.0.1/");
 user_pref("browser.shell.checkDefaultBrowser", false);
 user_pref("browser.tabs.warnOnClose", false);
 user_pref("browser.warnOnQuit", false);
+user_pref("browser.aboutwelcome.enabled", false);
+user_pref("network.proxy.type", 0);
+user_pref("network.proxy.no_proxies_on", "localhost, 127.0.0.1");
+user_pref("dom.security.https_only_mode", false);
+user_pref("dom.security.https_only_mode_pbm", false);
+user_pref("network.dns.disableIPv6", true);
 EOF
     log "user.js written inline"
   fi
+}
 
-  # Drop any leftover session state from a previous hard kill (belt and suspenders).
-  rm -f "${abs_path}/sessionstore.jsonlz4" \
-        "${abs_path}/sessionCheckpoints.json" 2>/dev/null || true
-  rm -rf "${abs_path}/sessionstore-backups" 2>/dev/null || true
-  mkdir -p "${abs_path}/sessionstore-backups"
-  # Clear "this is embarrassing" / upgrade dialogs markers if present
-  rm -f "${abs_path}/.parentlock" "${abs_path}/lock" "${abs_path}/.parentlock.*" 2>/dev/null || true
+ensure_firefox_profile() {
+  case "$BROWSER" in
+    *firefox*) ;;
+    *) return 0 ;;
+  esac
 
-  log "profile dir=$abs_path"
-  FF_PROFILE_DIR="$abs_path"
+  mkdir -p "$FF_PROFILE_DIR"
+
+  # Optional registration in profiles.ini (for human Profile Manager only).
+  # Launch path does NOT use -P / profiles.ini.
+  local ff_home profiles_ini
+  ff_home="${HOME}/.mozilla/firefox"
+  profiles_ini="${ff_home}/profiles.ini"
+  mkdir -p "$ff_home"
+  if [ ! -f "$profiles_ini" ]; then
+    printf '%s\n' '[General]' 'StartWithLastProfile=0' 'Version=2' >"$profiles_ini"
+  fi
+  if ! grep -q "Name=${FF_PROFILE_NAME}" "$profiles_ini" 2>/dev/null; then
+    {
+      echo ""
+      echo "[Profile${FF_PROFILE_NAME}]"
+      echo "Name=${FF_PROFILE_NAME}"
+      echo "IsRelative=1"
+      echo "Path=${FF_PROFILE_NAME}.profile"
+    } >>"$profiles_ini"
+    log "registered ${FF_PROFILE_NAME} in profiles.ini (launch still uses -profile path)"
+  fi
+
+  write_user_js "${FF_PROFILE_DIR}/user.js"
+
+  # Also seed prefs.js so first cold start is not a half-empty profile.
+  if [ ! -f "${FF_PROFILE_DIR}/prefs.js" ]; then
+    # Firefox will merge user.js on start; a tiny prefs.js reduces first-run UI.
+    cat >"${FF_PROFILE_DIR}/prefs.js" <<'EOF'
+// Generated by rpi3-view-open-edge-portal.sh — first-run seed
+user_pref("browser.shell.checkDefaultBrowser", false);
+user_pref("browser.aboutwelcome.enabled", false);
+user_pref("toolkit.telemetry.reportingpolicy.firstRun", false);
+user_pref("datareporting.policy.firstRunURL", "");
+user_pref("app.normandy.first_run", false);
+user_pref("browser.startup.homepage_override.mstone", "ignore");
+user_pref("network.proxy.type", 0);
+user_pref("dom.security.https_only_mode", false);
+EOF
+    log "seeded prefs.js for first run"
+  fi
+
+  # Drop crash/session restore artifacts after hard reboot.
+  rm -f "${FF_PROFILE_DIR}/sessionstore.jsonlz4" \
+        "${FF_PROFILE_DIR}/sessionCheckpoints.json" \
+        "${FF_PROFILE_DIR}/.parentlock" \
+        "${FF_PROFILE_DIR}/lock" 2>/dev/null || true
+  rm -rf "${FF_PROFILE_DIR}/sessionstore-backups" 2>/dev/null || true
+  mkdir -p "${FF_PROFILE_DIR}/sessionstore-backups"
+
+  # Stale lock from brutal reboot can force odd profile UI.
+  find "$FF_PROFILE_DIR" -maxdepth 1 \( -name 'lock' -o -name '.parentlock' -o -name '*.lock' \) -delete 2>/dev/null || true
+
+  log "profile ready: $FF_PROFILE_DIR"
 }
 
 ensure_firefox_profile
 
+# Wait until the portal answers HTTP 200 (not just TCP open).
 ready=0
 i=0
 while [ "$i" -lt "$MAX_WAIT_SEC" ]; do
-  if curl -fsS --max-time 2 -o /dev/null "$PORTAL_URL" 2>/dev/null; then
+  code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 2 "$PORTAL_URL" 2>/dev/null || echo 000)"
+  if [ "$code" = "200" ]; then
     ready=1
     break
   fi
@@ -146,23 +160,20 @@ while [ "$i" -lt "$MAX_WAIT_SEC" ]; do
 done
 
 if [ "$ready" != "1" ]; then
-  log "portal not ready after ${MAX_WAIT_SEC}s — opening anyway"
+  log "portal not ready after ${MAX_WAIT_SEC}s (last check non-200) — opening anyway"
 else
-  log "portal ready after ${i}s"
+  log "portal ready after ${i}s (HTTP 200)"
+  # Brief settle: autostart can race systemd unit activation vs accept().
+  sleep 2
 fi
 
-# Launch: dedicated profile, no remote (avoids attaching to a half-dead default session).
-FF_ARGS=()
-case "$BROWSER" in
-  *firefox*)
-    FF_ARGS+=(-P "$FF_PROFILE_NAME" --no-remote)
-    ;;
-esac
-
+# Absolute -profile path: never opens Profile Manager.
+# --no-remote: do not attach to another Firefox instance / default profile.
+# Avoid -P entirely.
 if [ "${KIOSK_MODE:-window}" = "kiosk" ]; then
-  log "exec $BROWSER ${FF_ARGS[*]} --kiosk $PORTAL_URL"
-  exec "$BROWSER" "${FF_ARGS[@]}" --kiosk "$PORTAL_URL"
+  log "exec $BROWSER -profile $FF_PROFILE_DIR --no-remote --kiosk $PORTAL_URL"
+  exec "$BROWSER" -profile "$FF_PROFILE_DIR" --no-remote --kiosk "$PORTAL_URL"
 else
-  log "exec $BROWSER ${FF_ARGS[*]} --new-window $PORTAL_URL"
-  exec "$BROWSER" "${FF_ARGS[@]}" --new-window "$PORTAL_URL"
+  log "exec $BROWSER -profile $FF_PROFILE_DIR --no-remote --new-window $PORTAL_URL"
+  exec "$BROWSER" -profile "$FF_PROFILE_DIR" --no-remote --new-window "$PORTAL_URL"
 fi

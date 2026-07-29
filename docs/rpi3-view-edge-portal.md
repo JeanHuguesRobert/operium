@@ -116,6 +116,12 @@ The portal is HTTP-only at **`http://127.0.0.1/`** (also `http://localhost/`).
 operator keeps the Pi panel menus, browser chrome, **Back**, and right-click.
 Full-screen lock-down is optional: `KIOSK_MODE=kiosk`.
 
+**Profile:** dedicated directory
+`~/.mozilla/firefox/operium-edge.profile`, opened with **absolute**
+`firefox -profile /path/...` (never `-P name`, which reopens the profile
+manager after hard reboots despite “remember”). Opener also waits for
+HTTP 200 on `http://127.0.0.1/` before launch.
+
 **Observed stack (2026-07):** Raspberry Pi OS Bookworm with **labwc Wayland**
 (`DESKTOP_SESSION=LXDE-pi-labwc`). Primary autostart:
 
