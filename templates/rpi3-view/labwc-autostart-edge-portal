@@ -1,6 +1,7 @@
 swayidle -w timeout 600 'wlopm --off \*' resume 'wlopm --on \*' &
 
 # BEGIN operium-edge-kiosk
-# Dillo home portal (Pi 3 RAM-safe) — Operium
-env PORTAL_URL=http://127.0.0.1/cgi-bin/home BROWSER=dillo /home/jh/bin/rpi3-view-open-edge-portal.sh &
+# Firefox home portal — absolute profile, wait for HTTP 200 (see rpi3-view-open-edge-portal.sh)
+# Optional light fallback: BROWSER=dillo PORTAL_URL=http://127.0.0.1/cgi-bin/home
+env PORTAL_URL=http://127.0.0.1/ BROWSER=firefox-esr /home/jh/bin/rpi3-view-open-edge-portal.sh &
 # END operium-edge-kiosk

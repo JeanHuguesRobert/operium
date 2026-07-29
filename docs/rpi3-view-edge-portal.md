@@ -116,15 +116,22 @@ The portal is HTTP-only at **`http://127.0.0.1/`** (also `http://localhost/`).
 operator keeps the Pi panel menus, browser chrome, **Back**, and right-click.
 Full-screen lock-down is optional: `KIOSK_MODE=kiosk`.
 
-**Home browser (Pi 3 / 1 GB):** default **Dillo** opening
-`http://127.0.0.1/cgi-bin/home` (server-rendered HTML, no JS). Firefox ESR
-multi-process often thrashing on this hardware looks like “127.0.0.1 does not
-respond” even though busybox httpd returns HTTP 200 to `curl`. Use the menu
-to open Firefox for heavy sites (Views Store). Override:
-`BROWSER=firefox-esr` or `BROWSER=chromium-browser`.
+**Home browser:** default **Firefox ESR** on `http://127.0.0.1/` via
+`rpi3-view-open-edge-portal.sh`:
 
-**Firefox (optional):** absolute `-profile …/operium-edge.profile` only — never
-`-P name` (profile manager after hard reboot).
+- wait until portal returns **HTTP 200** (then short settle);
+- open with **absolute** `-profile …/operium-edge.profile` (never `-P name`,
+  which reopens the profile manager after hard reboot);
+- prefs disable offline heuristics / HTTPS-only / proxy for loopback.
+
+**Measured (2026-07-30):** under calm load, Firefox recorded a successful
+visit to `http://127.0.0.1/` in `places.sqlite` while httpd stayed 200.
+High CPU during cold start is normal; it is **not** proven that RAM alone
+causes “Unable to connect”. Earlier failures also coincided with profile UI
+and boot races.
+
+**Light fallback:** `BROWSER=dillo PORTAL_URL=http://127.0.0.1/cgi-bin/home`
+(server-rendered page for Dillo; limited CSS/JS — not the product target).
 
 **Observed stack (2026-07):** Raspberry Pi OS Bookworm with **labwc Wayland**
 (`DESKTOP_SESSION=LXDE-pi-labwc`). Primary autostart:
