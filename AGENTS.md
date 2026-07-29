@@ -147,3 +147,22 @@ Agents may prepare, draft, summarize, route, compare, inspect and propose.
 Agents must not commit, push, publish or otherwise stabilize an action unless Jean Hugues Robert has given explicit, scoped authorization for that operation.
 
 When authorization is ambiguous, prepare the batch and ask before acting.
+
+### Standing authorization — `poco-jhr` (2026-07-29, permanent until revoked)
+
+Jean Hugues Robert granted **standing autonomy** on the Termux node `poco-jhr`
+(SSH alias `poco-jhr`). Agents with mesh SSH **must act without re-asking** for:
+
+| In scope (do freely) | Out of scope (still ask) |
+|----------------------|---------------------------|
+| Git hygiene: `fetch --prune`, checkout default `main`/`master`, `pull --ff-only`, delete local non-default branches | Force-push, `reset --hard` of unique unpushed work, rewrite published history |
+| Sync corpus checkouts to origin default branch when clean / ff-only | Merging or discarding ambiguous unique WIP without a saved patch under `~/srv/cogentia/work/` |
+| Shell profile install/refresh (`profiles/shell/termux-android.profile.sh`, `install-termux-shell-profile.sh`) | Changing secrets under `~/srv/cogentia/secrets/`, rotating keys |
+| Re-run `scripts/ops/phone-branch-cleanup.sh` or equivalent | Stopping/restarting live ONA / agent-gateway in a way that may drop an active agent session without need |
+| Inspect status, logs (non-secret), health | Pushing to GitHub from the phone unless the session already has scoped push auth for that change |
+
+**Revocation:** only an explicit message from Jean Hugues Robert that changes this
+rule. Do not re-prompt for the in-scope items in later conversations.
+
+Record: conversation 2026-07-29; also `profiles/tools.termux-android.v1.yaml`
+(`agent_autonomy`) and `docs/workstation-shell-profile.md`.

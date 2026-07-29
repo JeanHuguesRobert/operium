@@ -14,6 +14,22 @@ shell_profile:
   host_rc: ~/.bashrc
   status: deployed
 
+# Standing operator authorization (2026-07-29, permanent until revoked):
+# agents with mesh SSH act without re-prompt for git hygiene + shell profile +
+# main/master sync. See AGENTS.md § Standing authorization — poco-jhr.
+agent_autonomy:
+  granted: "2026-07-29"
+  status: permanent_until_revoked
+  scope:
+    - git_hygiene_local
+    - shell_profile_install_refresh
+    - sync_ff_only_to_default_branch
+  ask_first:
+    - force_push
+    - secret_mutation
+    - destructive_unique_wip_without_patch
+    - live_agent_runtime_restart_when_optional
+
 policy:
   workspace_root: ~/srv/cogentia/repos
   agent_runtime: native_termux_plus_ubuntu_proot

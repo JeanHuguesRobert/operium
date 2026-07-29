@@ -88,6 +88,14 @@ Expect `REG=.../JeanHuguesRobert` and the three functions defined.
 
 **Host thin layer** keeps existing Termux PATH / proot aliases / agent-gateway env; the Operium block only sources the managed profile. Do not put secret values in the profile file — use `secrets/*.env` or optional `secrets/shell-profile.env` for path overrides only.
 
+### Standing agent autonomy on `poco-jhr`
+
+**Permanent until Jean Hugues Robert revokes it** (granted 2026-07-29): agents with
+SSH to `poco-jhr` **do not re-ask** for git hygiene, shell-profile install/refresh,
+or fast-forward sync of checkouts to `main`/`master`. See
+[`AGENTS.md`](../AGENTS.md) (Standing authorization — `poco-jhr`) and
+`profiles/tools.termux-android.v1.yaml` → `agent_autonomy`.
+
 ## Related
 
 - [workstation-tooling-debt-and-profiles.md](workstation-tooling-debt-and-profiles.md)
