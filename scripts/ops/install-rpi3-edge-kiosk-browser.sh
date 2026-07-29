@@ -19,19 +19,49 @@ KIOSK_BROWSER="${KIOSK_BROWSER:-firefox-esr}"
 # window (default): normal browser chrome, panel menus, Back / right-click.
 # kiosk: full-screen lock-down (too restrictive for operator desk use).
 KIOSK_MODE="${KIOSK_MODE:-window}"
+# Wrapper waits for httpd before opening Firefox (avoids boot race).
+OPENER="${OPENER:-$HOME/bin/rpi3-view-open-edge-portal.sh}"
 LABWC_AUTOSTART="${HOME}/.config/labwc/autostart"
 XDG_AUTOSTART_DIR="${HOME}/.config/autostart"
 XDG_DESKTOP="${XDG_AUTOSTART_DIR}/operium-edge-kiosk.desktop"
 MARKER_BEGIN="# BEGIN operium-edge-kiosk"
 MARKER_END="# END operium-edge-kiosk"
 
+install_opener() {
+  local src
+  src="$(cd "$(dirname "$0")" && pwd)/rpi3-view-open-edge-portal.sh"
+  if [ ! -f "$src" ]; then
+    # When installer was scp'd alone, prefer repo copy if present
+    if [ -f "$HOME/srv/operium-runtime/current/scripts/ops/rpi3-view-open-edge-portal.sh" ]; then
+      src="$HOME/srv/operium-runtime/current/scripts/ops/rpi3-view-open-edge-portal.sh"
+    elif [ -f /srv/cogentia/repos/operium/scripts/ops/rpi3-view-open-edge-portal.sh ]; then
+      src=/srv/cogentia/repos/operium/scripts/ops/rpi3-view-open-edge-portal.sh
+    fi
+  fi
+  mkdir -p "$(dirname "$OPENER")"
+  if [ -f "$src" ]; then
+    cp -f "$src" "$OPENER"
+  fi
+  chmod +x "$OPENER" 2>/dev/null || true
+  if [ ! -x "$OPENER" ]; then
+    echo "missing opener script at $OPENER (copy rpi3-view-open-edge-portal.sh there)" >&2
+    return 1
+  fi
+  echo "opener: $OPENER"
+}
+
 browser_cmd() {
+  # Prefer wait-for-portal wrapper; fall back to direct browser.
+  if [ -x "$OPENER" ]; then
+    printf 'env KIOSK_MODE=%s PORTAL_URL=%s BROWSER=%s %s' \
+      "$KIOSK_MODE" "$PORTAL_URL" "$BROWSER" "$OPENER"
+    return 0
+  fi
   case "$KIOSK_MODE" in
     kiosk)
       printf '%s --kiosk %s' "$BROWSER" "$PORTAL_URL"
       ;;
     window|*)
-      # Normal window: operator keeps Pi menus, browser Back, context menu.
       printf '%s --new-window %s' "$BROWSER" "$PORTAL_URL"
       ;;
   esac
@@ -59,6 +89,8 @@ if [ -z "$BROWSER" ]; then
   echo "no browser found for KIOSK_BROWSER=$KIOSK_BROWSER" >&2
   exit 1
 fi
+
+install_opener || true
 
 # Optional: clear stale Chromium profile lock (old hostname baronpi → rpi3-view)
 if [ "${CLEAR_CHROMIUM_LOCK:-0}" = "1" ]; then
