@@ -78,6 +78,10 @@ Bearer for gateway nodes: `COGENTIA_API_KEY` must reach Magistral’s process en
 Attractor (blackboard): `attractor:i7-thinkpad-jhr:agent-cli-gateway`  
 Transport ref (observed): Tailscale `100.122.121.68` / MagicDNS `i7-thinkpad-jhr`.
 
+**Gateway process lifetime (Windows tool host):** logon task, not a detached shell —
+see [agent-gateway-windows-lifetime.md](agent-gateway-windows-lifetime.md)
+(Linux analog: systemd `Type=simple`).
+
 ## Model aliases
 
 | Name | Layer |

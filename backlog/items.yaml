@@ -29,9 +29,9 @@ items:
       start-agent-gateway-windows.js can report health OK then child exits
       (Job/detach); durable foreground/background node keeps process up.
     next_action: >
-      Confirm CogentiaAgentGateway logon task survives reboot; fix Windows
-      detached start so gateway stays up without a parent shell; optional
-      admin firewall rule; then close OP-BUG-001.
+      Apply durable logon task (operium apply-agent-gateway-thinkpad-lifetime.ps1
+      / cogentia install -RegisterStartupTask -StartTask); reboot+logon proof;
+      then close OP-BUG-001. Optional admin firewall rule.
     github_issue: 11
     blocks_features: true
     opened_at: "2026-07-26"
