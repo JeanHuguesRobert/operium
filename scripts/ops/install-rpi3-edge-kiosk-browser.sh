@@ -28,21 +28,33 @@ MARKER_BEGIN="# BEGIN operium-edge-kiosk"
 MARKER_END="# END operium-edge-kiosk"
 
 install_opener() {
-  local src
-  src="$(cd "$(dirname "$0")" && pwd)/rpi3-view-open-edge-portal.sh"
+  local src dir userjs
+  dir="$(cd "$(dirname "$0")" && pwd)"
+  src="${dir}/rpi3-view-open-edge-portal.sh"
   if [ ! -f "$src" ]; then
-    # When installer was scp'd alone, prefer repo copy if present
-    if [ -f "$HOME/srv/operium-runtime/current/scripts/ops/rpi3-view-open-edge-portal.sh" ]; then
-      src="$HOME/srv/operium-runtime/current/scripts/ops/rpi3-view-open-edge-portal.sh"
+    if [ -f "$HOME/rpi3-view-open-edge-portal.sh" ]; then
+      src="$HOME/rpi3-view-open-edge-portal.sh"
     elif [ -f /srv/cogentia/repos/operium/scripts/ops/rpi3-view-open-edge-portal.sh ]; then
       src=/srv/cogentia/repos/operium/scripts/ops/rpi3-view-open-edge-portal.sh
     fi
   fi
-  mkdir -p "$(dirname "$OPENER")"
+  mkdir -p "$(dirname "$OPENER")" "$HOME/bin"
   if [ -f "$src" ]; then
     cp -f "$src" "$OPENER"
   fi
   chmod +x "$OPENER" 2>/dev/null || true
+
+  # user.js template beside opener for ensure_firefox_profile
+  userjs="${dir}/../templates/rpi3-view/firefox-edge-portal-user.js"
+  if [ ! -f "$userjs" ]; then
+    userjs="${HOME}/firefox-edge-portal-user.js"
+  fi
+  if [ -f "$userjs" ]; then
+    cp -f "$userjs" "$HOME/bin/firefox-edge-portal-user.js"
+    cp -f "$userjs" "$HOME/firefox-edge-portal-user.js"
+    echo "user.js template: $HOME/bin/firefox-edge-portal-user.js"
+  fi
+
   if [ ! -x "$OPENER" ]; then
     echo "missing opener script at $OPENER (copy rpi3-view-open-edge-portal.sh there)" >&2
     return 1
