@@ -7,10 +7,13 @@
 # profile picker, offline heuristics, and hung sessions are the primary suspects.
 set -u
 
-PORTAL_URL="${PORTAL_URL:-http://127.0.0.1/}"
+# boot.html retries until status.json works, then redirects to /. Softens slow first paint.
+PORTAL_URL="${PORTAL_URL:-http://127.0.0.1/boot.html}"
 BROWSER="${BROWSER:-firefox-esr}"
 MAX_WAIT_SEC="${MAX_WAIT_SEC:-120}"
-POST_READY_SLEEP="${POST_READY_SLEEP:-3}"
+# After httpd is up, wait more: Firefox cold-start on Pi 3 often needs 15–40s
+# before the first navigation to 127.0.0.1 actually paints (user observation).
+POST_READY_SLEEP="${POST_READY_SLEEP:-20}"
 FF_PROFILE_NAME="${FF_PROFILE_NAME:-operium-edge}"
 FF_PROFILE_DIR="${FF_PROFILE_DIR:-$HOME/.mozilla/firefox/${FF_PROFILE_NAME}.profile}"
 LOG="${HOME}/.cogentia/var/edge-portal-open.log"
@@ -85,6 +88,17 @@ if [ "$ready" = "1" ]; then
   sleep "$POST_READY_SLEEP"
 else
   log "portal not ready after ${MAX_WAIT_SEC}s — opening anyway"
+fi
+
+# Early in boot, compositor + Firefox need more wall time than httpd.
+# Observed: 127.0.0.1 often paints only after a long first load, not because httpd is down.
+uptime_s="$(cut -d. -f1 /proc/uptime 2>/dev/null || echo 999)"
+if [ "$uptime_s" -lt 120 ]; then
+  extra=$((120 - uptime_s))
+  if [ "$extra" -gt 0 ]; then
+    log "system uptime ${uptime_s}s — extra settle ${extra}s before browser"
+    sleep "$extra"
+  fi
 fi
 
 case "$BROWSER_BASE" in

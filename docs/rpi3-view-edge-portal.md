@@ -126,9 +126,10 @@ Full-screen lock-down is optional: `KIOSK_MODE=kiosk`.
 
 **Measured (2026-07-30):** under calm load, Firefox recorded a successful
 visit to `http://127.0.0.1/` in `places.sqlite` while httpd stayed 200.
-High CPU during cold start is normal; it is **not** proven that RAM alone
-causes “Unable to connect”. Earlier failures also coincided with profile UI
-and boot races.
+Operator observation: if one waits long enough, `127.0.0.1` eventually
+answers in Firefox — consistent with **slow first paint / cold start**, not a
+dead httpd. Opener therefore: wait HTTP 200, settle ~20s, extra wait until
+~120s system uptime, open `/boot.html` (client retry) then redirect to `/`.
 
 **Light fallback:** `BROWSER=dillo PORTAL_URL=http://127.0.0.1/cgi-bin/home`
 (server-rendered page for Dillo; limited CSS/JS — not the product target).

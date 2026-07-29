@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Starting Fractanet portal…</title>
+  <style>
+    body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+      font:18px/1.5 system-ui,sans-serif; background:#0b1118; color:#e8eef5; text-align:center; }
+    .box { max-width:28rem; padding:2rem; }
+    .muted { color:#91a4b7; font-size:0.95rem; }
+    a { color:#73b7ff; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Starting portal…</h1>
+    <p id="msg" class="muted">Waiting for local services and browser readiness.</p>
+    <p class="muted">On this Pi, the first open of <code>http://127.0.0.1/</code> can take tens of seconds even when the server is already up.</p>
+    <p><a href="/">Open portal now</a></p>
+  </div>
+  <script>
+    const msg = document.getElementById("msg");
+    let n = 0;
+    async function tick() {
+      n += 1;
+      msg.textContent = "Check #" + n + "…";
+      try {
+        const r = await fetch("/status.json?t=" + Date.now(), { cache: "no-store" });
+        if (r.ok) {
+          msg.textContent = "Ready — opening portal…";
+          location.replace("/?booted=1");
+          return;
+        }
+      } catch (e) {
+        msg.textContent = "Not ready yet (" + e.message + ") — retrying…";
+      }
+      setTimeout(tick, 2000);
+    }
+    tick();
+  </script>
+</body>
+</html>
