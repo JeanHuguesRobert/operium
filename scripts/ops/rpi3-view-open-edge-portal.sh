@@ -93,9 +93,23 @@ else
   sleep "$POST_READY_SLEEP"
 fi
 
+# labwc Wayland session: X11 apps (Dillo) need XWayland DISPLAY.
+if [ -z "${DISPLAY:-}" ] && [ -S /tmp/.X11-unix/X0 ]; then
+  export DISPLAY=:0
+fi
+if [ -z "${XAUTHORITY:-}" ] && [ -f "${HOME}/.Xauthority" ]; then
+  export XAUTHORITY="${HOME}/.Xauthority"
+fi
+if [ -z "${XDG_RUNTIME_DIR:-}" ] && [ -d "/run/user/$(id -u)" ]; then
+  export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+fi
+if [ -z "${WAYLAND_DISPLAY:-}" ] && [ -S "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/wayland-0" ]; then
+  export WAYLAND_DISPLAY=wayland-0
+fi
+
 case "$BROWSER_BASE" in
   dillo)
-    log "exec dillo $PORTAL_URL"
+    log "exec dillo $PORTAL_URL (DISPLAY=${DISPLAY:-unset})"
     exec dillo "$PORTAL_URL"
     ;;
   chromium|chromium-browser)
