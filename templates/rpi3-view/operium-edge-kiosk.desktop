@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Operium Edge Kiosk
+Comment=Fractanet edge consultation portal (Firefox ESR preferred)
+Exec=firefox-esr --kiosk http://127.0.0.1/
+Terminal=false
+X-GNOME-Autostart-enabled=true
+StartupNotify=false

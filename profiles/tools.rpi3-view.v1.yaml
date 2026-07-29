@@ -66,9 +66,15 @@ edge_portal:
   degraded_mode: cached_last_completed_snapshot
   kiosk_browser:
     status: installed
-    browser: chromium-browser
+    browser: firefox-esr
     mode: kiosk
-    autostart: ~/.config/lxsession/LXDE-pi/autostart
+    portal_url: http://127.0.0.1/
+    desktop: labwc-wayland
+    autostart:
+      - ~/.config/autostart/operium-edge-kiosk.desktop
+      - ~/.config/labwc/autostart
+      - ~/.config/lxsession/LXDE-pi/autostart
+    notes: "Chromium blocked by SingletonLock from old hostname baronpi; Firefox ESR is xdg default"
     install: scripts/ops/install-rpi3-edge-kiosk-browser.sh
   runbook: docs/rpi3-view-edge-portal.md
 
