@@ -25,7 +25,7 @@ Interactive login shells only — not systemd, not Agent Gateway, not ONA servic
 |------------|---------|---------|
 | **workstation-windows** | [`shell/workstation-windows.profile.ps1`](../profiles/shell/workstation-windows.profile.ps1) | User `$PROFILE` dotsources after `cd C:\tweesic` |
 | **fracta-vps** | [`shell/fracta-vps.profile.sh`](../profiles/shell/fracta-vps.profile.sh) | [`install-fracta-vps-shell-profile.sh`](../profiles/shell/install-fracta-vps-shell-profile.sh) on ubuntu |
-| **termux-android** (draft) | [`shell/termux-android.profile.sh`](../profiles/shell/termux-android.profile.sh) | TBD — first Cogentia twin / **Agent JHN** phone instance |
+| **termux-android** | [`shell/termux-android.profile.sh`](../profiles/shell/termux-android.profile.sh) | [`install-termux-shell-profile.sh`](../profiles/shell/install-termux-shell-profile.sh) on `poco-jhr` (Agent JHN / twin class) |
 
 ## Registry
 
@@ -33,7 +33,7 @@ Interactive login shells only — not systemd, not Agent Gateway, not ONA servic
 |---------|---------------------|
 | Windows workstation | `C:\tweesic\JeanHuguesRobert` |
 | Fracta VPS | `/srv/cogentia/repos/JeanHuguesRobert` |
-| Phone / twin | instance-local or pulled JHR checkout (set in secrets) |
+| Phone / twin (`poco-jhr`) | `$HOME/srv/cogentia/repos/JeanHuguesRobert` (override via `~/srv/cogentia/secrets/shell-profile.env`) |
 
 **Do not** put an incomplete `.cogentia.json` at a parent path that shadows the full registry.
 
@@ -60,16 +60,33 @@ See also [coding-infrastructure.md](coding-infrastructure.md).
 1. User `Documents\PowerShell\profile.ps1` → `cd C:\tweesic` + `. operium\profiles\shell\workstation-windows.profile.ps1`
 2. Host profile keeps PATH / conda only
 
-## Phone / Agent JHN (roadmap)
+## Phone / Termux / Agent JHN
 
-First deployed Cogentia Digital Twin instances (incl. **Agent JHN** / Agent John) are expected on **phone-class** nodes (Termux). Shell entry should:
+First Cogentia Digital Twin instances (incl. **Agent JHN** / Agent John) use the same **termux-android** node class as `poco-jhr`.
 
-- load twin-local roots under `$HOME/fractanet` (or instance path);
-- set `COGENTIA_REGISTRY` from instance secrets;
-- not embed secret values in the profile file;
-- stay thin so ONA/heartbeat processes stay independent of interactive login.
+Observed layout on `poco-jhr` (do not invent `$HOME/fractanet` unless a twin deliberately uses it):
 
-Wire `install-termux-shell-profile.sh` when the first instance bootstrap lands; until then the termux profile is a **scaffold** only.
+| Path | Role |
+|------|------|
+| `~/srv/cogentia/repos` | corpus / coding workspace (`CORPUS_REPOS`) |
+| `~/srv/cogentia/secrets` | env files (gateway, ONA, optional `shell-profile.env`) |
+| `~/srv/cogentia/work` | scratch / work |
+
+Install / refresh (from workstation, mesh SSH):
+
+```bash
+ssh poco-jhr 'cd $HOME/srv/cogentia/repos/operium && git fetch origin main && git checkout origin/main -- profiles/shell/termux-android.profile.sh profiles/shell/install-termux-shell-profile.sh && bash profiles/shell/install-termux-shell-profile.sh'
+```
+
+Verify (interactive shell loads `.bashrc` via `.profile` on Termux login):
+
+```bash
+ssh -t poco-jhr 'bash -ic "echo REG=\$COGENTIA_REGISTRY; type cogentia; type operium; type tweesic; pwd"'
+```
+
+Expect `REG=.../JeanHuguesRobert` and the three functions defined.
+
+**Host thin layer** keeps existing Termux PATH / proot aliases / agent-gateway env; the Operium block only sources the managed profile. Do not put secret values in the profile file — use `secrets/*.env` or optional `secrets/shell-profile.env` for path overrides only.
 
 ## Related
 

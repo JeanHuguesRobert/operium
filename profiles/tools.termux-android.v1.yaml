@@ -1,10 +1,18 @@
-# Interactive shell scaffold: profiles/shell/termux-android.profile.sh
-# (Agent JHN / first twin phone — install script TBD)
+# Interactive shell: profiles/shell/termux-android.profile.sh
+# Install: profiles/shell/install-termux-shell-profile.sh
+# (poco-jhr + Agent JHN / Cogentia Digital Twin phone class)
 profile_id: tools.termux-android.v1
 node_id: poco-jhr
 node_class: android-termux
 ssh_alias: poco-jhr
-updated: "2026-07-28"
+updated: "2026-07-29"
+
+shell_profile:
+  id: shell.termux-android.v1
+  path: profiles/shell/termux-android.profile.sh
+  install: profiles/shell/install-termux-shell-profile.sh
+  host_rc: ~/.bashrc
+  status: deployed
 
 policy:
   workspace_root: ~/srv/cogentia/repos
