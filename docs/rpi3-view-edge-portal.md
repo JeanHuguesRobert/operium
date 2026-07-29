@@ -104,7 +104,29 @@ Runtime files are owned by Operium source:
 
 - `apps/edge-portal/index.html`
 - `scripts/ops/rpi3-view-edge-portal-refresh.sh`
+- `scripts/ops/install-rpi3-edge-kiosk-browser.sh`
 - `templates/rpi3-view/operium-edge-portal*.{service,timer}`
+- `templates/rpi3-view/lxsession-LXDE-pi-autostart`
+
+## Kiosk browser (Chromium full-screen)
+
+The portal is HTTP-only. For the small HDMI display to show it automatically:
+
+```bash
+# from workstation (after operium scripts are on the Pi, or scp the installer)
+scp operium/scripts/ops/install-rpi3-edge-kiosk-browser.sh rpi3-view:~/
+ssh rpi3-view 'bash ~/install-rpi3-edge-kiosk-browser.sh'
+```
+
+This writes `~/.config/lxsession/LXDE-pi/autostart` so Chromium opens
+`http://127.0.0.1/` in `--kiosk` mode after graphical login. Re-login or reboot
+to apply. Portal HTML refresh:
+
+```bash
+ssh rpi3-view 'cp ~/path/to/index.html /srv/operium-edge-portal/index.html'
+# or from a workstation with the file:
+# scp apps/edge-portal/index.html rpi3-view:/srv/operium-edge-portal/index.html
+```
 
 ## Future local network
 

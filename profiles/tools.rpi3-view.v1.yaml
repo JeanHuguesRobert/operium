@@ -51,7 +51,7 @@ shared_store:
 
 edge_portal:
   status: present
-  observed: "2026-07-28"
+  observed: "2026-07-29"
   role: read_only_consultation
   kiosk_url: http://localhost/
   url: http://rpi3-view/
@@ -64,6 +64,12 @@ edge_portal:
   refresh_timer: operium-edge-portal-refresh.timer
   refresh_interval: 5min
   degraded_mode: cached_last_completed_snapshot
+  kiosk_browser:
+    status: installed
+    browser: chromium-browser
+    mode: kiosk
+    autostart: ~/.config/lxsession/LXDE-pi/autostart
+    install: scripts/ops/install-rpi3-edge-kiosk-browser.sh
   runbook: docs/rpi3-view-edge-portal.md
 
 operational_checkouts:
