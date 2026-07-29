@@ -33,3 +33,7 @@ Initial templates should cover:
 - decisions.
 
 Templates should remain simple, human-readable and usable before scripts or dashboards are introduced.
+
+## Service fragments
+
+- [`stalwart/`](stalwart/) — secret-free Caddy fragment, env example, and accounts plan for private Stalwart on fracta (see [`docs/stalwart-private-mail.md`](../docs/stalwart-private-mail.md)).

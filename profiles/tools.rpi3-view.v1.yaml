@@ -1,0 +1,85 @@
+profile_id: tools.rpi3-view.v1
+node_id: rpi3-view
+node_class: raspberry-pi-edge-kiosk
+ssh_alias: rpi3-view
+updated: "2026-07-28"
+
+policy:
+  role: read_only_edge_consumer
+  development_worktrees: forbidden
+  repository_scope: minimal_operational_checkouts
+  persistent_remote_mount: forbidden
+  synchronization: explicit_on_demand
+  local_cache_max_bytes: 524288000
+
+tools:
+  - id: node
+    status: present
+    version: "22.23.1"
+    path: /home/jh/.local/bin/node
+    architecture: armv7
+    source: nodejs-unofficial-builds-armv6l
+    notes: node:sqlite verified; previous v22.12.0 binary retained as ~/.local/bin/node-v22.12.0
+  - id: ssh
+    status: present
+  - id: rsync
+    status: present
+  - id: rclone
+    status: present
+    version: "1.60.1-DEV"
+    provider: raspberry-pi-os
+    architecture: armhf
+    remote: fracta-store
+    transport: sftp
+    remote_path: /srv/operium-store
+    auth: existing_local_ssh_key
+
+shared_store:
+  local_cache: ~/.cache/operium/shared-store
+  observed_size_bytes: 8192
+  allowed_sources:
+    - /srv/operium-store/FORMAT
+    - /srv/operium-store/snapshots/rpi3-view
+  forbidden_sources:
+    - /srv/operium-store/objects
+    - /srv/operium-store/handoffs
+  refresh_trigger:
+    - explicit_operator_request
+    - kiosk_start_when_needed
+    - future_reactive_signal
+  runbook: docs/operium-shared-store.md
+
+edge_portal:
+  status: present
+  observed: "2026-07-28"
+  role: read_only_consultation
+  kiosk_url: http://localhost/
+  url: http://rpi3-view/
+  local_mdns_url: http://rpi3-view.local/
+  static_root: /srv/operium-edge-portal
+  server: busybox-httpd
+  port: 80
+  privilege_model: systemd_CAP_NET_BIND_SERVICE
+  service: operium-edge-portal.service
+  refresh_timer: operium-edge-portal-refresh.timer
+  refresh_interval: 5min
+  degraded_mode: cached_last_completed_snapshot
+  runbook: docs/rpi3-view-edge-portal.md
+
+operational_checkouts:
+  observed: "2026-07-28"
+  root: ~/srv/cogentia/repos
+  repositories: []
+  rule: No Git checkout. Edge services use small immutable runtime artifacts; do not treat the Pi as a coding workspace.
+
+node_agent:
+  service: operium-node-agent.service
+  observed_status: active
+  observed_enablement: enabled
+  observed: "2026-07-28"
+  profile: operium.soma.node.v0
+  runtime: ~/srv/operium-runtime/releases/dd724db
+  runtime_size: 3MB
+  cop_delivery: disabled
+  jobs: disabled
+  discovery: http://127.0.0.1:8794/.well-known/soma

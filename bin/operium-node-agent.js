@@ -8,6 +8,7 @@ import { createJobScheduler } from "../lib/node-agent/job-scheduler.js";
 import { createProbeWorker } from "../lib/node-agent/probe-worker.js";
 import { resolveNodeMemoryPath, resolveOnaLogPath } from "../lib/node-agent/paths.js";
 import { DatabaseSync } from "node:sqlite";
+import { completePendingRestartActions } from "../lib/node-agent/management-actions.js";
 
 const startedAt = new Date().toISOString();
 
@@ -43,6 +44,13 @@ Environment:
 
 Endpoints:
   GET /health
+  GET /.well-known/soma  (safe SOMA descriptor; public with ONA_HEALTH_PUBLIC=1)
+  GET /soma/vocabulary  (SOMA semantics; public with ONA_HEALTH_PUBLIC=1)
+  GET /soma/object      (managed node and contained services; read token)
+  GET /soma/observations (sampleable observations; read token)
+  GET /soma/actions     (definitions and recent actions; read token)
+  POST /soma/actions/observation.refresh (admin token)
+  POST /soma/actions/agent.restart (admin token; ONA only)
   GET /node/status      (read token when not loopback-only)
   GET /node/peers       (?fresh=1 for fresh attractors only)
   GET /node/snapshot    (full local projection)
@@ -77,6 +85,8 @@ async function main() {
     nodeId: config.nodeId,
     hostname: config.hostname,
   });
+  const incarnation = `ona:${config.hostname}:${startedAt}`;
+  const completedRestarts = completePendingRestartActions(db, incarnation);
   let graphDb = null;
   if (process.env.OPERIUM_GRAPH_DB) {
     graphDb = new DatabaseSync(process.env.OPERIUM_GRAPH_DB);
@@ -103,6 +113,7 @@ async function main() {
     startedAt,
     getNodeId: () => worker.getIdentity().node_id,
     runProbe: (options) => worker.runCycle(options),
+    incarnation,
   });
   const listen = await startOnaHttpServer(server, config);
   worker.start();
@@ -131,6 +142,8 @@ async function main() {
     health_score: initial.summary?.health_score ?? null,
     jobs_enabled: config.jobsEnabled,
     scheduled_jobs: jobScheduler?.listJobs().length ?? 0,
+    incarnation,
+    completed_restart_actions: completedRestarts.length,
   }, null, 2));
 
   const shutdown = (signal) => {

@@ -1,0 +1,16 @@
+# Stalwart private mail — JMAP / HTTPS facade (Operium phase1)
+# Install: append to /etc/caddy/Caddyfile on fracta (or import if split conf is adopted).
+# Requires DNS: mail.fractavolta.com CNAME -> fracta.fractavolta.com
+# TLS: Caddy ACME. Upstream: plain HTTP to Stalwart on loopback.
+# Admin UI is intentionally blocked on the public Internet.
+
+mail.fractavolta.com {
+	@admin path /admin* /login* /account*
+	handle @admin {
+		respond "Admin UI is not publicly available. Use SSH tunnel to 127.0.0.1:8080." 403
+	}
+	handle {
+		reverse_proxy 127.0.0.1:8080
+	}
+	encode gzip
+}

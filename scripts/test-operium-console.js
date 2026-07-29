@@ -13,6 +13,7 @@ const {
   encodeNodeId,
   healthTone,
   listOnaAttractors,
+  setOpsToken,
 } = await import(opsApiUrl);
 
 assert.equal(encodeNodeId("resource://fracta"), "resource%3A%2F%2Ffracta");
@@ -20,8 +21,14 @@ assert.equal(
   buildNodeOpsPath("resource://i7-thinkpad-jhr", "status"),
   "/ops/node/resource%3A%2F%2Fi7-thinkpad-jhr/status",
 );
+assert.equal(
+  buildNodeOpsPath("resource://fracta", "soma/object"),
+  "/ops/node/resource%3A%2F%2Ffracta/soma/object",
+);
 assert.equal(healthTone(4), "ok");
 assert.equal(healthTone(2), "bad");
+assert.equal(setOpsToken("test-token"), true);
+assert.equal(setOpsToken(""), false);
 
 const nodes = listOnaAttractors({
   attractors: [

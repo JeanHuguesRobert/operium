@@ -1,0 +1,72 @@
+profile_id: tools.termux-android.v1
+node_id: poco-jhr
+node_class: android-termux
+ssh_alias: poco-jhr
+updated: "2026-07-28"
+
+policy:
+  workspace_root: ~/srv/cogentia/repos
+  agent_runtime: native_termux_plus_ubuntu_proot
+  git_governance: optimistic
+
+tools:
+  - id: git
+    status: present
+  - id: github-cli
+    status: present
+    version: "2.96.0"
+    auth: native gh credential store
+  - id: node
+    status: present
+    version: "26.3.1"
+    runtime: termux-native
+  - id: codex
+    status: present
+    version: "0.145.0"
+    runtime: ubuntu-proot
+    auth: ChatGPT
+  - id: claude-code
+    status: present
+    version: "2.1.220"
+    runtime: ubuntu-proot
+    auth: claude.ai Pro
+  - id: grok-build
+    status: present
+    version: "0.2.112"
+    runtime: termux-native
+    auth: native OIDC
+    source: https://x.ai/cli/install.sh
+  - id: rclone
+    status: present
+    version: "1.74.4"
+    runtime: termux-native
+    remote: fracta-store
+    transport: sftp
+    remote_path: /srv/operium-store
+    offline_root: ~/operium-handoffs
+    doc: docs/operium-shared-store.md
+
+workspace:
+  manifest: profiles/workspace.fracta-coding.v1.tsv
+  repositories_verified: 23
+  wip_branch: wip/fractanet-android-node
+  runtime_branch: runtime/soma-fractanet
+
+node_agent:
+  status: active
+  observed: "2026-07-28"
+  profile: operium.soma.node.v0
+  persistence: ~/.termux/boot/operium-node-agent
+  identity: resource://poco-jhr
+  discovery: http://127.0.0.1:8794/.well-known/soma
+  source_branch: runtime/soma-fractanet
+  preserved_wip_branch: wip/fractanet-android-node
+
+secrets:
+  authority_mirror: ~/srv/cogentia/repos/inseme/.env
+  mode: "0600"
+  consumers:
+    - cogentia/.env
+    - operium/.env
+    - survey/.env
+    - ubikia/.env

@@ -14,6 +14,45 @@ Production rollout for **ONA** (`:8794`) on fracta and capable nodes. Catalogue 
 | **ONA** | **8794** | Control |
 | cogentia MCP (fracta) | 8791 | Aggregator |
 
+ONA also serves the SOMA read plane:
+
+| Endpoint | Access | Role |
+|----------|--------|------|
+| `GET /.well-known/soma` | public when `ONA_HEALTH_PUBLIC=1` | Safe node descriptor and discovery |
+| `GET /soma/vocabulary` | public when `ONA_HEALTH_PUBLIC=1` | Classes, facets, and attribute semantics |
+| `GET /soma/object` | read token | Managed node and contained service objects |
+| `GET /soma/observations` | read token | Current sampleable observations |
+
+SOMA v0 is read-only. Write actions are deliberately deferred.
+
+The first public node publishes safe discovery at:
+
+```text
+https://fracta.fractavolta.com/.well-known/soma
+https://fracta.fractavolta.com/soma/vocabulary
+```
+
+The public Caddy route forwards `/soma/*` so descriptor-relative resource URLs
+remain correct. ONA itself enforces the boundary: `/soma/object` and
+`/soma/observations` return `401` without a valid read token.
+
+### SOMA v0 fleet rollout — 2026-07-28
+
+| Node | Runtime | Persistence | Verified identity |
+|------|---------|-------------|-------------------|
+| `fracta` | Git checkout `dd724db` | systemd | `resource://fracta` |
+| `i7-thinkpad-jhr` | Git checkout `dd724db` | NSSM Windows service | `resource://i7-thinkpad-jhr` |
+| `rpi3-view` | immutable 3 MB runtime artifact, no Git checkout | systemd | `resource://rpi3-view` |
+| `poco-jhr` | `runtime/soma-fractanet` tracking the published checkpoint | Termux:Boot hook | `resource://poco-jhr` |
+
+All four nodes passed `soma.descriptor.v0` discovery. Detailed object access
+returned `401` without a read token on every tested node.
+
+The Pi runs Node `22.23.1` from the Node.js unofficial ARM build because
+`22.12.0` did not expose `node:sqlite`. The downloaded archive was verified
+against its published SHA-256 checksum before activation. The former binary is
+retained as `~/.local/bin/node-v22.12.0`.
+
 ---
 
 ## Secrets layout
@@ -158,13 +197,22 @@ Task: `CogentiaOperiumNodeHeartbeat` (every 3 min + at logon). Launcher: `%USERP
 
 ---
 
-## poco-jhr (Termux) — planned
+## poco-jhr (Termux)
 
-After agent-gateway bootstrap:
+The node uses:
 
 - `~/srv/cogentia/secrets/ona.env`
-- `operium/scripts/ona-heartbeat.js` via Termux boot script (mirror `agent-gateway-heartbeat`)
+- a Termux:Boot hook that starts `scripts/ops/run-ona-supervised.js`
+- `operium/scripts/ona-heartbeat.js` via the boot hook
 - Bind `0.0.0.0:8794` with bearer tokens (no tailscale CLI on device)
+
+The Node supervisor is intentionally small. Exit code `75` means that a SOMA
+`agent.restart` action requested a new process incarnation. Other non-zero
+exits are also retried with a bounded delay; a clean exit stops the loop.
+
+```bash
+exec node ~/srv/cogentia/repos/operium/scripts/ops/run-ona-supervised.js
+```
 
 ---
 
@@ -194,6 +242,34 @@ COGENTIA_ATTRACTOR_WITHDRAW=1 node operium/scripts/ona-heartbeat.js
 | Console fleet | open `/ops/console/` — node cards from blackboard |
 | Console node detail | `COGENTIA_OPS_READ_TOKEN` set on fracta MCP |
 | Diagnose | `operium node diagnose --human` on capable host |
+
+## SOMA action rollout evidence — 2026-07-28
+
+Release `92a45f2` was activated and the two initial administrative actions
+were exercised locally on every current FractaNode:
+
+| Node | Supervisor | Schema | `observation.refresh` | `agent.restart` |
+|---|---|---:|---|---|
+| `fracta` | systemd | 3 | completed | completed by a new incarnation |
+| `i7-thinkpad-jhr` | NSSM | 3 | completed | completed by a new incarnation |
+| `rpi3-view` | systemd, immutable release `92a45f2-git` | 3 | completed | completed by a new incarnation |
+| `poco-jhr` | Termux Node supervisor | 3 | completed | completed by a new incarnation |
+
+Operational notes:
+
+- The Pi's `~/srv/cogentia/repos/operium` path was a minimal source copy, not
+  a Git worktree. Its immutable release was therefore built from the verified
+  Git archive supplied by the workstation.
+- The Pi `ona.env` contained three CRLF lines. They were normalized to LF
+  without changing values because carriage returns cannot be transported in
+  HTTP header values.
+- The Termux boot hook now executes `run-ona-supervised.js`; the pre-change
+  hook remains available as `operium-node-agent.pre-soma-actions`.
+- Windows service activation required a local UAC elevation because the NSSM
+  service runs as `LocalSystem`.
+- Refresh results still report low health scores on several nodes. These are
+  existing probe results and require diagnosis independently of the action
+  transport, persistence, and restart lifecycle validated here.
 
 ---
 

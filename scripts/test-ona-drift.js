@@ -99,6 +99,37 @@ const drift = buildNodeDrift(deps);
 assert.equal(drift.schema, "operium.node.drift.v1");
 assert.ok(Array.isArray(drift.next_actions));
 assert.ok(drift.next_actions.length >= 1);
+assert.ok(drift.next_actions.includes("Restore the local Agent Gateway service and verify its health authentication."));
+assert.ok(drift.next_actions.includes("Restart InoxServeCapableHost scheduled task or inox-serve process."));
+assert.ok(!drift.next_actions.includes("Restore fracta Guide MCP or aggregator reachability."));
+
+applyProbeCycle(db, {
+  ...failedCycle,
+  probes: [
+    { probe_kind: "ona", ok: false, skipped: false, target: "http://127.0.0.1:8794/health" },
+  ],
+  probed_at: "2026-07-28T10:00:00.000Z",
+}, {
+  catalogue: { ok: true, nodes: [{ hostname: "cli-test", resource_id: "resource://cli-test" }] },
+  nodeId: "resource://cli-test",
+  hostname: "cli-test",
+});
+applyProbeCycle(db, {
+  ...failedCycle,
+  probes: [
+    { probe_kind: "ona", ok: true, skipped: false, target: "http://127.0.0.1:8794/health" },
+  ],
+  probed_at: "2030-01-01T00:00:00.000Z",
+}, {
+  catalogue: { ok: true, nodes: [{ hostname: "cli-test", resource_id: "resource://cli-test" }] },
+  nodeId: "resource://cli-test",
+  hostname: "cli-test",
+});
+const latestProbeDrift = computeNodeDrift(deps);
+assert.ok(
+  !latestProbeDrift.some(item => item.fact === "ONA self probe should pass"),
+  "an older failed self-probe must not replace the newest successful probe",
+);
 
 const copSnapshot = await handleCopHttpRequest({
   id: "cop:snapshot-1",
@@ -255,6 +286,7 @@ console.log(JSON.stringify({
   tests: [
     "buildNodeSnapshot",
     "computeNodeDrift",
+    "latest_probe_per_kind",
     "buildNodeDrift",
     "cop_snapshot_handler",
     "peer_snapshot_cache",

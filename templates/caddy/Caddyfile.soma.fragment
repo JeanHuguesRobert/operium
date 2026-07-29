@@ -1,0 +1,6 @@
+# SOMA public discovery for a Fractanet node.
+# Detailed objects and observations remain on the authenticated ONA read plane.
+@soma path /.well-known/soma /soma/*
+handle @soma {
+	reverse_proxy 127.0.0.1:8794
+}

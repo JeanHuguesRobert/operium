@@ -1,0 +1,8 @@
+[Unit]
+Description=Refresh the cached Operium edge portal status
+After=network.target
+
+[Service]
+Type=oneshot
+User=jh
+ExecStart=/usr/local/bin/operium-edge-portal-refresh

@@ -52,6 +52,23 @@ Do not present an intended evolution as current state.
 Do not present an assumption as a verified fact.  
 Do not expose private operational details in public views.
 
+## Language and audience
+
+Conversation with Jean Hugues Robert may follow his language, including French.
+Repository artifacts must instead serve Operium's international and generic
+scope:
+
+- Write public GitHub Issues, pull requests, comments, commit messages,
+  documentation, schemas, CLI output and user-facing UI copy in English by
+  default.
+- Preserve source quotations and proper names in their original language when
+  useful; add an English explanation when the surrounding artifact is public.
+- Use another language only when the artifact explicitly targets that language
+  or Jean Hugues Robert requests it for that specific artifact.
+- Do not infer a Francophone product scope from a French operator conversation.
+- Prefer terminology that remains meaningful outside the current deployment,
+  while keeping concrete Fracta/Fractanet evidence in examples and runbooks.
+
 ## Fix Bugs First (mandatory for interactive work)
 
 When Operium (or an ops-touching session) feels **out of control**, apply
