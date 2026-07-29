@@ -16,11 +16,26 @@ set -euo pipefail
 
 PORTAL_URL="${PORTAL_URL:-http://127.0.0.1/}"
 KIOSK_BROWSER="${KIOSK_BROWSER:-firefox-esr}"
+# window (default): normal browser chrome, panel menus, Back / right-click.
+# kiosk: full-screen lock-down (too restrictive for operator desk use).
+KIOSK_MODE="${KIOSK_MODE:-window}"
 LABWC_AUTOSTART="${HOME}/.config/labwc/autostart"
 XDG_AUTOSTART_DIR="${HOME}/.config/autostart"
 XDG_DESKTOP="${XDG_AUTOSTART_DIR}/operium-edge-kiosk.desktop"
 MARKER_BEGIN="# BEGIN operium-edge-kiosk"
 MARKER_END="# END operium-edge-kiosk"
+
+browser_cmd() {
+  case "$KIOSK_MODE" in
+    kiosk)
+      printf '%s --kiosk %s' "$BROWSER" "$PORTAL_URL"
+      ;;
+    window|*)
+      # Normal window: operator keeps Pi menus, browser Back, context menu.
+      printf '%s --new-window %s' "$BROWSER" "$PORTAL_URL"
+      ;;
+  esac
+}
 
 pick_browser() {
   case "$KIOSK_BROWSER" in
@@ -60,18 +75,19 @@ fi
 # --- XDG autostart: disabled by default under labwc (would double-launch with labwc/autostart) ---
 # Keep a .desktop.disabled template for sessions that only use lxsession-xdg-autostart.
 mkdir -p "$XDG_AUTOSTART_DIR"
+CMD="$(browser_cmd)"
 cat >"${XDG_DESKTOP}.disabled" <<EOF
 [Desktop Entry]
 Type=Application
-Name=Operium Edge Kiosk
+Name=Operium Edge Portal
 Comment=Fractanet edge consultation portal (enable only if labwc block is removed)
-Exec=${BROWSER} --kiosk ${PORTAL_URL}
+Exec=${CMD}
 Terminal=false
 X-GNOME-Autostart-enabled=true
 StartupNotify=false
 EOF
 rm -f "$XDG_DESKTOP" 2>/dev/null || true
-echo "wrote ${XDG_DESKTOP}.disabled (active kiosk is labwc/autostart only)"
+echo "wrote ${XDG_DESKTOP}.disabled (active launch is labwc/autostart only)"
 
 # --- labwc user autostart (Wayland session on Bookworm Pi) ---
 mkdir -p "$(dirname "$LABWC_AUTOSTART")"
@@ -82,10 +98,12 @@ swayidle -w timeout 600 'wlopm --off \*' resume 'wlopm --on \*' &
 EOF
 fi
 
+CMD="$(browser_cmd)"
 block=$(cat <<EOF
 $MARKER_BEGIN
 # Managed by install-rpi3-edge-kiosk-browser.sh — do not edit by hand
-${BROWSER} --kiosk ${PORTAL_URL} &
+# KIOSK_MODE=${KIOSK_MODE} (window|kiosk)
+${CMD} &
 $MARKER_END
 EOF
 )
@@ -120,16 +138,18 @@ tmp="$(mktemp)"
 grep -vE 'operium edge kiosk|BEGIN operium-edge-kiosk|firefox(-esr)? --kiosk|chromium(-browser)? .*kiosk|127\.0\.0\.1/|localhost/' "$LX_AUTOSTART" >"$tmp" || true
 {
   cat "$tmp"
-  echo "# Operium edge kiosk (legacy LXDE path; labwc uses XDG + labwc/autostart)"
-  echo "@${BROWSER} --kiosk ${PORTAL_URL}"
+  echo "# Operium edge portal (legacy LXDE path; labwc uses labwc/autostart)"
+  echo "@${CMD}"
 } >"$LX_AUTOSTART"
 rm -f "$tmp"
 echo "updated legacy $LX_AUTOSTART"
 
 echo
 echo "browser: $BROWSER"
+echo "mode:    $KIOSK_MODE"
+echo "cmd:     $CMD"
 echo "url:     $PORTAL_URL"
-echo "stack:   labwc Wayland — primary hooks: XDG desktop + ~/.config/labwc/autostart"
+echo "stack:   labwc Wayland — primary hook: ~/.config/labwc/autostart"
 echo "Apply:   log out/in of the graphical session, or reboot the Pi."
-echo "Manual:  ${BROWSER} --kiosk ${PORTAL_URL}"
+echo "Manual:  $CMD"
 echo "Portal:  curl -fsS ${PORTAL_URL}status.json"

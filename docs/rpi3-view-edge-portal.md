@@ -108,52 +108,51 @@ Runtime files are owned by Operium source:
 - `templates/rpi3-view/operium-edge-portal*.{service,timer}`
 - `templates/rpi3-view/lxsession-LXDE-pi-autostart`
 
-## Kiosk browser (Firefox ESR preferred)
+## Home browser (Firefox ESR, normal window)
 
 The portal is HTTP-only at **`http://127.0.0.1/`** (also `http://localhost/`).
 
+**Mode:** default **`KIOSK_MODE=window`** — Firefox opens a normal window so the
+operator keeps the Pi panel menus, browser chrome, **Back**, and right-click.
+Full-screen lock-down is optional: `KIOSK_MODE=kiosk`.
+
 **Observed stack (2026-07):** Raspberry Pi OS Bookworm with **labwc Wayland**
-(`DESKTOP_SESSION=LXDE-pi-labwc`). Autostart is via:
+(`DESKTOP_SESSION=LXDE-pi-labwc`). Primary autostart:
 
-1. `~/.config/autostart/operium-edge-kiosk.desktop` (XDG, through `lxsession-xdg-autostart`)
-2. `~/.config/labwc/autostart` (managed BEGIN/END block)
+- `~/.config/labwc/autostart` (managed BEGIN/END block)
 
-The old `~/.config/lxsession/LXDE-pi/autostart` path alone is **not** enough on labwc.
+XDG `.desktop` is kept only as `.disabled` to avoid double launch.
 
-**Browser:** default is **Firefox ESR** (`xdg-settings` / mimeapps on the operator
-Pi). Chromium is installed but often fails with a stale profile lock:
+**Browser:** **Firefox ESR** by default. Chromium may need a profile-lock fix
+after hostname rename (`scripts/ops/fix-chromium-profile-lock-rpi.sh`).
 
-```text
-SingletonLock → baronpi-<pid>
-```
-
-(hostname was renamed to `rpi3-view`). Optional unlock:
-
-```bash
-CLEAR_CHROMIUM_LOCK=1 KIOSK_BROWSER=chromium bash ~/install-rpi3-edge-kiosk-browser.sh
-```
-
-Install / refresh kiosk hooks:
+Install / refresh:
 
 ```bash
 scp operium/scripts/ops/install-rpi3-edge-kiosk-browser.sh rpi3-view:~/
 ssh rpi3-view 'bash ~/install-rpi3-edge-kiosk-browser.sh'
-# optional force browser:
-# ssh rpi3-view 'KIOSK_BROWSER=firefox-esr bash ~/install-rpi3-edge-kiosk-browser.sh'
+# optional:
+# KIOSK_MODE=kiosk bash ~/install-rpi3-edge-kiosk-browser.sh
 ```
 
-Then **log out/in** of the graphical session (or reboot) so labwc reloads autostart.
-
-Manual smoke on the Pi (graphical terminal):
+Then log out/in (or reboot). Manual:
 
 ```bash
-firefox-esr --kiosk http://127.0.0.1/
+firefox-esr --new-window http://127.0.0.1/
 ```
 
-Portal HTML refresh:
+### Refresh button
+
+**Refresh status** calls `/cgi-bin/refresh` (re-probes mesh, rewrites
+`status.json`, returns JSON) and updates the footer with both snapshot time and
+local check time. **Reload page** does a full browser reload.
+
+Deploy portal files:
 
 ```bash
 scp apps/edge-portal/index.html rpi3-view:/srv/operium-edge-portal/index.html
+scp apps/edge-portal/cgi-bin/refresh rpi3-view:/srv/operium-edge-portal/cgi-bin/refresh
+ssh rpi3-view 'chmod +x /srv/operium-edge-portal/cgi-bin/refresh'
 ```
 
 ## Future local network
