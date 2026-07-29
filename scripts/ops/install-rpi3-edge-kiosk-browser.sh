@@ -57,19 +57,21 @@ if [ "${CLEAR_CHROMIUM_LOCK:-0}" = "1" ]; then
   fi
 fi
 
-# --- XDG autostart (used by lxsession-xdg-autostart under labwc) ---
+# --- XDG autostart: disabled by default under labwc (would double-launch with labwc/autostart) ---
+# Keep a .desktop.disabled template for sessions that only use lxsession-xdg-autostart.
 mkdir -p "$XDG_AUTOSTART_DIR"
-cat >"$XDG_DESKTOP" <<EOF
+cat >"${XDG_DESKTOP}.disabled" <<EOF
 [Desktop Entry]
 Type=Application
 Name=Operium Edge Kiosk
-Comment=Fractanet edge consultation portal
+Comment=Fractanet edge consultation portal (enable only if labwc block is removed)
 Exec=${BROWSER} --kiosk ${PORTAL_URL}
 Terminal=false
 X-GNOME-Autostart-enabled=true
 StartupNotify=false
 EOF
-echo "wrote $XDG_DESKTOP"
+rm -f "$XDG_DESKTOP" 2>/dev/null || true
+echo "wrote ${XDG_DESKTOP}.disabled (active kiosk is labwc/autostart only)"
 
 # --- labwc user autostart (Wayland session on Bookworm Pi) ---
 mkdir -p "$(dirname "$LABWC_AUTOSTART")"
