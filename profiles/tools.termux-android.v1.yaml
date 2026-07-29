@@ -1,3 +1,5 @@
+# Interactive shell scaffold: profiles/shell/termux-android.profile.sh
+# (Agent JHN / first twin phone — install script TBD)
 profile_id: tools.termux-android.v1
 node_id: poco-jhr
 node_class: android-termux

@@ -4,12 +4,14 @@
 profile_id: tools.fracta-vps.v1
 node_class: fracta-vps
 ssh_alias: fracta
-updated: "2026-07-28"
+updated: "2026-07-29"
 policy:
   install_mode: user-or-system-apt
   forbid_sudo_npm_global: true
   docker_supabase_stack: forbidden  # RAM + role mismatch
   role: public_guide_control_plane_and_coding_node
+shell_profile: profiles/shell/fracta-vps.profile.sh
+shell_install: profiles/shell/install-fracta-vps-shell-profile.sh
 
 tools:
   - id: node

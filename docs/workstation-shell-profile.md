@@ -1,5 +1,5 @@
 ---
-title: "Workstation shell profile (PowerShell)"
+title: "Shell profiles (Fractanet nodes)"
 date: "2026-07-29"
 document_role: operational
 document_kind: method
@@ -7,55 +7,72 @@ visibility: public
 lifecycle_state: active
 ---
 
-# Workstation shell profile (PowerShell)
+# Shell profiles (Fractanet nodes)
 
-**Owner:** Operium (desired shell entry for the Windows corpus workstation).  
-**App / OS:** thin user `$PROFILE` + Operium-managed workspace profile.
+**Owner:** Operium.  
+Interactive login shells only — not systemd, not Agent Gateway, not ONA services.
 
-## Model (two layers)
+## Model (two layers, every node class)
 
-| Layer | Path | Content |
-|-------|------|---------|
-| **User (thin)** | `$PROFILE` / `Documents\PowerShell\…` | `cd C:\tweesic` when needed; dot-source Operium profile; host PATH / conda |
-| **Workspace (Operium)** | [`profiles/shell/workstation-windows.profile.ps1`](../profiles/shell/workstation-windows.profile.ps1) | `COGENTIA_REGISTRY`, roots, helpers `tweesic` / `operium` / `cogentia` |
+| Layer | Where | Content |
+|-------|--------|---------|
+| **Host thin** | `~/.bashrc` / Windows `$PROFILE` | enter workspace root if useful; **source** Operium profile |
+| **Operium profile** | `operium/profiles/shell/*` (git) | registry, roots, helpers |
 
-Interactive only. **Do not** rely on this for scheduled tasks (Agent Gateway uses `-NoProfile`).
+## Profiles
+
+| Node class | Profile | Install |
+|------------|---------|---------|
+| **workstation-windows** | [`shell/workstation-windows.profile.ps1`](../profiles/shell/workstation-windows.profile.ps1) | User `$PROFILE` dotsources after `cd C:\tweesic` |
+| **fracta-vps** | [`shell/fracta-vps.profile.sh`](../profiles/shell/fracta-vps.profile.sh) | [`install-fracta-vps-shell-profile.sh`](../profiles/shell/install-fracta-vps-shell-profile.sh) on ubuntu |
+| **termux-android** (draft) | [`shell/termux-android.profile.sh`](../profiles/shell/termux-android.profile.sh) | TBD — first Cogentia twin / **Agent JHN** phone instance |
 
 ## Registry
 
-Single corpus registry authority:
+| Context | `COGENTIA_REGISTRY` |
+|---------|---------------------|
+| Windows workstation | `C:\tweesic\JeanHuguesRobert` |
+| Fracta VPS | `/srv/cogentia/repos/JeanHuguesRobert` |
+| Phone / twin | instance-local or pulled JHR checkout (set in secrets) |
 
-```text
-C:\tweesic\JeanHuguesRobert\.cogentia.json
+**Do not** put an incomplete `.cogentia.json` at a parent path that shadows the full registry.
+
+## Fracta install / refresh
+
+On a trusted workstation (after `operium` is pulled on fracta):
+
+```bash
+ssh fracta 'cd /srv/cogentia/repos/operium && git pull --ff-only && bash profiles/shell/install-fracta-vps-shell-profile.sh'
 ```
 
-Set as directory or file via `COGENTIA_REGISTRY` (cogentia accepts both).  
-**Do not** reintroduce an incomplete `C:\tweesic\.cogentia.json` (shadows the full registry when walking up from sibling repos).
+Verify (login shell):
 
-## Install / update (this machine)
-
-1. Ensure Operium profile exists (this repo path).
-2. User profiles (written by ops; re-apply after machine rebuild):
-
-**`Documents\PowerShell\profile.ps1`** (CurrentUserAllHosts) — conda lazy-load + workspace entry.  
-**`Documents\PowerShell\Microsoft.PowerShell_profile.ps1`** (CurrentUserCurrentHost) — PATH / tools for interactive host.
-
-3. Open a new `pwsh` window. Expect:
-   - cwd under `C:\tweesic` (or already there)
-   - message: `Operium workspace profile loaded (COGENTIA_REGISTRY=…)`
-   - prompt prefix `[tweesic|reg]` when inside the workspace
-
-## Verify
-
-```powershell
-$env:COGENTIA_REGISTRY
-$env:TWEESIC_ROOT
-Get-Command tweesic, operium, cogentia
-tweesic operium   # cd C:\tweesic\operium
+```bash
+ssh fracta 'bash -lc "echo REG=\$COGENTIA_REGISTRY; type cogentia; type operium; pwd"'
 ```
+
+Expect `REG=/srv/cogentia/repos/JeanHuguesRobert` (or equivalent) and functions defined.
+
+## Windows install (summary)
+
+See also [coding-infrastructure.md](coding-infrastructure.md).
+
+1. User `Documents\PowerShell\profile.ps1` → `cd C:\tweesic` + `. operium\profiles\shell\workstation-windows.profile.ps1`
+2. Host profile keeps PATH / conda only
+
+## Phone / Agent JHN (roadmap)
+
+First deployed Cogentia Digital Twin instances (incl. **Agent JHN** / Agent John) are expected on **phone-class** nodes (Termux). Shell entry should:
+
+- load twin-local roots under `$HOME/fractanet` (or instance path);
+- set `COGENTIA_REGISTRY` from instance secrets;
+- not embed secret values in the profile file;
+- stay thin so ONA/heartbeat processes stay independent of interactive login.
+
+Wire `install-termux-shell-profile.sh` when the first instance bootstrap lands; until then the termux profile is a **scaffold** only.
 
 ## Related
 
 - [workstation-tooling-debt-and-profiles.md](workstation-tooling-debt-and-profiles.md)
-- [coding-infrastructure.md](coding-infrastructure.md)
-- [cogentia-semantic-stack.md](cogentia-semantic-stack.md) — registry env examples
+- [fracta-trust-perimeter.md](fracta-trust-perimeter.md)
+- Tool profiles: `profiles/tools.*.yaml`
