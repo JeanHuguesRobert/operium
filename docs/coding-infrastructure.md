@@ -99,6 +99,15 @@ cd C:/tweesic
 
 **⚠️ Important:** After `pro`/`zai`, **restart Claude Code**. If doctor reports `oauth_expired`, run `claude auth login`.
 
+### Shell entry (PowerShell)
+
+Interactive shells should land in `C:\tweesic` and load the Operium workspace profile
+(registry, helpers). See [workstation-shell-profile.md](workstation-shell-profile.md).
+
+- **User thin profiles:** `Documents\PowerShell\profile.ps1` + `Microsoft.PowerShell_profile.ps1`
+- **Operium authority:** `operium/profiles/shell/workstation-windows.profile.ps1`
+- **Registry:** `COGENTIA_REGISTRY` → `C:\tweesic\JeanHuguesRobert` (not a root `.cogentia.json` subset)
+
 ### Command Code (Multi-Model Interface)
 
 **Location:** `C:/tweesic/cmdc.bat` → `%USERPROFILE%\.npm-global\cmdc.cmd`

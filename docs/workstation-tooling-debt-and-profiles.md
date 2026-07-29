@@ -101,6 +101,8 @@ profiles/
   tools.fracta-vps.v1.yaml            # petit VPS public
   tools.laptop-capable.v1.yaml        # thinkpad capable host
   tools.termux.v1.yaml                # optionnel
+  shell/workstation-windows.profile.ps1  # interactive PowerShell (cd tweesic + COGENTIA_REGISTRY)
+# See also: docs/workstation-shell-profile.md
 
 scripts/ops/
   ensure-tool.ps1 / ensure-tool.sh    # un outil, idempotent
