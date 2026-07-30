@@ -24,9 +24,9 @@ ensure_kv ONA_JOBS 0
 
 # Location / contact (quoted for shell source)
 if grep -q '^ONA_LOCATION=' "$ENVF"; then
-  sed -i 's|^ONA_LOCATION=.*|ONA_LOCATION="Institut Mariani, 1 cours Paoli, F-2050 Corte"|' "$ENVF"
+  sed -i 's|^ONA_LOCATION=.*|ONA_LOCATION="Institut Mariani, 1 cours Paoli, F-20250 Corte"|' "$ENVF"
 else
-  printf 'ONA_LOCATION="%s"\n' 'Institut Mariani, 1 cours Paoli, F-2050 Corte' >>"$ENVF"
+  printf 'ONA_LOCATION="%s"\n' 'Institut Mariani, 1 cours Paoli, F-20250 Corte' >>"$ENVF"
 fi
 if grep -q '^ONA_CONTACT=' "$ENVF"; then
   sed -i 's|^ONA_CONTACT=.*|ONA_CONTACT="jhr@baronsmariani.org"|' "$ENVF"

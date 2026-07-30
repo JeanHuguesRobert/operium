@@ -129,7 +129,7 @@ These belong in zoom because operators ask them first on Fractanet.
 
 | Attribute | Env | Example (Fractanet / Institut Mariani) |
 |-----------|-----|----------------------------------------|
-| `core.location` | `ONA_LOCATION` or `ONA_SYS_LOCATION` | `Institut Mariani, 1 cours Paoli, F-2050 Corte` |
+| `core.location` | `ONA_LOCATION` or `ONA_SYS_LOCATION` | `Institut Mariani, 1 cours Paoli, F-20250 Corte` |
 | `core.contact` | `ONA_CONTACT` or `ONA_SYS_CONTACT` | `jhr@baronsmariani.org` |
 
 Configuration scalars (not gauges). Omitted from the object when unset.

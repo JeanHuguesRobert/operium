@@ -2,7 +2,7 @@
 # Apply Institut Mariani location/contact to local ona.env and restart ONA.
 set -euo pipefail
 
-LOC="Institut Mariani, 1 cours Paoli, F-2050 Corte"
+LOC="Institut Mariani, 1 cours Paoli, F-20250 Corte"
 CONTACT="jhr@baronsmariani.org"
 
 find_env() {
