@@ -21,9 +21,10 @@ scp -o BatchMode=yes \
   "$ROOT/apps/edge-portal/cgi-bin/refresh" \
   "$ROOT/apps/edge-portal/cgi-bin/fleet" \
   "$ROOT/apps/edge-portal/cgi-bin/node" \
+  "$ROOT/apps/edge-portal/cgi-bin/action" \
   "${HOST}:${PORTAL_DIR}/cgi-bin/"
 
-ssh -o BatchMode=yes "$HOST" "chmod +x ${PORTAL_DIR}/cgi-bin/home ${PORTAL_DIR}/cgi-bin/refresh ${PORTAL_DIR}/cgi-bin/fleet ${PORTAL_DIR}/cgi-bin/node"
+ssh -o BatchMode=yes "$HOST" "chmod +x ${PORTAL_DIR}/cgi-bin/home ${PORTAL_DIR}/cgi-bin/refresh ${PORTAL_DIR}/cgi-bin/fleet ${PORTAL_DIR}/cgi-bin/node ${PORTAL_DIR}/cgi-bin/action"
 
 # P4 cache warmer (timer + optional manual)
 scp -o BatchMode=yes \

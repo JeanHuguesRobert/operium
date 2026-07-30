@@ -27,6 +27,7 @@ const config = loadOnaConfig({
   ONA_NODE_ID: "resource://action-test",
   ONA_READ_TOKEN: "read-token",
   ONA_ADMIN_TOKEN: "admin-token",
+  ONA_MESH_OPEN_READ: "1",
 });
 
 let restartRequest = null;
@@ -69,6 +70,15 @@ try {
   assert.equal(denied.status, 401);
   assert.equal(probeRuns, 0);
 
+  // Mesh desk sesame (Tailscale trust) — no real admin token
+  const deskRefresh = await fetchJson(`${base}/soma/actions/observation.refresh`, {
+    method: "POST",
+    headers: { Authorization: "Bearer sesame42" },
+  });
+  assert.equal(deskRefresh.status, 200);
+  assert.equal(deskRefresh.body.state, "completed");
+  assert.equal(probeRuns, 1);
+
   const refresh = await fetchJson(`${base}/soma/actions/observation.refresh`, {
     method: "POST",
     headers: adminHeaders,
@@ -76,7 +86,7 @@ try {
   assert.equal(refresh.status, 200);
   assert.equal(refresh.body.state, "completed");
   assert.equal(refresh.body.result.health_score, 98);
-  assert.equal(probeRuns, 1);
+  assert.equal(probeRuns, 2);
 
   const refreshStatus = await fetchJson(
     `${base}/soma/actions/${encodeURIComponent(refresh.body.action_id)}`,

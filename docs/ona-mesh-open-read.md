@@ -32,9 +32,9 @@ When open, these succeed **without** `Authorization: Bearer …`:
 
 Still **require tokens**:
 
-- `POST /node/probe` (admin)
+- `POST /node/probe` (admin **or** mesh desk sesame `sesame42` when `ONA_MESH_OPEN_READ=1`)
 - `POST /node/cop` (peer/admin)
-- `POST /soma/actions/*` (admin)
+- `POST /soma/actions/*` (admin **or** mesh desk sesame `sesame42` when mesh-open — La Nasa `/cgi-bin/action`)
 
 `ONA_HEALTH_PUBLIC=1` continues to cover `/health`, `/.well-known/soma`,
 `/soma/vocabulary`.

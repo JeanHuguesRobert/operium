@@ -546,23 +546,26 @@
     return html;
   }
 
-  function renderActions(actionsPack) {
+  function renderActions(actionsPack, host) {
     if (!actionsPack || !actionsPack.definitions) return "";
     var defs = actionsPack.definitions;
     var names = Object.keys(defs);
     if (!names.length) return "";
-    var html = '<div class="sec"><h3>Actions <span class="muted">(read-only · POST needs admin)</span></h3>';
+    var html = '<div class="sec"><h3>Actions <span class="muted">(mesh desk · sesame)</span></h3>';
     names.forEach(function (name) {
       var d = defs[name] || {};
       var impl = d.implemented === true;
       var title = d.title || name;
       var auth = d.authority || "?";
       var interrupt = d.interruption ? "interrupt" : "safe";
+      var canRun = impl && (name === "observation.refresh" || name === "agent.restart");
       html += '<div class="act-row" title="' + esc(d.semantics || name) + '">' +
         '<span class="an">' + esc(title) +
         ' <span class="am">' + esc(name) + "</span></span>" +
         '<span class="badge ' + (impl ? "ok" : "muted") + '">' + (impl ? "ready" : "stub") + "</span>" +
-        '<span class="am">' + esc(auth) + " · " + esc(interrupt) + "</span>" +
+        (canRun
+          ? '<button type="button" class="secondary act-run" data-action="' + esc(name) + '" data-host="' + esc(host) + '" style="padding:0.15rem 0.4rem;font-size:0.68rem">Run</button>'
+          : '<span class="am">' + esc(auth) + " · " + esc(interrupt) + "</span>") +
         "</div>";
     });
     var recent = actionsPack.recent || [];
@@ -581,6 +584,34 @@
     }
     html += "</div>";
     return html;
+  }
+
+  async function runAction(host, name) {
+    if (name === "agent.restart") {
+      if (!window.confirm("Restart ONA on " + host + "?\n(Brief interruption · Tailscale desk sesame)")) {
+        return;
+      }
+    }
+    setFlash("Running " + name + " on " + host + "…", "busy");
+    try {
+      var r = await fetch(
+        "/cgi-bin/action?host=" + encodeURIComponent(host) +
+        "&name=" + encodeURIComponent(name) + "&t=" + Date.now(),
+        { cache: "no-store", method: "GET" }
+      );
+      var pack = await r.json();
+      if (!pack.ok) {
+        setFlash((pack.error || "action failed") + " · HTTP " + (pack.http_status || "?"), "err");
+        return;
+      }
+      var st = (pack.result && pack.result.state) || "ok";
+      setFlash(name + " → " + st + " on " + host, "ok");
+      // Refresh zoom so recent history updates
+      if (selectedHost === host) selectNode(host);
+      else loadFleet();
+    } catch (e) {
+      setFlash(String(e.message || e), "err");
+    }
   }
 
   function paintDetail(n, st, obj, base, vocab, observations, pack, actions) {
@@ -711,8 +742,8 @@
     // Observations (current samples)
     html += renderObservations(observations, vocab);
 
-    // P5: SOMA action catalogue + recent (no execute buttons — admin POST deferred)
-    html += renderActions(actions);
+    // P5: SOMA action catalogue + Run (mesh desk sesame via /cgi-bin/action)
+    html += renderActions(actions, n.host);
 
     // Jobs summary
     var jobs = st.jobs || {};
@@ -743,6 +774,11 @@
       "</pre></details>";
 
     detailEl.innerHTML = html;
+    detailEl.querySelectorAll("button.act-run").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        runAction(btn.getAttribute("data-host"), btn.getAttribute("data-action"));
+      });
+    });
   }
 
   function paintDetailOffline(n, err) {

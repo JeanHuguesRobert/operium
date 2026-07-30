@@ -1,0 +1,123 @@
+#!/bin/sh
+# Execute a SOMA action on a mesh host via same-origin proxy (La Nasa desk).
+# Trust: Tailscale + hard desk sesame (sesame42) — not for public Internet.
+# Query: /cgi-bin/action?host=rpi3-view&name=observation.refresh
+set -eu
+
+DESK_SESAME="${ONA_MESH_DESK_SESAME:-sesame42}"
+
+qs="${QUERY_STRING:-}"
+host=""
+name=""
+case ",${qs}," in
+  *host=*) host=$(printf '%s' "$qs" | sed -n 's/.*host=\([^&]*\).*/\1/p' | tr -cd 'A-Za-z0-9._-') ;;
+esac
+case ",${qs}," in
+  *name=*) name=$(printf '%s' "$qs" | sed -n 's/.*name=\([^&]*\).*/\1/p' | tr -cd 'A-Za-z0-9._-') ;;
+esac
+
+json_headers() {
+  printf 'Content-Type: application/json; charset=utf-8\r\n'
+  printf 'Cache-Control: no-store\r\n'
+  printf '\r\n'
+}
+
+if [ -z "$host" ] || [ -z "$name" ]; then
+  json_headers
+  printf '{"ok":false,"error":"missing_host_or_name"}\n'
+  exit 0
+fi
+
+case "$host" in
+  fracta|i7-thinkpad-jhr|rpi3-view|poco-jhr) ;;
+  *)
+    json_headers
+    printf '{"ok":false,"error":"unknown_host","host":"%s"}\n' "$host"
+    exit 0
+    ;;
+esac
+
+# Allow-list: only implemented desk actions (no agent.upgrade)
+case "$name" in
+  observation.refresh|agent.restart) ;;
+  *)
+    json_headers
+    printf '{"ok":false,"error":"action_not_allowed","name":"%s"}\n' "$name"
+    exit 0
+    ;;
+esac
+
+base="http://${host}:8794"
+if [ "$host" = "rpi3-view" ]; then
+  base="http://127.0.0.1:8794"
+fi
+
+# Resolve Tailscale IP fallback for peers
+if [ "$host" != "rpi3-view" ]; then
+  if ! curl -fsS --max-time 2 "${base}/health" >/dev/null 2>&1; then
+    if command -v tailscale >/dev/null 2>&1; then
+      tip=$(tailscale ip -4 "$host" 2>/dev/null || true)
+      if [ -n "$tip" ]; then
+        base="http://${tip}:8794"
+      fi
+    fi
+  fi
+fi
+
+url="${base}/soma/actions/${name}"
+body_file=$(mktemp)
+code_file=$(mktemp)
+trap 'rm -f "$body_file" "$code_file"' EXIT
+
+# POST with desk sesame (Bearer + x-ona-sesame)
+http_code=$(curl -sS --max-time 60 \
+  -X POST \
+  -H "Authorization: Bearer ${DESK_SESAME}" \
+  -H "X-Ona-Sesame: ${DESK_SESAME}" \
+  -H "Content-Type: application/json" \
+  -d '{}' \
+  -o "$body_file" \
+  -w '%{http_code}' \
+  "$url" 2>/dev/null || printf '000')
+
+json_headers
+
+if [ ! -s "$body_file" ]; then
+  printf '{"ok":false,"host":"%s","name":"%s","error":"empty_response","http_status":%s,"base":"%s"}\n' \
+    "$host" "$name" "$http_code" "$base"
+  exit 0
+fi
+
+# Wrap peer body with proxy envelope when possible
+if command -v python3 >/dev/null 2>&1; then
+  python3 - "$body_file" "$host" "$name" "$base" "$http_code" <<'PY'
+import json, sys
+path, host, name, base, http_code = sys.argv[1:6]
+try:
+    body = json.load(open(path, encoding="utf-8"))
+except Exception as e:
+    print(json.dumps({
+        "ok": False, "host": host, "name": name, "base": base,
+        "http_status": int(http_code) if str(http_code).isdigit() else 0,
+        "error": "bad_json", "detail": str(e),
+    }))
+    raise SystemExit(0)
+code = int(http_code) if str(http_code).isdigit() else 0
+ok = 200 <= code < 300
+out = {
+    "ok": ok,
+    "host": host,
+    "name": name,
+    "base": base,
+    "http_status": code,
+    "result": body,
+}
+print(json.dumps(out, separators=(",", ":")))
+PY
+else
+  printf '{"ok":%s,"host":"%s","name":"%s","base":"%s","http_status":%s,"result":' \
+    "$([ "$http_code" = "200" ] || [ "$http_code" = "202" ] && echo true || echo false)" \
+    "$host" "$name" "$base" "$http_code"
+  cat "$body_file"
+  printf '}\n'
+fi
