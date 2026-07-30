@@ -165,7 +165,20 @@ firefox-esr --new-window http://127.0.0.1/
 `status.json`, returns JSON) and updates the footer with both snapshot time and
 local check time. **Reload page** does a full browser reload.
 
-Deploy portal files:
+### Deploy polish (static portal + labwc)
+
+From the Operium tree:
+
+```bash
+bash scripts/ops/deploy-rpi3-edge-portal.sh
+```
+
+Deploys `index.html`, `boot.html`, CGI, opener, Firefox `user.js`, labwc
+`autostart` (30 min screen blank) and `rc.xml` (Firefox **Maximize**, not
+kiosk). Re-login or reboot so labwc reloads window rules. Static HTML is live
+immediately after deploy (reload the page).
+
+Deploy portal files (manual):
 
 ```bash
 scp apps/edge-portal/index.html rpi3-view:/srv/operium-edge-portal/index.html
