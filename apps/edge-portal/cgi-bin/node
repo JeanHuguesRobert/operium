@@ -50,11 +50,13 @@ status_file="$WORKDIR/status.json"
 object_file="$WORKDIR/object.json"
 vocab_file="$WORKDIR/vocabulary.json"
 obs_file="$WORKDIR/observations.json"
+actions_file="$WORKDIR/actions.json"
 
 status_code=0
 object_code=0
 vocab_code=0
 obs_code=0
+actions_code=0
 
 if curl -fsS --max-time 5 "${base}/node/status" -o "$status_file" 2>/dev/null; then
   status_code=200
@@ -79,6 +81,10 @@ if [ "$status_code" -eq 200 ]; then
   fi
   if curl -fsS --max-time 4 "${base}/soma/observations" -o "$obs_file" 2>/dev/null; then
     obs_code=200
+  fi
+  # P5: action catalogue + recent history (read-only)
+  if curl -fsS --max-time 4 "${base}/soma/actions" -o "$actions_file" 2>/dev/null; then
+    actions_code=200
   fi
 fi
 
@@ -109,6 +115,7 @@ print(json.dumps({
     "object": pack.get("object"),
     "vocabulary": pack.get("vocabulary"),
     "observations": pack.get("observations"),
+    "actions": pack.get("actions"),
     "cache_schema": pack.get("schema") or "operium.edge-portal.node-cache.v1",
 }, separators=(",", ":")))
 PY
@@ -130,14 +137,14 @@ pack_file="$WORKDIR/pack.json"
 # Assemble live pack + write cache via python (safe JSON compose)
 if command -v python3 >/dev/null 2>&1; then
   python3 - "$pack_file" "$cache_file" "$host" "$base" "$cached_at" \
-    "$status_file" "$object_file" "$vocab_file" "$obs_file" \
-    "$object_code" "$vocab_code" "$obs_code" <<'PY'
+    "$status_file" "$object_file" "$vocab_file" "$obs_file" "$actions_file" \
+    "$object_code" "$vocab_code" "$obs_code" "$actions_code" <<'PY'
 import json, sys, os
 (
     pack_path, cache_path, host, base, cached_at,
-    status_path, object_path, vocab_path, obs_path,
-    object_code, vocab_code, obs_code,
-) = sys.argv[1:13]
+    status_path, object_path, vocab_path, obs_path, actions_path,
+    object_code, vocab_code, obs_code, actions_code,
+) = sys.argv[1:15]
 
 def load_optional(path, code):
     if str(code) != "200" or not os.path.isfile(path) or os.path.getsize(path) == 0:
@@ -159,6 +166,7 @@ pack = {
     "object": load_optional(object_path, object_code),
     "vocabulary": load_optional(vocab_path, vocab_code),
     "observations": load_optional(obs_path, obs_code),
+    "actions": load_optional(actions_path, actions_code),
 }
 
 # Response body
@@ -166,7 +174,7 @@ with open(pack_path, "w", encoding="utf-8") as f:
     json.dump(pack, f, separators=(",", ":"))
     f.write("\n")
 
-# Durable last-known (no ok/live flags required, but keep them for simplicity)
+# Durable last-known
 cache = {
     "schema": "operium.edge-portal.node-cache.v1",
     "cached_at": cached_at,
@@ -176,6 +184,7 @@ cache = {
     "object": pack["object"],
     "vocabulary": pack["vocabulary"],
     "observations": pack["observations"],
+    "actions": pack["actions"],
 }
 tmp = cache_path + ".tmp." + str(os.getpid())
 os.makedirs(os.path.dirname(cache_path), exist_ok=True)
@@ -194,6 +203,7 @@ else
   if [ "$object_code" -eq 200 ]; then obj_json=$(cat "$object_file"); else obj_json=null; fi
   if [ "$vocab_code" -eq 200 ]; then vocab_json=$(cat "$vocab_file"); else vocab_json=null; fi
   if [ "$obs_code" -eq 200 ]; then obs_json=$(cat "$obs_file"); else obs_json=null; fi
-  printf '{"ok":true,"live":true,"stale":false,"host":"%s","base":"%s","cached_at":"%s","status":%s,"object":%s,"vocabulary":%s,"observations":%s}\n' \
-    "$host" "$base" "$cached_at" "$status_body" "$obj_json" "$vocab_json" "$obs_json"
+  if [ "$actions_code" -eq 200 ]; then actions_json=$(cat "$actions_file"); else actions_json=null; fi
+  printf '{"ok":true,"live":true,"stale":false,"host":"%s","base":"%s","cached_at":"%s","status":%s,"object":%s,"vocabulary":%s,"observations":%s,"actions":%s}\n' \
+    "$host" "$base" "$cached_at" "$status_body" "$obj_json" "$vocab_json" "$obs_json" "$actions_json"
 fi

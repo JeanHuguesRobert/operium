@@ -147,6 +147,20 @@
     .obs-row .oa { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: help; }
     .obs-row .ov { font-weight: 600; font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .obs-row .ot { color: var(--muted); font-size: 0.68rem; white-space: nowrap; }
+    .act-row {
+      display: grid; grid-template-columns: 1fr auto auto; gap: 0.15rem 0.35rem;
+      align-items: center; padding: 0.14rem 0;
+      border-bottom: 1px solid rgba(38, 56, 74, 0.55); font-size: 0.72rem;
+    }
+    .act-row:last-child { border-bottom: 0; }
+    .act-row .an { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .act-row .am { color: var(--muted); font-size: 0.68rem; }
+    .hist-row {
+      display: grid; grid-template-columns: 1fr auto auto; gap: 0.15rem 0.35rem;
+      padding: 0.1rem 0; font-size: 0.7rem;
+      border-bottom: 1px solid rgba(38, 56, 74, 0.4);
+    }
+    .hist-row:last-child { border-bottom: 0; }
     details.raw {
       margin-top: 0.35rem; font-size: 0.72rem; color: var(--muted);
     }
@@ -305,7 +319,7 @@
         return;
       }
       if (pack.vocabulary) vocabCache = pack.vocabulary;
-      paintDetail(n, pack.status, pack.object, pack.base, pack.vocabulary || vocabCache, pack.observations, pack);
+      paintDetail(n, pack.status, pack.object, pack.base, pack.vocabulary || vocabCache, pack.observations, pack, pack.actions);
       if (pack.live === false || pack.stale) {
         setFlash(
           n.label + " · last-known" + (pack.cached_at ? " " + shortIso(pack.cached_at) : ""),
@@ -532,7 +546,44 @@
     return html;
   }
 
-  function paintDetail(n, st, obj, base, vocab, observations, pack) {
+  function renderActions(actionsPack) {
+    if (!actionsPack || !actionsPack.definitions) return "";
+    var defs = actionsPack.definitions;
+    var names = Object.keys(defs);
+    if (!names.length) return "";
+    var html = '<div class="sec"><h3>Actions <span class="muted">(read-only · POST needs admin)</span></h3>';
+    names.forEach(function (name) {
+      var d = defs[name] || {};
+      var impl = d.implemented === true;
+      var title = d.title || name;
+      var auth = d.authority || "?";
+      var interrupt = d.interruption ? "interrupt" : "safe";
+      html += '<div class="act-row" title="' + esc(d.semantics || name) + '">' +
+        '<span class="an">' + esc(title) +
+        ' <span class="am">' + esc(name) + "</span></span>" +
+        '<span class="badge ' + (impl ? "ok" : "muted") + '">' + (impl ? "ready" : "stub") + "</span>" +
+        '<span class="am">' + esc(auth) + " · " + esc(interrupt) + "</span>" +
+        "</div>";
+    });
+    var recent = actionsPack.recent || [];
+    if (recent.length) {
+      html += '<p class="muted" style="margin:0.3rem 0 0.1rem;font-size:0.68rem">Recent</p>';
+      recent.slice(0, 5).forEach(function (a) {
+        var st = a.state || "?";
+        var cls = st === "completed" ? "ok" : st === "failed" || st === "error" ? "bad" : "warn";
+        html += '<div class="hist-row">' +
+          '<span title="' + esc(a.action_id || "") + '">' + esc(a.action_name || "?") + "</span>" +
+          '<span class="badge ' + cls + '">' + esc(st) + "</span>" +
+          '<span class="muted" title="' + esc(a.requested_at || a.completed_at || "") + '">' +
+          esc(relTime(a.completed_at || a.requested_at)) + "</span>" +
+          "</div>";
+      });
+    }
+    html += "</div>";
+    return html;
+  }
+
+  function paintDetail(n, st, obj, base, vocab, observations, pack, actions) {
     st = st || {};
     obj = obj || null;
     vocab = vocab || vocabCache;
@@ -660,6 +711,9 @@
     // Observations (current samples)
     html += renderObservations(observations, vocab);
 
+    // P5: SOMA action catalogue + recent (no execute buttons — admin POST deferred)
+    html += renderActions(actions);
+
     // Jobs summary
     var jobs = st.jobs || {};
     if (jobs.total != null) {
@@ -676,11 +730,13 @@
       '<a href="' + esc(b) + '/soma/object" target="_blank" rel="noopener">object</a>' +
       '<a href="' + esc(b) + '/soma/observations" target="_blank" rel="noopener">observations</a>' +
       '<a href="' + esc(b) + '/soma/vocabulary" target="_blank" rel="noopener">vocabulary</a>' +
+      '<a href="' + esc(b) + '/soma/actions" target="_blank" rel="noopener">actions</a>' +
       "</div>";
 
     var rawDump = JSON.stringify({
       host: n.host, status: st, object: obj,
       observations: observations, vocabulary: vocab && { schema: vocab.schema, profile: vocab.profile },
+      actions: actions && { schema: actions.schema, definitions: actions.definitions },
     }, null, 0);
     html += '<details class="raw"><summary>Raw JSON</summary><pre>' +
       esc(rawDump.length > 1200 ? rawDump.slice(0, 1200) + "…" : rawDump) +
