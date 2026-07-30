@@ -191,7 +191,7 @@ not to token plumbing.
 | **P0** | This contract (done when merged) | — |
 | **P1** | Homogeneous ONA/SOMA **mesh-open read** on all four nodes | **done 2026-07-30** — [ona-mesh-open-read.md](ona-mesh-open-read.md) |
 | **P2** | Global fleet view on La Nasa (`/cgi-bin/fleet` + portal UI) | **done 2026-07-30** |
-| **P3** | Richer node zoom / MIB-lite (full object tree, vocabulary) | P2 |
+| **P3** | Richer node zoom / MIB-lite (full object tree, vocabulary) | **partial 2026-07-30** — La Nasa zoom: identity badges, system chips (uptime/memory), probes, SOMA services, jobs; raw JSON collapsed. Still open: vocabulary labels, observations stream, multi-level object tree |
 | **P4** | Optional last-known cache file for zoom | P3 |
 | **P5** | Actions, history, richer graph; **optional re-auth** if perimeter expands | later |
 

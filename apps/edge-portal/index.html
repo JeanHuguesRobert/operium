@@ -65,15 +65,58 @@
     .dot.bad { background: var(--bad); }
     .node-row .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .node-row .meta { color: var(--muted); font-size: 0.75rem; flex: 0 0 auto; }
-    .detail { flex: 1; min-height: 0; overflow: hidden; font-size: 0.82rem; }
+    .detail { flex: 1; min-height: 0; overflow: auto; font-size: 0.8rem; padding-right: 0.1rem; }
     .detail dl {
-      margin: 0; display: grid; grid-template-columns: 7.5rem 1fr; gap: 0.2rem 0.4rem;
+      margin: 0; display: grid; grid-template-columns: 6.2rem 1fr; gap: 0.15rem 0.35rem;
     }
     .detail dt { color: var(--muted); }
     .detail dd { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .detail pre {
-      margin: 0.35rem 0 0; padding: 0.35rem; background: #0b1118;
-      border-radius: 4px; font-size: 0.68rem; max-height: 28%; overflow: auto;
+    .zoom-head {
+      display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.35rem;
+      flex-wrap: wrap;
+    }
+    .zoom-title { font-size: 1rem; font-weight: 700; margin: 0; }
+    .zoom-sub { color: var(--muted); font-size: 0.72rem; width: 100%; margin: 0; }
+    .badge {
+      display: inline-block; font-size: 0.68rem; font-weight: 700;
+      padding: 0.1rem 0.4rem; border-radius: 999px; border: 1px solid var(--line);
+      text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .badge.ok { color: var(--ok); border-color: rgba(82, 209, 139, 0.45); background: rgba(82, 209, 139, 0.1); }
+    .badge.bad { color: var(--bad); border-color: rgba(255, 107, 114, 0.45); background: rgba(255, 107, 114, 0.1); }
+    .badge.warn { color: var(--warn); border-color: rgba(240, 193, 75, 0.45); background: rgba(240, 193, 75, 0.1); }
+    .badge.muted { color: var(--muted); }
+    .sec { margin-top: 0.4rem; }
+    .sec > h3 {
+      margin: 0 0 0.2rem; font-size: 0.65rem; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 0.25rem;
+      padding: 0.15rem 0.4rem; border-radius: 5px; border: 1px solid var(--line);
+      background: #0b1118; font-size: 0.72rem; max-width: 100%;
+    }
+    .chip .k { color: var(--muted); }
+    .chip .v { font-weight: 600; }
+    .chip.ok { border-color: rgba(82, 209, 139, 0.35); }
+    .chip.bad { border-color: rgba(255, 107, 114, 0.4); }
+    .chip.skip { opacity: 0.55; }
+    .svc {
+      display: grid; grid-template-columns: 1fr auto auto; gap: 0.2rem 0.4rem;
+      align-items: center; padding: 0.18rem 0; border-bottom: 1px solid var(--line);
+      font-size: 0.75rem;
+    }
+    .svc:last-child { border-bottom: 0; }
+    .svc .name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .svc .lat { color: var(--muted); font-variant-numeric: tabular-nums; }
+    details.raw {
+      margin-top: 0.35rem; font-size: 0.72rem; color: var(--muted);
+    }
+    details.raw summary { cursor: pointer; color: var(--accent); user-select: none; }
+    details.raw pre {
+      margin: 0.3rem 0 0; padding: 0.3rem; background: #0b1118;
+      border-radius: 4px; font-size: 0.65rem; max-height: 7rem; overflow: auto;
       color: var(--muted); white-space: pre-wrap; word-break: break-all;
     }
     .links { display: flex; flex-wrap: wrap; gap: 0.35rem 0.7rem; margin-top: 0.35rem; font-size: 0.78rem; }
@@ -106,7 +149,7 @@
   <header>
     <div>
       <h1>La Nasa</h1>
-      <p class="tagline">Fractanet control room · fleet</p>
+      <p class="tagline">Fractanet control room · fleet · node zoom</p>
     </div>
     <div class="actions">
       <a class="nav" href="/simple.html" title="Status + useful links panel">Links page</a>
@@ -121,7 +164,7 @@
       <div id="fleet" class="fleet-list"><span class="muted">Loading fleet…</span></div>
     </article>
     <article class="card" id="detail-card">
-      <h2>Node</h2>
+      <h2>Zoom</h2>
       <div id="detail" class="detail"><span class="muted">Select a node</span></div>
       <h2>Links</h2>
       <div class="links panel" id="useful-links">
@@ -231,44 +274,206 @@
     }
   }
 
-  function paintDetail(n, st, obj, base) {
-    var hs = st && st.health_score != null ? st.health_score : n.health_score;
-    var hn = (st && st.hostname) || n.hostname || n.host;
-    var nid = (st && st.node_id) || n.resource_id;
-    var b = base || ("http://" + n.host + ":8794");
-    var html =
-      "<dl>" +
-      "<dt>Label</dt><dd>" + esc(n.label) + "</dd>" +
-      "<dt>Host</dt><dd>" + esc(n.host) + "</dd>" +
-      "<dt>Node id</dt><dd title=\"" + esc(nid) + "\">" + esc(nid) + "</dd>" +
-      "<dt>Hostname</dt><dd>" + esc(hn) + "</dd>" +
-      "<dt>Online</dt><dd>" + (n.online ? "yes" : "no") + "</dd>" +
-      "<dt>Health</dt><dd>" + (hs != null ? hs : "?") + "</dd>" +
-      "<dt>Status schema</dt><dd>" + esc((st && st.schema) || "?") + "</dd>" +
-      "</dl>" +
-      '<div class="links">' +
-      '<a href="' + esc(b) + '/.well-known/soma" target="_blank" rel="noopener">SOMA</a>' +
-      '<a href="' + esc(b) + '/node/status" target="_blank" rel="noopener">/node/status</a>' +
-      '<a href="' + esc(b) + '/soma/object" target="_blank" rel="noopener">/soma/object</a>' +
-      '<a href="https://cogentia.fractavolta.com/" target="_blank" rel="noopener">Views Store</a>' +
-      "</div>";
-    if (obj) {
-      var preview = JSON.stringify(obj, null, 0);
-      if (preview.length > 400) preview = preview.slice(0, 400) + "…";
-      html += "<pre>" + esc(preview) + "</pre>";
+  function attrVal(attrs, key) {
+    if (!attrs || attrs[key] == null) return null;
+    var a = attrs[key];
+    if (a && typeof a === "object" && "value" in a) return a.value;
+    return a;
+  }
+
+  function attrUnit(attrs, key) {
+    if (!attrs || !attrs[key] || typeof attrs[key] !== "object") return null;
+    return attrs[key].unit || null;
+  }
+
+  function fmtBytes(n) {
+    var v = Number(n);
+    if (!isFinite(v) || v < 0) return "?";
+    var u = ["B", "KB", "MB", "GB", "TB"];
+    var i = 0;
+    while (v >= 1024 && i < u.length - 1) { v /= 1024; i += 1; }
+    return (i === 0 ? String(Math.round(v)) : v.toFixed(v >= 10 ? 0 : 1)) + " " + u[i];
+  }
+
+  function fmtDuration(sec) {
+    var s = Math.floor(Number(sec) || 0);
+    if (s < 0) return "?";
+    var d = Math.floor(s / 86400);
+    var h = Math.floor((s % 86400) / 3600);
+    var m = Math.floor((s % 3600) / 60);
+    if (d > 0) return d + "d " + h + "h";
+    if (h > 0) return h + "h " + m + "m";
+    if (m > 0) return m + "m " + (s % 60) + "s";
+    return s + "s";
+  }
+
+  function fmtMs(ms) {
+    if (ms == null || !isFinite(Number(ms))) return "—";
+    return Math.round(Number(ms)) + " ms";
+  }
+
+  function chip(label, value, cls) {
+    return (
+      '<span class="chip' + (cls ? " " + cls : "") + '">' +
+      '<span class="k">' + esc(label) + "</span>" +
+      '<span class="v">' + esc(value) + "</span></span>"
+    );
+  }
+
+  function probeClass(p) {
+    if (!p || p.skipped) return "skip";
+    if (p.ok === true) return "ok";
+    if (p.ok === false) return "bad";
+    return "";
+  }
+
+  function probeLabel(p) {
+    if (!p) return "—";
+    if (p.skipped) return "skip";
+    if (p.ok === true) {
+      return p.latency_ms != null ? fmtMs(p.latency_ms) : "ok";
     }
+    if (p.ok === false) {
+      var err = p.result && (p.result.error || p.result.status);
+      if (err && typeof err === "object") err = err.message || err.code || JSON.stringify(err);
+      if (p.result && p.result.status && !err) err = "HTTP " + p.result.status;
+      return err ? String(err).slice(0, 28) : "fail";
+    }
+    return "?";
+  }
+
+  function healthBadge(hs, statusOk, online) {
+    if (!online) return '<span class="badge bad">offline</span>';
+    if (statusOk === false) return '<span class="badge warn">degraded</span>';
+    if (statusOk === true) return '<span class="badge ok">healthy</span>';
+    return '<span class="badge muted">unknown</span>';
+  }
+
+  function paintDetail(n, st, obj, base) {
+    st = st || {};
+    obj = obj || null;
+    var attrs = (obj && obj.attributes) || {};
+    var hs = st.health_score != null ? st.health_score : attrVal(attrs, "state.health");
+    if (hs == null) hs = n.health_score;
+    var hn = st.hostname || attrVal(attrs, "system.hostname") || n.hostname || n.host;
+    var nid = st.node_id || (obj && obj.id) || n.resource_id;
+    var label = n.label || attrVal(attrs, "core.user-label") || hn;
+    var platform = attrVal(attrs, "system.platform");
+    var arch = attrVal(attrs, "system.architecture");
+    var uptime = attrVal(attrs, "system.uptime");
+    if (uptime == null) uptime = st.uptime_seconds;
+    var memTotal = attrVal(attrs, "system.memory.total");
+    var memFree = attrVal(attrs, "system.memory.free");
+    var operational = attrVal(attrs, "state.operational");
+    var b = base || ("http://" + n.host + ":8794");
+    var klass = (obj && obj.class) || "—";
+
+    var html = '<div class="zoom-head">' +
+      '<span class="zoom-title">' + esc(label) + "</span>" +
+      healthBadge(hs, st.ok, n.online) +
+      (hs != null ? '<span class="badge muted">h' + esc(hs) + "</span>" : "") +
+      (operational ? '<span class="badge muted">' + esc(operational) + "</span>" : "") +
+      '<p class="zoom-sub" title="' + esc(nid) + '">' + esc(hn) + " · " + esc(n.host) +
+      (klass !== "—" ? " · " + esc(klass) : "") + "</p>" +
+      "</div>";
+
+    html += '<div class="sec"><h3>System</h3><div class="chips">' +
+      chip("platform", (platform || "?") + (arch ? "/" + arch : "")) +
+      chip("uptime", fmtDuration(uptime)) +
+      chip("memory", memFree != null && memTotal != null
+        ? fmtBytes(memFree) + " free / " + fmtBytes(memTotal)
+        : memTotal != null ? fmtBytes(memTotal) : "—") +
+      chip("ONA", st.ona_version || "?") +
+      chip("peers", st.peer_count_fresh != null ? String(st.peer_count_fresh) : "—") +
+      "</div></div>";
+
+    // Probes from status items (preferred) or latest
+    var probeItems = (st.probes && st.probes.items) || [];
+    if (!probeItems.length && st.probes && st.probes.latest) {
+      // collapse latest history to one per kind
+      var seen = {};
+      probeItems = [];
+      (st.probes.latest || []).forEach(function (p) {
+        var k = p.probe_kind || p.kind;
+        if (k && !seen[k]) {
+          seen[k] = true;
+          probeItems.push({
+            probe_kind: k,
+            ok: p.ok === 1 || p.ok === true,
+            skipped: false,
+            latency_ms: p.latency_ms,
+            target: p.target,
+          });
+        }
+      });
+    }
+    if (probeItems.length) {
+      html += '<div class="sec"><h3>Probes</h3><div class="chips">';
+      probeItems.forEach(function (p) {
+        var kind = p.probe_kind || p.kind || "probe";
+        html += chip(kind, probeLabel(p), probeClass(p));
+      });
+      var fc = st.probes && st.probes.failed_count;
+      if (fc != null) {
+        html += chip("failed", String(fc), fc > 0 ? "bad" : "ok");
+      }
+      html += "</div></div>";
+    }
+
+    // Services = SOMA children
+    var children = (obj && obj.children) || [];
+    if (children.length) {
+      html += '<div class="sec"><h3>Services</h3>';
+      children.forEach(function (c) {
+        var ca = c.attributes || {};
+        var cname = attrVal(ca, "core.user-label") || (c.id || "").split("/").pop() || "service";
+        var cop = attrVal(ca, "state.operational") || "?";
+        var lat = attrVal(ca, "service.probe-latency");
+        var okish = cop === "enabled" || cop === "online";
+        html += '<div class="svc">' +
+          '<span class="name">' + esc(cname) + "</span>" +
+          '<span class="badge ' + (okish ? "ok" : "warn") + '">' + esc(cop) + "</span>" +
+          '<span class="lat">' + esc(lat != null ? fmtMs(lat) : "—") + "</span>" +
+          "</div>";
+      });
+      html += "</div>";
+    }
+
+    // Jobs summary
+    var jobs = st.jobs || {};
+    if (jobs.total != null) {
+      html += '<div class="sec"><h3>Jobs</h3><div class="chips">' +
+        chip("enabled", (jobs.enabled != null ? jobs.enabled : "?") + "/" + jobs.total) +
+        chip("failed", String(jobs.failed_last_run != null ? jobs.failed_last_run : 0),
+          jobs.failed_last_run > 0 ? "bad" : "ok") +
+        "</div></div>";
+    }
+
+    html += '<div class="links">' +
+      '<a href="' + esc(b) + '/.well-known/soma" target="_blank" rel="noopener">SOMA</a>' +
+      '<a href="' + esc(b) + '/node/status" target="_blank" rel="noopener">status</a>' +
+      '<a href="' + esc(b) + '/soma/object" target="_blank" rel="noopener">object</a>' +
+      "</div>";
+
+    // Raw (collapsed) — debug only
+    var rawDump = JSON.stringify({ host: n.host, status: st, object: obj }, null, 0);
+    html += '<details class="raw"><summary>Raw JSON</summary><pre>' +
+      esc(rawDump.length > 1200 ? rawDump.slice(0, 1200) + "…" : rawDump) +
+      "</pre></details>";
+
     detailEl.innerHTML = html;
   }
 
   function paintDetailOffline(n, err) {
     detailEl.innerHTML =
+      '<div class="zoom-head">' +
+      '<span class="zoom-title">' + esc(n.label || n.host) + "</span>" +
+      '<span class="badge bad">unreachable</span>' +
+      '<p class="zoom-sub">' + esc(n.host) + "</p></div>" +
       "<dl>" +
-      "<dt>Label</dt><dd>" + esc(n.label) + "</dd>" +
-      "<dt>Host</dt><dd>" + esc(n.host) + "</dd>" +
-      "<dt>State</dt><dd>unreachable</dd>" +
       "<dt>Error</dt><dd>" + esc(err || "offline") + "</dd>" +
       "</dl>" +
-      '<p class="muted">Ping layer may still show online if only ONA detail failed.</p>';
+      '<p class="muted">Fleet list may still show online if only the zoom proxy failed.</p>';
   }
 
   function esc(s) {
