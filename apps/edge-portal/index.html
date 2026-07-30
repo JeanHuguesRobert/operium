@@ -110,6 +110,42 @@
     .svc:last-child { border-bottom: 0; }
     .svc .name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .svc .lat { color: var(--muted); font-variant-numeric: tabular-nums; }
+    .attr-row {
+      display: grid; grid-template-columns: minmax(5.5rem, 38%) 1fr; gap: 0.15rem 0.4rem;
+      padding: 0.12rem 0; border-bottom: 1px solid rgba(38, 56, 74, 0.55);
+      font-size: 0.74rem;
+    }
+    .attr-row:last-child { border-bottom: 0; }
+    .attr-row .al {
+      color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      cursor: help;
+    }
+    .attr-row .av {
+      font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+    .tree-node {
+      margin: 0.15rem 0 0.15rem 0.15rem;
+      padding: 0.25rem 0.35rem;
+      border-left: 2px solid var(--line);
+      background: rgba(11, 17, 24, 0.45);
+      border-radius: 0 4px 4px 0;
+    }
+    .tree-node .tn-head {
+      display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap;
+      font-size: 0.76rem; margin-bottom: 0.1rem;
+    }
+    .tree-node .tn-head .nm { font-weight: 700; }
+    .tree-node .tn-head .cl { color: var(--muted); font-size: 0.68rem; }
+    .obs-row {
+      display: grid; grid-template-columns: minmax(5rem, 36%) 1fr auto;
+      gap: 0.15rem 0.35rem; padding: 0.12rem 0;
+      border-bottom: 1px solid rgba(38, 56, 74, 0.55); font-size: 0.72rem;
+    }
+    .obs-row:last-child { border-bottom: 0; }
+    .obs-row .oa { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: help; }
+    .obs-row .ov { font-weight: 600; font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .obs-row .ot { color: var(--muted); font-size: 0.68rem; white-space: nowrap; }
     details.raw {
       margin-top: 0.35rem; font-size: 0.72rem; color: var(--muted);
     }
@@ -191,6 +227,7 @@
   var fleetCard = document.getElementById("fleet-card");
   var selectedHost = null;
   var fleetData = null;
+  var vocabCache = null; // last successful SOMA vocabulary (profile-shared)
 
   function setFlash(text, kind) {
     flash.textContent = text || "";
@@ -266,7 +303,8 @@
         setFlash(n.label + ": " + (pack.error || "unreachable"), "err");
         return;
       }
-      paintDetail(n, pack.status, pack.object, pack.base);
+      if (pack.vocabulary) vocabCache = pack.vocabulary;
+      paintDetail(n, pack.status, pack.object, pack.base, pack.vocabulary || vocabCache, pack.observations);
       setFlash("OK " + n.label + " · " + shortIso(new Date().toISOString()), "ok");
     } catch (e) {
       paintDetailOffline(n, e.message);
@@ -281,9 +319,45 @@
     return a;
   }
 
-  function attrUnit(attrs, key) {
-    if (!attrs || !attrs[key] || typeof attrs[key] !== "object") return null;
-    return attrs[key].unit || null;
+  function attrMeta(attrs, key) {
+    if (!attrs || attrs[key] == null) return { value: null, unit: null, observed_at: null };
+    var a = attrs[key];
+    if (a && typeof a === "object" && "value" in a) {
+      return { value: a.value, unit: a.unit || null, observed_at: a.observed_at || null, quality: a.quality || null };
+    }
+    return { value: a, unit: null, observed_at: null, quality: null };
+  }
+
+  function vocabAttrDef(vocab, key) {
+    if (!vocab || !vocab.attributes) return null;
+    return vocab.attributes[key] || null;
+  }
+
+  function attrLabel(key, vocab) {
+    var def = vocabAttrDef(vocab, key);
+    if (def && def.semantics) {
+      // Short label from id; full semantics as tooltip
+      return shortAttrName(key);
+    }
+    return shortAttrName(key);
+  }
+
+  function attrTitle(key, vocab) {
+    var def = vocabAttrDef(vocab, key);
+    var bits = [key];
+    if (def) {
+      if (def.semantics) bits.push(def.semantics);
+      if (def.value_type) bits.push("type: " + def.value_type);
+      if (def.unit) bits.push("unit: " + def.unit);
+      if (def.behaviour_type) bits.push(def.behaviour_type);
+    }
+    return bits.join(" — ");
+  }
+
+  function shortAttrName(key) {
+    var parts = String(key).split(".");
+    var tail = parts.length > 1 ? parts.slice(1).join(" ") : parts[0];
+    return tail.replace(/[-_]/g, " ").replace(/\b\w/g, function (c) { return c.toUpperCase(); });
   }
 
   function fmtBytes(n) {
@@ -310,6 +384,32 @@
   function fmtMs(ms) {
     if (ms == null || !isFinite(Number(ms))) return "—";
     return Math.round(Number(ms)) + " ms";
+  }
+
+  function fmtValue(value, unit, key) {
+    if (value == null) return "—";
+    var u = unit || "";
+    var k = key || "";
+    if (u === "byte" || /memory/i.test(k)) return fmtBytes(value);
+    if (u === "second" || /uptime/i.test(k)) return fmtDuration(value);
+    if (u === "millisecond" || /latency|probe-latency/i.test(k)) return fmtMs(value);
+    if (typeof value === "boolean") return value ? "yes" : "no";
+    if (typeof value === "object") {
+      try { return JSON.stringify(value).slice(0, 48); } catch (e) { return String(value); }
+    }
+    return String(value);
+  }
+
+  function relTime(iso) {
+    if (!iso) return "";
+    var t = Date.parse(iso);
+    if (!isFinite(t)) return shortIso(iso);
+    var sec = Math.round((Date.now() - t) / 1000);
+    if (sec < 0) sec = 0;
+    if (sec < 60) return sec + "s ago";
+    if (sec < 3600) return Math.floor(sec / 60) + "m ago";
+    if (sec < 86400) return Math.floor(sec / 3600) + "h ago";
+    return Math.floor(sec / 86400) + "d ago";
   }
 
   function chip(label, value, cls) {
@@ -349,9 +449,83 @@
     return '<span class="badge muted">unknown</span>';
   }
 
-  function paintDetail(n, st, obj, base) {
+  function renderAttrRows(attrs, vocab, skipKeys) {
+    attrs = attrs || {};
+    skipKeys = skipKeys || {};
+    var keys = Object.keys(attrs);
+    if (!keys.length) return "";
+    var html = "";
+    keys.forEach(function (key) {
+      if (skipKeys[key]) return;
+      var m = attrMeta(attrs, key);
+      var unit = m.unit || (vocabAttrDef(vocab, key) && vocabAttrDef(vocab, key).unit) || null;
+      html += '<div class="attr-row">' +
+        '<span class="al" title="' + esc(attrTitle(key, vocab)) + '">' + esc(attrLabel(key, vocab)) + "</span>" +
+        '<span class="av" title="' + esc(String(m.value)) + '">' + esc(fmtValue(m.value, unit, key)) + "</span>" +
+        "</div>";
+    });
+    return html;
+  }
+
+  function renderObjectTree(node, vocab, depth) {
+    if (!node) return "";
+    depth = depth || 0;
+    if (depth > 4) return "";
+    var attrs = node.attributes || {};
+    var name = attrVal(attrs, "core.user-label") || (node.id || "").split("/").pop() || "object";
+    var klass = node.class || "";
+    var op = attrVal(attrs, "state.operational");
+    var lat = attrVal(attrs, "service.probe-latency");
+    var okish = op === "enabled" || op === "online" || op == null;
+    var html = '<div class="tree-node">';
+    html += '<div class="tn-head">' +
+      '<span class="nm">' + esc(name) + "</span>" +
+      (klass ? '<span class="cl">' + esc(klass) + "</span>" : "") +
+      (op ? '<span class="badge ' + (okish ? "ok" : "warn") + '">' + esc(op) + "</span>" : "") +
+      (lat != null ? '<span class="muted">' + esc(fmtMs(lat)) + "</span>" : "") +
+      "</div>";
+    // Root attrs live in Attributes section; nested nodes show their own
+    if (depth > 0) {
+      var body = renderAttrRows(attrs, vocab, { "core.user-label": true });
+      if (body) html += body;
+    }
+    var children = node.children || [];
+    if (!children.length && depth === 0) {
+      html += '<p class="muted" style="margin:0.15rem 0 0;font-size:0.72rem">No child objects</p>';
+    }
+    children.forEach(function (ch) {
+      html += renderObjectTree(ch, vocab, depth + 1);
+    });
+    html += "</div>";
+    return html;
+  }
+
+  function renderObservations(obsPack, vocab) {
+    var list = (obsPack && obsPack.observations) || [];
+    if (!list.length) return "";
+    // Prefer one row per attribute on root + services (already flat list)
+    var html = '<div class="sec"><h3>Observations <span class="muted">(' + list.length + ")</span></h3>";
+    list.forEach(function (o) {
+      var key = o.attribute || "?";
+      var unit = o.unit || (vocabAttrDef(vocab, key) && vocabAttrDef(vocab, key).unit) || null;
+      var objShort = (o.object || "").split("/").pop() || "";
+      var title = attrTitle(key, vocab) + (objShort ? " · " + objShort : "");
+      html += '<div class="obs-row">' +
+        '<span class="oa" title="' + esc(title) + '">' + esc(attrLabel(key, vocab)) +
+        (objShort && objShort.indexOf("service:") === 0 ? " · " + esc(objShort.replace("service:", "")) : "") +
+        "</span>" +
+        '<span class="ov">' + esc(fmtValue(o.value, unit, key)) + "</span>" +
+        '<span class="ot" title="' + esc(o.observed_at || "") + '">' + esc(relTime(o.observed_at)) + "</span>" +
+        "</div>";
+    });
+    html += "</div>";
+    return html;
+  }
+
+  function paintDetail(n, st, obj, base, vocab, observations) {
     st = st || {};
     obj = obj || null;
+    vocab = vocab || vocabCache;
     var attrs = (obj && obj.attributes) || {};
     var hs = st.health_score != null ? st.health_score : attrVal(attrs, "state.health");
     if (hs == null) hs = n.health_score;
@@ -367,6 +541,7 @@
     var operational = attrVal(attrs, "state.operational");
     var b = base || ("http://" + n.host + ":8794");
     var klass = (obj && obj.class) || "—";
+    var profile = (obj && obj.profile) || (vocab && vocab.profile) || "";
 
     var html = '<div class="zoom-head">' +
       '<span class="zoom-title">' + esc(label) + "</span>" +
@@ -374,8 +549,9 @@
       (hs != null ? '<span class="badge muted">h' + esc(hs) + "</span>" : "") +
       (operational ? '<span class="badge muted">' + esc(operational) + "</span>" : "") +
       '<p class="zoom-sub" title="' + esc(nid) + '">' + esc(hn) + " · " + esc(n.host) +
-      (klass !== "—" ? " · " + esc(klass) : "") + "</p>" +
-      "</div>";
+      (klass !== "—" ? " · " + esc(klass) : "") +
+      (profile ? " · " + esc(profile) : "") +
+      "</p></div>";
 
     html += '<div class="sec"><h3>System</h3><div class="chips">' +
       chip("platform", (platform || "?") + (arch ? "/" + arch : "")) +
@@ -390,7 +566,6 @@
     // Probes from status items (preferred) or latest
     var probeItems = (st.probes && st.probes.items) || [];
     if (!probeItems.length && st.probes && st.probes.latest) {
-      // collapse latest history to one per kind
       var seen = {};
       probeItems = [];
       (st.probes.latest || []).forEach(function (p) {
@@ -420,24 +595,22 @@
       html += "</div></div>";
     }
 
-    // Services = SOMA children
-    var children = (obj && obj.children) || [];
-    if (children.length) {
-      html += '<div class="sec"><h3>Services</h3>';
-      children.forEach(function (c) {
-        var ca = c.attributes || {};
-        var cname = attrVal(ca, "core.user-label") || (c.id || "").split("/").pop() || "service";
-        var cop = attrVal(ca, "state.operational") || "?";
-        var lat = attrVal(ca, "service.probe-latency");
-        var okish = cop === "enabled" || cop === "online";
-        html += '<div class="svc">' +
-          '<span class="name">' + esc(cname) + "</span>" +
-          '<span class="badge ' + (okish ? "ok" : "warn") + '">' + esc(cop) + "</span>" +
-          '<span class="lat">' + esc(lat != null ? fmtMs(lat) : "—") + "</span>" +
-          "</div>";
-      });
-      html += "</div>";
+    // Attributes with vocabulary labels
+    if (Object.keys(attrs).length) {
+      html += '<div class="sec"><h3>Attributes</h3>' +
+        renderAttrRows(attrs, vocab, {}) +
+        "</div>";
     }
+
+    // Object tree (node + children)
+    if (obj) {
+      html += '<div class="sec"><h3>Object tree</h3>' +
+        renderObjectTree(obj, vocab, 0) +
+        "</div>";
+    }
+
+    // Observations (current samples)
+    html += renderObservations(observations, vocab);
 
     // Jobs summary
     var jobs = st.jobs || {};
@@ -453,10 +626,14 @@
       '<a href="' + esc(b) + '/.well-known/soma" target="_blank" rel="noopener">SOMA</a>' +
       '<a href="' + esc(b) + '/node/status" target="_blank" rel="noopener">status</a>' +
       '<a href="' + esc(b) + '/soma/object" target="_blank" rel="noopener">object</a>' +
+      '<a href="' + esc(b) + '/soma/observations" target="_blank" rel="noopener">observations</a>' +
+      '<a href="' + esc(b) + '/soma/vocabulary" target="_blank" rel="noopener">vocabulary</a>' +
       "</div>";
 
-    // Raw (collapsed) — debug only
-    var rawDump = JSON.stringify({ host: n.host, status: st, object: obj }, null, 0);
+    var rawDump = JSON.stringify({
+      host: n.host, status: st, object: obj,
+      observations: observations, vocabulary: vocab && { schema: vocab.schema, profile: vocab.profile },
+    }, null, 0);
     html += '<details class="raw"><summary>Raw JSON</summary><pre>' +
       esc(rawDump.length > 1200 ? rawDump.slice(0, 1200) + "…" : rawDump) +
       "</pre></details>";

@@ -1,5 +1,5 @@
 #!/bin/sh
-# Same-origin proxy: ONA status + object for one mesh host (no browser CORS).
+# Same-origin proxy: ONA status + SOMA object/vocabulary/observations for one mesh host.
 # Query: /cgi-bin/node?host=fracta
 set -eu
 
@@ -34,8 +34,12 @@ fi
 
 status_body=""
 object_body=""
+vocab_body=""
+obs_body=""
 status_code=0
 object_code=0
+vocab_code=0
+obs_code=0
 
 if status_body=$(curl -fsS --max-time 5 "${base}/node/status" 2>/dev/null); then
   status_code=200
@@ -56,11 +60,22 @@ if [ "$status_code" -eq 200 ]; then
   if object_body=$(curl -fsS --max-time 5 "${base}/soma/object" 2>/dev/null); then
     object_code=200
   else
-    object_code=0
     object_body=null
+  fi
+  if vocab_body=$(curl -fsS --max-time 4 "${base}/soma/vocabulary" 2>/dev/null); then
+    vocab_code=200
+  else
+    vocab_body=null
+  fi
+  if obs_body=$(curl -fsS --max-time 4 "${base}/soma/observations" 2>/dev/null); then
+    obs_code=200
+  else
+    obs_body=null
   fi
 else
   object_body=null
+  vocab_body=null
+  obs_body=null
 fi
 
 printf 'Content-Type: application/json; charset=utf-8\r\n'
@@ -73,11 +88,13 @@ if [ "$status_code" -ne 200 ]; then
   exit 0
 fi
 
-# Embed status/object JSON as raw objects
-if [ "$object_code" -eq 200 ] && [ -n "$object_body" ]; then
-  printf '{"ok":true,"host":"%s","base":"%s","status":%s,"object":%s}\n' \
-    "$host" "$base" "$status_body" "$object_body"
-else
-  printf '{"ok":true,"host":"%s","base":"%s","status":%s,"object":null}\n' \
-    "$host" "$base" "$status_body"
-fi
+# Embed JSON bodies as raw objects (pretty-printed peer responses are valid JSON fragments)
+obj_json="$object_body"
+[ "$object_code" -eq 200 ] && [ -n "$object_body" ] || obj_json=null
+vocab_json="$vocab_body"
+[ "$vocab_code" -eq 200 ] && [ -n "$vocab_body" ] || vocab_json=null
+obs_json="$obs_body"
+[ "$obs_code" -eq 200 ] && [ -n "$obs_body" ] || obs_json=null
+
+printf '{"ok":true,"host":"%s","base":"%s","status":%s,"object":%s,"vocabulary":%s,"observations":%s}\n' \
+  "$host" "$base" "$status_body" "$obj_json" "$vocab_json" "$obs_json"
