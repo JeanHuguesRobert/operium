@@ -10,8 +10,9 @@ set -u
 # boot.html retries until status.json works, then redirects to /. Softens slow first paint.
 PORTAL_URL="${PORTAL_URL:-http://127.0.0.1/boot.html}"
 BROWSER="${BROWSER:-firefox-esr}"
-# kiosk = F11-like (no chrome); window = normal window for debug.
-KIOSK_MODE="${KIOSK_MODE:-kiosk}"
+# window (default): reversible fullscreen via labwc (F11 / Super+Down).
+# kiosk: Firefox --kiosk lock-down (harder to minimize — avoid for edge desk).
+KIOSK_MODE="${KIOSK_MODE:-window}"
 MAX_WAIT_SEC="${MAX_WAIT_SEC:-120}"
 # After httpd is up, wait more: Firefox cold-start on Pi 3 often needs 15–40s
 # before the first navigation to 127.0.0.1 actually paints (user observation).
@@ -118,7 +119,7 @@ case "$BROWSER_BASE" in
   firefox|firefox-esr|*)
     ensure_firefox_profile
     # Absolute -profile only (never -P name → profile manager)
-    if [ "${KIOSK_MODE:-kiosk}" = "kiosk" ]; then
+    if [ "${KIOSK_MODE:-window}" = "kiosk" ]; then
       log "exec firefox -profile … --kiosk $PORTAL_URL"
       exec "$BROWSER_PATH" -profile "$FF_PROFILE_DIR" --no-remote --kiosk "$PORTAL_URL"
     else

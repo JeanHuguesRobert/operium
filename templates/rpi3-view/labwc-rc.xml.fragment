@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Operium edge display: merge into ~/.config/labwc/rc.xml on rpi3-view
-  (or replace if the file only holds pointer speed + theme).
-  Fullscreen Firefox for the home portal (same idea as F11).
-  Exit: F11 or Esc (browser), Super for labwc / panel, Alt+F4 closes window.
+  Operium edge display for rpi3-view (~/.config/labwc/rc.xml).
+
+  Fullscreen on open (like F11), but reversible — never Firefox --kiosk.
+  - F11          : toggle fullscreen (leave / re-enter)
+  - Super+Down   : minimize (restore panel / desktop access)
+  - Super+Up     : maximize
+  - Super        : usual labwc/RPi menu (if configured)
+  - Alt+F4       : close window
 -->
 <openbox_config xmlns="http://openbox.org/3.4/rc">
   <libinput>
@@ -14,9 +18,17 @@
   <keyboard>
     <repeatRate>25</repeatRate>
     <repeatDelay>500</repeatDelay>
-    <!-- F11-like if Firefox is focused but not already kiosk -->
     <keybind key="F11">
       <action name="ToggleFullscreen"/>
+    </keybind>
+    <keybind key="W-Down">
+      <action name="Iconify"/>
+    </keybind>
+    <keybind key="W-Up">
+      <action name="Maximize"/>
+    </keybind>
+    <keybind key="A-F4">
+      <action name="Close"/>
     </keybind>
   </keyboard>
   <theme>
@@ -35,7 +47,7 @@
     </font>
   </theme>
   <windowRules>
-    <!-- Wayland app_id / XWayland WM_CLASS variants for Firefox ESR -->
+    <!-- app_id / WM_CLASS variants for Firefox ESR -->
     <windowRule identifier="firefox*" matchOnce="true">
       <action name="ToggleFullscreen"/>
     </windowRule>
@@ -47,4 +59,3 @@
     </windowRule>
   </windowRules>
 </openbox_config>
-
