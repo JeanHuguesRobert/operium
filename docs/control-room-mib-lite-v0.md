@@ -189,7 +189,7 @@ not to token plumbing.
 | Phase | Deliverable | Depends on |
 |-------|-------------|------------|
 | **P0** | This contract (done when merged) | — |
-| **P1** | Homogeneous ONA/SOMA **mesh-open read** on all four nodes (`ONA_MESH_OPEN_READ` / default from `ONA_HEALTH_PUBLIC`) | ops — see [ona-mesh-open-read.md](ona-mesh-open-read.md) |
+| **P1** | Homogeneous ONA/SOMA **mesh-open read** on all four nodes | **done 2026-07-30** — [ona-mesh-open-read.md](ona-mesh-open-read.md) |
 | **P2** | Global fleet view (Console and/or La Nasa panel) | P1 |
 | **P3** | Node zoom / MIB-lite browser | P2 |
 | **P4** | Optional last-known cache file for zoom | P3 |
@@ -206,7 +206,7 @@ developer; P1 is mostly **agent config / bind / verify**, not auth UI.
 - [x] Explicit global vs zoom views  
 - [x] Clear separation from step-1 edge portal  
 - [x] Operator amendment 2026-07-30: defer authentication  
-- [ ] Proceed to P1 coding when ready
+- [x] P1 mesh-open read on fracta, rpi3-view, poco-jhr, i7-thinkpad-jhr (2026-07-30)
 
 ## 12. Related
 
