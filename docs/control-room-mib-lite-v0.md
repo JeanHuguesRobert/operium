@@ -189,7 +189,7 @@ not to token plumbing.
 | Phase | Deliverable | Depends on |
 |-------|-------------|------------|
 | **P0** | This contract (done when merged) | — |
-| **P1** | Homogeneous ONA/SOMA **mesh-open read** on all four nodes (drop/bypass read-token for tailnet) | ops |
+| **P1** | Homogeneous ONA/SOMA **mesh-open read** on all four nodes (`ONA_MESH_OPEN_READ` / default from `ONA_HEALTH_PUBLIC`) | ops — see [ona-mesh-open-read.md](ona-mesh-open-read.md) |
 | **P2** | Global fleet view (Console and/or La Nasa panel) | P1 |
 | **P3** | Node zoom / MIB-lite browser | P2 |
 | **P4** | Optional last-known cache file for zoom | P3 |

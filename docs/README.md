@@ -36,6 +36,7 @@ This directory contains Operium documentation.
 - [Fractanet mesh — Tailscale and SSH](fractanet-mesh.md)
 - [rpi3-view edge portal — control-room display step 1](rpi3-view-edge-portal.md) — stabilized Pi web home (“La Nasa” step 1)
 - [Control room MIB-lite v0 — contract (P0)](control-room-mib-lite-v0.md) — agents + global/zoom UI contract (“La Nasa” step 2)
+- [ONA mesh-open read (P1)](ona-mesh-open-read.md) — Tailscale trust-plane GET without bearer
 - [Edge trap-directed polling (SNMP pattern)](../cogentia/docs/edge-trap-directed-polling.md) — Pi 3 store-and-forward + fracta manager
 - [fractavolta.com DNS zone](fractavolta-dns.md)
 - [Stalwart mail on fracta](stalwart-private-mail.md) — governed bidirectional Gmail ↔ Twin JHN channel

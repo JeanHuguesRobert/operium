@@ -20,7 +20,11 @@ Enables **unauthenticated GET** of management read surfaces on the Fractanet
 ONA_MESH_OPEN_READ=1
 ```
 
-When set, these succeed **without** `Authorization: Bearer …`:
+If unset, **defaults to the same value as `ONA_HEALTH_PUBLIC`** (so desk/fleet
+nodes that already publish public health also open read GETs). Set
+`ONA_MESH_OPEN_READ=0` to force token-only read.
+
+When open, these succeed **without** `Authorization: Bearer …`:
 
 - `GET /node/status`, `/node/peers`, `/node/snapshot`, `/node/drift`, `/node/logs`
 - `GET /soma/object`, `/soma/observations`, `/soma/actions`
