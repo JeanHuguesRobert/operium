@@ -555,6 +555,8 @@
     var load1 = attrVal(attrs, "system.cpu.load1");
     var load5 = attrVal(attrs, "system.cpu.load5");
     var load15 = attrVal(attrs, "system.cpu.load15");
+    var location = attrVal(attrs, "core.location");
+    var contact = attrVal(attrs, "core.contact");
     var operational = attrVal(attrs, "state.operational");
     var b = base || ("http://" + n.host + ":8794");
     var klass = (obj && obj.class) || "—";
@@ -572,7 +574,17 @@
       (klass !== "—" ? " · " + esc(klass) : "") +
       (profile ? " · " + esc(profile) : "") +
       (!live && pack.cached_at ? " · last-known " + esc(shortIso(pack.cached_at)) : "") +
-      "</p></div>";
+      "</p>" +
+      (location || contact
+        ? '<p class="zoom-sub">' +
+          (location ? esc(location) : "") +
+          (location && contact ? " · " : "") +
+          (contact
+            ? '<a href="mailto:' + esc(contact) + '">' + esc(contact) + "</a>"
+            : "") +
+          "</p>"
+        : "") +
+      "</div>";
 
     var memChip = "—";
     if (memPct != null && memUsed != null && memTotal != null) {

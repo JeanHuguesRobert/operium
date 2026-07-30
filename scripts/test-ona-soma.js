@@ -47,6 +47,8 @@ try {
     // Force closed mesh-open so this test still checks bearer on /soma/object
     ONA_HEALTH_PUBLIC: "0",
     ONA_MESH_OPEN_READ: "0",
+    ONA_LOCATION: "Institut Mariani, 1 cours Paoli, F-2050 Corte",
+    ONA_CONTACT: "jhr@baronsmariani.org",
   });
   const runtime = {
     hostname: "fracta-test",
@@ -90,6 +92,10 @@ try {
   assert.equal(object.attributes["system.cpu.load1"].value, 0.42);
   assert.equal(object.attributes["system.cpu.load5"].value, 0.5);
   assert.equal(object.attributes["system.cpu.load15"].value, 0.75);
+  assert.equal(object.attributes["core.location"], "Institut Mariani, 1 cours Paoli, F-2050 Corte");
+  assert.equal(object.attributes["core.contact"], "jhr@baronsmariani.org");
+  assert.ok(object.facets.includes("core.identity"));
+  assert.equal(vocabulary.attributes["core.location"].behaviour_type, "Configuration");
   assert.equal(object.children.length, 2);
   assert.equal(object.children[0].class, "operium.service");
   assert.deepEqual(object.actions, ["observation.refresh", "agent.restart"]);

@@ -125,12 +125,19 @@ These belong in zoom because operators ask them first on Fractanet.
 - `state.operational`, `state.health`
 - `service.probe-latency` on service children
 
+### Identity (sysLocation / sysContact) — **added 2026-07-30**
+
+| Attribute | Env | Example (Fractanet / Institut Mariani) |
+|-----------|-----|----------------------------------------|
+| `core.location` | `ONA_LOCATION` or `ONA_SYS_LOCATION` | `Institut Mariani, 1 cours Paoli, F-2050 Corte` |
+| `core.contact` | `ONA_CONTACT` or `ONA_SYS_CONTACT` | `jhr@baronsmariani.org` |
+
+Configuration scalars (not gauges). Omitted from the object when unset.
+
 ### Next (high value / low cost)
 
 | Attribute | MIB spirit | Why operators care |
 |-----------|------------|--------------------|
-| `core.location` | sysLocation | Multi-site fleet |
-| `core.contact` | sysContact | Who owns the node |
 | `state.health.reasons` (or status.probes only) | vendor health detail | Avoid duplicate if probes exist |
 
 ### Later (real tables)

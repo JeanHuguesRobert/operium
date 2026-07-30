@@ -70,6 +70,8 @@ Never commit token values. Reference only in catalogue (`secret://ona-*`).
 | `ONA_READ_TOKEN` | yes | CLI + read API |
 | `ONA_ADMIN_TOKEN` | yes | `POST /node/probe`, admin routes |
 | `ONA_PEER_TOKEN` | yes when `ONA_COP_DELIVERY=1` | Inter-node COP |
+| `ONA_LOCATION` | optional | SNMP **sysLocation** spirit → SOMA `core.location` (alias `ONA_SYS_LOCATION`) |
+| `ONA_CONTACT` | optional | SNMP **sysContact** spirit → SOMA `core.contact` (alias `ONA_SYS_CONTACT`) |
 
 ### Heartbeat env (`ona-heartbeat.env` or shared blackboard env)
 
