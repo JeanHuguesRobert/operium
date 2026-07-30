@@ -73,13 +73,20 @@
     .detail dd { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .detail pre {
       margin: 0.35rem 0 0; padding: 0.35rem; background: #0b1118;
-      border-radius: 4px; font-size: 0.68rem; max-height: 42%; overflow: auto;
+      border-radius: 4px; font-size: 0.68rem; max-height: 28%; overflow: auto;
       color: var(--muted); white-space: pre-wrap; word-break: break-all;
     }
     .links { display: flex; flex-wrap: wrap; gap: 0.35rem 0.7rem; margin-top: 0.35rem; font-size: 0.78rem; }
+    .links.panel {
+      flex: 0 0 auto; margin-top: 0.4rem; padding-top: 0.35rem;
+      border-top: 1px solid var(--line); gap: 0.3rem 0.65rem; font-size: 0.76rem;
+    }
     a { color: var(--accent); text-decoration: none; }
     a:hover { text-decoration: underline; }
-    .actions { display: flex; gap: 0.35rem; }
+    .actions { display: flex; gap: 0.35rem; align-items: center; }
+    .actions a.nav {
+      color: var(--accent); font-size: 0.78rem; font-weight: 600; margin-right: 0.15rem;
+    }
     button {
       background: var(--accent); color: #07111c; border: 0; border-radius: 6px;
       padding: 0.32rem 0.6rem; font-weight: 700; font-size: 0.78rem; cursor: pointer;
@@ -102,6 +109,7 @@
       <p class="tagline">Fractanet control room · fleet</p>
     </div>
     <div class="actions">
+      <a class="nav" href="/simple.html" title="Status + useful links panel">Links page</a>
       <button id="refresh" type="button">Refresh</button>
       <button id="reload-page" class="secondary" type="button">Reload</button>
     </div>
@@ -115,6 +123,18 @@
     <article class="card" id="detail-card">
       <h2>Node</h2>
       <div id="detail" class="detail"><span class="muted">Select a node</span></div>
+      <h2>Links</h2>
+      <div class="links panel" id="useful-links">
+        <a href="https://cogentia.fractavolta.com/" target="_blank" rel="noopener">Views Store</a>
+        <a href="https://cogentia.fractavolta.com/docs" target="_blank" rel="noopener">Store docs</a>
+        <a href="/simple.html">Simple home</a>
+        <a href="/cgi-bin/home">No-JS home</a>
+        <a href="/status.json">status.json</a>
+        <a href="/cgi-bin/fleet">fleet JSON</a>
+        <a href="/cgi-bin/refresh">Re-probe</a>
+        <a href="http://127.0.0.1:8794/.well-known/soma" target="_blank" rel="noopener">Local SOMA</a>
+        <a href="http://127.0.0.1:8794/node/status" target="_blank" rel="noopener">Local ONA</a>
+      </div>
     </article>
   </section>
   <footer id="meta">Mesh-open ONA · no app auth on Tailscale</footer>
