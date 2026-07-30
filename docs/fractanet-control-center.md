@@ -1994,9 +1994,11 @@ Initial responsibilities:
 
 **Stabilized step 1 (2026-07-30):** local web portal on
 `http://127.0.0.1/` — reachability dashboard, Firefox home, degraded
-`status.json`. Runbook and inventory:
-[rpi3-view-edge-portal.md](rpi3-view-edge-portal.md). Not yet a SOMA/MIB
-zoom console.
+`status.json`. Runbook:
+[rpi3-view-edge-portal.md](rpi3-view-edge-portal.md).
+
+**Step 2 contract (P0):** MIB-lite management UI (global fleet + node zoom) —
+[control-room-mib-lite-v0.md](control-room-mib-lite-v0.md).
 
 ## 20.3. `i7-thinkpad-jhr`
 

@@ -28,9 +28,9 @@ local web home on `rpi3-view`, not yet a full management console.
 | Firefox home window (reversible fullscreen via labwc) | Locked-down kiosk with no desktop access |
 | **Step 1** of a future control-room UI | Full “La Nasa” multi-panel ops console |
 
-**Next steps (out of scope here):** SNMP-like management agents on every node
-(ONA already exists in embryo), global fleet view, zoom into a node via SOMA —
-see [operium-node-agent.md](operium-node-agent.md) and
+**Next steps:** SNMP-like management agents + global/zoom web UI — **P0 contract:**
+[control-room-mib-lite-v0.md](control-room-mib-lite-v0.md). Background:
+[operium-node-agent.md](operium-node-agent.md),
 [soma-semantic-object-management-architecture.md](soma-semantic-object-management-architecture.md).
 
 ## Stabilized deployment (observed 2026-07-30)
@@ -145,7 +145,8 @@ service health — only ping / public Views Store health style probes.
 | `/soma/object` | requires read token | **no** |
 
 Wiring the control-room UI to ONA/SOMA (global fleet view + node zoom / “MIB”
-browser) is the intentional **step 2+** after this stabilized home page.
+browser) is **step 2** — contract:
+[control-room-mib-lite-v0.md](control-room-mib-lite-v0.md).
 
 ## Related
 

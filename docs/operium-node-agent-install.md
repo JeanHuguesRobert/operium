@@ -4,6 +4,9 @@ Production rollout for **ONA** (`:8794`) on fracta and capable nodes. Catalogue 
 
 **Primary fleet UI:** [Operium Console](operium-console.md) at `/ops/console/` on fracta. The static [`fractanet-dashboard.html`](../../cogentia/scripts/ops/fractanet-dashboard.html) remains as a fallback JSON viewer.
 
+**Control-room MIB-lite (planned):** global + zoom UI contract —
+[control-room-mib-lite-v0.md](control-room-mib-lite-v0.md) (ONA/SOMA as agent plane; step 1 desk display is [rpi3-view-edge-portal.md](rpi3-view-edge-portal.md)).
+
 ---
 
 ## Port and plane

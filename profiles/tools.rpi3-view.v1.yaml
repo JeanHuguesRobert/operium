@@ -82,8 +82,10 @@ edge_portal:
     install: scripts/ops/deploy-rpi3-edge-portal.sh
   runbook: docs/rpi3-view-edge-portal.md
   next_steps:
-    - wire ONA/SOMA for node zoom (MIB-like browser)
-    - global fleet view beyond ping status.json
+    - P0 contract: docs/control-room-mib-lite-v0.md
+    - P1 homogeneous ONA read on fleet
+    - P2 global fleet view
+    - P3 node zoom / MIB-lite browser
 
 operational_checkouts:
   observed: "2026-07-28"
