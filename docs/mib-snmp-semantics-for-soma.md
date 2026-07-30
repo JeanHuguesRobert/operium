@@ -120,15 +120,15 @@ These belong in zoom because operators ask them first on Fractanet.
 
 - `core.user-label`, `system.hostname`, `system.platform`, `system.architecture`
 - `system.uptime`, `system.memory.total`, `system.memory.free`
+- `system.memory.used`, `system.memory.used_percent` (**added 2026-07-30**)
+- `system.cpu.load1` / `load5` / `load15` (**added 2026-07-30**, UNIX only; omitted on Windows)
 - `state.operational`, `state.health`
 - `service.probe-latency` on service children
 
-### Next (high value / low cost) — implement when touching ONA runtime
+### Next (high value / low cost)
 
 | Attribute | MIB spirit | Why operators care |
 |-----------|------------|--------------------|
-| `system.cpu.load1` | hrProcessorLoad | Pi overload vs cold start |
-| `system.memory.available` | modern host resources | Better than “free” alone |
 | `core.location` | sysLocation | Multi-site fleet |
 | `core.contact` | sysContact | Who owns the node |
 | `state.health.reasons` (or status.probes only) | vendor health detail | Avoid duplicate if probes exist |

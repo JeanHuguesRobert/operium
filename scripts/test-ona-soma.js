@@ -44,7 +44,9 @@ try {
     ONA_HOSTNAME: "fracta-test",
     ONA_NODE_ID: "resource://fracta-test",
     ONA_READ_TOKEN: "soma-read-token",
-    ONA_HEALTH_PUBLIC: "1",
+    // Force closed mesh-open so this test still checks bearer on /soma/object
+    ONA_HEALTH_PUBLIC: "0",
+    ONA_MESH_OPEN_READ: "0",
   });
   const runtime = {
     hostname: "fracta-test",
@@ -53,6 +55,10 @@ try {
     uptimeSeconds: 3600,
     totalMemory: 1024,
     freeMemory: 256,
+    loadAvailable: true,
+    load1: 0.42,
+    load5: 0.5,
+    load15: 0.75,
   };
 
   const descriptor = buildSomaDescriptor({ config, nodeId: config.nodeId });
@@ -64,6 +70,8 @@ try {
   assert.equal(vocabulary.classes["operium.node"].extends, "soma.managed-object");
   assert.equal(vocabulary.attributes["system.uptime"].behaviour_type, "Gauge");
   assert.equal(vocabulary.attributes["system.memory.free"].sampling.supported, true);
+  assert.equal(vocabulary.attributes["system.cpu.load1"].behaviour_type, "Gauge");
+  assert.equal(vocabulary.attributes["system.memory.used_percent"].unit, "percent");
 
   const object = buildSomaObject({
     config,
@@ -76,9 +84,33 @@ try {
   assert.equal(object.class, "operium.node");
   assert.equal(object.attributes["system.uptime"].value, 3600);
   assert.equal(object.attributes["system.memory.free"].unit, "byte");
+  assert.equal(object.attributes["system.memory.used"].value, 768);
+  assert.equal(object.attributes["system.memory.used_percent"].value, 75);
+  assert.equal(object.attributes["system.memory.used_percent"].unit, "percent");
+  assert.equal(object.attributes["system.cpu.load1"].value, 0.42);
+  assert.equal(object.attributes["system.cpu.load5"].value, 0.5);
+  assert.equal(object.attributes["system.cpu.load15"].value, 0.75);
   assert.equal(object.children.length, 2);
   assert.equal(object.children[0].class, "operium.service");
   assert.deepEqual(object.actions, ["observation.refresh", "agent.restart"]);
+
+  // Windows-style runtime: no loadavg
+  const winObject = buildSomaObject({
+    config,
+    db,
+    nodeId: config.nodeId,
+    observedAt: "2026-07-28T12:00:00Z",
+    runtime: {
+      ...runtime,
+      platform: "win32",
+      loadAvailable: false,
+      load1: 0,
+      load5: 0,
+      load15: 0,
+    },
+  });
+  assert.equal(winObject.attributes["system.cpu.load1"], undefined);
+  assert.ok(winObject.attributes["system.memory.used_percent"]);
 
   const observations = buildSomaObservations({
     config,
@@ -90,6 +122,8 @@ try {
   assert.equal(observations.schema, "soma.observations.v0");
   assert.ok(observations.observations.some(item => item.attribute === "system.uptime"));
   assert.ok(observations.observations.some(item => item.attribute === "service.probe-latency"));
+  assert.ok(observations.observations.some(item => item.attribute === "system.cpu.load1"));
+  assert.ok(observations.observations.some(item => item.attribute === "system.memory.used_percent"));
 
   const server = createOnaHttpServer({
     config,

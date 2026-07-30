@@ -101,6 +101,7 @@
     .chip .v { font-weight: 600; }
     .chip.ok { border-color: rgba(82, 209, 139, 0.35); }
     .chip.bad { border-color: rgba(255, 107, 114, 0.4); }
+    .chip.warn { border-color: rgba(240, 193, 75, 0.45); }
     .chip.skip { opacity: 0.55; }
     .svc {
       display: grid; grid-template-columns: 1fr auto auto; gap: 0.2rem 0.4rem;
@@ -397,9 +398,11 @@
     if (value == null) return "—";
     var u = unit || "";
     var k = key || "";
-    if (u === "byte" || /memory/i.test(k)) return fmtBytes(value);
+    if (u === "byte" || (/memory/i.test(k) && u !== "percent")) return fmtBytes(value);
+    if (u === "percent" || /used_percent/i.test(k)) return String(value) + "%";
     if (u === "second" || /uptime/i.test(k)) return fmtDuration(value);
     if (u === "millisecond" || /latency|probe-latency/i.test(k)) return fmtMs(value);
+    if (/cpu\.load/i.test(k)) return String(value);
     if (typeof value === "boolean") return value ? "yes" : "no";
     if (typeof value === "object") {
       try { return JSON.stringify(value).slice(0, 48); } catch (e) { return String(value); }
@@ -547,6 +550,11 @@
     if (uptime == null) uptime = st.uptime_seconds;
     var memTotal = attrVal(attrs, "system.memory.total");
     var memFree = attrVal(attrs, "system.memory.free");
+    var memUsed = attrVal(attrs, "system.memory.used");
+    var memPct = attrVal(attrs, "system.memory.used_percent");
+    var load1 = attrVal(attrs, "system.cpu.load1");
+    var load5 = attrVal(attrs, "system.cpu.load5");
+    var load15 = attrVal(attrs, "system.cpu.load15");
     var operational = attrVal(attrs, "state.operational");
     var b = base || ("http://" + n.host + ":8794");
     var klass = (obj && obj.class) || "—";
@@ -566,12 +574,27 @@
       (!live && pack.cached_at ? " · last-known " + esc(shortIso(pack.cached_at)) : "") +
       "</p></div>";
 
+    var memChip = "—";
+    if (memPct != null && memUsed != null && memTotal != null) {
+      memChip = memPct + "% · " + fmtBytes(memUsed) + " / " + fmtBytes(memTotal);
+    } else if (memFree != null && memTotal != null) {
+      memChip = fmtBytes(memFree) + " free / " + fmtBytes(memTotal);
+    } else if (memTotal != null) {
+      memChip = fmtBytes(memTotal);
+    }
+
+    var loadChip = null;
+    if (load1 != null || load5 != null || load15 != null) {
+      loadChip = [load1, load5, load15].map(function (v) {
+        return v == null ? "—" : String(v);
+      }).join(" / ");
+    }
+
     html += '<div class="sec"><h3>System</h3><div class="chips">' +
       chip("platform", (platform || "?") + (arch ? "/" + arch : "")) +
       chip("uptime", fmtDuration(uptime)) +
-      chip("memory", memFree != null && memTotal != null
-        ? fmtBytes(memFree) + " free / " + fmtBytes(memTotal)
-        : memTotal != null ? fmtBytes(memTotal) : "—") +
+      chip("memory", memChip, memPct != null && memPct >= 90 ? "bad" : memPct != null && memPct >= 75 ? "warn" : "") +
+      (loadChip ? chip("load 1/5/15", loadChip, load1 != null && load1 >= 4 ? "bad" : load1 != null && load1 >= 2 ? "warn" : "ok") : "") +
       chip("ONA", st.ona_version || "?") +
       chip("peers", st.peer_count_fresh != null ? String(st.peer_count_fresh) : "—") +
       "</div></div>";
