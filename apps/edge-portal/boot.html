@@ -1,41 +1,71 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
   <title>Starting Fractanet portal…</title>
   <style>
-    body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
-      font:18px/1.5 system-ui,sans-serif; background:#0b1118; color:#e8eef5; text-align:center; }
-    .box { max-width:28rem; padding:2rem; }
-    .muted { color:#91a4b7; font-size:0.95rem; }
-    a { color:#73b7ff; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      min-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font: 18px/1.5 system-ui, sans-serif;
+      background: #0b1118;
+      color: #e8eef5;
+      text-align: center;
+    }
+    .box { max-width: 28rem; padding: 2rem; }
+    .muted { color: #91a4b7; font-size: 0.95rem; }
+    a { color: #73b7ff; }
+    code { font-size: 0.9em; }
+    .bar {
+      margin: 1.2rem auto 0;
+      height: 0.35rem;
+      width: 12rem;
+      background: #26384a;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .bar > span {
+      display: block;
+      height: 100%;
+      width: 40%;
+      background: #73b7ff;
+      animation: slide 1.2s ease-in-out infinite;
+    }
+    @keyframes slide {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(300%); }
+    }
   </style>
 </head>
 <body>
   <div class="box">
     <h1>Starting portal…</h1>
     <p id="msg" class="muted">Waiting for local services and browser readiness.</p>
+    <div class="bar" aria-hidden="true"><span></span></div>
     <p class="muted">On this Pi, the first open of <code>http://127.0.0.1/</code> can take tens of seconds even when the server is already up.</p>
     <p><a href="/">Open portal now</a></p>
   </div>
   <script>
-    const msg = document.getElementById("msg");
-    let n = 0;
-    async function tick() {
+    var msg = document.getElementById("msg");
+    var n = 0;
+    function tick() {
       n += 1;
       msg.textContent = "Check #" + n + "…";
-      try {
-        const r = await fetch("/status.json?t=" + Date.now(), { cache: "no-store" });
-        if (r.ok) {
+      fetch("/status.json?t=" + Date.now(), { cache: "no-store" })
+        .then(function (r) {
+          if (!r.ok) throw new Error("HTTP " + r.status);
           msg.textContent = "Ready — opening portal…";
           location.replace("/?booted=1");
-          return;
-        }
-      } catch (e) {
-        msg.textContent = "Not ready yet (" + e.message + ") — retrying…";
-      }
-      setTimeout(tick, 2000);
+        })
+        .catch(function (e) {
+          msg.textContent = "Not ready yet (" + e.message + ") — retrying…";
+          setTimeout(tick, 2000);
+        });
     }
     tick();
   </script>

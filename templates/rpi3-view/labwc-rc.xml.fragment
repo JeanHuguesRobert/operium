@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Operium edge display: merge into ~/.config/labwc/rc.xml on rpi3-view
+  (or replace if the file only holds pointer speed + theme).
+  Maximizes Firefox for the home portal without --kiosk (menus stay usable).
+-->
+<openbox_config xmlns="http://openbox.org/3.4/rc">
+  <libinput>
+    <device category="default">
+      <pointerSpeed>-0.400000</pointerSpeed>
+    </device>
+  </libinput>
+  <keyboard>
+    <repeatRate>25</repeatRate>
+    <repeatDelay>500</repeatDelay>
+  </keyboard>
+  <theme>
+    <name>PiXflat</name>
+    <font place="ActiveWindow">
+      <name>PibotoLt</name>
+      <size>12</size>
+      <weight>Normal</weight>
+      <slant>Normal</slant>
+    </font>
+    <font place="InactiveWindow">
+      <name>PibotoLt</name>
+      <size>12</size>
+      <weight>Normal</weight>
+      <slant>Normal</slant>
+    </font>
+  </theme>
+  <windowRules>
+    <!-- Wayland app_id variants for Firefox ESR -->
+    <windowRule identifier="firefox*" matchOnce="true">
+      <action name="Maximize"/>
+    </windowRule>
+    <windowRule identifier="Firefox*" matchOnce="true">
+      <action name="Maximize"/>
+    </windowRule>
+    <windowRule identifier="org.mozilla.firefox*" matchOnce="true">
+      <action name="Maximize"/>
+    </windowRule>
+  </windowRules>
+</openbox_config>

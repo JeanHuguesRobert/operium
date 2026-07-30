@@ -1,40 +1,136 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
+  <meta name="description" content="Fractanet edge consultation portal on this Raspberry Pi">
   <title>Fractanet Edge Portal</title>
   <style>
-    :root { --bg:#0b1118; --panel:#121c27; --line:#26384a; --text:#e8eef5; --muted:#91a4b7; --ok:#52d18b; --bad:#ff6b72; --accent:#73b7ff; --warn:#f0c14b; }
-    * { box-sizing:border-box; }
-    body { margin:0; min-height:100vh; background:linear-gradient(145deg,#0b1118,#101c28); color:var(--text); font:16px/1.45 system-ui,sans-serif; }
-    main { width:min(1100px,calc(100% - 2rem)); margin:auto; padding:2rem 0 3rem; }
-    header { display:flex; justify-content:space-between; align-items:end; gap:1rem; border-bottom:1px solid var(--line); padding-bottom:1rem; flex-wrap:wrap; }
-    h1 { margin:0; font-size:clamp(1.5rem,4vw,2.5rem); }
-    h2 { margin:0 0 .8rem; font-size:1rem; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
-    .muted { color:var(--muted); }
-    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem; margin-top:1rem; }
-    .card { background:rgba(18,28,39,.92); border:1px solid var(--line); border-radius:12px; padding:1rem; transition:box-shadow .2s, border-color .2s; }
-    .card.pulse { border-color:var(--accent); box-shadow:0 0 0 1px color-mix(in srgb,var(--accent),transparent 40%); }
-    .status { display:flex; justify-content:space-between; gap:.75rem; padding:.55rem 0; border-bottom:1px solid var(--line); }
-    .status:last-child { border:0; }
-    .dot { width:.7rem; height:.7rem; margin-top:.35rem; border-radius:50%; background:var(--muted); flex:none; display:inline-block; }
-    .dot.ok { background:var(--ok); box-shadow:0 0 12px color-mix(in srgb,var(--ok),transparent 45%); }
-    .dot.bad { background:var(--bad); }
-    a { color:var(--accent); text-decoration:none; }
-    a:hover { text-decoration:underline; }
-    .link { display:block; padding:.7rem 0; border-bottom:1px solid var(--line); }
-    .link:last-child { border:0; }
-    .actions { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; }
-    button { background:var(--accent); color:#07111c; border:0; border-radius:8px; padding:.55rem .9rem; font-weight:700; cursor:pointer; min-width:7.5rem; }
-    button:disabled { opacity:.65; cursor:wait; }
-    button.secondary { background:transparent; color:var(--accent); border:1px solid var(--line); }
-    #flash { min-height:1.25rem; font-size:.9rem; color:var(--muted); margin-top:.5rem; }
-    #flash.ok { color:var(--ok); }
-    #flash.err { color:var(--bad); }
-    #flash.busy { color:var(--warn); }
-    footer { margin-top:1rem; color:var(--muted); font-size:.85rem; line-height:1.5; }
+    :root {
+      --bg: #0b1118;
+      --panel: #121c27;
+      --line: #26384a;
+      --text: #e8eef5;
+      --muted: #91a4b7;
+      --ok: #52d18b;
+      --bad: #ff6b72;
+      --accent: #73b7ff;
+      --warn: #f0c14b;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: linear-gradient(145deg, #0b1118, #101c28);
+      color: var(--text);
+      font: 16px/1.45 system-ui, sans-serif;
+    }
+    main {
+      width: min(1100px, 100%);
+      margin: 0 auto;
+      padding: 1.25rem 1rem 2rem;
+      min-height: 100%;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 1rem;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    h1 { margin: 0; font-size: clamp(1.4rem, 4vw, 2.2rem); }
+    h2 {
+      margin: 0 0 0.8rem;
+      font-size: 0.95rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .muted { color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .card {
+      background: rgba(18, 28, 39, 0.92);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 1rem;
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+    .card.pulse {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(115, 183, 255, 0.45);
+    }
+    .status {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.55rem 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .status:last-child { border-bottom: 0; }
+    .dot {
+      width: 0.7rem;
+      height: 0.7rem;
+      margin-top: 0.35rem;
+      border-radius: 50%;
+      background: var(--muted);
+      flex: none;
+      display: inline-block;
+    }
+    .dot.ok {
+      background: var(--ok);
+      box-shadow: 0 0 12px rgba(82, 209, 139, 0.45);
+    }
+    .dot.bad { background: var(--bad); }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover, a:focus { text-decoration: underline; }
+    .link {
+      display: block;
+      padding: 0.7rem 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .link:last-child { border-bottom: 0; }
+    .actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+    button {
+      background: var(--accent);
+      color: #07111c;
+      border: 0;
+      border-radius: 8px;
+      padding: 0.55rem 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      min-width: 7.5rem;
+    }
+    button:disabled { opacity: 0.65; cursor: wait; }
+    button.secondary {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--line);
+    }
+    #flash {
+      min-height: 1.25rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+    }
+    #flash.ok { color: var(--ok); }
+    #flash.err { color: var(--bad); }
+    #flash.busy { color: var(--warn); }
+    footer {
+      margin-top: 1.25rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
   </style>
 </head>
 <body>
@@ -42,16 +138,16 @@
   <header>
     <div>
       <h1>Fractanet Edge Portal</h1>
-      <div class="muted">Local consultation surface · cached degraded mode</div>
+      <p class="muted">Local consultation on this Pi · panel and browser menus stay available</p>
     </div>
     <div class="actions">
       <button id="refresh" type="button">Refresh status</button>
       <button id="reload-page" class="secondary" type="button" title="Full browser reload">Reload page</button>
     </div>
   </header>
-  <div id="flash" aria-live="polite"></div>
+  <div id="flash" role="status" aria-live="polite"></div>
 
-  <section class="grid">
+  <section class="grid" aria-label="Portal panels">
     <article class="card" id="health-card">
       <h2>Network and services</h2>
       <div id="health"><span class="muted">Loading the last local snapshot…</span></div>
@@ -62,8 +158,9 @@
       <a class="link" href="https://cogentia.fractavolta.com/docs">Views Store API documentation</a>
       <a class="link" href="https://github.com/JeanHuguesRobert/operium/issues/18">Operium handoff roadmap</a>
       <a class="link" href="/status.json">Local mesh snapshot (status.json)</a>
-      <div class="link muted">Operium Console · planned on Fracta (/ops/console)</div>
-      <div class="link muted">Home · http://localhost/ · panel + browser chrome stay available</div>
+      <a class="link" href="/boot.html">Boot splash (retry page)</a>
+      <p class="link muted">Operium Console · planned on Fracta (/ops/console)</p>
+      <p class="link muted">Direct URL · http://127.0.0.1/</p>
     </article>
   </section>
 
@@ -79,7 +176,14 @@
   function row(label, value) {
     const ok = value === true;
     const state = value === null ? "unknown" : ok ? "reachable" : "unreachable";
-    return `<div class="status"><span><i class="dot ${value === null ? "" : ok ? "ok" : "bad"}"></i></span><span style="flex:1">${label}</span><strong>${state}</strong></div>`;
+    const cls = value === null ? "" : ok ? "ok" : "bad";
+    return (
+      '<div class="status">' +
+      '<span class="dot ' + cls + '" aria-hidden="true"></span>' +
+      '<span style="flex:1">' + label + "</span>" +
+      "<strong>" + state + "</strong>" +
+      "</div>"
+    );
   }
 
   function setFlash(text, kind) {
@@ -89,27 +193,28 @@
 
   function render(data, checkedAtIso, source) {
     health.innerHTML = [
-      row("Internet / Views Store", data.services?.views_store ?? null),
-      row("Fracta", data.nodes?.fracta ?? null),
-      row("Office workstation", data.nodes?.workstation ?? null),
-      row("Android / Termux", data.nodes?.phone ?? null),
+      row("Internet / Views Store", data.services && data.services.views_store != null ? data.services.views_store : null),
+      row("Fracta", data.nodes && data.nodes.fracta != null ? data.nodes.fracta : null),
+      row("Office workstation", data.nodes && data.nodes.workstation != null ? data.nodes.workstation : null),
+      row("Android / Termux", data.nodes && data.nodes.phone != null ? data.nodes.phone : null),
       row("This Raspberry Pi", true),
     ].join("");
-    const snap = data.generated_at || "unknown";
+    const snap = (data && data.generated_at) || "unknown";
+    const mode = (data && data.mode) || "cached";
     meta.innerHTML =
-      `Snapshot <strong>${snap}</strong> · ${data.mode || "cached"}` +
-      `<br>Checked here <strong>${checkedAtIso}</strong> · source ${source}` +
-      `<br>Local page survives WAN loss · snapshot file is re-probed on Refresh (and every 5 min).`;
+      "Snapshot <strong>" + snap + "</strong> · " + mode +
+      "<br>Checked here <strong>" + checkedAtIso + "</strong> · source " + source +
+      "<br>Local page survives WAN loss · Refresh re-probes the mesh.";
   }
 
   async function loadCached() {
-    const response = await fetch(`/status.json?t=${Date.now()}`, { cache: "no-store" });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const response = await fetch("/status.json?t=" + Date.now(), { cache: "no-store" });
+    if (!response.ok) throw new Error("HTTP " + response.status);
     return response.json();
   }
 
-  /** Prefer CGI re-probe so generated_at advances; fall back to cached status.json. */
-  async function load({ reprobe = false } = {}) {
+  async function load(opts) {
+    const reprobe = opts && opts.reprobe;
     const checkedAt = new Date().toISOString();
     healthCard.classList.add("pulse");
     try {
@@ -120,16 +225,16 @@
         refreshBtn.disabled = true;
         refreshBtn.textContent = "Refreshing…";
         try {
-          const response = await fetch(`/cgi-bin/refresh?t=${Date.now()}`, {
+          const response = await fetch("/cgi-bin/refresh?t=" + Date.now(), {
             cache: "no-store",
             method: "GET",
           });
-          if (!response.ok) throw new Error(`CGI HTTP ${response.status}`);
+          if (!response.ok) throw new Error("CGI HTTP " + response.status);
           data = await response.json();
           source = "cgi-bin/refresh";
         } catch (cgiErr) {
           data = await loadCached();
-          source = `status.json (cgi unavailable: ${cgiErr.message})`;
+          source = "status.json (cgi unavailable: " + cgiErr.message + ")";
         }
       } else {
         data = await loadCached();
@@ -137,28 +242,39 @@
       render(data, checkedAt, source);
       setFlash(
         reprobe
-          ? `Updated · snapshot ${data.generated_at || "?"} · checked ${checkedAt}`
-          : `Loaded snapshot ${data.generated_at || "?"}`,
-        "ok",
+          ? "Updated · snapshot " + (data.generated_at || "?") + " · checked " + checkedAt
+          : "Loaded snapshot " + (data.generated_at || "?"),
+        "ok"
       );
+      return true;
     } catch (error) {
-      health.innerHTML = `<span class="muted">No status available: ${error.message}</span>`;
-      setFlash(`Refresh failed: ${error.message}`, "err");
-      meta.textContent = `Last check ${checkedAt} failed · page still available offline.`;
+      health.innerHTML = '<span class="muted">No status available: ' + error.message + "</span>";
+      setFlash("Refresh failed: " + error.message, "err");
+      meta.textContent = "Last check " + checkedAt + " failed · page still available offline.";
+      return false;
     } finally {
       refreshBtn.disabled = false;
       refreshBtn.textContent = "Refresh status";
-      setTimeout(() => healthCard.classList.remove("pulse"), 400);
+      setTimeout(function () { healthCard.classList.remove("pulse"); }, 400);
     }
   }
 
-  refreshBtn.addEventListener("click", () => load({ reprobe: true }));
-  document.querySelector("#reload-page").addEventListener("click", () => {
+  refreshBtn.addEventListener("click", function () { load({ reprobe: true }); });
+  document.querySelector("#reload-page").addEventListener("click", function () {
     setFlash("Reloading page…", "busy");
     location.reload();
   });
-  load({ reprobe: false });
-  setInterval(() => load({ reprobe: false }), 60_000);
+
+  // First paint: retry a few times (helps after slow Firefox cold start)
+  (async function firstLoad() {
+    for (let i = 0; i < 8; i++) {
+      const ok = await load({ reprobe: false });
+      if (ok) return;
+      setFlash("Waiting for local data… try " + (i + 1), "busy");
+      await new Promise(function (r) { setTimeout(r, 1500); });
+    }
+  })();
+  setInterval(function () { load({ reprobe: false }); }, 60000);
 </script>
 </body>
 </html>
