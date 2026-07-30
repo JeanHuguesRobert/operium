@@ -44,3 +44,10 @@ EOF
 
 chmod 0644 "$TEMP"
 mv -f "$TEMP" "$TARGET"
+
+# P4: warm last-known zoom packs (direct CGI exec — no self-HTTP)
+if [ -x "${HOME}/bin/rpi3-view-warm-node-cache.sh" ]; then
+  "${HOME}/bin/rpi3-view-warm-node-cache.sh" || true
+elif [ -x "$(dirname "$0")/rpi3-view-warm-node-cache.sh" ]; then
+  "$(dirname "$0")/rpi3-view-warm-node-cache.sh" || true
+fi

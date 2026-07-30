@@ -192,8 +192,10 @@ not to token plumbing.
 | **P1** | Homogeneous ONA/SOMA **mesh-open read** on all four nodes | **done 2026-07-30** — [ona-mesh-open-read.md](ona-mesh-open-read.md) |
 | **P2** | Global fleet view on La Nasa (`/cgi-bin/fleet` + portal UI) | **done 2026-07-30** |
 | **P3** | Richer node zoom / MIB-lite (full object tree, vocabulary) | **done 2026-07-30** — La Nasa zoom: identity, system, probes, vocabulary-labelled attributes, SOMA object tree (children), current observations (+ relative time), jobs; raw JSON collapsed. Proxy `/cgi-bin/node` returns status+object+vocabulary+observations |
-| **P4** | Optional last-known cache file for zoom | P3 |
+| **P4** | Optional last-known cache file for zoom | **done 2026-07-30** — `/srv/operium-edge-portal/cache/nodes/<host>.json` (`operium.edge-portal.node-cache.v1`); live pull writes cache; failure serves `live:false`/`stale:true`; UI **cached** badge; timer warmer `rpi3-view-warm-node-cache.sh` |
 | **P5** | Actions, history, richer graph; **optional re-auth** if perimeter expands | later |
+
+**Semantics guide (ongoing):** [mib-snmp-semantics-for-soma.md](mib-snmp-semantics-for-soma.md) — SNMP MIB groups as design discipline for which SOMA attributes belong in default zoom.
 
 Rough effort once P0 is accepted: **~2–3 weeks** for P1–P3 for one familiar
 developer; P1 is mostly **agent config / bind / verify**, not auth UI.

@@ -304,8 +304,15 @@
         return;
       }
       if (pack.vocabulary) vocabCache = pack.vocabulary;
-      paintDetail(n, pack.status, pack.object, pack.base, pack.vocabulary || vocabCache, pack.observations);
-      setFlash("OK " + n.label + " · " + shortIso(new Date().toISOString()), "ok");
+      paintDetail(n, pack.status, pack.object, pack.base, pack.vocabulary || vocabCache, pack.observations, pack);
+      if (pack.live === false || pack.stale) {
+        setFlash(
+          n.label + " · last-known" + (pack.cached_at ? " " + shortIso(pack.cached_at) : ""),
+          "busy"
+        );
+      } else {
+        setFlash("OK " + n.label + " · " + shortIso(new Date().toISOString()), "ok");
+      }
     } catch (e) {
       paintDetailOffline(n, e.message);
       setFlash(n.label + ": " + e.message, "err");
@@ -522,10 +529,12 @@
     return html;
   }
 
-  function paintDetail(n, st, obj, base, vocab, observations) {
+  function paintDetail(n, st, obj, base, vocab, observations, pack) {
     st = st || {};
     obj = obj || null;
     vocab = vocab || vocabCache;
+    pack = pack || {};
+    var live = pack.live !== false && !pack.stale;
     var attrs = (obj && obj.attributes) || {};
     var hs = st.health_score != null ? st.health_score : attrVal(attrs, "state.health");
     if (hs == null) hs = n.health_score;
@@ -545,12 +554,16 @@
 
     var html = '<div class="zoom-head">' +
       '<span class="zoom-title">' + esc(label) + "</span>" +
-      healthBadge(hs, st.ok, n.online) +
+      healthBadge(hs, st.ok, n.online && live) +
+      (live
+        ? '<span class="badge ok">live</span>'
+        : '<span class="badge warn" title="Served from last-known cache on this Pi">cached</span>') +
       (hs != null ? '<span class="badge muted">h' + esc(hs) + "</span>" : "") +
       (operational ? '<span class="badge muted">' + esc(operational) + "</span>" : "") +
       '<p class="zoom-sub" title="' + esc(nid) + '">' + esc(hn) + " · " + esc(n.host) +
       (klass !== "—" ? " · " + esc(klass) : "") +
       (profile ? " · " + esc(profile) : "") +
+      (!live && pack.cached_at ? " · last-known " + esc(shortIso(pack.cached_at)) : "") +
       "</p></div>";
 
     html += '<div class="sec"><h3>System</h3><div class="chips">' +

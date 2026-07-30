@@ -15,7 +15,7 @@ scp -o BatchMode=yes \
   "$ROOT/apps/edge-portal/simple.html" \
   "${HOST}:${PORTAL_DIR}/"
 
-ssh -o BatchMode=yes "$HOST" "mkdir -p ${PORTAL_DIR}/cgi-bin"
+ssh -o BatchMode=yes "$HOST" "mkdir -p ${PORTAL_DIR}/cgi-bin ${PORTAL_DIR}/cache/nodes"
 scp -o BatchMode=yes \
   "$ROOT/apps/edge-portal/cgi-bin/home" \
   "$ROOT/apps/edge-portal/cgi-bin/refresh" \
@@ -24,6 +24,13 @@ scp -o BatchMode=yes \
   "${HOST}:${PORTAL_DIR}/cgi-bin/"
 
 ssh -o BatchMode=yes "$HOST" "chmod +x ${PORTAL_DIR}/cgi-bin/home ${PORTAL_DIR}/cgi-bin/refresh ${PORTAL_DIR}/cgi-bin/fleet ${PORTAL_DIR}/cgi-bin/node"
+
+# P4 cache warmer (timer + optional manual)
+scp -o BatchMode=yes \
+  "$ROOT/scripts/ops/rpi3-view-warm-node-cache.sh" \
+  "$ROOT/scripts/ops/rpi3-view-edge-portal-refresh.sh" \
+  "${HOST}:~/bin/"
+ssh -o BatchMode=yes "$HOST" "chmod +x ~/bin/rpi3-view-warm-node-cache.sh ~/bin/rpi3-view-edge-portal-refresh.sh 2>/dev/null || true"
 
 # Opener + Firefox prefs + labwc
 ssh -o BatchMode=yes "$HOST" 'mkdir -p ~/bin ~/.config/labwc ~/.mozilla/firefox/operium-edge.profile'

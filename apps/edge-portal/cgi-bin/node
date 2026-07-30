@@ -1,55 +1,69 @@
 #!/bin/sh
 # Same-origin proxy: ONA status + SOMA object/vocabulary/observations for one mesh host.
+# On success, writes last-known cache under $PORTAL_DIR/cache/nodes/<host>.json (P4).
+# On failure, serves that cache with live=false / stale=true when available.
 # Query: /cgi-bin/node?host=fracta
 set -eu
 
-# busybox httpd sets QUERY_STRING
+PORTAL_DIR="${OPERIUM_EDGE_PORTAL_DIR:-/srv/operium-edge-portal}"
+CACHE_DIR="${PORTAL_DIR}/cache/nodes"
+
 qs="${QUERY_STRING:-}"
 host=""
 case ",${qs}," in
   *host=*) host=$(printf '%s' "$qs" | sed -n 's/.*host=\([^&]*\).*/\1/p' | tr -cd 'A-Za-z0-9._-') ;;
 esac
 
+json_headers() {
+  printf 'Content-Type: application/json; charset=utf-8\r\n'
+  printf 'Cache-Control: no-store\r\n'
+  printf '\r\n'
+}
+
 if [ -z "$host" ]; then
-  printf 'Content-Type: application/json\r\n\r\n'
+  json_headers
   printf '{"ok":false,"error":"missing_host"}\n'
   exit 0
 fi
 
-# Map known hosts (MagicDNS short names)
 case "$host" in
   fracta|i7-thinkpad-jhr|rpi3-view|poco-jhr) ;;
   *)
-    printf 'Content-Type: application/json\r\n\r\n'
+    json_headers
     printf '{"ok":false,"error":"unknown_host","host":"%s"}\n' "$host"
     exit 0
     ;;
 esac
 
+cache_file="${CACHE_DIR}/${host}.json"
+mkdir -p "$CACHE_DIR" 2>/dev/null || true
+
 base="http://${host}:8794"
 if [ "$host" = "rpi3-view" ]; then
-  # Prefer loopback for self (always works)
   base="http://127.0.0.1:8794"
 fi
 
-status_body=""
-object_body=""
-vocab_body=""
-obs_body=""
+WORKDIR=$(mktemp -d 2>/dev/null || mktemp -d -t ona-node.XXXXXX)
+trap 'rm -rf "$WORKDIR"' EXIT
+
+status_file="$WORKDIR/status.json"
+object_file="$WORKDIR/object.json"
+vocab_file="$WORKDIR/vocabulary.json"
+obs_file="$WORKDIR/observations.json"
+
 status_code=0
 object_code=0
 vocab_code=0
 obs_code=0
 
-if status_body=$(curl -fsS --max-time 5 "${base}/node/status" 2>/dev/null); then
+if curl -fsS --max-time 5 "${base}/node/status" -o "$status_file" 2>/dev/null; then
   status_code=200
 elif [ "$host" != "rpi3-view" ]; then
-  # retry via tailscale IP if short name failed
   if command -v tailscale >/dev/null 2>&1; then
     tip=$(tailscale ip -4 "$host" 2>/dev/null || true)
     if [ -n "$tip" ]; then
       base="http://${tip}:8794"
-      if status_body=$(curl -fsS --max-time 5 "${base}/node/status" 2>/dev/null); then
+      if curl -fsS --max-time 5 "${base}/node/status" -o "$status_file" 2>/dev/null; then
         status_code=200
       fi
     fi
@@ -57,44 +71,129 @@ elif [ "$host" != "rpi3-view" ]; then
 fi
 
 if [ "$status_code" -eq 200 ]; then
-  if object_body=$(curl -fsS --max-time 5 "${base}/soma/object" 2>/dev/null); then
+  if curl -fsS --max-time 5 "${base}/soma/object" -o "$object_file" 2>/dev/null; then
     object_code=200
-  else
-    object_body=null
   fi
-  if vocab_body=$(curl -fsS --max-time 4 "${base}/soma/vocabulary" 2>/dev/null); then
+  if curl -fsS --max-time 4 "${base}/soma/vocabulary" -o "$vocab_file" 2>/dev/null; then
     vocab_code=200
-  else
-    vocab_body=null
   fi
-  if obs_body=$(curl -fsS --max-time 4 "${base}/soma/observations" 2>/dev/null); then
+  if curl -fsS --max-time 4 "${base}/soma/observations" -o "$obs_file" 2>/dev/null; then
     obs_code=200
-  else
-    obs_body=null
   fi
-else
-  object_body=null
-  vocab_body=null
-  obs_body=null
 fi
 
-printf 'Content-Type: application/json; charset=utf-8\r\n'
-printf 'Cache-Control: no-store\r\n'
-printf '\r\n'
+json_headers
 
+# Live failure → last-known cache
 if [ "$status_code" -ne 200 ]; then
-  printf '{"ok":false,"host":"%s","error":"unreachable","status_http":%s,"base":"%s"}\n' \
-    "$host" "$status_code" "$base"
+  if [ -f "$cache_file" ] && command -v python3 >/dev/null 2>&1; then
+    python3 - "$cache_file" "$host" "$base" <<'PY'
+import json, sys
+path, host, base = sys.argv[1:4]
+try:
+    pack = json.load(open(path, encoding="utf-8"))
+except Exception as e:
+    print(json.dumps({
+        "ok": False, "live": False, "host": host, "base": base,
+        "error": "cache_corrupt", "detail": str(e),
+    }))
+    raise SystemExit(0)
+print(json.dumps({
+    "ok": True,
+    "live": False,
+    "stale": True,
+    "host": pack.get("host") or host,
+    "base": pack.get("base") or base,
+    "cached_at": pack.get("cached_at"),
+    "status": pack.get("status"),
+    "object": pack.get("object"),
+    "vocabulary": pack.get("vocabulary"),
+    "observations": pack.get("observations"),
+    "cache_schema": pack.get("schema") or "operium.edge-portal.node-cache.v1",
+}, separators=(",", ":")))
+PY
+  elif [ -f "$cache_file" ]; then
+    # No python: return opaque cached body is unsafe; report cache present but unreadable
+    cached_at=$(grep -o '"cached_at"[[:space:]]*:[[:space:]]*"[^"]*"' "$cache_file" 2>/dev/null | head -1 | sed 's/.*"\([^"]*\)"$/\1/')
+    printf '{"ok":false,"live":false,"stale":true,"host":"%s","base":"%s","cached_at":"%s","error":"unreachable_cache_needs_python"}\n' \
+      "$host" "$base" "${cached_at:-unknown}"
+  else
+    printf '{"ok":false,"host":"%s","error":"unreachable","status_http":%s,"base":"%s","live":false}\n' \
+      "$host" "$status_code" "$base"
+  fi
   exit 0
 fi
 
-# Embed JSON bodies as raw objects (pretty-printed peer responses are valid JSON fragments)
-obj_json="$object_body"
-[ "$object_code" -eq 200 ] && [ -n "$object_body" ] || obj_json=null
-vocab_json="$vocab_body"
-[ "$vocab_code" -eq 200 ] && [ -n "$vocab_body" ] || vocab_json=null
-obs_json="$obs_body"
-[ "$obs_code" -eq 200 ] && [ -n "$obs_body" ] || obs_json=null
+cached_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+pack_file="$WORKDIR/pack.json"
 
-printf '{"ok":true,"host":"%s","base":"%s","status":%s,"object":%s,"vocabulary":%s,"observations":%s}\n' \
-  "$host" "$base" "$status_body" "$obj_json" "$vocab_json" "$obs_json"
+# Assemble live pack + write cache via python (safe JSON compose)
+if command -v python3 >/dev/null 2>&1; then
+  python3 - "$pack_file" "$cache_file" "$host" "$base" "$cached_at" \
+    "$status_file" "$object_file" "$vocab_file" "$obs_file" \
+    "$object_code" "$vocab_code" "$obs_code" <<'PY'
+import json, sys, os
+(
+    pack_path, cache_path, host, base, cached_at,
+    status_path, object_path, vocab_path, obs_path,
+    object_code, vocab_code, obs_code,
+) = sys.argv[1:13]
+
+def load_optional(path, code):
+    if str(code) != "200" or not os.path.isfile(path) or os.path.getsize(path) == 0:
+        return None
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+with open(status_path, encoding="utf-8") as f:
+    status = json.load(f)
+
+pack = {
+    "ok": True,
+    "live": True,
+    "stale": False,
+    "host": host,
+    "base": base,
+    "cached_at": cached_at,
+    "status": status,
+    "object": load_optional(object_path, object_code),
+    "vocabulary": load_optional(vocab_path, vocab_code),
+    "observations": load_optional(obs_path, obs_code),
+}
+
+# Response body
+with open(pack_path, "w", encoding="utf-8") as f:
+    json.dump(pack, f, separators=(",", ":"))
+    f.write("\n")
+
+# Durable last-known (no ok/live flags required, but keep them for simplicity)
+cache = {
+    "schema": "operium.edge-portal.node-cache.v1",
+    "cached_at": cached_at,
+    "host": host,
+    "base": base,
+    "status": pack["status"],
+    "object": pack["object"],
+    "vocabulary": pack["vocabulary"],
+    "observations": pack["observations"],
+}
+tmp = cache_path + ".tmp." + str(os.getpid())
+os.makedirs(os.path.dirname(cache_path), exist_ok=True)
+with open(tmp, "w", encoding="utf-8") as f:
+    json.dump(cache, f, separators=(",", ":"))
+os.replace(tmp, cache_path)
+try:
+    os.chmod(cache_path, 0o644)
+except OSError:
+    pass
+PY
+  cat "$pack_file"
+else
+  # Minimal fallback without python (no cache write)
+  status_body=$(cat "$status_file")
+  if [ "$object_code" -eq 200 ]; then obj_json=$(cat "$object_file"); else obj_json=null; fi
+  if [ "$vocab_code" -eq 200 ]; then vocab_json=$(cat "$vocab_file"); else vocab_json=null; fi
+  if [ "$obs_code" -eq 200 ]; then obs_json=$(cat "$obs_file"); else obs_json=null; fi
+  printf '{"ok":true,"live":true,"stale":false,"host":"%s","base":"%s","cached_at":"%s","status":%s,"object":%s,"vocabulary":%s,"observations":%s}\n' \
+    "$host" "$base" "$cached_at" "$status_body" "$obj_json" "$vocab_json" "$obs_json"
+fi

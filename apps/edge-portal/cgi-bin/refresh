@@ -47,6 +47,9 @@ EOF
 chmod 0644 "$TEMP"
 mv -f "$TEMP" "$TARGET"
 
+# Note: do NOT call /cgi-bin/node here — busybox httpd is often single-threaded
+# and self-CGI can deadlock. Node caches warm via timer script or live zoom.
+
 printf 'Content-Type: application/json\r\n'
 printf 'Cache-Control: no-store\r\n'
 printf '\r\n'
