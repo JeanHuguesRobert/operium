@@ -189,28 +189,19 @@
     detailEl.innerHTML = '<span class="muted">Loading ' + n.label + "…</span>";
     setFlash("Fetching " + n.host + "…", "busy");
 
-    var statusUrl = "http://" + n.host + ":8794/node/status";
-    var objectUrl = "http://" + n.host + ":8794/soma/object";
-    if (n.host === "rpi3-view") {
-      // self: prefer loopback if mesh name slow
-    }
-
+    // Same-origin proxy — browser never calls peer :8794 (avoids CORS / DNS issues)
     try {
-      var results = await Promise.all([
-        fetchJson(statusUrl).catch(function () {
-          return n.host === "rpi3-view"
-            ? fetchJson("http://127.0.0.1:8794/node/status")
-            : Promise.reject(new Error("status failed"));
-        }),
-        fetchJson(objectUrl).catch(function () {
-          return n.host === "rpi3-view"
-            ? fetchJson("http://127.0.0.1:8794/soma/object")
-            : null;
-        }),
-      ]);
-      var st = results[0];
-      var obj = results[1];
-      paintDetail(n, st, obj);
+      var r = await fetch("/cgi-bin/node?host=" + encodeURIComponent(n.host) + "&t=" + Date.now(), {
+        cache: "no-store",
+      });
+      if (!r.ok) throw new Error("proxy HTTP " + r.status);
+      var pack = await r.json();
+      if (!pack.ok) {
+        paintDetailOffline(n, pack.error || "unreachable");
+        setFlash(n.label + ": " + (pack.error || "unreachable"), "err");
+        return;
+      }
+      paintDetail(n, pack.status, pack.object, pack.base);
       setFlash("OK " + n.label + " · " + shortIso(new Date().toISOString()), "ok");
     } catch (e) {
       paintDetailOffline(n, e.message);
@@ -218,17 +209,11 @@
     }
   }
 
-  function fetchJson(url) {
-    return fetch(url, { cache: "no-store" }).then(function (r) {
-      if (!r.ok) throw new Error("HTTP " + r.status);
-      return r.json();
-    });
-  }
-
-  function paintDetail(n, st, obj) {
+  function paintDetail(n, st, obj, base) {
     var hs = st && st.health_score != null ? st.health_score : n.health_score;
     var hn = (st && st.hostname) || n.hostname || n.host;
     var nid = (st && st.node_id) || n.resource_id;
+    var b = base || ("http://" + n.host + ":8794");
     var html =
       "<dl>" +
       "<dt>Label</dt><dd>" + esc(n.label) + "</dd>" +
@@ -240,9 +225,9 @@
       "<dt>Status schema</dt><dd>" + esc((st && st.schema) || "?") + "</dd>" +
       "</dl>" +
       '<div class="links">' +
-      '<a href="http://' + esc(n.host) + ':8794/.well-known/soma" target="_blank" rel="noopener">SOMA</a>' +
-      '<a href="http://' + esc(n.host) + ':8794/node/status" target="_blank" rel="noopener">/node/status</a>' +
-      '<a href="http://' + esc(n.host) + ':8794/soma/object" target="_blank" rel="noopener">/soma/object</a>' +
+      '<a href="' + esc(b) + '/.well-known/soma" target="_blank" rel="noopener">SOMA</a>' +
+      '<a href="' + esc(b) + '/node/status" target="_blank" rel="noopener">/node/status</a>' +
+      '<a href="' + esc(b) + '/soma/object" target="_blank" rel="noopener">/soma/object</a>' +
       '<a href="https://cogentia.fractavolta.com/" target="_blank" rel="noopener">Views Store</a>' +
       "</div>";
     if (obj) {

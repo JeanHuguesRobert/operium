@@ -1,29 +1,48 @@
 #!/bin/sh
-# Aggregate ONA /node/status for the Fractanet embryo (same-origin for La Nasa UI).
-# Mesh-open read; no tokens. Short timeouts so the page stays snappy.
+# Aggregate ONA /node/status for Fractanet embryo (same-origin for La Nasa UI).
+# Uses MagicDNS first, then Tailscale IPv4, then loopback for self.
 set -eu
 
 OUT=$(mktemp)
 trap 'rm -f "$OUT"' EXIT
 
 gen_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-printf '' >"$OUT"
-count=0
+
+resolve_base() {
+  host="$1"
+  if [ "$host" = "rpi3-view" ]; then
+    printf 'http://127.0.0.1:8794'
+    return 0
+  fi
+  # Try short name
+  if curl -fsS --max-time 2 "http://${host}:8794/health" >/dev/null 2>&1; then
+    printf 'http://%s:8794' "$host"
+    return 0
+  fi
+  # Tailscale IP
+  if command -v tailscale >/dev/null 2>&1; then
+    tip=$(tailscale ip -4 "$host" 2>/dev/null || true)
+    if [ -n "$tip" ]; then
+      if curl -fsS --max-time 2 "http://${tip}:8794/health" >/dev/null 2>&1; then
+        printf 'http://%s:8794' "$tip"
+        return 0
+      fi
+    fi
+  fi
+  # Last try: short name for status even if /health failed
+  printf 'http://%s:8794' "$host"
+}
 
 probe_one() {
   host="$1"
   rid="$2"
   label="$3"
-  url="http://${host}:8794/node/status"
+  base=$(resolve_base "$host")
+  url="${base}/node/status"
   body=""
   code=0
-  if body=$(curl -fsS --max-time 4 "$url" 2>/dev/null); then
+  if body=$(curl -fsS --max-time 5 "$url" 2>/dev/null); then
     code=200
-  elif [ "$host" = "rpi3-view" ]; then
-    if body=$(curl -fsS --max-time 3 "http://127.0.0.1:8794/node/status" 2>/dev/null); then
-      code=200
-      url="http://127.0.0.1:8794/node/status"
-    fi
   fi
 
   online=false
@@ -39,10 +58,8 @@ probe_one() {
     fi
   fi
 
-  # JSON-escape label minimally (labels are fixed ASCII)
-  printf '{"host":"%s","resource_id":"%s","label":"%s","online":%s,"http_status":%s,"health_score":%s,"hostname":%s,"endpoint":"%s"}\n' \
-    "$host" "$rid" "$label" "$online" "$code" "$health" "${hostname:-null}" "$url" >>"$OUT"
-  count=$((count + 1))
+  printf '{"host":"%s","resource_id":"%s","label":"%s","online":%s,"http_status":%s,"health_score":%s,"hostname":%s,"endpoint":"%s","base":"%s"}\n' \
+    "$host" "$rid" "$label" "$online" "$code" "$health" "${hostname:-null}" "$url" "$base" >>"$OUT"
 }
 
 probe_one "fracta" "resource://fracta" "Fracta"
@@ -57,8 +74,5 @@ printf '{\n  "schema": "operium.edge-portal.fleet.v1",\n'
 printf '  "generated_at": "%s",\n' "$gen_at"
 printf '  "mode": "mesh-pull",\n'
 printf '  "nodes": [\n'
-
-# join lines with commas
 awk 'NR>1{print prev","} {prev=$0} END{if(NR) print prev}' "$OUT" | sed 's/^/    /'
-
 printf '\n  ]\n}\n'

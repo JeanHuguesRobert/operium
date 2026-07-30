@@ -1,0 +1,83 @@
+#!/bin/sh
+# Same-origin proxy: ONA status + object for one mesh host (no browser CORS).
+# Query: /cgi-bin/node?host=fracta
+set -eu
+
+# busybox httpd sets QUERY_STRING
+qs="${QUERY_STRING:-}"
+host=""
+case ",${qs}," in
+  *host=*) host=$(printf '%s' "$qs" | sed -n 's/.*host=\([^&]*\).*/\1/p' | tr -cd 'A-Za-z0-9._-') ;;
+esac
+
+if [ -z "$host" ]; then
+  printf 'Content-Type: application/json\r\n\r\n'
+  printf '{"ok":false,"error":"missing_host"}\n'
+  exit 0
+fi
+
+# Map known hosts (MagicDNS short names)
+case "$host" in
+  fracta|i7-thinkpad-jhr|rpi3-view|poco-jhr) ;;
+  *)
+    printf 'Content-Type: application/json\r\n\r\n'
+    printf '{"ok":false,"error":"unknown_host","host":"%s"}\n' "$host"
+    exit 0
+    ;;
+esac
+
+base="http://${host}:8794"
+if [ "$host" = "rpi3-view" ]; then
+  # Prefer loopback for self (always works)
+  base="http://127.0.0.1:8794"
+fi
+
+status_body=""
+object_body=""
+status_code=0
+object_code=0
+
+if status_body=$(curl -fsS --max-time 5 "${base}/node/status" 2>/dev/null); then
+  status_code=200
+elif [ "$host" != "rpi3-view" ]; then
+  # retry via tailscale IP if short name failed
+  if command -v tailscale >/dev/null 2>&1; then
+    tip=$(tailscale ip -4 "$host" 2>/dev/null || true)
+    if [ -n "$tip" ]; then
+      base="http://${tip}:8794"
+      if status_body=$(curl -fsS --max-time 5 "${base}/node/status" 2>/dev/null); then
+        status_code=200
+      fi
+    fi
+  fi
+fi
+
+if [ "$status_code" -eq 200 ]; then
+  if object_body=$(curl -fsS --max-time 5 "${base}/soma/object" 2>/dev/null); then
+    object_code=200
+  else
+    object_code=0
+    object_body=null
+  fi
+else
+  object_body=null
+fi
+
+printf 'Content-Type: application/json; charset=utf-8\r\n'
+printf 'Cache-Control: no-store\r\n'
+printf '\r\n'
+
+if [ "$status_code" -ne 200 ]; then
+  printf '{"ok":false,"host":"%s","error":"unreachable","status_http":%s,"base":"%s"}\n' \
+    "$host" "$status_code" "$base"
+  exit 0
+fi
+
+# Embed status/object JSON as raw objects
+if [ "$object_code" -eq 200 ] && [ -n "$object_body" ]; then
+  printf '{"ok":true,"host":"%s","base":"%s","status":%s,"object":%s}\n' \
+    "$host" "$base" "$status_body" "$object_body"
+else
+  printf '{"ok":true,"host":"%s","base":"%s","status":%s,"object":null}\n' \
+    "$host" "$base" "$status_body"
+fi
