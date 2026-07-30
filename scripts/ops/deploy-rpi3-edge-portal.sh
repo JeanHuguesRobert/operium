@@ -19,9 +19,10 @@ ssh -o BatchMode=yes "$HOST" "mkdir -p ${PORTAL_DIR}/cgi-bin"
 scp -o BatchMode=yes \
   "$ROOT/apps/edge-portal/cgi-bin/home" \
   "$ROOT/apps/edge-portal/cgi-bin/refresh" \
+  "$ROOT/apps/edge-portal/cgi-bin/fleet" \
   "${HOST}:${PORTAL_DIR}/cgi-bin/"
 
-ssh -o BatchMode=yes "$HOST" "chmod +x ${PORTAL_DIR}/cgi-bin/home ${PORTAL_DIR}/cgi-bin/refresh"
+ssh -o BatchMode=yes "$HOST" "chmod +x ${PORTAL_DIR}/cgi-bin/home ${PORTAL_DIR}/cgi-bin/refresh ${PORTAL_DIR}/cgi-bin/fleet"
 
 # Opener + Firefox prefs + labwc
 ssh -o BatchMode=yes "$HOST" 'mkdir -p ~/bin ~/.config/labwc ~/.mozilla/firefox/operium-edge.profile'

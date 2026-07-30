@@ -1,0 +1,64 @@
+#!/bin/sh
+# Aggregate ONA /node/status for the Fractanet embryo (same-origin for La Nasa UI).
+# Mesh-open read; no tokens. Short timeouts so the page stays snappy.
+set -eu
+
+OUT=$(mktemp)
+trap 'rm -f "$OUT"' EXIT
+
+gen_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+printf '' >"$OUT"
+count=0
+
+probe_one() {
+  host="$1"
+  rid="$2"
+  label="$3"
+  url="http://${host}:8794/node/status"
+  body=""
+  code=0
+  if body=$(curl -fsS --max-time 4 "$url" 2>/dev/null); then
+    code=200
+  elif [ "$host" = "rpi3-view" ]; then
+    if body=$(curl -fsS --max-time 3 "http://127.0.0.1:8794/node/status" 2>/dev/null); then
+      code=200
+      url="http://127.0.0.1:8794/node/status"
+    fi
+  fi
+
+  online=false
+  health=null
+  hostname=null
+  if [ "$code" -eq 200 ] && [ -n "$body" ]; then
+    online=true
+    hs=$(printf '%s\n' "$body" | grep -o '"health_score"[[:space:]]*:[[:space:]]*[0-9][0-9.]*' | head -1 | sed 's/.*:[[:space:]]*//')
+    [ -n "${hs:-}" ] && health=$hs
+    hn=$(printf '%s\n' "$body" | grep -o '"hostname"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed 's/.*"\([^"]*\)"$/\1/')
+    if [ -n "${hn:-}" ]; then
+      hostname=$(printf '"%s"' "$hn")
+    fi
+  fi
+
+  # JSON-escape label minimally (labels are fixed ASCII)
+  printf '{"host":"%s","resource_id":"%s","label":"%s","online":%s,"http_status":%s,"health_score":%s,"hostname":%s,"endpoint":"%s"}\n' \
+    "$host" "$rid" "$label" "$online" "$code" "$health" "${hostname:-null}" "$url" >>"$OUT"
+  count=$((count + 1))
+}
+
+probe_one "fracta" "resource://fracta" "Fracta"
+probe_one "i7-thinkpad-jhr" "resource://i7-thinkpad-jhr" "Workstation"
+probe_one "rpi3-view" "resource://rpi3-view" "This Pi"
+probe_one "poco-jhr" "resource://poco-jhr" "Phone"
+
+printf 'Content-Type: application/json; charset=utf-8\r\n'
+printf 'Cache-Control: no-store\r\n'
+printf '\r\n'
+printf '{\n  "schema": "operium.edge-portal.fleet.v1",\n'
+printf '  "generated_at": "%s",\n' "$gen_at"
+printf '  "mode": "mesh-pull",\n'
+printf '  "nodes": [\n'
+
+# join lines with commas
+awk 'NR>1{print prev","} {prev=$0} END{if(NR) print prev}' "$OUT" | sed 's/^/    /'
+
+printf '\n  ]\n}\n'

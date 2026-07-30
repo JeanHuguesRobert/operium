@@ -46,6 +46,8 @@ local web home on `rpi3-view`, not yet a full management console.
 | Refresh timer | `operium-edge-portal-refresh.timer` (~5 min → `status.json`) |
 | CGI re-probe | `GET /cgi-bin/refresh` → rewrite `status.json` + return JSON |
 | Light HTML (optional) | `GET /cgi-bin/home` (no JS; fallback browsers) |
+| Fleet aggregate (P2) | `GET /cgi-bin/fleet` → ONA `/node/status` on all four nodes |
+| Control-room UI | `index.html` — fleet list + node summary (La Nasa) |
 | Browser | Firefox ESR, profile `~/.mozilla/firefox/operium-edge.profile` |
 | Launch | `~/bin/rpi3-view-open-edge-portal.sh` from labwc autostart |
 | Desktop | labwc Wayland (`LXDE-pi-labwc`), not a coding node |

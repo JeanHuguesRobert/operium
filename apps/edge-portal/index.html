@@ -4,259 +4,128 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <meta name="description" content="Fractanet edge consultation portal on this Raspberry Pi">
-  <title>Fractanet Edge Portal</title>
+  <meta name="description" content="La Nasa step 1+2 — Fractanet control-room home and fleet view">
+  <title>La Nasa — Fractanet</title>
   <style>
     :root {
-      --bg: #0b1118;
-      --panel: #121c27;
-      --line: #26384a;
-      --text: #e8eef5;
-      --muted: #91a4b7;
-      --ok: #52d18b;
-      --bad: #ff6b72;
-      --accent: #73b7ff;
-      --warn: #f0c14b;
+      --bg: #0b1118; --panel: #121c27; --line: #26384a; --text: #e8eef5;
+      --muted: #91a4b7; --ok: #52d18b; --bad: #ff6b72; --accent: #73b7ff; --warn: #f0c14b;
     }
     * { box-sizing: border-box; }
-    html, body {
-      height: 100%;
-      margin: 0;
-      overflow: hidden; /* no page scroll on edge display */
-    }
+    html, body { height: 100%; margin: 0; overflow: hidden; }
     body {
       background: linear-gradient(145deg, #0b1118, #101c28);
       color: var(--text);
       font: 14px/1.3 system-ui, sans-serif;
     }
     main {
-      height: 100%;
-      max-height: 100dvh;
-      max-height: 100vh;
-      width: 100%;
-      margin: 0 auto;
-      padding: 0.55rem 0.75rem 0.45rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-      overflow: hidden;
+      height: 100%; max-height: 100vh; width: 100%;
+      padding: 0.5rem 0.7rem 0.4rem;
+      display: flex; flex-direction: column; gap: 0.35rem; overflow: hidden;
     }
     header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 0.6rem;
-      border-bottom: 1px solid var(--line);
-      padding-bottom: 0.4rem;
-      flex: 0 0 auto;
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 0.5rem; border-bottom: 1px solid var(--line); padding-bottom: 0.35rem; flex: 0 0 auto;
     }
-    header .titles { min-width: 0; }
-    h1 {
-      margin: 0;
-      font-size: 1.15rem;
-      font-weight: 700;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .tagline {
-      margin: 0.1rem 0 0;
-      color: var(--muted);
-      font-size: 0.75rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+    h1 { margin: 0; font-size: 1.1rem; font-weight: 700; }
+    .tagline { margin: 0.05rem 0 0; color: var(--muted); font-size: 0.72rem; }
     h2 {
-      margin: 0 0 0.35rem;
-      font-size: 0.7rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
+      margin: 0 0 0.3rem; font-size: 0.68rem; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.08em;
     }
     .muted { color: var(--muted); }
-    #flash {
-      flex: 0 0 auto;
-      min-height: 1rem;
-      font-size: 0.75rem;
-      color: var(--muted);
-      line-height: 1.2;
-    }
-    #flash.ok { color: var(--ok); }
-    #flash.err { color: var(--bad); }
-    #flash.busy { color: var(--warn); }
+    #flash { flex: 0 0 auto; min-height: 0.95rem; font-size: 0.72rem; color: var(--muted); }
+    #flash.ok { color: var(--ok); } #flash.err { color: var(--bad); } #flash.busy { color: var(--warn); }
     .grid {
-      flex: 1 1 auto;
-      min-height: 0;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.55rem;
-      overflow: hidden;
+      flex: 1 1 auto; min-height: 0;
+      display: grid; grid-template-columns: 1fr 1.15fr; gap: 0.5rem; overflow: hidden;
     }
     .card {
-      background: rgba(18, 28, 39, 0.92);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 0.5rem 0.65rem;
-      min-height: 0;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      transition: box-shadow 0.2s, border-color 0.2s;
+      background: rgba(18, 28, 39, 0.92); border: 1px solid var(--line);
+      border-radius: 8px; padding: 0.45rem 0.55rem; min-height: 0;
+      overflow: hidden; display: flex; flex-direction: column;
     }
-    .card.pulse {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px rgba(115, 183, 255, 0.45);
+    .card.pulse { border-color: var(--accent); }
+    .fleet-list { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+    .node-row {
+      display: flex; align-items: center; gap: 0.4rem;
+      padding: 0.32rem 0.25rem; border-bottom: 1px solid var(--line);
+      cursor: pointer; font-size: 0.88rem; border-radius: 4px;
     }
-    #health {
-      flex: 1 1 auto;
-      min-height: 0;
-      overflow: hidden;
-    }
-    .status {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 0.45rem;
-      padding: 0.28rem 0;
-      border-bottom: 1px solid var(--line);
-      font-size: 0.88rem;
-    }
-    .status:last-child { border-bottom: 0; }
-    .status strong { font-size: 0.82rem; }
+    .node-row:last-child { border-bottom: 0; }
+    .node-row:hover, .node-row:focus { background: rgba(115, 183, 255, 0.08); outline: none; }
+    .node-row.selected { background: rgba(115, 183, 255, 0.16); }
     .dot {
-      width: 0.55rem;
-      height: 0.55rem;
-      border-radius: 50%;
-      background: var(--muted);
-      flex: none;
-      display: inline-block;
+      width: 0.55rem; height: 0.55rem; border-radius: 50%;
+      background: var(--muted); flex: none;
     }
-    .dot.ok {
-      background: var(--ok);
-      box-shadow: 0 0 8px rgba(82, 209, 139, 0.45);
-    }
+    .dot.ok { background: var(--ok); box-shadow: 0 0 8px rgba(82, 209, 139, 0.4); }
     .dot.bad { background: var(--bad); }
+    .node-row .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .node-row .meta { color: var(--muted); font-size: 0.75rem; flex: 0 0 auto; }
+    .detail { flex: 1; min-height: 0; overflow: hidden; font-size: 0.82rem; }
+    .detail dl {
+      margin: 0; display: grid; grid-template-columns: 7.5rem 1fr; gap: 0.2rem 0.4rem;
+    }
+    .detail dt { color: var(--muted); }
+    .detail dd { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .detail pre {
+      margin: 0.35rem 0 0; padding: 0.35rem; background: #0b1118;
+      border-radius: 4px; font-size: 0.68rem; max-height: 42%; overflow: auto;
+      color: var(--muted); white-space: pre-wrap; word-break: break-all;
+    }
+    .links { display: flex; flex-wrap: wrap; gap: 0.35rem 0.7rem; margin-top: 0.35rem; font-size: 0.78rem; }
     a { color: var(--accent); text-decoration: none; }
-    a:hover, a:focus { text-decoration: underline; }
-    .links {
-      flex: 1 1 auto;
-      min-height: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 0.15rem;
-      overflow: hidden;
-    }
-    .link {
-      display: block;
-      padding: 0.28rem 0;
-      border-bottom: 1px solid var(--line);
-      font-size: 0.88rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .link:last-child { border-bottom: 0; }
-    .link.muted {
-      color: var(--muted);
-      font-size: 0.78rem;
-    }
-    .actions { display: flex; gap: 0.35rem; align-items: center; flex: 0 0 auto; }
+    a:hover { text-decoration: underline; }
+    .actions { display: flex; gap: 0.35rem; }
     button {
-      background: var(--accent);
-      color: #07111c;
-      border: 0;
-      border-radius: 6px;
-      padding: 0.35rem 0.65rem;
-      font-weight: 700;
-      font-size: 0.8rem;
-      cursor: pointer;
+      background: var(--accent); color: #07111c; border: 0; border-radius: 6px;
+      padding: 0.32rem 0.6rem; font-weight: 700; font-size: 0.78rem; cursor: pointer;
     }
     button:disabled { opacity: 0.65; cursor: wait; }
-    button.secondary {
-      background: transparent;
-      color: var(--accent);
-      border: 1px solid var(--line);
-    }
+    button.secondary { background: transparent; color: var(--accent); border: 1px solid var(--line); }
     footer {
-      flex: 0 0 auto;
-      color: var(--muted);
-      font-size: 0.72rem;
-      line-height: 1.25;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      border-top: 1px solid var(--line);
-      padding-top: 0.3rem;
+      flex: 0 0 auto; color: var(--muted); font-size: 0.7rem;
+      border-top: 1px solid var(--line); padding-top: 0.25rem;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     footer strong { color: var(--text); font-weight: 600; }
-
-    /* Very short viewports: slightly tighter */
-    @media (max-height: 700px) {
-      body { font-size: 13px; }
-      h1 { font-size: 1.05rem; }
-      .status, .link { padding-top: 0.2rem; padding-bottom: 0.2rem; }
-    }
-    /* Narrow: stack only if needed; keep single-page if possible */
-    @media (max-width: 640px) {
-      .grid { grid-template-columns: 1fr; }
-      html, body { overflow: auto; }
-      main { max-height: none; height: auto; }
-    }
   </style>
 </head>
 <body>
 <main>
   <header>
-    <div class="titles">
-      <h1>Fractanet Edge Portal</h1>
-      <p class="tagline">Local Pi consultation</p>
+    <div>
+      <h1>La Nasa</h1>
+      <p class="tagline">Fractanet control room · fleet</p>
     </div>
     <div class="actions">
       <button id="refresh" type="button">Refresh</button>
-      <button id="reload-page" class="secondary" type="button" title="Full browser reload">Reload</button>
+      <button id="reload-page" class="secondary" type="button">Reload</button>
     </div>
   </header>
   <div id="flash" role="status" aria-live="polite"></div>
-
-  <section class="grid" aria-label="Portal panels">
-    <article class="card" id="health-card">
-      <h2>Network</h2>
-      <div id="health"><span class="muted">Loading snapshot…</span></div>
+  <section class="grid">
+    <article class="card" id="fleet-card">
+      <h2>Fleet</h2>
+      <div id="fleet" class="fleet-list"><span class="muted">Loading fleet…</span></div>
     </article>
-    <article class="card">
-      <h2>Links</h2>
-      <div class="links">
-        <a class="link" href="https://cogentia.fractavolta.com/">Cogentia Views Store</a>
-        <a class="link" href="https://cogentia.fractavolta.com/docs">Views Store docs</a>
-        <a class="link" href="https://github.com/JeanHuguesRobert/operium/issues/18">Operium roadmap</a>
-        <a class="link" href="/status.json">status.json</a>
-        <span class="link muted">Console · planned on Fracta</span>
-      </div>
+    <article class="card" id="detail-card">
+      <h2>Node</h2>
+      <div id="detail" class="detail"><span class="muted">Select a node</span></div>
     </article>
   </section>
-
-  <footer id="meta">Snapshot — · local page works without Internet</footer>
+  <footer id="meta">Mesh-open ONA · no app auth on Tailscale</footer>
 </main>
 <script>
-  const health = document.querySelector("#health");
-  const healthCard = document.querySelector("#health-card");
-  const meta = document.querySelector("#meta");
-  const flash = document.querySelector("#flash");
-  const refreshBtn = document.querySelector("#refresh");
-
-  function row(label, value) {
-    const ok = value === true;
-    const state = value === null ? "?" : ok ? "ok" : "down";
-    const cls = value === null ? "" : ok ? "ok" : "bad";
-    return (
-      '<div class="status">' +
-      '<span class="dot ' + cls + '" aria-hidden="true"></span>' +
-      '<span style="flex:1">' + label + "</span>" +
-      "<strong>" + state + "</strong>" +
-      "</div>"
-    );
-  }
+  var fleetEl = document.getElementById("fleet");
+  var detailEl = document.getElementById("detail");
+  var flash = document.getElementById("flash");
+  var meta = document.getElementById("meta");
+  var refreshBtn = document.getElementById("refresh");
+  var fleetCard = document.getElementById("fleet-card");
+  var selectedHost = null;
+  var fleetData = null;
 
   function setFlash(text, kind) {
     flash.textContent = text || "";
@@ -265,87 +134,194 @@
 
   function shortIso(iso) {
     if (!iso) return "?";
-    // 2026-07-30T12:34:56Z → 12:34:56Z
     var t = String(iso);
     var i = t.indexOf("T");
     return i >= 0 ? t.slice(i + 1).replace(/\.\d+/, "") : t;
   }
 
-  function render(data, checkedAtIso, source) {
-    health.innerHTML = [
-      row("Views Store", data.services && data.services.views_store != null ? data.services.views_store : null),
-      row("Fracta", data.nodes && data.nodes.fracta != null ? data.nodes.fracta : null),
-      row("Workstation", data.nodes && data.nodes.workstation != null ? data.nodes.workstation : null),
-      row("Phone", data.nodes && data.nodes.phone != null ? data.nodes.phone : null),
-      row("This Pi", true),
-    ].join("");
-    var snap = (data && data.generated_at) || "?";
-    meta.innerHTML =
-      "Snap <strong>" + shortIso(snap) + "</strong> · check <strong>" + shortIso(checkedAtIso) +
-      "</strong> · " + source + " · offline-safe";
-  }
+  function renderFleet(data) {
+    fleetData = data;
+    var nodes = (data && data.nodes) || [];
+    if (!nodes.length) {
+      fleetEl.innerHTML = '<span class="muted">No nodes</span>';
+      return;
+    }
+    fleetEl.innerHTML = nodes.map(function (n) {
+      var cls = n.online ? "ok" : "bad";
+      var hs = n.health_score != null ? "h" + n.health_score : "";
+      var sel = selectedHost === n.host ? " selected" : "";
+      return (
+        '<div class="node-row' + sel + '" role="button" tabindex="0" data-host="' + n.host + '">' +
+        '<span class="dot ' + cls + '"></span>' +
+        '<span class="name">' + (n.label || n.host) + "</span>" +
+        '<span class="meta">' + (n.online ? "online " + hs : "offline") + "</span>" +
+        "</div>"
+      );
+    }).join("");
 
-  async function loadCached() {
-    const response = await fetch("/status.json?t=" + Date.now(), { cache: "no-store" });
-    if (!response.ok) throw new Error("HTTP " + response.status);
-    return response.json();
-  }
-
-  async function load(opts) {
-    const reprobe = opts && opts.reprobe;
-    const checkedAt = new Date().toISOString();
-    healthCard.classList.add("pulse");
-    try {
-      let data;
-      let source = "cache";
-      if (reprobe) {
-        setFlash("Re-probing…", "busy");
-        refreshBtn.disabled = true;
-        refreshBtn.textContent = "…";
-        try {
-          const response = await fetch("/cgi-bin/refresh?t=" + Date.now(), {
-            cache: "no-store",
-            method: "GET",
-          });
-          if (!response.ok) throw new Error("CGI " + response.status);
-          data = await response.json();
-          source = "probe";
-        } catch (cgiErr) {
-          data = await loadCached();
-          source = "cache";
+    fleetEl.querySelectorAll(".node-row").forEach(function (row) {
+      row.addEventListener("click", function () { selectNode(row.getAttribute("data-host")); });
+      row.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          selectNode(row.getAttribute("data-host"));
         }
-      } else {
-        data = await loadCached();
-      }
-      render(data, checkedAt, source);
-      setFlash(reprobe ? "Updated " + shortIso(checkedAt) : "Loaded " + shortIso(data.generated_at), "ok");
+      });
+    });
+  }
+
+  function findNode(host) {
+    if (!fleetData || !fleetData.nodes) return null;
+    for (var i = 0; i < fleetData.nodes.length; i++) {
+      if (fleetData.nodes[i].host === host) return fleetData.nodes[i];
+    }
+    return null;
+  }
+
+  async function selectNode(host) {
+    selectedHost = host;
+    renderFleet(fleetData);
+    var n = findNode(host);
+    if (!n) {
+      detailEl.innerHTML = '<span class="muted">Unknown node</span>';
+      return;
+    }
+    detailEl.innerHTML = '<span class="muted">Loading ' + n.label + "…</span>";
+    setFlash("Fetching " + n.host + "…", "busy");
+
+    var statusUrl = "http://" + n.host + ":8794/node/status";
+    var objectUrl = "http://" + n.host + ":8794/soma/object";
+    if (n.host === "rpi3-view") {
+      // self: prefer loopback if mesh name slow
+    }
+
+    try {
+      var results = await Promise.all([
+        fetchJson(statusUrl).catch(function () {
+          return n.host === "rpi3-view"
+            ? fetchJson("http://127.0.0.1:8794/node/status")
+            : Promise.reject(new Error("status failed"));
+        }),
+        fetchJson(objectUrl).catch(function () {
+          return n.host === "rpi3-view"
+            ? fetchJson("http://127.0.0.1:8794/soma/object")
+            : null;
+        }),
+      ]);
+      var st = results[0];
+      var obj = results[1];
+      paintDetail(n, st, obj);
+      setFlash("OK " + n.label + " · " + shortIso(new Date().toISOString()), "ok");
+    } catch (e) {
+      paintDetailOffline(n, e.message);
+      setFlash(n.label + ": " + e.message, "err");
+    }
+  }
+
+  function fetchJson(url) {
+    return fetch(url, { cache: "no-store" }).then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    });
+  }
+
+  function paintDetail(n, st, obj) {
+    var hs = st && st.health_score != null ? st.health_score : n.health_score;
+    var hn = (st && st.hostname) || n.hostname || n.host;
+    var nid = (st && st.node_id) || n.resource_id;
+    var html =
+      "<dl>" +
+      "<dt>Label</dt><dd>" + esc(n.label) + "</dd>" +
+      "<dt>Host</dt><dd>" + esc(n.host) + "</dd>" +
+      "<dt>Node id</dt><dd title=\"" + esc(nid) + "\">" + esc(nid) + "</dd>" +
+      "<dt>Hostname</dt><dd>" + esc(hn) + "</dd>" +
+      "<dt>Online</dt><dd>" + (n.online ? "yes" : "no") + "</dd>" +
+      "<dt>Health</dt><dd>" + (hs != null ? hs : "?") + "</dd>" +
+      "<dt>Status schema</dt><dd>" + esc((st && st.schema) || "?") + "</dd>" +
+      "</dl>" +
+      '<div class="links">' +
+      '<a href="http://' + esc(n.host) + ':8794/.well-known/soma" target="_blank" rel="noopener">SOMA</a>' +
+      '<a href="http://' + esc(n.host) + ':8794/node/status" target="_blank" rel="noopener">/node/status</a>' +
+      '<a href="http://' + esc(n.host) + ':8794/soma/object" target="_blank" rel="noopener">/soma/object</a>' +
+      '<a href="https://cogentia.fractavolta.com/" target="_blank" rel="noopener">Views Store</a>' +
+      "</div>";
+    if (obj) {
+      var preview = JSON.stringify(obj, null, 0);
+      if (preview.length > 400) preview = preview.slice(0, 400) + "…";
+      html += "<pre>" + esc(preview) + "</pre>";
+    }
+    detailEl.innerHTML = html;
+  }
+
+  function paintDetailOffline(n, err) {
+    detailEl.innerHTML =
+      "<dl>" +
+      "<dt>Label</dt><dd>" + esc(n.label) + "</dd>" +
+      "<dt>Host</dt><dd>" + esc(n.host) + "</dd>" +
+      "<dt>State</dt><dd>unreachable</dd>" +
+      "<dt>Error</dt><dd>" + esc(err || "offline") + "</dd>" +
+      "</dl>" +
+      '<p class="muted">Ping layer may still show online if only ONA detail failed.</p>';
+  }
+
+  function esc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  async function loadFleet() {
+    setFlash("Loading fleet…", "busy");
+    refreshBtn.disabled = true;
+    fleetCard.classList.add("pulse");
+    try {
+      var r = await fetch("/cgi-bin/fleet?t=" + Date.now(), { cache: "no-store" });
+      if (!r.ok) throw new Error("fleet HTTP " + r.status);
+      var data = await r.json();
+      renderFleet(data);
+      var online = (data.nodes || []).filter(function (n) { return n.online; }).length;
+      var total = (data.nodes || []).length;
+      meta.innerHTML =
+        "Fleet <strong>" + online + "/" + total + "</strong> online · " +
+        shortIso(data.generated_at) + " · mesh-pull";
+      setFlash("Fleet " + online + "/" + total, "ok");
+      if (selectedHost) selectNode(selectedHost);
+      else if (data.nodes && data.nodes[0]) selectNode(data.nodes[0].host);
       return true;
-    } catch (error) {
-      health.innerHTML = '<span class="muted">No status: ' + error.message + "</span>";
-      setFlash("Failed: " + error.message, "err");
-      meta.textContent = "Check failed " + shortIso(checkedAt);
-      return false;
+    } catch (e) {
+      // Fallback: coarse status.json only
+      try {
+        var r2 = await fetch("/status.json?t=" + Date.now(), { cache: "no-store" });
+        var s = await r2.json();
+        var nodes = [
+          { host: "fracta", resource_id: "resource://fracta", label: "Fracta", online: !!(s.nodes && s.nodes.fracta), http_status: s.nodes && s.nodes.fracta ? 200 : 0, health_score: null, hostname: null, endpoint: "" },
+          { host: "i7-thinkpad-jhr", resource_id: "resource://i7-thinkpad-jhr", label: "Workstation", online: !!(s.nodes && s.nodes.workstation), http_status: 0, health_score: null, hostname: null, endpoint: "" },
+          { host: "rpi3-view", resource_id: "resource://rpi3-view", label: "This Pi", online: true, http_status: 200, health_score: null, hostname: null, endpoint: "" },
+          { host: "poco-jhr", resource_id: "resource://poco-jhr", label: "Phone", online: !!(s.nodes && s.nodes.phone), http_status: 0, health_score: null, hostname: null, endpoint: "" },
+        ];
+        renderFleet({ nodes: nodes, generated_at: s.generated_at, mode: "status.json-fallback" });
+        setFlash("Fleet degraded (status.json)", "busy");
+        meta.textContent = "Degraded · " + shortIso(s.generated_at);
+        return true;
+      } catch (e2) {
+        fleetEl.innerHTML = '<span class="muted">Fleet failed: ' + esc(e.message) + "</span>";
+        setFlash(e.message, "err");
+        return false;
+      }
     } finally {
       refreshBtn.disabled = false;
       refreshBtn.textContent = "Refresh";
-      setTimeout(function () { healthCard.classList.remove("pulse"); }, 400);
+      setTimeout(function () { fleetCard.classList.remove("pulse"); }, 300);
     }
   }
 
-  refreshBtn.addEventListener("click", function () { load({ reprobe: true }); });
-  document.querySelector("#reload-page").addEventListener("click", function () {
-    setFlash("Reloading…", "busy");
-    location.reload();
-  });
+  refreshBtn.addEventListener("click", function () { loadFleet(); });
+  document.getElementById("reload-page").addEventListener("click", function () { location.reload(); });
 
-  (async function firstLoad() {
-    for (var i = 0; i < 8; i++) {
-      if (await load({ reprobe: false })) return;
-      setFlash("Waiting… " + (i + 1), "busy");
-      await new Promise(function (r) { setTimeout(r, 1500); });
-    }
-  })();
-  setInterval(function () { load({ reprobe: false }); }, 60000);
+  loadFleet();
+  setInterval(loadFleet, 60000);
 </script>
 </body>
 </html>
