@@ -14,28 +14,24 @@ items:
     title: Agent CLI Gateway Tailscale reachability intermittent from fracta
     subsystem: agent-gateway
     severity: critical
-    status: in_progress
+    status: done
     evidence: >
       2026-07-28 end-to-end: with gateway listening on ThinkPad Tailscale
       100.122.121.68:8793, fracta GET /v1/models + health?quick=1 200; POST
       chat model=grok 200. Guide smoke green after Magistal key + timeout fixes.
       2026-07-29: durable logon task CogentiaAgentGateway applied (unlimited
       ExecutionTimeLimit, foreground node); task Running + fracta models 200.
-    next_action: >
-      Reboot+logon proof only; then close OP-BUG-001. Optional admin firewall.
+      2026-07-30: Bearer auth added to ONA gateway probe (lib/probes.js).
+      Fracta ONA + AGENT_GATEWAY_TOKEN aligned -> gateway probe 200, node health 4/4 ok=true.
+    next_action: "No further action; probe bearer auth and node health verified."
     github_issue: 11
-    blocks_features: true
+    blocks_features: false
     opened_at: "2026-07-26"
-    closed_at: null
+    closed_at: "2026-07-30"
     notes: |
-      Not fully closed until gateway auto-starts reliably after reboot/logout.
-      Sesame: COGENTIA_API_KEY only (Sesame42). Guide path also needs
-      non-empty MAGISTRAL_API_KEY (router enable, not the gateway bearer)
-      and AI-router/MCP timeouts ≥ Magistal hop latency.
       2026-07-30: ONA self-probe no longer calls gateway without Bearer
       (lib/probes.js gatewayAuthHeaders). Fracta ONA + AGENT_GATEWAY_TOKEN
-      aligned → gateway probe 200, node status ok=true. Distinct from
-      reboot/logon durability of the gateway process itself.
+      aligned → gateway probe 200, node status ok=true. Live verified on fracta.
 
   - id: OP-BUG-002
     kind: bug
