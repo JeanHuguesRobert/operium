@@ -1984,13 +1984,19 @@ Initial responsibilities:
 
 Initial responsibilities:
 
-- kiosk mode;
+- kiosk / control-room home display (**“La Nasa” step 1**);
 - last-snapshot cache;
 - local display;
 - store-and-forward;
 - degraded operation;
 - no critical secrets;
 - automatic restart recovery.
+
+**Stabilized step 1 (2026-07-30):** local web portal on
+`http://127.0.0.1/` — reachability dashboard, Firefox home, degraded
+`status.json`. Runbook and inventory:
+[rpi3-view-edge-portal.md](rpi3-view-edge-portal.md). Not yet a SOMA/MIB
+zoom console.
 
 ## 20.3. `i7-thinkpad-jhr`
 

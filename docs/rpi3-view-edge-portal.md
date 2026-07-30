@@ -1,198 +1,156 @@
 ---
-title: "rpi3-view edge consultation portal"
-description: "Lightweight local portal with cached network health and links to Fractanet web experiences."
+title: "rpi3-view edge portal — control-room display (step 1)"
+description: "Stabilized local web home on the Paoli Pi: first Fractanet control-room UI surface."
 document_role: operational
 document_kind: runbook
 visibility: public
 lifecycle_state: active
-update_policy: UP-DEFAULT-REVIEWED
+updated: "2026-07-30"
 ---
 
-# rpi3-view edge consultation portal
+# rpi3-view edge portal — control-room display (step 1)
 
-## Observed deployment
+**Operator nickname:** the small always-on screen is affectionately **“La Nasa”**
+(the Fractanet control room). This document freezes **step 1**: a reliable
+local web home on `rpi3-view`, not yet a full management console.
 
-Deployed and verified on 2026-07-28:
+**Stabilized:** 2026-07-30 (Operium `main`).  
+**Runbook owner:** Operium.  
+**Node:** `rpi3-view` (Raspberry Pi 3, Paoli LAN edge display).
+
+## What this is (and is not)
+
+| Is | Is not |
+|----|--------|
+| Local HTTP home at `http://127.0.0.1/` (and tailnet `http://rpi3-view/`) | Coding workspace or corpus monorepo |
+| Reachability dashboard (mesh nodes + Views Store) | SOMA/MIB browser or ONA drill-down |
+| Cached `status.json` for WAN-down consultation | Central control plane / Fracta authority |
+| Firefox home window (reversible fullscreen via labwc) | Locked-down kiosk with no desktop access |
+| **Step 1** of a future control-room UI | Full “La Nasa” multi-panel ops console |
+
+**Next steps (out of scope here):** SNMP-like management agents on every node
+(ONA already exists in embryo), global fleet view, zoom into a node via SOMA —
+see [operium-node-agent.md](operium-node-agent.md) and
+[soma-semantic-object-management-architecture.md](soma-semantic-object-management-architecture.md).
+
+## Stabilized deployment (observed 2026-07-30)
 
 | Surface | Value |
-|---|---|
-| Primary kiosk URL | `http://localhost/` |
+|---------|--------|
+| Local URL | `http://127.0.0.1/` (portal UI) |
+| Boot splash | `http://127.0.0.1/boot.html` (retry until ready, then redirect) |
 | Tailnet URL | `http://rpi3-view/` |
-| Local mDNS URL | `http://rpi3-view.local/` when local name resolution is available |
 | Static root | `/srv/operium-edge-portal` |
-| HTTP server | BusyBox `httpd` |
-| Port | `80` through systemd `CAP_NET_BIND_SERVICE`; process remains user `jh` |
-| Service | `operium-edge-portal.service` |
-| Refresh timer | `operium-edge-portal-refresh.timer` |
-| Refresh interval | 5 minutes with a small randomized delay |
-| Snapshot | `/srv/operium-edge-portal/status.json` |
+| HTTP server | BusyBox `httpd` on port **80** (`CAP_NET_BIND_SERVICE`, user `jh`) |
+| Service | `operium-edge-portal.service` (enabled) |
+| Refresh timer | `operium-edge-portal-refresh.timer` (~5 min → `status.json`) |
+| CGI re-probe | `GET /cgi-bin/refresh` → rewrite `status.json` + return JSON |
+| Light HTML (optional) | `GET /cgi-bin/home` (no JS; fallback browsers) |
+| Browser | Firefox ESR, profile `~/.mozilla/firefox/operium-edge.profile` |
+| Launch | `~/bin/rpi3-view-open-edge-portal.sh` from labwc autostart |
+| Desktop | labwc Wayland (`LXDE-pi-labwc`), not a coding node |
+| Display | HDMI ~1024×768 (ASUS VH196); compact UI avoids vertical scroll |
+| ONA (separate) | `operium-node-agent.service` on `:8794` (SOMA descriptor; not wired into portal UI yet) |
 
-The service and timer are enabled and active. The page and JSON snapshot both
-returned HTTP 200 locally on the Pi and from the Windows workstation through
-Tailscale.
-
-The first snapshot reported the Views Store and all four currently known nodes
-as reachable. This is an observation at one instant, not a continuous
-availability guarantee.
-
-`operium-node-agent.service` was initially observed as disabled and inactive.
-It is now enabled with the read-only SOMA profile from a small immutable
-runtime artifact. This is separate from the active edge portal.
-
-## Role
-
-The Pi is a consultation endpoint, not a development node or control-plane
-authority. The portal provides:
-
-- a stable local home page;
-- links to available web experiences;
-- a compact reachability dashboard;
-- a cached degraded mode when the WAN path disappears.
-
-The portal itself requires no Node process or client-side secret. BusyBox
-serves one static page and one JSON file.
-
-The host has a separate ARMv7 Node.js `v22.23.1` installation at
-`/home/jh/.local/bin/node`. It is absent from the default non-interactive SSH
-`PATH`, which is why an initial `command -v node` probe incorrectly reported
-it as missing. The Pi has no Git worktree; the SOMA agent uses the 3 MB runtime
-artifact under `~/srv/operium-runtime/releases/dd724db`.
-
-These facts do not make the Pi a general development node. They support
-existing edge services and should be kept distinct from the lightweight portal
-runtime.
-
-## Degraded mode
-
-`operium-edge-portal-refresh` probes:
-
-- the public Views Store health endpoint;
-- Fracta through the mesh;
-- the office workstation;
-- the Android/Termux node.
-
-It writes a complete temporary JSON file and atomically renames it to
-`status.json`. A failed or interrupted writer therefore does not expose a
-partially written snapshot. If Internet access disappears, the local page and
-the last completed snapshot remain available.
-
-Reachability is deliberately not presented as deep service health. Future
-versions may consume richer Operium projections when `/ops/status` becomes
-available on Fracta.
-
-## Current links and known drift
-
-The Views Store and its live documentation are available:
-
-- `https://cogentia.fractavolta.com/`
-- `https://cogentia.fractavolta.com/docs`
-
-The planned Fracta paths `/ops/status` and `/ops/console/` returned HTTP 404
-during deployment verification. The portal labels Operium Console as planned
-instead of linking to a service that is not deployed.
-
-## Operations
+### Baseline verification
 
 ```bash
-ssh rpi3-view "systemctl status operium-edge-portal.service"
-ssh rpi3-view "systemctl status operium-edge-portal-refresh.timer"
-ssh rpi3-view "sudo systemctl start operium-edge-portal-refresh.service"
-curl http://rpi3-view/status.json
+ssh rpi3-view 'systemctl is-active operium-edge-portal.service operium-edge-portal-refresh.timer'
+ssh rpi3-view 'curl -fsS -o /dev/null -w "%{http_code}\n" http://127.0.0.1/'
+ssh rpi3-view 'curl -fsS -o /dev/null -w "%{http_code}\n" http://127.0.0.1/boot.html'
+ssh rpi3-view 'curl -fsS -o /dev/null -w "%{http_code}\n" http://127.0.0.1/status.json'
+# From workstation (mesh):
+curl -fsS -o /dev/null -w "%{http_code}\n" http://rpi3-view/
 ```
 
-Runtime files are owned by Operium source:
+Expect **active** services and **HTTP 200**.
 
-- `apps/edge-portal/index.html`
-- `scripts/ops/rpi3-view-edge-portal-refresh.sh`
-- `scripts/ops/install-rpi3-edge-kiosk-browser.sh`
-- `templates/rpi3-view/operium-edge-portal*.{service,timer}`
-- `templates/rpi3-view/lxsession-LXDE-pi-autostart`
+## Architecture
 
-## Home browser (Firefox ESR, normal window)
+```text
+labwc autostart
+  → rpi3-view-open-edge-portal.sh
+      wait HTTP 200 on portal
+      settle (cold-start / early boot)
+      firefox-esr -profile …/operium-edge.profile --new-window http://127.0.0.1/boot.html
+          → boot.html retries status.json → redirect to /
 
-The portal is HTTP-only at **`http://127.0.0.1/`** (also `http://localhost/`).
+systemd: operium-edge-portal.service
+  → busybox httpd :80 → /srv/operium-edge-portal
+      index.html   (compact control-room home)
+      boot.html
+      status.json  (last probe snapshot)
+      cgi-bin/refresh, cgi-bin/home
 
-**Mode:** default **`KIOSK_MODE=window`** — Firefox opens a normal window so the
-operator keeps the Pi panel menus, browser chrome, **Back**, and right-click.
-Full-screen lock-down is optional: `KIOSK_MODE=kiosk`.
-
-**Home browser:** default **Firefox ESR** on `http://127.0.0.1/` via
-`rpi3-view-open-edge-portal.sh`:
-
-- wait until portal returns **HTTP 200** (then short settle);
-- open with **absolute** `-profile …/operium-edge.profile` (never `-P name`,
-  which reopens the profile manager after hard reboot);
-- prefs disable offline heuristics / HTTPS-only / proxy for loopback.
-
-**Measured (2026-07-30):** under calm load, Firefox recorded a successful
-visit to `http://127.0.0.1/` in `places.sqlite` while httpd stayed 200.
-Operator observation: if one waits long enough, `127.0.0.1` eventually
-answers in Firefox — consistent with **slow first paint / cold start**, not a
-dead httpd. Opener therefore: wait HTTP 200, settle ~20s, extra wait until
-~120s system uptime, open `/boot.html` (client retry) then redirect to `/`.
-
-**Light fallback:** `BROWSER=dillo PORTAL_URL=http://127.0.0.1/cgi-bin/home`
-(server-rendered page for Dillo; limited CSS/JS — not the product target).
-
-**Observed stack (2026-07):** Raspberry Pi OS Bookworm with **labwc Wayland**
-(`DESKTOP_SESSION=LXDE-pi-labwc`). Primary autostart:
-
-- `~/.config/labwc/autostart` (managed BEGIN/END block)
-
-XDG `.desktop` is kept only as `.disabled` to avoid double launch.
-
-**Browser:** **Firefox ESR** by default. Chromium may need a profile-lock fix
-after hostname rename (`scripts/ops/fix-chromium-profile-lock-rpi.sh`).
-
-Install / refresh:
-
-```bash
-scp operium/scripts/ops/install-rpi3-edge-kiosk-browser.sh rpi3-view:~/
-ssh rpi3-view 'bash ~/install-rpi3-edge-kiosk-browser.sh'
-# optional:
-# KIOSK_MODE=kiosk bash ~/install-rpi3-edge-kiosk-browser.sh
+systemd: operium-edge-portal-refresh.timer
+  → probes Views Store + ping fracta / thinkpad / poco → atomic status.json
 ```
 
-Then log out/in (or reboot). Manual:
+### Operator interaction (display)
+
+| Action | Behaviour |
+|--------|-----------|
+| First paint | May take tens of seconds (Firefox cold start on Pi 3); server is usually already up |
+| Fullscreen | labwc can toggle fullscreen; **F11** is acceptable manual toggle |
+| Leave fullscreen | F11 |
+| Minimize / desktop | Super+↓ (labwc `Iconify`) |
+| Maximize | Super+↑ |
+| Close browser | Alt+F4 |
+
+Do not use Firefox `--kiosk` for this desk display: it blocks easy minimize and
+desktop menus.
+
+## Source tree (Operium)
+
+| Path | Role |
+|------|------|
+| `apps/edge-portal/index.html` | Main compact UI |
+| `apps/edge-portal/boot.html` | Boot splash + client retry |
+| `apps/edge-portal/cgi-bin/refresh` | On-demand mesh re-probe |
+| `apps/edge-portal/cgi-bin/home` | Optional no-JS HTML |
+| `scripts/ops/rpi3-view-edge-portal-refresh.sh` | Timer probe writer |
+| `scripts/ops/rpi3-view-open-edge-portal.sh` | Wait-for-portal + Firefox launch |
+| `scripts/ops/deploy-rpi3-edge-portal.sh` | Deploy static + labwc + opener from workstation |
+| `templates/rpi3-view/operium-edge-portal*.service` | systemd unit fragments |
+| `templates/rpi3-view/labwc-autostart-edge-portal` | labwc autostart |
+| `templates/rpi3-view/labwc-rc.xml.fragment` | fullscreen toggle + keybinds |
+| `templates/rpi3-view/firefox-edge-portal-user.js` | no session-restore dialog after hard reboot |
+| `profiles/tools.rpi3-view.v1.yaml` | node tool/profile registry |
+
+## Deploy / refresh
+
+From a workstation with mesh SSH and a current Operium checkout:
 
 ```bash
-firefox-esr --new-window http://127.0.0.1/
-```
-
-### Refresh button
-
-**Refresh status** calls `/cgi-bin/refresh` (re-probes mesh, rewrites
-`status.json`, returns JSON) and updates the footer with both snapshot time and
-local check time. **Reload page** does a full browser reload.
-
-### Deploy polish (static portal + labwc)
-
-From the Operium tree:
-
-```bash
+cd operium
 bash scripts/ops/deploy-rpi3-edge-portal.sh
 ```
 
-Deploys `index.html`, `boot.html`, CGI, opener, Firefox `user.js`, labwc
-`autostart` (30 min screen blank) and `rc.xml` (Firefox **Maximize**, not
-kiosk). Re-login or reboot so labwc reloads window rules. Static HTML is live
-immediately after deploy (reload the page).
+- Static HTML/CGI: live after deploy (browser reload).
+- labwc `rc.xml` / autostart: re-login or reboot the Pi.
 
-Deploy portal files (manual):
+## Degraded mode
 
-```bash
-scp apps/edge-portal/index.html rpi3-view:/srv/operium-edge-portal/index.html
-scp apps/edge-portal/cgi-bin/refresh rpi3-view:/srv/operium-edge-portal/cgi-bin/refresh
-ssh rpi3-view 'chmod +x /srv/operium-edge-portal/cgi-bin/refresh'
-```
+`status.json` is written atomically. If Internet / mesh disappears, the local
+page and last completed snapshot remain available. Reachability is **not** deep
+service health — only ping / public Views Store health style probes.
 
-## Future local network
+## Relationship to ONA / SOMA
 
-The portal currently relies on Tailscale names and whatever WAN path is
-available through the phone. A future office LAN may make `rpi3-view` a local
-anchor for other devices and reused routers.
+| Layer | On rpi3-view (2026-07-30) | Used by edge portal UI? |
+|-------|---------------------------|-------------------------|
+| Edge portal | yes | **yes** (this doc) |
+| ONA `:8794` | yes (SOMA profile, runtime artifact) | **no** (not yet) |
+| SOMA `/.well-known/soma` | yes | **no** |
+| `/soma/object` | requires read token | **no** |
 
-That network design is intentionally deferred until the available routers,
-their firmware and their physical roles are inventoried. The current portal
-does not assume a specific router, DHCP authority, DNS resolver or Internet
-gateway.
+Wiring the control-room UI to ONA/SOMA (global fleet view + node zoom / “MIB”
+browser) is the intentional **step 2+** after this stabilized home page.
+
+## Related
+
+- [Fractanet mesh](fractanet-mesh.md) — node roles, Paoli edge-kiosk
+- [Fractanet control center](fractanet-control-center.md) — broader control-room ambition
+- [Operium Node Agent](operium-node-agent.md)
+- [SOMA](soma-semantic-object-management-architecture.md)
+- Profile: `profiles/tools.rpi3-view.v1.yaml`

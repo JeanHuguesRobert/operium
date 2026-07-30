@@ -2,7 +2,8 @@ profile_id: tools.rpi3-view.v1
 node_id: rpi3-view
 node_class: raspberry-pi-edge-kiosk
 ssh_alias: rpi3-view
-updated: "2026-07-28"
+updated: "2026-07-30"
+# Control-room display step 1 ("La Nasa" home screen) — see docs/rpi3-view-edge-portal.md
 
 policy:
   role: read_only_edge_consumer
@@ -50,10 +51,12 @@ shared_store:
   runbook: docs/operium-shared-store.md
 
 edge_portal:
-  status: present
-  observed: "2026-07-29"
-  role: read_only_consultation
-  kiosk_url: http://localhost/
+  status: stabilized
+  observed: "2026-07-30"
+  role: control_room_home_step1
+  nickname: "La Nasa (step 1 — local web home)"
+  kiosk_url: http://127.0.0.1/
+  boot_url: http://127.0.0.1/boot.html
   url: http://rpi3-view/
   local_mdns_url: http://rpi3-view.local/
   static_root: /srv/operium-edge-portal
@@ -64,19 +67,23 @@ edge_portal:
   refresh_timer: operium-edge-portal-refresh.timer
   refresh_interval: 5min
   degraded_mode: cached_last_completed_snapshot
+  deploy: scripts/ops/deploy-rpi3-edge-portal.sh
   kiosk_browser:
     status: installed
     browser: firefox-esr
-    mode: kiosk
-    portal_url: http://127.0.0.1/
+    mode: window_reversible_fullscreen
+    profile: ~/.mozilla/firefox/operium-edge.profile
+    portal_url: http://127.0.0.1/boot.html
     desktop: labwc-wayland
     autostart:
-      - ~/.config/autostart/operium-edge-kiosk.desktop
       - ~/.config/labwc/autostart
-      - ~/.config/lxsession/LXDE-pi/autostart
-    notes: "Chromium blocked by SingletonLock from old hostname baronpi; Firefox ESR is xdg default"
-    install: scripts/ops/install-rpi3-edge-kiosk-browser.sh
+    opener: ~/bin/rpi3-view-open-edge-portal.sh
+    notes: "Not Firefox --kiosk; F11 toggle fullscreen; Super+Down minimize; absolute -profile path"
+    install: scripts/ops/deploy-rpi3-edge-portal.sh
   runbook: docs/rpi3-view-edge-portal.md
+  next_steps:
+    - wire ONA/SOMA for node zoom (MIB-like browser)
+    - global fleet view beyond ping status.json
 
 operational_checkouts:
   observed: "2026-07-28"

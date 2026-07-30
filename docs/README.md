@@ -34,6 +34,7 @@ This directory contains Operium documentation.
 - [Fracta trust perimeter and secrets](fracta-trust-perimeter.md)
 - [Secret-safe inspection protocol](fracta-trust-perimeter.md#secret-safe-inspection-protocol)
 - [Fractanet mesh — Tailscale and SSH](fractanet-mesh.md)
+- [rpi3-view edge portal — control-room display step 1](rpi3-view-edge-portal.md) — stabilized Pi web home (“La Nasa” step 1)
 - [Edge trap-directed polling (SNMP pattern)](../cogentia/docs/edge-trap-directed-polling.md) — Pi 3 store-and-forward + fracta manager
 - [fractavolta.com DNS zone](fractavolta-dns.md)
 - [Stalwart mail on fracta](stalwart-private-mail.md) — governed bidirectional Gmail ↔ Twin JHN channel
