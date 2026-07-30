@@ -2,7 +2,8 @@
 <!--
   Operium edge display: merge into ~/.config/labwc/rc.xml on rpi3-view
   (or replace if the file only holds pointer speed + theme).
-  Maximizes Firefox for the home portal without --kiosk (menus stay usable).
+  Fullscreen Firefox for the home portal (same idea as F11).
+  Exit: F11 or Esc (browser), Super for labwc / panel, Alt+F4 closes window.
 -->
 <openbox_config xmlns="http://openbox.org/3.4/rc">
   <libinput>
@@ -13,6 +14,10 @@
   <keyboard>
     <repeatRate>25</repeatRate>
     <repeatDelay>500</repeatDelay>
+    <!-- F11-like if Firefox is focused but not already kiosk -->
+    <keybind key="F11">
+      <action name="ToggleFullscreen"/>
+    </keybind>
   </keyboard>
   <theme>
     <name>PiXflat</name>
@@ -30,15 +35,16 @@
     </font>
   </theme>
   <windowRules>
-    <!-- Wayland app_id variants for Firefox ESR -->
+    <!-- Wayland app_id / XWayland WM_CLASS variants for Firefox ESR -->
     <windowRule identifier="firefox*" matchOnce="true">
-      <action name="Maximize"/>
+      <action name="ToggleFullscreen"/>
     </windowRule>
     <windowRule identifier="Firefox*" matchOnce="true">
-      <action name="Maximize"/>
+      <action name="ToggleFullscreen"/>
     </windowRule>
     <windowRule identifier="org.mozilla.firefox*" matchOnce="true">
-      <action name="Maximize"/>
+      <action name="ToggleFullscreen"/>
     </windowRule>
   </windowRules>
 </openbox_config>
+

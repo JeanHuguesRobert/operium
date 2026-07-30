@@ -2,7 +2,10 @@
 swayidle -w timeout 1800 'wlopm --off \*' resume 'wlopm --on \*' &
 
 # BEGIN operium-edge-kiosk
-# Firefox home portal — absolute profile, wait for HTTP 200, then boot.html
+# Firefox home portal — F11-like fullscreen (--kiosk) + labwc ToggleFullscreen
+# Exit fullscreen: F11 or Esc; system menu: Super; close: Alt+F4
+# Windowed debug: KIOSK_MODE=window
 # Optional light fallback: BROWSER=dillo PORTAL_URL=http://127.0.0.1/cgi-bin/home
-env PORTAL_URL=http://127.0.0.1/boot.html BROWSER=firefox-esr /home/jh/bin/rpi3-view-open-edge-portal.sh &
+env KIOSK_MODE=kiosk PORTAL_URL=http://127.0.0.1/boot.html BROWSER=firefox-esr /home/jh/bin/rpi3-view-open-edge-portal.sh &
 # END operium-edge-kiosk
+

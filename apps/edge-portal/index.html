@@ -210,7 +210,7 @@
   <header>
     <div class="titles">
       <h1>Fractanet Edge Portal</h1>
-      <p class="tagline">Local Pi consultation · menus available</p>
+      <p class="tagline">Local Pi · F11/Esc leave fullscreen · Super = system menu</p>
     </div>
     <div class="actions">
       <button id="refresh" type="button">Refresh</button>
@@ -338,9 +338,22 @@
     location.reload();
   });
 
+  function tryBrowserFullscreen() {
+    // Content fullscreen (complements Firefox --kiosk / labwc fullscreen).
+    var el = document.documentElement;
+    if (!el || document.fullscreenElement) return;
+    var req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+    if (req) {
+      try { req.call(el); } catch (e) { /* needs gesture on some builds */ }
+    }
+  }
+
   (async function firstLoad() {
     for (var i = 0; i < 8; i++) {
-      if (await load({ reprobe: false })) return;
+      if (await load({ reprobe: false })) {
+        setTimeout(tryBrowserFullscreen, 400);
+        return;
+      }
       setFlash("Waiting… " + (i + 1), "busy");
       await new Promise(function (r) { setTimeout(r, 1500); });
     }
