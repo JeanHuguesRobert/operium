@@ -63,14 +63,16 @@ curl -fsS -o /dev/null -w "%{http_code}\n" -X POST http://<node>:8794/node/probe
 # expect 401 without admin token
 ```
 
-## Fleet smoke (P1 done)
+## Fleet smoke (P1 — 2026-07-30)
 
-| Node | `GET /node/status` | `GET /soma/object` | `POST /node/probe` (no token) |
-|------|--------------------|--------------------|-------------------------------|
-| fracta | 200 | 200 | 401 |
-| i7-thinkpad-jhr | 200 | 200 | 401 |
-| rpi3-view | 200 | 200 | 401 |
-| poco-jhr | 200 | 200 | 401 |
+| Node | `GET /node/status` | `GET /soma/object` | `POST /node/probe` (no token) | Notes |
+|------|--------------------|--------------------|-------------------------------|--------|
+| fracta | 200 | 200 | 401 | drop-in + pull |
+| rpi3-view | 200 | 200 | 401 | runtime code patch + env |
+| poco-jhr | 200 | 200 | 401 | pull + `ONA_BIND=0.0.0.0` |
+| i7-thinkpad-jhr | 200* | 200* | 401 | needs **elevated** NSSM restart to load new code (`OperiumNodeAgent` as SYSTEM) |
+
+\*After admin restart of `OperiumNodeAgent` (or reboot). Until then mesh may still return 401 if the process predates `ONA_MESH_OPEN_READ` / default-from-`HEALTH_PUBLIC`.
 
 ## Related
 
