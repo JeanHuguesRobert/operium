@@ -32,8 +32,9 @@ Environment:
   ONA_JOB_TIMEOUT_MS    per-job timeout (default 120000)
   ONA_COP_DELIVERY      enable COP outbox delivery (default 1)
   ONA_PEER_TOKEN        required when ONA_COP_DELIVERY=1
-  ONA_READ_TOKEN        read API bearer token
+  ONA_READ_TOKEN        read API bearer token (optional if ONA_MESH_OPEN_READ=1)
   ONA_ADMIN_TOKEN       admin API bearer token
+  ONA_MESH_OPEN_READ    allow unauthenticated GET status/SOMA read (Tailscale trust; default 0)
   OPERIUM_REGISTRY      catalogue YAML path
   COGENTIA_BLACKBOARD_URL  aggregator probe target
   COGENTIA_OPS_STATE_DIR  ops state directory
@@ -46,12 +47,12 @@ Endpoints:
   GET /health
   GET /.well-known/soma  (safe SOMA descriptor; public with ONA_HEALTH_PUBLIC=1)
   GET /soma/vocabulary  (SOMA semantics; public with ONA_HEALTH_PUBLIC=1)
-  GET /soma/object      (managed node and contained services; read token)
-  GET /soma/observations (sampleable observations; read token)
-  GET /soma/actions     (definitions and recent actions; read token)
+  GET /soma/object      (managed node; read token or ONA_MESH_OPEN_READ=1)
+  GET /soma/observations (samples; read token or ONA_MESH_OPEN_READ=1)
+  GET /soma/actions     (definitions; read token or ONA_MESH_OPEN_READ=1)
   POST /soma/actions/observation.refresh (admin token)
   POST /soma/actions/agent.restart (admin token; ONA only)
-  GET /node/status      (read token when not loopback-only)
+  GET /node/status      (read token or ONA_MESH_OPEN_READ=1)
   GET /node/peers       (?fresh=1 for fresh attractors only)
   GET /node/snapshot    (full local projection)
   GET /node/drift       (catalogue drift for this node)

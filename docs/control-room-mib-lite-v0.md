@@ -111,10 +111,8 @@ binding or firewalling so `:8794` is not world-reachable.
 | GET | `/soma/observations` | none (mesh) | Current sampleable observations |
 | GET | `/node/drift` | none (mesh) | Optional; if present, show in zoom |
 
-**P1 ops note:** today’s fleet may still return **401** on `/soma/object` until
-agents are reconfigured for mesh-open read (or a temporary shared empty-auth
-mode). That reconfiguration is part of **P1**, not a reason to keep UI auth
-complexity.
+**P1 implementation:** set `ONA_MESH_OPEN_READ=1` on each agent (see
+`docs/ona-mesh-open-read.md`). Admin/COP POST routes stay token-protected.
 
 **UI rule:** call ONA over **MagicDNS / Tailscale IPs** only. No secrets in
 static Pi portal files. No token plumbing in v0 UI code.
