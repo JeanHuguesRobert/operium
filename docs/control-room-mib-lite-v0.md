@@ -6,6 +6,7 @@ document_kind: contract
 visibility: public
 lifecycle_state: active
 updated: "2026-07-30"
+decision_note: "v0 auth deferred — Tailscale trust perimeter only (operator 2026-07-30)"
 ---
 
 # Control room MIB-lite v0 — contract (P0)
@@ -14,6 +15,13 @@ updated: "2026-07-30"
 **Product nickname:** control room **“La Nasa”**.  
 **Step 1 (done):** local web home on `rpi3-view` — [rpi3-view-edge-portal.md](rpi3-view-edge-portal.md).  
 **This document:** **step 2 contract** — SNMP-like agents + web UI to browse a management surface (MIB metaphor), global view + node zoom.
+
+### Operator decision (2026-07-30) — auth deferred
+
+For v0, **do not spend complexity budget on ONA read tokens / UI auth**.  
+Trust boundary = **Fractanet Tailscale mesh only** (management ports not exposed on the public Internet).  
+Spend the complexity budget on **homogeneous agents, global list, and node zoom**.  
+Bearer auth and public-WAN hardening remain a **later** upgrade if the perimeter changes.
 
 ## 1. Intent
 
@@ -35,6 +43,8 @@ the UI is a **projection**, not a second source of truth.
 - Long-term multi-year history or metrics TSDB.
 - Replacing the edge portal’s degraded offline page.
 - Making the Pi a coding or aggregation authority.
+- **Authentication / bearer tokens for read** (deferred; Tailscale perimeter only).
+- Exposing ONA management ports on the public Internet.
 
 ## 3. Roles and planes
 
@@ -81,33 +91,35 @@ Unknown future nodes must still fit the same agent contract when enrolled.
 
 ## 6. Read contract (wire surfaces)
 
-### 6.1 Discovery (safe / public when policy allows)
+**Auth v0:** none for read paths used by the control room, **provided** ONA
+listens only on Tailscale / loopback (not WAN). Implementation should prefer
+binding or firewalling so `:8794` is not world-reachable.
 
-| Method | Path | Auth v0 |
-|--------|------|---------|
-| GET | `/.well-known/soma` | public if `ONA_HEALTH_PUBLIC=1` |
-| GET | `/soma/vocabulary` | public if `ONA_HEALTH_PUBLIC=1` |
+### 6.1 Discovery
 
-Returns SOMA descriptor (`soma.descriptor.v0`) and vocabulary. Used to paint
-“what kind of node” without secrets.
+| Method | Path | Auth v0 | Role |
+|--------|------|---------|------|
+| GET | `/.well-known/soma` | none (mesh) | SOMA descriptor (`soma.descriptor.v0`) |
+| GET | `/soma/vocabulary` | none (mesh) | Classes / attribute semantics |
 
-### 6.2 Live body (read token)
+### 6.2 Live body (“MIB” content)
 
 | Method | Path | Auth v0 | Schema / role |
 |--------|------|---------|----------------|
-| GET | `/node/status` | `ONA_READ_TOKEN` / read bearer | `operium.node.status.v1` |
-| GET | `/soma/object` | read bearer | Managed object graph for the node |
-| GET | `/soma/observations` | read bearer | Current sampleable observations |
-| GET | `/node/drift` | read bearer | Optional; if present, show in zoom |
+| GET | `/node/status` | none (mesh) | `operium.node.status.v1` |
+| GET | `/soma/object` | none (mesh) | Managed object graph for the node |
+| GET | `/soma/observations` | none (mesh) | Current sampleable observations |
+| GET | `/node/drift` | none (mesh) | Optional; if present, show in zoom |
 
-**UI rule:** never embed long-lived tokens in static portal files on the Pi.
-Prefer:
+**P1 ops note:** today’s fleet may still return **401** on `/soma/object` until
+agents are reconfigured for mesh-open read (or a temporary shared empty-auth
+mode). That reconfiguration is part of **P1**, not a reason to keep UI auth
+complexity.
 
-- Fracta-side proxy with server-held tokens (`/ops/node/:id/…` pattern already
-  sketched in ONA docs), or
-- short-lived session on the console host.
+**UI rule:** call ONA over **MagicDNS / Tailscale IPs** only. No secrets in
+static Pi portal files. No token plumbing in v0 UI code.
 
-### 6.3 Coarse fleet snapshot (no token)
+### 6.3 Coarse fleet snapshot
 
 Existing edge portal probe file (not a MIB):
 
@@ -116,7 +128,7 @@ Existing edge portal probe file (not a MIB):
 | GET | `/status.json` on `rpi3-view` | Reachability only (`operium.edge-portal.status.v1`) |
 
 v0 global view **may** keep using this as a *fast* online/offline layer, then
-enrich from ONA when tokens/proxy allow.
+enrich from ONA over the mesh.
 
 ## 7. UI information architecture
 
@@ -130,7 +142,7 @@ Minimum fields per row:
 | online / offline / unknown | probe or ONA discovery timeout |
 | `class` / profile | `/.well-known/soma` if reachable |
 | last_seen | local UI cache or probe timestamp |
-| health_score (if any) | `/node/status` when available |
+| health_score (if any) | `/node/status` when reachable |
 
 Actions: open **zoom** for that node.
 
@@ -150,23 +162,27 @@ No write buttons in v0.
 
 | Host | Role in roadmap |
 |------|-----------------|
-| Fracta Operium Console (`/ops/console/`) | Preferred management station (tokens stay on server) |
-| `rpi3-view` portal | Step 1 home; later may *link* or embed a thin zoom panel via proxy, not store tokens |
+| Fracta Operium Console (`/ops/console/`) | Preferred multi-node station (same mesh, no token vault required in v0) |
+| `rpi3-view` portal | Step 1 home; may later embed or link fleet/zoom panels over Tailscale |
 
-## 8. Auth and trust (v0)
+## 8. Trust perimeter (v0) — not application auth
 
-- **Public:** discovery + vocabulary only (when policy says so).  
-- **Read body:** bearer read token; 401 without it (already observed fleet-wide).  
-- **Pi desk display:** must remain usable **without** putting ONA admin tokens
-  in `/srv/operium-edge-portal`.  
-- Prefer Fracta as the place that holds read tokens for multi-node proxy.
+| Layer | v0 policy |
+|-------|-----------|
+| Network | **Tailscale Fractanet only** for ONA `:8794` and control-room clients |
+| Application auth | **None** for read (MIB-lite) |
+| Public Internet | ONA must **not** be advertised on WAN; Caddy public SOMA routes stay a separate, explicit choice |
+| Later upgrade | Reintroduce bearer read tokens if any management plane leaves the mesh |
+
+Complexity budget goes to **fleet coverage, UI global/zoom, and clear schemas** —
+not to token plumbing.
 
 ## 9. Failure and degraded behaviour
 
 | Situation | UI behaviour |
 |-----------|--------------|
 | Node unreachable | show offline; keep last_seen if cached |
-| Discovery 200, object 401 | show “auth required for detail” |
+| Discovery OK, object fails (timeout / still 401 until P1) | show error on zoom; do not block fleet list |
 | Partial timeout | do not block whole fleet list |
 | WAN down on Pi | keep edge `status.json` home (step 1) |
 
@@ -175,23 +191,24 @@ No write buttons in v0.
 | Phase | Deliverable | Depends on |
 |-------|-------------|------------|
 | **P0** | This contract (done when merged) | — |
-| **P1** | Homogeneous ONA/SOMA read on all four nodes; document tokens | ops |
-| **P2** | Global fleet view in Console (or shared component) | P1 + proxy |
+| **P1** | Homogeneous ONA/SOMA **mesh-open read** on all four nodes (drop/bypass read-token for tailnet) | ops |
+| **P2** | Global fleet view (Console and/or La Nasa panel) | P1 |
 | **P3** | Node zoom / MIB-lite browser | P2 |
 | **P4** | Optional last-known cache file for zoom | P3 |
-| **P5** | Actions, history, richer graph | later |
+| **P5** | Actions, history, richer graph; **optional re-auth** if perimeter expands | later |
 
 Rough effort once P0 is accepted: **~2–3 weeks** for P1–P3 for one familiar
-developer (see prior estimate); P1 ops often dominates.
+developer; P1 is mostly **agent config / bind / verify**, not auth UI.
 
 ## 11. Acceptance criteria for “P0 complete”
 
 - [x] Contract published in Operium `docs/` and linked from docs index  
 - [x] Explicit storage stance (no central DB required for v0)  
-- [x] Explicit auth boundary (public discovery vs read body)  
+- [x] Explicit trust perimeter: **Tailscale only, no app auth in v0**  
 - [x] Explicit global vs zoom views  
 - [x] Clear separation from step-1 edge portal  
-- [ ] Operator review (Jean Hugues) — accept or amend before P1 coding  
+- [x] Operator amendment 2026-07-30: defer authentication  
+- [ ] Proceed to P1 coding when ready
 
 ## 12. Related
 
