@@ -60,6 +60,13 @@ Endpoints:
   POST /node/probe      (ONA_ADMIN_TOKEN)
   POST /node/cop        (ONA_PEER_TOKEN or ONA_ADMIN_TOKEN)
   GET /graph/*           read-only Corpus graph routes (read token when public)
+  La Nasa (mesh-open desk UI, no CGI):
+  GET /  /index.html /boot.html /simple.html
+  GET /cgi-bin/fleet | /nasa/fleet
+  GET /cgi-bin/node?host= | /nasa/node?host=
+  GET|POST /cgi-bin/action?host=&name= | /nasa/action
+  GET /status.json  /cgi-bin/home
+  Env: ONA_NASA_STATIC  ONA_NASA_CACHE_DIR  ONA_MESH_DESK_SESAME
 `);
 }
 

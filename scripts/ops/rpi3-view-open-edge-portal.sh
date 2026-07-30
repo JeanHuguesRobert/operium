@@ -7,8 +7,9 @@
 # profile picker, offline heuristics, and hung sessions are the primary suspects.
 set -u
 
+# La Nasa is served by ONA (:8794) — ESM in-process, no busybox CGI.
 # boot.html retries until status.json works, then redirects to /. Softens slow first paint.
-PORTAL_URL="${PORTAL_URL:-http://127.0.0.1/boot.html}"
+PORTAL_URL="${PORTAL_URL:-http://127.0.0.1:8794/boot.html}"
 BROWSER="${BROWSER:-firefox-esr}"
 # window (default): reversible fullscreen via labwc (F11 / Super+Down).
 # kiosk: Firefox --kiosk lock-down (harder to minimize — avoid for edge desk).

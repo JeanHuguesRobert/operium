@@ -193,7 +193,7 @@ not to token plumbing.
 | **P2** | Global fleet view on La Nasa (`/cgi-bin/fleet` + portal UI) | **done 2026-07-30** |
 | **P3** | Richer node zoom / MIB-lite (full object tree, vocabulary) | **done 2026-07-30** — La Nasa zoom: identity, system, probes, vocabulary-labelled attributes, SOMA object tree (children), current observations (+ relative time), jobs; raw JSON collapsed. Proxy `/cgi-bin/node` returns status+object+vocabulary+observations |
 | **P4** | Optional last-known cache file for zoom | **done 2026-07-30** — `/srv/operium-edge-portal/cache/nodes/<host>.json` (`operium.edge-portal.node-cache.v1`); live pull writes cache; failure serves `live:false`/`stale:true`; UI **cached** badge; timer warmer `rpi3-view-warm-node-cache.sh` |
-| **P5** | Actions, history, richer graph; **optional re-auth** if perimeter expands | **done 2026-07-30** — actions + Run (`sesame42` mesh desk); **fleet mesh graph** + **SOMA object graph** (hub/children/facets) + recent actions (8). Open later: corpus `/graph/*` deep walk, `agent.upgrade` |
+| **P5** | Actions, history, richer graph; **optional re-auth** if perimeter expands | **done 2026-07-30** — actions + Run (`sesame42`); fleet/object graphs. **La Nasa hosted in ONA** (`lib/node-agent/nasa-portal.js`, ESM, no CGI) — static + `/nasa/*` + `/cgi-bin/*` compat on `:8794` |
 
 **Semantics guide (ongoing):** [mib-snmp-semantics-for-soma.md](mib-snmp-semantics-for-soma.md) — SNMP MIB groups as design discipline for which SOMA attributes belong in default zoom.
 

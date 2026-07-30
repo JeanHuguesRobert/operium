@@ -40,7 +40,8 @@ local web home on `rpi3-view`, not yet a full management console.
 | Local URL | `http://127.0.0.1/` (portal UI) |
 | Boot splash | `http://127.0.0.1/boot.html` (retry until ready, then redirect) |
 | Tailnet URL | `http://rpi3-view/` |
-| Static root | `/srv/operium-edge-portal` |
+| Static root (legacy busybox) | `/srv/operium-edge-portal` |
+| **La Nasa host (2026-07)** | **ONA** `:8794` — ESM in-process (`lib/node-agent/nasa-portal.js`); no CGI |
 | HTTP server | BusyBox `httpd` on port **80** (`CAP_NET_BIND_SERVICE`, user `jh`) |
 | Service | `operium-edge-portal.service` (enabled) |
 | Refresh timer | `operium-edge-portal-refresh.timer` (~5 min → `status.json`) |

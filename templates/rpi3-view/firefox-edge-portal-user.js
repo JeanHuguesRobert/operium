@@ -9,7 +9,7 @@ user_pref("toolkit.startup.max_resumed_crashes", -1);
 
 // Startup
 user_pref("browser.startup.page", 0);
-user_pref("browser.startup.homepage", "http://127.0.0.1/");
+user_pref("browser.startup.homepage", "http://127.0.0.1:8794/");
 user_pref("browser.startup.homepage_override.mstone", "ignore");
 user_pref("browser.aboutwelcome.enabled", false);
 user_pref("trailhead.firstrun.didSeeAboutWelcome", true);
