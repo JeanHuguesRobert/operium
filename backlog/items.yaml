@@ -32,6 +32,10 @@ items:
       Sesame: COGENTIA_API_KEY only (Sesame42). Guide path also needs
       non-empty MAGISTRAL_API_KEY (router enable, not the gateway bearer)
       and AI-router/MCP timeouts ≥ Magistal hop latency.
+      2026-07-30: ONA self-probe no longer calls gateway without Bearer
+      (lib/probes.js gatewayAuthHeaders). Fracta ONA + AGENT_GATEWAY_TOKEN
+      aligned → gateway probe 200, node status ok=true. Distinct from
+      reboot/logon durability of the gateway process itself.
 
   - id: OP-BUG-002
     kind: bug
