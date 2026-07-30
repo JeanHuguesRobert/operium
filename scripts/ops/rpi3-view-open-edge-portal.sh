@@ -118,7 +118,7 @@ case "$BROWSER_BASE" in
   firefox|firefox-esr|*)
     ensure_firefox_profile
     # Absolute -profile only (never -P name → profile manager)
-    if [ "${KIOSK_MODE:-window}" = "kiosk" ]; then
+    if [ "${KIOSK_MODE:-kiosk}" = "kiosk" ]; then
       log "exec firefox -profile … --kiosk $PORTAL_URL"
       exec "$BROWSER_PATH" -profile "$FF_PROFILE_DIR" --no-remote --kiosk "$PORTAL_URL"
     else
