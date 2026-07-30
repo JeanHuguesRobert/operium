@@ -161,6 +161,23 @@
       border-bottom: 1px solid rgba(38, 56, 74, 0.4);
     }
     .hist-row:last-child { border-bottom: 0; }
+    .mesh-svg, .soma-svg {
+      width: 100%; height: auto; display: block;
+      background: #0b1118; border-radius: 6px; border: 1px solid var(--line);
+      margin-top: 0.25rem;
+    }
+    .mesh-svg { max-height: 9.5rem; }
+    .soma-svg { max-height: 11rem; }
+    .g-label { fill: var(--text); font-size: 10px; font-family: system-ui, sans-serif; }
+    .g-sub { fill: var(--muted); font-size: 8px; font-family: system-ui, sans-serif; }
+    .g-edge { stroke: #3a5168; stroke-width: 1.2; }
+    .g-edge.on { stroke: rgba(82, 209, 139, 0.55); }
+    .g-edge.off { stroke: rgba(255, 107, 114, 0.35); stroke-dasharray: 3 2; }
+    .g-node { stroke: var(--line); stroke-width: 1.5; }
+    .g-node.ok { fill: rgba(82, 209, 139, 0.25); stroke: var(--ok); }
+    .g-node.bad { fill: rgba(255, 107, 114, 0.2); stroke: var(--bad); }
+    .g-node.hub { fill: rgba(115, 183, 255, 0.22); stroke: var(--accent); }
+    .g-node.warn { fill: rgba(240, 193, 75, 0.18); stroke: var(--warn); }
     details.raw {
       margin-top: 0.35rem; font-size: 0.72rem; color: var(--muted);
     }
@@ -213,6 +230,8 @@
     <article class="card" id="fleet-card">
       <h2>Fleet</h2>
       <div id="fleet" class="fleet-list"><span class="muted">Loading fleet…</span></div>
+      <h2>Mesh graph</h2>
+      <div id="fleet-graph" class="muted" style="font-size:0.72rem">—</div>
     </article>
     <article class="card" id="detail-card">
       <h2>Zoom</h2>
@@ -235,6 +254,7 @@
 </main>
 <script>
   var fleetEl = document.getElementById("fleet");
+  var fleetGraphEl = document.getElementById("fleet-graph");
   var detailEl = document.getElementById("detail");
   var flash = document.getElementById("flash");
   var meta = document.getElementById("meta");
@@ -285,6 +305,116 @@
         }
       });
     });
+    renderFleetMesh(nodes);
+  }
+
+  function renderFleetMesh(nodes) {
+    if (!fleetGraphEl) return;
+    nodes = nodes || [];
+    if (!nodes.length) {
+      fleetGraphEl.innerHTML = '<span class="muted">No nodes</span>';
+      return;
+    }
+    // Fixed layout (diamond / rectangle) for up to 4 fleet nodes
+    var W = 280, H = 120, pad = 28;
+    var positions = [
+      { x: W / 2, y: pad + 6 },
+      { x: W - pad, y: H / 2 },
+      { x: W / 2, y: H - pad },
+      { x: pad, y: H / 2 },
+    ];
+    var pts = nodes.slice(0, 4).map(function (n, i) {
+      return {
+        host: n.host,
+        label: (n.label || n.host).slice(0, 12),
+        online: !!n.online,
+        selected: selectedHost === n.host,
+        x: positions[i] ? positions[i].x : pad + i * 60,
+        y: positions[i] ? positions[i].y : H / 2,
+      };
+    });
+    var svg = '<svg class="mesh-svg" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Fleet mesh">';
+    // Fully connected mesh among online pairs; dashed if either offline
+    for (var i = 0; i < pts.length; i++) {
+      for (var j = i + 1; j < pts.length; j++) {
+        var on = pts[i].online && pts[j].online;
+        svg += '<line class="g-edge ' + (on ? "on" : "off") + '" x1="' + pts[i].x +
+          '" y1="' + pts[i].y + '" x2="' + pts[j].x + '" y2="' + pts[j].y + '"/>';
+      }
+    }
+    pts.forEach(function (p) {
+      var cls = p.online ? "ok" : "bad";
+      if (p.selected) cls = "hub";
+      svg += '<circle class="g-node ' + cls + '" cx="' + p.x + '" cy="' + p.y +
+        '" r="' + (p.selected ? 11 : 9) + '" data-host="' + esc(p.host) + '"/>';
+      svg += '<text class="g-label" x="' + p.x + '" y="' + (p.y + 22) +
+        '" text-anchor="middle">' + esc(p.label) + "</text>";
+    });
+    svg += "</svg>";
+    fleetGraphEl.innerHTML = svg;
+    fleetGraphEl.querySelectorAll("circle.g-node").forEach(function (c) {
+      c.style.cursor = "pointer";
+      c.addEventListener("click", function () {
+        selectNode(c.getAttribute("data-host"));
+      });
+    });
+  }
+
+  function renderSomaGraph(obj, st) {
+    if (!obj) return "";
+    var children = obj.children || [];
+    var W = 300, H = 130;
+    var cx = W / 2, cy = H / 2 + 4;
+    var hubLabel = attrVal(obj.attributes || {}, "core.user-label") ||
+      (obj.id || "").split("/").pop() || "node";
+    hubLabel = String(hubLabel).slice(0, 14);
+    var hubOk = st && st.ok !== false;
+    var hubCls = hubOk ? "hub" : "warn";
+    var svg = '<div class="sec"><h3>Object graph</h3>' +
+      '<svg class="soma-svg" viewBox="0 0 ' + W + " " + H +
+      '" role="img" aria-label="SOMA object graph">';
+    var n = Math.max(children.length, 1);
+    var R = 46;
+    children.forEach(function (ch, i) {
+      var ang = (-Math.PI / 2) + (2 * Math.PI * i) / Math.max(children.length, 1);
+      var x = cx + R * Math.cos(ang);
+      var y = cy + R * Math.sin(ang);
+      var ca = ch.attributes || {};
+      var name = attrVal(ca, "core.user-label") || (ch.id || "").split("/").pop() || "svc";
+      name = String(name).slice(0, 10);
+      var op = attrVal(ca, "state.operational");
+      var okish = op === "enabled" || op === "online";
+      var lat = attrVal(ca, "service.probe-latency");
+      svg += '<line class="g-edge on" x1="' + cx + '" y1="' + cy +
+        '" x2="' + x.toFixed(1) + '" y2="' + y.toFixed(1) + '"/>';
+      svg += '<circle class="g-node ' + (okish ? "ok" : "warn") + '" cx="' +
+        x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="8"/>';
+      svg += '<text class="g-label" x="' + x.toFixed(1) + '" y="' + (y + 18).toFixed(1) +
+        '" text-anchor="middle">' + esc(name) + "</text>";
+      if (lat != null) {
+        svg += '<text class="g-sub" x="' + x.toFixed(1) + '" y="' + (y + 27).toFixed(1) +
+          '" text-anchor="middle">' + esc(fmtMs(lat)) + "</text>";
+      }
+    });
+    if (!children.length) {
+      svg += '<text class="g-sub" x="' + cx + '" y="' + (cy + 28) +
+        '" text-anchor="middle">no children</text>';
+    }
+    svg += '<circle class="g-node ' + hubCls + '" cx="' + cx + '" cy="' + cy + '" r="14"/>';
+    svg += '<text class="g-label" x="' + cx + '" y="' + (cy + 4) +
+      '" text-anchor="middle">' + esc(hubLabel) + "</text>";
+    // Facets as a one-line caption under the svg via HTML, not inside SVG
+    svg += "</svg>";
+    var facets = obj.facets || [];
+    if (facets.length) {
+      svg += '<div class="chips" style="margin-top:0.25rem">';
+      facets.forEach(function (f) {
+        svg += chip("facet", String(f).replace(/^.*\./, ""));
+      });
+      svg += "</div>";
+    }
+    svg += "</div>";
+    return svg;
   }
 
   function findNode(host) {
@@ -571,7 +701,7 @@
     var recent = actionsPack.recent || [];
     if (recent.length) {
       html += '<p class="muted" style="margin:0.3rem 0 0.1rem;font-size:0.68rem">Recent</p>';
-      recent.slice(0, 5).forEach(function (a) {
+      recent.slice(0, 8).forEach(function (a) {
         var st = a.state || "?";
         var cls = st === "completed" ? "ok" : st === "failed" || st === "error" ? "bad" : "warn";
         html += '<div class="hist-row">' +
@@ -692,6 +822,11 @@
       chip("ONA", st.ona_version || "?") +
       chip("peers", st.peer_count_fresh != null ? String(st.peer_count_fresh) : "—") +
       "</div></div>";
+
+    // SOMA object graph (hub + service children)
+    if (obj) {
+      html += renderSomaGraph(obj, st);
+    }
 
     // Probes from status items (preferred) or latest
     var probeItems = (st.probes && st.probes.items) || [];
