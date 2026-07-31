@@ -80,6 +80,14 @@ Operia helps read, maintain, diagnose and evolve the registry.
 
 Operia is not a separate project yet.
 
+
+
+## Operium Node Agent Daemon (ONA) & Autonomous Control Plane
+
+- **Operium Node Agent (`operium-node-agent.service`)**: Active 24/7 on node `resource://fracta` (listening on `0.0.0.0:8794`, `health_score: 4`).
+- **SOMA Endpoints**: Managed node descriptors (`/.well-known/soma`, `/soma/object`, `/soma/actions`).
+- **Autonomous Execution**: Background job scheduling and remote site worker dispatch (`/srv/cogentia/work/update_fractavolta_site_remote.js`).
+
 ## Status
 
 Active working implementation. The registry and CLI are operational; node-agent, console and
