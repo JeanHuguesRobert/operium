@@ -87,6 +87,44 @@ export async function fetchNodeSomaVocabulary(nodeId, signal) {
   return fetchOpsJson(buildNodeOpsPath(nodeId, "soma/vocabulary"), { auth: true, signal });
 }
 
+export async function fetchNodeSomaActions(nodeId, signal) {
+  return fetchOpsJson(buildNodeOpsPath(nodeId, "soma/actions"), { auth: true, signal });
+}
+
+export async function executeNodeSomaAction(nodeId, actionName, payload = {}, signal) {
+  const path = buildNodeOpsPath(nodeId, `soma/actions/${actionName}`);
+  const url = `${OPS_BASE}${path.startsWith("/") ? path : `/${path}`}`;
+  const token = runtimeOpsToken();
+  const headers = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  };
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(payload),
+    signal,
+  });
+  const text = await response.text();
+  let body;
+  try {
+    body = JSON.parse(text || "{}");
+  } catch {
+    body = { ok: false, error: "invalid_json", raw: text.slice(0, 200) };
+  }
+
+  return {
+    ok: response.ok && body.ok !== false,
+    status: response.status,
+    url,
+    body,
+  };
+}
+
 export function listOnaAttractors(blackboard = {}) {
   const attractors = Array.isArray(blackboard.attractors) ? blackboard.attractors : [];
   return attractors

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { HealthBadge } from "./HealthBadge.jsx";
 import { getOpsConfig, setOpsToken } from "../lib/ops-api.js";
 import { SomaInspector } from "./SomaInspector.jsx";
+import { SomaActionsPanel } from "./SomaActionsPanel.jsx";
 
 export function NodeDetail({
   node,
@@ -82,6 +83,10 @@ export function NodeDetail({
           <ProbeList probes={statusBody.probes?.latest || []} />
         </Panel>
       ) : null}
+
+      <Panel title="SOMA Actions">
+        <SomaActionsPanel nodeId={node.node_id} />
+      </Panel>
 
       <Panel title="SOMA Object Inspector">
         <SomaInspector
