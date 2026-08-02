@@ -21,6 +21,16 @@ try {
   const onaPort = await startMockService({ ok: true, service: "operium-node-agent" });
   const gatewayPort = await startMockService({ ok: true, service: "agent-cli-gateway" });
   const inoxPort = await startMockService({ ok: true, service: "inox-serve" });
+  const guidePort = await startMockService({
+    ok: true,
+    service: "fractavolta-guide",
+    context: { semantic_retrieval: { state: "nominal" } },
+  });
+  const degradedGuidePort = await startMockService({
+    ok: true,
+    service: "fractavolta-guide",
+    context: { semantic_retrieval: { state: "degraded" } },
+  });
   const aggregatorPort = await startMockService({
     ok: true,
     schema: "operium.up.v1",
@@ -46,6 +56,7 @@ try {
     onaPort,
     env: {
       COGENTIA_BLACKBOARD_URL: `http://127.0.0.1:${aggregatorPort}/ops/blackboard`,
+      ONA_GUIDE_HEALTH_URL: `http://127.0.0.1:${guidePort}/guide/health`,
     },
     timeoutMs: 3000,
   });
@@ -54,8 +65,18 @@ try {
   assert.equal(cycle.resource_id, "resource://test-thinkpad");
 
   const kinds = cycle.probes.map(probe => probe.probe_kind);
-  assert.deepEqual(kinds, ["ona", "gateway", "inox", "aggregator"]);
+  assert.deepEqual(kinds, ["ona", "gateway", "inox", "guide_semantic", "aggregator"]);
   assert.ok(cycle.probes.every(probe => probe.skipped || probe.ok === true));
+
+  const degradedGuideCycle = await probeOnaServices(catalogue, {
+    hostname: "test-thinkpad",
+    onaPort,
+    env: { ONA_GUIDE_HEALTH_URL: `http://127.0.0.1:${degradedGuidePort}/guide/health` },
+    timeoutMs: 3000,
+  });
+  const degradedGuide = degradedGuideCycle.probes.find(probe => probe.probe_kind === "guide_semantic");
+  assert.equal(degradedGuide.ok, false);
+  assert.equal(degradedGuide.result.error, "guide_semantic_retrieval_degraded");
 
   const failedCycle = {
     probes: [
@@ -80,10 +101,10 @@ try {
     hostname: "test-thinkpad",
   });
   assert.ok(summary.health_score >= 3);
-  assert.equal(summary.probe_count, 4);
+  assert.equal(summary.probe_count, 5);
 
   const probeRows = db.prepare("SELECT COUNT(*) AS count FROM probe_history").get();
-  assert.equal(Number(probeRows.count), 4);
+  assert.equal(Number(probeRows.count), 5);
 
   const config = loadOnaConfig({
     ONA_COP_DELIVERY: "0",

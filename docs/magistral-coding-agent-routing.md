@@ -137,6 +137,19 @@ curl -fsS -m 120 -X POST https://cogentia.fractavolta.com/guide/chat \
 # Expect: mode=conversational when coding gateway healthy; s7.ok for Potentics
 ```
 
+## Guide semantic-retrieval signal
+
+Semantic or hybrid retrieval is the nominal Guide regime. A keyword fallback or
+a continuation-required retrieval run is **degraded**, not a normal operating
+mode. The public `/guide/health` endpoint reports the last observed state:
+`unknown` before a Guide retrieval has run, then `nominal` or `degraded`.
+
+On Fracta, configure ONA with the non-secret endpoint reference
+`ONA_GUIDE_HEALTH_URL=http://127.0.0.1:8791/guide/health`. Its
+`guide_semantic` probe fails when that state is `degraded`, making the condition
+visible in Operium status and its health score. Restore the embedding/index
+path before treating a degraded answer as a model-quality result.
+
 ## Related Caddy split (observed 2026-07-26)
 
 `cogentia.fractavolta.com` must split:
