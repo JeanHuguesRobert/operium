@@ -69,6 +69,25 @@ cogentia() {
   node "$bin" "$@"
 }
 
+# Claude Code mode shortcuts. They update the per-user Claude settings; start
+# a new `claude` process afterwards so it reads the selected backend.
+_operium_claude_mode() {
+  local bin="$OPERIUM_ROOT/scripts/ops/claude-mode.js"
+  if [ ! -f "$bin" ]; then
+    echo "claude-mode not found at $bin" >&2
+    return 1
+  fi
+  node "$bin" "$@"
+}
+
+claude-pro() {
+  _operium_claude_mode pro "$@"
+}
+
+claude-zai() {
+  _operium_claude_mode zai "$@"
+}
+
 # Optional: land in corpus repos on interactive login (not for scp/sftp non-interactive)
 if [ -n "${PS1:-}" ] && [ -d "$CORPUS_REPOS" ]; then
   case "${PWD:-}" in

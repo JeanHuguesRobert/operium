@@ -65,9 +65,19 @@ node operium/scripts/ops/claude-mode.js zai
 
 Windows workspace wrappers (thin):
 
-```text
-C:\tweesic\claude-mode.bat status|doctor|pro|zai
+```powershell
+# Select the backend, then start a new Claude Code session.
+C:\tweesic\claude-pro.bat
+claude
+
+C:\tweesic\claude-zai.bat
+claude
 ```
+
+The equivalent interactive Unix-shell functions (`claude-pro`, `claude-zai`)
+are provided by the Operium Termux and Fracta VPS shell profiles. They select
+the mode only; run `claude` afterwards. Refresh the profile on each node with
+its corresponding `profiles/shell/install-*-shell-profile.sh` script.
 
 ### Mesh apply (Fractanet)
 
@@ -121,13 +131,18 @@ Default remote node list targets **interactive coding hosts** (e.g. ThinkPad).
 - `anthropic_api_key` in the vault catalog is **legacy / unused** for this mode design; prefer OAuth for interactive Claude Code.
 - Mesh apply uses Tailscale SSH only (see `fractanet-mesh.md`).
 
-## Migration from old launchers
+## Convenience wrappers
 
-Retired convenience names (wrappers only):
+| Wrapper | Effect |
+|---------|--------|
+| `claude-pro.bat` / `.ps1` | `claude-mode pro` (OAuth, not Console key) |
+| `claude-zai.bat` / `.ps1` | `claude-mode zai` |
+| Unix `claude-pro` / `claude-zai` | Same modes through the Operium shell profile |
+
+Retired compatibility name:
 
 | Old | New |
 |-----|-----|
-| `claude-zai.bat` / `.ps1` | `claude-mode zai` |
 | `claude-anthropic.bat` / `.ps1` | `claude-mode pro` (OAuth, not Console key) |
 | `claude-status.bat` / `.ps1` | `claude-mode status` |
 
