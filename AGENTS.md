@@ -1,3 +1,7 @@
+---
+shared_instructions: https://github.com/JeanHuguesRobert/cogentia/blob/main/instructions/AGENTS.shared.md
+---
+
 # AGENTS.md — Operium agent mandate
 
 This file gives operational instructions to AI agents and human assistants working in the `JeanHuguesRobert/operium` repository.
