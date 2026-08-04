@@ -4,7 +4,7 @@
 
 profile_id: tools.workstation-windows.v1
 node_class: workstation-windows
-updated: "2026-07-28"
+updated: "2026-08-03"
 policy:
   install_mode: user-space
   forbid_admin_npm_global: true
@@ -12,6 +12,24 @@ policy:
   preferred_windows_provider: scoop
 
 tools:
+  - id: postgresql-client
+    purpose: Direct TLS PostgreSQL migrations for the JHN Supabase project
+    desired:
+      provider: scoop
+      package: postgresql
+      path_command: psql
+      min_version: "17"
+    requires_docker: false
+    requires_auth: false
+    server_must_remain_stopped: true
+    priority: 1
+    status: present_path_registration_pending
+    observed_version: "18.4"
+    observed_at: "2026-08-03"
+    remediation: |
+      scoop install postgresql
+      # Use psql only; do not register or start a local PostgreSQL server.
+
   - id: supabase-cli
     purpose: Cloud Supabase link / migrations / projects (not local Docker stack)
     desired:
