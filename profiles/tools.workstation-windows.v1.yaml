@@ -4,7 +4,7 @@
 
 profile_id: tools.workstation-windows.v1
 node_class: workstation-windows
-updated: "2026-08-03"
+updated: "2026-08-06"
 policy:
   install_mode: user-space
   forbid_admin_npm_global: true
@@ -64,11 +64,17 @@ tools:
 
   - id: netlify-cli
     desired:
-      provider: scoop_or_pnpm_dlx
+      provider: user_npm_or_pnpm_dlx
       path_command: netlify
-    notes: Prefer not Program Files npm -g long term
+      min_version: "27.1.0"
+    forbidden:
+      - "npm install -g netlify-cli with prefix under Program Files"
+    notes: Use a user npm prefix or pnpm dlx; authenticate from JHN vault without committing the token
+    requires_auth: true
     priority: 2
-    status: debt
+    status: pending_connectivity
+    last_attempt: "2026-08-06"
+    observation: SSH timed out; installation not attempted
 
   - id: pnpm
     desired:

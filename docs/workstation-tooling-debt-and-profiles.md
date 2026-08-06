@@ -3,7 +3,7 @@ title: "Workstation tooling debt and Operium tool profiles"
 subtitle: "Admin installs, user-space policy, and multi-node reproducibility (PC + fracta + fleet)"
 author: "Jean Hugues Noël Robert"
 date: "2026-07-19"
-last_modified_at: "2026-07-19"
+last_modified_at: "2026-08-06"
 license: "Apache-2.0"
 language: "fr"
 status: "working-method"
@@ -236,6 +236,29 @@ supabase link --project-ref ndiysuhzmztatpxbkezn
 Tant que le CLI n’est pas stable : continuer le runbook SQL manuel  
 `inseme/apps/platform/instances/sql/jhn-bootstrap-minimal.sql`.  
 Dès que Scoop + link OK : basculer le runbook JHN sur **migrations standard**.
+
+## Netlify CLI — Agent JHN
+
+Observed 2026-08-06: `poco-jhr` and `fracta` run Netlify CLI 27.1.0.
+The ThinkPad install is pending connectivity. `rpi3-view` is excluded because
+its profile is a read-only edge consumer, not a development node.
+
+Linux nodes install without sudo in the user prefix:
+
+```bash
+npm install -g --prefix "$HOME/.local" netlify-cli
+netlify --version
+```
+
+The credential authority mirror is the private JHN Supabase row
+`instance_config.netlify_auth_token` with `is_public=false` and
+`is_secret=true`. Never commit or print its value. A native CLI login cache is
+an allowed bootstrap copy; profiles record only the credential reference.
+
+JHN Netlify identity: site `jhn-baronsmariani-org`, site ID
+`bfe156be-6efe-4d28-9d45-4c60fb5de6b5`, default domain
+`jhn-baronsmariani-org.netlify.app`, custom domain `jhn.baronsmariani.org`.
+The site existed at observation time but had no published production deploy.
 
 ## Ce qu’il ne faut pas confondre
 

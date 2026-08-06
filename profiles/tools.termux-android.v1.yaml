@@ -5,7 +5,7 @@ profile_id: tools.termux-android.v1
 node_id: poco-jhr
 node_class: android-termux
 ssh_alias: poco-jhr
-updated: "2026-07-29"
+updated: "2026-08-06"
 
 shell_profile:
   id: shell.termux-android.v1
@@ -62,6 +62,15 @@ tools:
     runtime: termux-native
     auth: native OIDC
     source: https://x.ai/cli/install.sh
+  - id: netlify-cli
+    status: present
+    version: "27.1.0"
+    path: /usr/bin/netlify
+    runtime: ubuntu-proot
+    provider: npm_global_in_proot
+    purpose: Agent JHN site discovery, deployment, domain, and TLS operations
+    auth: native CLI credential; authority mirror in JHN instance_config.netlify_auth_token
+    observed: "2026-08-06"
   - id: rclone
     status: present
     version: "1.74.4"

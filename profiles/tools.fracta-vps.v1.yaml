@@ -4,7 +4,7 @@
 profile_id: tools.fracta-vps.v1
 node_class: fracta-vps
 ssh_alias: fracta
-updated: "2026-07-29"
+updated: "2026-08-06"
 policy:
   install_mode: user-or-system-apt
   forbid_sudo_npm_global: true
@@ -62,6 +62,23 @@ tools:
     requires_docker: false
     priority: 3
     status: absent_by_design
+
+  - id: netlify-cli
+    purpose: Remote inspection and recovery of Netlify deployments
+    desired:
+      path_command: netlify
+      install: user_npm
+      npm_prefix: ~/.local
+      min_version: "27.1.0"
+    forbidden:
+      - "sudo npm install -g netlify-cli"
+    requires_auth: true
+    auth: JHN vault retrieval at runtime; do not commit or copy token into profile
+    priority: 2
+    status: present
+    version: "27.1.0"
+    path: ~/.local/bin/netlify
+    observed: "2026-08-06"
 
   - id: docker
     desired: absent
