@@ -18,6 +18,7 @@
     "test:invoke-tool": "node scripts/test-operium-invoke-tool.js",
     "test:invoke-via-guide": "node scripts/test-operium-invoke-via-guide.js",
     "test:console": "node scripts/test-operium-console.js",
+    "test:termux-profile": "node scripts/test-termux-shell-profile.js",
     "console:install": "npm install --prefix apps/console",
     "console:dev": "npm run dev --prefix apps/console",
     "console:build": "npm run build --prefix apps/console",

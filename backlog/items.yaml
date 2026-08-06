@@ -3,7 +3,7 @@
 # Do not store secret values here.
 
 schema: operium.backlog.v1
-updated_at: "2026-07-28"
+updated_at: "2026-08-06"
 owner: Operium
 
 items:
@@ -99,6 +99,23 @@ items:
     blocks_features: false
     opened_at: "2026-07-26"
     closed_at: null
+
+  - id: OP-BUG-006
+    kind: bug
+    title: Termux shell profile trusts an inherited sentinel with an incomplete environment
+    subsystem: tooling
+    severity: medium
+    status: done
+    evidence: >
+      2026-08-06: an agent shell inherited TERMUX_WORKSPACE_PROFILE_LOADED=1
+      without COGENTIA_REGISTRY or the workspace roots. Sourcing the managed
+      profile returned early, so Cogentia could not discover the authoritative
+      registry in the JeanHuguesRobert repository. A focused fixture reproduces
+      the stale-sentinel environment and verifies that sourcing repairs it.
+    next_action: "No further action; keep the focused profile regression test."
+    blocks_features: false
+    opened_at: "2026-08-06"
+    closed_at: "2026-08-06"
 
   # ── Features (blocked by subsystem bugs when severity high+) ─────
 

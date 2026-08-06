@@ -13,8 +13,15 @@
 # Install: profiles/shell/install-termux-shell-profile.sh
 #   or:    source this file from ~/.bashrc (guarded block)
 
-# Idempotent
-if [ "${TERMUX_WORKSPACE_PROFILE_LOADED:-}" = "1" ]; then
+# Idempotent once the profile's required roots and registry are present. A
+# parent process can pass the sentinel without passing the rest of the profile
+# environment, so the sentinel alone is not sufficient evidence.
+if [ "${TERMUX_WORKSPACE_PROFILE_LOADED:-}" = "1" ] \
+  && [ -n "${CORPUS_REPOS:-}" ] \
+  && [ -n "${COGENTIA_ROOT:-}" ] \
+  && [ -n "${OPERIUM_ROOT:-}" ] \
+  && [ -n "${INSEME_ROOT:-}" ] \
+  && [ -n "${COGENTIA_REGISTRY:-}" ]; then
   return 0 2>/dev/null || exit 0
 fi
 export TERMUX_WORKSPACE_PROFILE_LOADED=1
