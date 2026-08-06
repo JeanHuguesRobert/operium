@@ -69,6 +69,21 @@ PC  = dette droits + install admin cassée (+ Docker absent)
 fracta = pas d’install binaire + pas de login (+ VPS trop petit pour Docker CLI stack)
 ```
 
+### Netlify CLI — observed state on 2026-08-06
+
+On `i7-thinkpad-jhr`, Netlify CLI `27.1.0` is installed under the user npm
+prefix `C:\Users\admin\.npm-global`. That prefix is first in the persistent user `PATH`, and the explicit user-path
+command verifies version `27.1.0`. Current OpenSSH `-NoProfile` sessions still
+inherit the old service environment and resolve `23.10.0`; a Windows login or
+OpenSSH environment refresh is therefore pending.
+
+A legacy `23.10.0` copy under `C:\Program Files\nodejs` and another pnpm-managed
+copy remain installed. The user prefix is authoritative, but the legacy copy remains first in current
+OpenSSH service sessions until their environment is refreshed. Removing the
+admin-protected copy is not required for JHN work and remains a separate cleanup.
+This advances `OP-BUG-004` but does not close it because other admin-scoped tools
+still require audit and reconciliation.
+
 ## Règle de politique (à adopter)
 
 > **Installer les outils de développement en user-space, jamais en admin, sauf exception documentée (service Windows, pilote, etc.).**

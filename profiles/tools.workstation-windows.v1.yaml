@@ -69,12 +69,20 @@ tools:
       min_version: "27.1.0"
     forbidden:
       - "npm install -g netlify-cli with prefix under Program Files"
-    notes: Use a user npm prefix or pnpm dlx; authenticate from JHN vault without committing the token
+    notes: User npm prefix is authoritative; authenticate from JHN vault without committing the token
     requires_auth: true
     priority: 2
-    status: pending_connectivity
-    last_attempt: "2026-08-06"
-    observation: SSH timed out; installation not attempted
+    status: present_path_activation_pending
+    observed_version: "27.1.0"
+    observed_at: "2026-08-06"
+    observed_path: "C:\\Users\\admin\\.npm-global\\netlify.ps1"
+    observation: User npm prefix installed and placed first in the persistent user PATH; the explicit user-path CLI verifies as 27.1.0, while current OpenSSH no-profile sessions still inherit the old PATH and resolve 23.10.0 until their environment is refreshed
+    known_risk: Legacy 23.10.0 remains under Program Files and a pnpm copy also exists; persistent user PATH is corrected, but existing OpenSSH service sessions still expose the legacy copy first
+    remediation: |
+      npm config set prefix "$env:USERPROFILE\.npm-global"
+      npm install --global netlify-cli@latest
+      # Keep the user npm prefix first in the persistent user PATH.
+      # Refresh the Windows login or OpenSSH service environment, then verify Get-Command netlify.
 
   - id: pnpm
     desired:
