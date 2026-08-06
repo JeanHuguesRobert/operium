@@ -36,6 +36,11 @@ policy:
   git_governance: optimistic
 
 tools:
+  - id: tmux
+    status: present
+    runtime: termux-native
+    role: named_interactive_handoff_sessions
+    handoff: docs/termux-tmux-handoff.md
   - id: git
     status: present
   - id: github-cli

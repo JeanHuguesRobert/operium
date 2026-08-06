@@ -25,6 +25,7 @@ This directory contains Operium documentation.
 - [Coding Infrastructure](coding-infrastructure.md) — AI coding agents, launchers, and secret management
 - [Claude Code mode (pro ↔ z.ai)](claude-code-mode.md) — Operium-owned backend switch + mesh apply
 - [Fix Bugs First](fix-bugs-first.md) — Bug/Feature tracking + feature gate when out of control
+- [Termux tmux handoff](termux-tmux-handoff.md) — bounded human-authorized relay into a named mobile terminal session
 - [Secrets management](secrets-management.md) — dual authority (`inseme/.env` vs vault), `COGENTIA_API_KEY`, rotation
 - [Fracta coding workspace](fracta-coding-workspace.md) — isolated development clones, secure authority transfer, and allowlisted runtime secret views
 - `profiles/tools.termux-android.v1.yaml` / `scripts/ops/publish-inseme-env-to-termux.ps1` — Android coding-node state and authority refresh

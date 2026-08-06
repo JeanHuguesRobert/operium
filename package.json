@@ -14,6 +14,7 @@
     "test:up": "node scripts/test-operium-up.js",
     "test:wip": "node scripts/test-operium-wip.js",
     "test:backlog": "node scripts/test-operium-backlog.js",
+    "test:termux-tmux-handoff": "node scripts/test-termux-tmux-handoff.js",
     "test:invoke-tool": "node scripts/test-operium-invoke-tool.js",
     "test:invoke-via-guide": "node scripts/test-operium-invoke-via-guide.js",
     "test:console": "node scripts/test-operium-console.js",
