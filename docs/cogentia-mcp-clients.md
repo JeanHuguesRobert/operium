@@ -50,14 +50,23 @@ do not automatically inject MCP; each agent product has its own MCP config file.
 - Tools smoke: `https://cogentia.fractavolta.com/tools`  
 - Views: `https://cogentia.fractavolta.com/`  
 
-Public surface is **read-only / public view** (`COGENTIA_MCP_VIEW=public`). As of cogentia Phase 4 (mcp **0.6.0**):
+Public surface is **read-only / public view** (`COGENTIA_MCP_VIEW=public`) for **anonymous** callers. As of cogentia Phase 5 (mcp **0.7.0**):
 
-- `tools/list` exposes **26** tools (mutate still hidden; +docs_inspect/gaps, corpus_privacy, consolidate, embeddings_status).
-- `tools/call` returns **packet-shaped** results (`cogentia.mcp_tool_result/v1`: citations, continuation, skill_hint, error_class, correlation).
-- `cogentia_skill_get id=continuation-handling` returns full method markdown without a git checkout.
-- `cogentia_continuation_list` / `inspect` hit real daemon routes.
-- `cogentia_consolidate` is **read-only** readiness (not weekly write pipeline).
-- Mutate (`emit` / `resolve` / `issues_sync`) requires full view + admin token + `COGENTIA_MCP_ALLOW_MUTATE=1` — **not** set on Fracta public.
+- `tools/list` exposes **26** tools anonymously (mutate hidden; +docs_inspect/gaps, corpus_privacy, consolidate, embeddings_status).
+- `tools/call` returns **packet-shaped** results (`cogentia.mcp_tool_result/v1`).
+- `server/discover.experimental` lists skill ids (tools-first Skills experiment).
+- **Agent JHN write path (optional):** if operator sets on `mcp-cogentia`:
+
+```ini
+# /etc/systemd/system/mcp-cogentia.service.d/jhn-mutate.conf  (host only — not git)
+[Service]
+Environment=COGENTIA_MCP_JHN_MUTATE=1
+Environment=COGENTIA_MCP_JHN_TOKEN=<from vault / guide.env — never commit>
+```
+
+  then requests with `Authorization: Bearer <token>` and `X-Cogentia-Actor: agent:jhn` (or `agent:jhn.subagent:…`) see and may call mutate tools. Subagents under JHN share the same token + actor claim. Skills do **not** grant write.
+- Mutate also still available via full view + admin + `COGENTIA_MCP_ALLOW_MUTATE=1`.
+- Sandbox: `cogentia/sandbox/mcp-2026-cognitive-packet/` (`npm run test:mcp-sandbox`).
 
 Deploy (app tree on node):
 
