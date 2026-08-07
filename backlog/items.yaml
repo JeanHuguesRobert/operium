@@ -148,22 +148,29 @@ items:
     priority: p1
     status: open
     evidence: "operium issue #9"
-    next_action: "Triage against Fix Bugs First; implement only if mesh bugs clear"
+    next_action: "FBF bugs clear; design/implement observed-state reconciliation (issue #9)"
     github_issue: 9
     opened_at: "2026-07-17"
     closed_at: null
+    notes: |
+      Open high/critical bugs cleared 2026-08-07. Feature work unblocked.
 
   - id: OP-FEAT-003
     kind: feature
     title: Cross-device WIP handoff/resume polish
     subsystem: cli
     priority: p2
-    status: open
-    evidence: "operium issue #7; core docs exist (operium-wip.md)"
-    next_action: "Audit remaining gaps vs docs; close issue if already shipped"
+    status: done
+    evidence: >
+      2026-08-07 residual hygiene: operium handoff/resume/wip status shipped
+      (lib/git-wip.js, docs/operium-wip.md); scripts/test-operium-wip.js green
+      (status, handoff/resume, detached refuse, remote-ahead refuse, secret
+      paths, dry-run, CLI JSON). Multi-repo --all and session packets remain
+      issue #18, not #7.
+    next_action: "No further action on #7; session-level handoff is #18."
     github_issue: 7
     opened_at: "2026-07-08"
-    closed_at: null
+    closed_at: "2026-08-07"
 
   - id: OP-FEAT-004
     kind: feature
@@ -184,7 +191,7 @@ items:
     priority: p2
     status: open
     evidence: "operium issue #3"
-    next_action: "Defer behind ONA stability bugs if any open high+"
+    next_action: "FBF bugs clear; design ephemeral job runner (issue #3) when ONA capacity allows"
     github_issue: 3
     opened_at: "2026-07-04"
     closed_at: null

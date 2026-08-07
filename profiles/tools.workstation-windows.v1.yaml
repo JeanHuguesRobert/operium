@@ -23,13 +23,16 @@ tools:
     requires_auth: false
     server_must_remain_stopped: true
     priority: 1
-    status: present_path_registration_pending
+    status: present
     observed_version: "18.4"
     observed_at: "2026-08-07"
-    observation: Scoop app 18.4-2 present under apps/postgresql; psql shim may need session PATH refresh
+    observed_path: "C:\\Users\\admin\\.local\\bin\\psql.ps1"
+    observation: >
+      Scoop lists postgresql as Install failed but binaries exist under
+      apps/postgresql/18.4-2/pgsql/bin. User-space shims via
+      ensure-psql-client.ps1 → %USERPROFILE%\.local\bin.
     remediation: |
-      scoop install postgresql
-      pwsh -File scripts/ops/ensure-user-npm-prefix.ps1
+      pwsh -File scripts/ops/ensure-psql-client.ps1
       # Use psql only; do not register or start a local PostgreSQL server.
 
   - id: supabase-cli

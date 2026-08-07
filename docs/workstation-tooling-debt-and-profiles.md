@@ -309,7 +309,8 @@ The site existed at observation time but had no published production deploy.
 5. `scripts/ops/ensure-supabase-cli.ps1` — **fait**.  
 6. `scripts/ops/ensure-user-npm-prefix.ps1` — **fait** (OP-BUG-004).  
 7. Shell profile PATH user-space prepend — **fait**.  
-8. Entrée drift ONA / `operium up` (plus tard) : *tooling_profile_mismatch*.
+8. `scripts/ops/ensure-psql-client.ps1` — **fait** (residual: Scoop unpack + `.local\bin` shims).  
+9. Entrée drift ONA / `operium up` (plus tard) : *tooling_profile_mismatch*.
 
 ## Formule
 
