@@ -113,6 +113,27 @@ sudo /srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stack.sh restart
 Helper on fracta (after pull): `operium/scripts/ops/apply-magistral-coding-map-fracta.sh`  
 Rotate system bearer: see [secrets-management.md — Rotating COGENTIA_API_KEY](secrets-management.md).
 
+### Apply + verify (OP-FEAT-001 / issue #10)
+
+```bash
+# On fracta (trusted SSH)
+cd /srv/cogentia/repos/operium
+git pull --ff-only
+bash scripts/ops/apply-magistral-coding-map-fracta.sh --dry-run   # show would_fast / current_fast
+bash scripts/ops/apply-magistral-coding-map-fracta.sh             # install map, token hygiene, restart, verify
+
+# Structural verify only (workstation or fracta)
+node scripts/ops/verify-magistral-coding-map.js --human
+# After scp/sudo cat of live map:
+node scripts/ops/verify-magistral-coding-map.js --live /tmp/magistral-openai-map.json --human
+```
+
+`verify-magistral-coding-map.js` checks:
+
+- profile invariants: `coding-*` at `fast|strong`, `apiKeyEnv=COGENTIA_API_KEY`, OpenAI not primary
+- live compare: coding nodes present with matching tier/model, chat-completions URL, OpenAI not `fast` when coding is `fast`
+
+Exit `0` = structure OK (does **not** prove Guide conversational quality — still smoke `/guide/chat`).
 
 ## Health (Operium tools)
 

@@ -1,18 +1,42 @@
 #!/usr/bin/env bash
 # Apply Operium Magistral coding-agent map on fracta. Run ON fracta.
 # Does not print secret values.
+#
+# Usage:
+#   bash scripts/ops/apply-magistral-coding-map-fracta.sh
+#   bash scripts/ops/apply-magistral-coding-map-fracta.sh --dry-run
+#   bash scripts/ops/apply-magistral-coding-map-fracta.sh --skip-restart
 set -euo pipefail
 
 MAP_DEST=/etc/cogentia/magistral-openai-map.json
 ENV_DEST=/etc/cogentia/magistral.env
+DRY_RUN=0
+SKIP_RESTART=0
+
+for arg in "$@"; do
+  case "$arg" in
+    --dry-run) DRY_RUN=1 ;;
+    --skip-restart) SKIP_RESTART=1 ;;
+    -h|--help)
+      echo "usage: $0 [--dry-run] [--skip-restart]"
+      exit 0
+      ;;
+    *)
+      echo "unknown option: $arg" >&2
+      exit 2
+      ;;
+  esac
+done
 
 MAP_SRC=""
+OPERIUM_ROOT=""
 for c in \
   /srv/cogentia/repos/operium/profiles/magistral-map.coding-agents.v1.json \
   /home/ubuntu/repos/operium/profiles/magistral-map.coding-agents.v1.json
 do
   if [[ -f "$c" ]]; then
     MAP_SRC="$c"
+    OPERIUM_ROOT="$(cd "$(dirname "$c")/.." && pwd)"
     break
   fi
 done
@@ -24,6 +48,33 @@ if [[ -z "$MAP_SRC" ]]; then
 fi
 
 echo "MAP_SRC=$MAP_SRC"
+echo "DRY_RUN=$DRY_RUN"
+
+if [[ "$DRY_RUN" -eq 1 ]]; then
+  python3 - <<PY
+import json
+from pathlib import Path
+src = Path("$MAP_SRC")
+m = json.loads(src.read_text())
+print("would_install_nodes", [n.get("id") for n in m])
+print("would_fast", [n.get("id") for n in m if n.get("tier") == "fast"])
+print("would_fallback", [n.get("id") for n in m if n.get("tier") == "fallback"])
+live = Path("$MAP_DEST")
+if live.is_file():
+    try:
+        cur = json.loads(live.read_text())
+    except PermissionError:
+        import subprocess
+        cur = json.loads(subprocess.check_output(["sudo", "cat", str(live)], text=True))
+    print("current_nodes", [n.get("id") for n in cur])
+    print("current_fast", [n.get("id") for n in cur if n.get("tier") == "fast"])
+else:
+    print("current_map", "missing")
+print("DRY_RUN_OK")
+PY
+  exit 0
+fi
+
 if [[ -f "$MAP_DEST" ]]; then
   sudo cp -a "$MAP_DEST" "${MAP_DEST}.bak.$(date -u +%Y%m%dT%H%M%SZ)"
 fi
@@ -115,16 +166,41 @@ if [[ -f /tmp/magistral.env.append ]]; then
   sudo chmod 640 "$ENV_DEST"
 fi
 
-python3 -c 'import json; m=json.load(open("/etc/cogentia/magistral-openai-map.json")); print("nodes", [n.get("id") for n in m])'
+python3 -c 'import json; m=json.load(open("/etc/cogentia/magistral-openai-map.json")); print("nodes", [n.get("id") for n in m]); print("fast", [n.get("id") for n in m if n.get("tier")=="fast"]); print("fallback", [n.get("id") for n in m if n.get("tier")=="fallback"])'
 
-sudo systemctl restart magistral.service
-sleep 2
-systemctl is-active magistral.service
+if [[ "$SKIP_RESTART" -eq 0 ]]; then
+  sudo systemctl restart magistral.service
+  sleep 2
+  systemctl is-active magistral.service
 
-if [[ -x /srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stack.sh ]]; then
-  sudo bash /srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stack.sh restart
+  if [[ -x /srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stack.sh ]]; then
+    sudo bash /srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stack.sh restart
+  else
+    echo "WARN: fracta-guide-stack.sh missing; restart mcp/cogentia manually if needed"
+  fi
 else
-  echo "WARN: fracta-guide-stack.sh missing; restart mcp/cogentia manually if needed"
+  echo "SKIP_RESTART=1"
+fi
+
+# Structural verify against installed map (profile copy when OPERIUM_ROOT known)
+if command -v node >/dev/null 2>&1 && [[ -n "${OPERIUM_ROOT:-}" && -f "$OPERIUM_ROOT/scripts/ops/verify-magistral-coding-map.js" ]]; then
+  echo "VERIFY_MAP"
+  # Copy live map to readable temp for non-root node if needed
+  TMP_LIVE=$(mktemp)
+  sudo cat "$MAP_DEST" >"$TMP_LIVE"
+  if node "$OPERIUM_ROOT/scripts/ops/verify-magistral-coding-map.js" \
+    --live "$TMP_LIVE" \
+    --expect-profile "$OPERIUM_ROOT/profiles/magistral-map.coding-agents.v1.json" \
+    --human; then
+    echo "VERIFY_OK"
+  else
+    rm -f "$TMP_LIVE"
+    echo "VERIFY_FAILED" >&2
+    exit 1
+  fi
+  rm -f "$TMP_LIVE"
+else
+  echo "VERIFY_SKIPPED (node or operium verify script unavailable)"
 fi
 
 echo "APPLY_OK"
