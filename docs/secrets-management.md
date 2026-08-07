@@ -87,6 +87,9 @@ tailscale-rsync-secrets.js  →  Rossignol · ThinkPad · Cloud backup
 | Vault Key | .env Variable | Purpose | Provider | Rotation | Notes |
 |-----------|---------------|---------|----------|----------|-------|
 | **`cogentia_api_key`** | **`COGENTIA_API_KEY`** | Shared system bearer: Magistral coding nodes ↔ Agent CLI Gateway (Guide synthesis path) | Operium / Cogentia | On compromise or scheduled | **Name only this key** — do **not** also store the same value as `AGENT_GATEWAY_TOKEN=` |
+| **`cogentia_mcp_jhn_token`** | **`COGENTIA_MCP_JHN_TOKEN`** | Agent JHN (and `agent:jhn.subagent:*`) attestation for Cogentia MCP mutate tools | Operium / Inseme JHN | On compromise | Vault + `inseme/.env`; runtime copy `/srv/cogentia/secrets/jhn-mcp.env` on fracta for `mcp-cogentia` |
+| `cogentia_mcp_jhn_mutate` | `COGENTIA_MCP_JHN_MUTATE` | Feature flag (`1`/`0`) enabling JHN mutate path on MCP server | Operium | — | Non-secret flag; still vaulted for edge visibility |
+| `cogentia_mcp_url` | `COGENTIA_MCP_URL` | Default MCP HTTP endpoint for JHN client | Operium | — | Default `https://cogentia.fractavolta.com/mcp` |
 | `anthropic_api_key` | `ANTHROPIC_API_KEY` | **Legacy / unused for interactive Claude Code** — prefer claude.ai OAuth (`claude auth login`) | Anthropic Console | — | Do not require for `claude-mode pro` |
 | `zai_api_key` | `ZAI_API_KEY` | Claude Code **zai** mode (GLM proxy) | z.ai | As needed | Written into `~/.claude/settings.json` only when mode=zai |
 | `openai_api_key` | `OPENAI_API_KEY` | Embeddings, GPT-4 fallback | OpenAI | Quarterly | .env + vault |
