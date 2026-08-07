@@ -3,7 +3,7 @@
 # Do not store secret values here.
 
 schema: operium.backlog.v1
-updated_at: "2026-08-06"
+updated_at: "2026-08-07"
 owner: Operium
 
 items:
@@ -126,13 +126,13 @@ items:
     priority: p1
     status: open
     evidence: "operium issue #10; apply script exists but end-to-end verify incomplete"
-    next_action: "Close only after OP-BUG-001 smoke green and map health documented"
+    next_action: "Finish end-to-end map apply + health verify on fracta; document evidence on #10"
     github_issue: 10
     opened_at: "2026-07-26"
     closed_at: null
     notes: |
-      Depends on agent-gateway stability (OP-BUG-001). Gate subsystem
-      agent-gateway / magistral-routing before expanding map features.
+      OP-BUG-001 closed 2026-07-30 (dual-plane GH #11 synced 2026-08-07).
+      agent-gateway gate is clear. Continue #10 as feature work only.
 
   - id: OP-FEAT-002
     kind: feature
@@ -205,3 +205,23 @@ items:
     github_issue: 1
     opened_at: "2026-06-29"
     closed_at: null
+
+  - id: OP-FEAT-008
+    kind: feature
+    title: Bounded Termux tmux handoff helper
+    subsystem: cli
+    priority: p2
+    status: done
+    evidence: >
+      2026-08-06: scripts/ops/termux-tmux-handoff.js (start/status/capture/send
+      --file --i-am-present), docs/termux-tmux-handoff.md, focused dry-run +
+      session-validation tests green; live proof on poco-jhr session fbf-dashboard
+      (payload SHA only; no secret body in git). Commit 0393998.
+    next_action: "No further action; #6 remains separate (Termux boot survival)."
+    github_issue: 19
+    blocks_features: false
+    opened_at: "2026-08-06"
+    closed_at: "2026-08-07"
+    notes: |
+      Deliberately out of scope: Android GUI/ADB, arbitrary remote shell,
+      autonomous injection. Continuity of Termux sshd across reboot is #6.

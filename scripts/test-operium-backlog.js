@@ -18,13 +18,29 @@ assert.equal(backlog.schema, "operium.backlog.v1");
 assert.ok(backlog.items.length >= 5, "seed items present");
 
 const bugs = filterItems(backlog.items, { kind: "bug", status: "openish" });
-assert.ok(bugs.some((b) => b.id === "OP-BUG-001"));
+// OP-BUG-001 closed 2026-07-30 (probe bearer + live health). Do not re-assert open.
+assert.ok(
+  !bugs.some((b) => b.id === "OP-BUG-001"),
+  "OP-BUG-001 must remain done unless reopened with new evidence"
+);
+assert.ok(
+  bugs.some((b) => b.id === "OP-BUG-002"),
+  "OP-BUG-002 remains the high-severity open secrets bug"
+);
 
 const gatewayBlockers = blockingBugs(backlog.items, "agent-gateway");
-assert.ok(gatewayBlockers.some((b) => b.id === "OP-BUG-001"));
+assert.equal(
+  gatewayBlockers.length,
+  0,
+  "agent-gateway has no open high/critical bugs"
+);
 
 const gateGw = evaluateGate(backlog, "agent-gateway");
-assert.equal(gateGw.blocked, true);
+assert.equal(gateGw.blocked, false, "agent-gateway features are not gated");
+
+const gateSecrets = evaluateGate(backlog, "secrets");
+assert.equal(gateSecrets.blocked, true, "secrets still blocked by OP-BUG-002");
+assert.ok(gateSecrets.blocking_bugs.some((b) => b.id === "OP-BUG-002"));
 
 const gateMeta = evaluateGate(backlog, "meta");
 assert.equal(gateMeta.blocked, false, "medium meta bugs do not hard-block");
@@ -45,6 +61,7 @@ console.log(
       items: backlog.items.length,
       open_bugs: bugs.length,
       agent_gateway_blocked: gateGw.blocked,
+      secrets_blocked: gateSecrets.blocked,
     },
     null,
     2
