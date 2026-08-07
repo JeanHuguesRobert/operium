@@ -38,18 +38,21 @@ items:
     title: System bearer rotation leaves runtime copies out of sync
     subsystem: secrets
     severity: high
-    status: open
+    status: done
     evidence: >
-      Dual authority (inseme/.env + vault) is documented, but refreshing
-      /etc/cogentia/magistral.env and ThinkPad agent-gateway.env is still
-      manual multi-step; easy to desync after COGENTIA_API_KEY change.
+      2026-08-07: single entry point scripts/ops/apply-system-bearer.js +
+      lib/system-bearer.js (SoT verify, local gateway copy apply, optional
+      --apply --vault double opt-in, fracta/magistral plan, restart/smoke
+      checklist). Atomic key helper lib/env-key-file.js; tests
+      scripts/test-apply-system-bearer.js + test-sync-env-key.js green.
+      Values never disclosed in reports. Docs: secrets-management.md.
     next_action: >
-      Add a single apply script or operium procedure that updates SoT → vault →
-      known copies → restarts consumers, with dry-run and verify.
+      Use apply-system-bearer after every COGENTIA_API_KEY change; reopen only
+      with new desync evidence.
     github_issue: 12
-    blocks_features: true
+    blocks_features: false
     opened_at: "2026-07-26"
-    closed_at: null
+    closed_at: "2026-08-07"
 
   - id: OP-BUG-003
     kind: bug

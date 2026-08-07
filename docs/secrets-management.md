@@ -2,17 +2,17 @@
 document_role: "source"
 document_kind: "operational"
 visibility: "private"
-last_updated: "2026-07-27"
+last_updated: "2026-08-07"
 owner: Operium
 health:
-  score: 3
+  score: 4
   status: "functional"
   reasons:
     - "Dual authority model documented (workstation FS vs edge vault)."
-    - "COGENTIA_API_KEY mapped to vault; rotation still manual."
-    - "Runtime copies on nodes must be refreshed after SoT change."
+    - "COGENTIA_API_KEY mapped to vault."
+    - "Single apply/verify entry point for system bearer runtime copies (OP-BUG-002)."
   next_actions:
-    - "Automate runtime copy refresh (magistral.env + tool-host gateway env)."
+    - "Use apply-system-bearer after every COGENTIA_API_KEY change."
     - "Add rotation schedule for critical provider keys."
     - "Optional age encryption for offline backups."
 ---
@@ -115,12 +115,42 @@ tailscale-rsync-secrets.js  →  Rossignol · ThinkPad · Cloud backup
 
 ## Tools
 
+### apply-system-bearer.js (OP-BUG-002 entry point)
+
+**Location:** `operium/scripts/ops/apply-system-bearer.js`  
+**Library:** `operium/lib/system-bearer.js`
+
+Single procedure for the shared system bearer (`COGENTIA_API_KEY`): verify SoT,
+align the ThinkPad gateway runtime copy, optionally push vault, and print a
+restart/smoke checklist. **Dry-run by default. Never prints secret values.**
+
+```bash
+cd operium
+node scripts/ops/apply-system-bearer.js              # dry-run JSON (exit 1 on drift)
+node scripts/ops/apply-system-bearer.js --human
+node scripts/ops/apply-system-bearer.js --apply      # write ~/.cogentia/secrets/agent-gateway.env
+node scripts/ops/apply-system-bearer.js --apply --vault   # + inseme sync-secrets --apply --vault
+node scripts/ops/apply-system-bearer.js --fracta-host fracta
+```
+
+| Step | Behaviour |
+|------|-----------|
+| SoT | Read `inseme/.env` (or `OPERIUM_SECRET_SOT`) |
+| Gateway copy | Compare/write `~/.cogentia/secrets/agent-gateway.env` via atomic key sync |
+| Vault | Only with `--apply --vault` (double opt-in → `sync-secrets.js`) |
+| fracta magistral | Planned + `publish-inseme-env-to-fracta.ps1` helper (not silent SSH write) |
+| Restarts / smoke | Checklist only unless operator runs host restarts |
+
+Low-level single-key helper (used internally and for ad-hoc copies):
+`scripts/ops/sync-env-key.js --source <env> --target <env> --key NAME`.
+
 ### sync-secrets.js
 
 **Location:** `inseme/apps/platform/scripts/sync-secrets.js`
 
 Dry-run by default. Scans drift vs `inseme/.env` (SoT). Vault writes require
-**double opt-in** `--apply --vault`.
+**double opt-in** `--apply --vault`. Prefer calling this via
+`apply-system-bearer.js --apply --vault` when rotating the system bearer.
 
 ```bash
 cd inseme/apps/platform
@@ -236,18 +266,30 @@ Ensure `.gitignore` includes:
 1. Choose a new value (operator-generated; not a third-party dashboard key).
 2. Set **only** `COGENTIA_API_KEY=<new>` in `inseme/.env`. Remove any
    `AGENT_GATEWAY_TOKEN=` line if present.
-3. Push vault:  
-   `cd inseme/apps/platform && node scripts/sync-secrets.js --apply --vault`  
-   Confirm row `cogentia_api_key` updated (`is_secret=true`).
-4. Refresh copies (same value, same name):
-   - fracta: `/etc/cogentia/magistral.env` → `systemctl restart magistral`
-   - ThinkPad: `~/.cogentia/secrets/agent-gateway.env` then restart Agent CLI
-     Gateway (`cogentia/scripts/ops/start-agent-gateway-windows.js` or ONA).
-5. Smoke: gateway health with `Authorization: Bearer <new>`; Magistral coding
-   node no longer 401 on bearer mismatch.
-6. Do not leave the old value under a second env name “for compatibility”.
+3. From Operium (dry-run first, then apply):
 
-Helper (host copy only): `cogentia/scripts/ops/set-cogentia-api-key-host.ps1`.
+```bash
+cd operium
+node scripts/ops/apply-system-bearer.js --human
+node scripts/ops/apply-system-bearer.js --apply --vault --human
+```
+
+4. Publish FS authority to fracta when the VPS must match:
+
+```powershell
+pwsh -File scripts/ops/publish-inseme-env-to-fracta.ps1
+```
+
+5. Restart consumers:
+   - ThinkPad: Agent CLI Gateway (scheduled task / ONA)
+   - fracta: `sudo systemctl restart magistral` (and ONA if it cached the bearer)
+6. Smoke: gateway `health?quick=1` with `Authorization: Bearer <new>`; Guide
+   conversational path; no 401 on coding-agent hop.
+7. Do not leave the old value under a second env name “for compatibility”.
+
+Helpers: `scripts/ops/apply-system-bearer.js` (orchestrator),
+`scripts/ops/sync-env-key.js` (single-key file), optional
+`cogentia/scripts/ops/set-cogentia-api-key-host.ps1`.
 
 ### Rotating a provider secret (OpenAI, Anthropic, …)
 
