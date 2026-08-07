@@ -50,4 +50,18 @@ do not automatically inject MCP; each agent product has its own MCP config file.
 - Tools smoke: `https://cogentia.fractavolta.com/tools`  
 - Views: `https://cogentia.fractavolta.com/`  
 
-Public surface is **read-only / public view**.
+Public surface is **read-only / public view** (`COGENTIA_MCP_VIEW=public`). As of cogentia `5401f0e` (P0/P1):
+
+- `tools/list` exposes **17** tools (mutate tools hidden).
+- `cogentia_continuation_list` / `inspect` hit real daemon routes.
+- Mutate (`emit` / `resolve` / `issues_sync`) requires full view + admin token + `COGENTIA_MCP_ALLOW_MUTATE=1` — **not** set on Fracta public.
+
+Deploy (app tree on node):
+
+```bash
+ssh fracta
+cd /srv/cogentia/repos/cogentia && git pull --ff-only origin main
+sudo systemctl restart cogentia.service mcp-cogentia.service
+```
+
+**Later (not initial):** Netlify Edge (Deno) adapter — same MCP contract, edge-side projection; Fracta remains daemon home. See cogentia `docs/cogentia-js-mcp-agent-path.md` § Deployment topology.
