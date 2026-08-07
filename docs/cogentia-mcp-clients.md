@@ -50,12 +50,13 @@ do not automatically inject MCP; each agent product has its own MCP config file.
 - Tools smoke: `https://cogentia.fractavolta.com/tools`  
 - Views: `https://cogentia.fractavolta.com/`  
 
-Public surface is **read-only / public view** (`COGENTIA_MCP_VIEW=public`). As of cogentia Phase 3 (mcp **0.5.0**):
+Public surface is **read-only / public view** (`COGENTIA_MCP_VIEW=public`). As of cogentia Phase 4 (mcp **0.6.0**):
 
-- `tools/list` exposes **21** tools (mutate tools still hidden; +agent_start, skill_list/get, continuation_schema).
+- `tools/list` exposes **26** tools (mutate still hidden; +docs_inspect/gaps, corpus_privacy, consolidate, embeddings_status).
 - `tools/call` returns **packet-shaped** results (`cogentia.mcp_tool_result/v1`: citations, continuation, skill_hint, error_class, correlation).
 - `cogentia_skill_get id=continuation-handling` returns full method markdown without a git checkout.
 - `cogentia_continuation_list` / `inspect` hit real daemon routes.
+- `cogentia_consolidate` is **read-only** readiness (not weekly write pipeline).
 - Mutate (`emit` / `resolve` / `issues_sync`) requires full view + admin token + `COGENTIA_MCP_ALLOW_MUTATE=1` — **not** set on Fracta public.
 
 Deploy (app tree on node):
