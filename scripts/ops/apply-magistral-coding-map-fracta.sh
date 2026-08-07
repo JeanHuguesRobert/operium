@@ -173,10 +173,14 @@ if [[ "$SKIP_RESTART" -eq 0 ]]; then
   sleep 2
   systemctl is-active magistral.service
 
-  if [[ -x /srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stack.sh ]]; then
-    sudo bash /srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stack.sh restart
+  GUIDE_STACK=/srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stack.sh
+  if [[ -f "$GUIDE_STACK" ]]; then
+    # File may not be +x in git; invoke via bash.
+    sudo bash "$GUIDE_STACK" restart
   else
-    echo "WARN: fracta-guide-stack.sh missing; restart mcp/cogentia manually if needed"
+    echo "WARN: fracta-guide-stack.sh missing; restarting known units"
+    sudo systemctl restart mcp-cogentia.service 2>/dev/null || true
+    sudo systemctl restart cogentia.service 2>/dev/null || true
   fi
 else
   echo "SKIP_RESTART=1"

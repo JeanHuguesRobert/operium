@@ -131,15 +131,24 @@ items:
     title: Automate Magistral coding-agent map apply + verify on fracta
     subsystem: magistral-routing
     priority: p1
-    status: open
-    evidence: "operium issue #10; apply script exists but end-to-end verify incomplete"
-    next_action: "Finish end-to-end map apply + health verify on fracta; document evidence on #10"
+    status: done
+    evidence: >
+      2026-08-07: live fracta map had coding-* demoted to fallback (OpenAI/OpenRouter
+      as fast). Applied profiles/magistral-map.coding-agents.v1.json via
+      apply-magistral-coding-map-fracta.sh after git pull to cc41a80+.
+      verify-magistral-coding-map.js live compare VERIFY_OK (coding-grok-fast +
+      coding-claude-fast at tier=fast). Public smoke POST /guide/chat
+      mode=conversational, answer_len>0 (Potentics). Tests:
+      scripts/test-magistral-map-verify.js green. COGENTIA_API_KEY present in
+      magistral.env (len only logged).
+    next_action: "Re-run verify after map drift; keep gateway up for conversational quality."
     github_issue: 10
     opened_at: "2026-07-26"
-    closed_at: null
+    closed_at: "2026-08-07"
     notes: |
-      OP-BUG-001 closed 2026-07-30 (dual-plane GH #11 synced 2026-08-07).
-      agent-gateway gate is clear. Continue #10 as feature work only.
+      Pre-apply: live fast=[openai-fast, openrouter-fast]; post-apply
+      fast=[coding-grok-fast, coding-claude-fast]. OpenRouter entries removed by
+      template apply (optional re-add as fallback later).
 
   - id: OP-FEAT-002
     kind: feature
