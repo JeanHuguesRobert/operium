@@ -3,25 +3,44 @@ document_role: "source"
 document_kind: "research"
 visibility: "private"
 created: "2026-07-19"
-status: "draft"
+status: "historical"
+lifecycle_state: historical
+last_reviewed: "2026-08-07"
 related:
   - "../docs/secrets-management.md"
+  - "secrets-sovereign-architecture.md"
+superseded_by: "../docs/secrets-management.md"
+related_issue: "https://github.com/JeanHuguesRobert/operium/issues/15"
 ---
 
 # Secrets Architecture - Future Directions
 
-## Current State (2026-07)
+> **Historical (2026-07-19).** Do **not** treat this note as operational authority.
+> **Current ops:** [`docs/secrets-management.md`](../docs/secrets-management.md)
+> (dual authority `inseme/.env` + vault, system bearer
+> `COGENTIA_API_KEY`, `apply-system-bearer.js`).  
+> Residual ideas below (SOPS, GitHub Actions secrets, etc.) remain **research
+> options only** — not current procedure. OP-BUG-005 closed 2026-08-07.
 
-**Problems:**
+## Current State (2026-07) — *superseded snapshot*
+
+**Problems (as of mid-July; partly fixed since):**
 - Secrets scattered across `.env` files on multiple machines
-- No central source of truth
-- Manual sync via Tailscale (error-prone)
-- No rotation strategy
-- Not integrated with GitHub workflow
+- ~~No central source of truth~~ → dual authority documented in secrets-management.md
+- Manual sync via Tailscale (still used for FS copies; vault for edge)
+- Rotation strategy → operational procedure now in secrets-management.md
+- Not integrated with GitHub workflow (still true; not a goal for system bearer)
 
-**Current Architecture:**
+**Architecture at time of writing:**
 ```
 inseme/.env → Tailscale rsync → other machines
+```
+
+**Architecture now (see operational doc):**
+```
+inseme/.env (workstation FS authority)
+  → vault instance_config (edge)
+  → runtime copies (gateway env, magistral.env)
 ```
 
 ## Desired State

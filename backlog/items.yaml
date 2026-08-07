@@ -74,34 +74,38 @@ items:
     title: Workstation admin-scoped npm tooling breaks user-space installs
     subsystem: tooling
     severity: medium
-    status: open
+    status: done
     evidence: >
-      docs/workstation-tooling-debt-and-profiles.md (2026-07-19) — EPERM under
-      Program Files, incomplete global packages (e.g. supabase@).
+      2026-08-07: npm prefix is %USERPROFILE%\.npm-global (user-space);
+      supabase Scoop 2.109.1; Program Files supabase residue gone.
+      Shipped audit-tools.js, ensure-user-npm-prefix.ps1, shell profile PATH
+      prepend (scoop + npm-global + .local\bin). Profile tools.*.yaml updated.
+      Residual: legacy Program Files netlify/claude may still win in OpenSSH
+      -NoProfile until env refresh or elevated cleanup — documented, non-blocking.
     next_action: >
-      Enforce Scoop/user prefix profile; remove or quarantine admin globals;
-      verify supabase/gh/node CLIs in user PATH.
+      Optional elevated cleanup of Program Files nodejs global CLIs; keep
+      audit-tools in ops hygiene.
     github_issue: 14
     blocks_features: false
     opened_at: "2026-07-19"
-    closed_at: null
+    closed_at: "2026-08-07"
 
   - id: OP-BUG-005
     kind: bug
     title: Secrets research notes drift from operational secrets-management.md
     subsystem: docs
     severity: low
-    status: open
+    status: done
     evidence: >
-      research/secrets-architecture-2026-07.md and secrets-sovereign-architecture.md
-      predate dual-authority COGENTIA_API_KEY write-up (2026-07-26).
-    next_action: >
-      Mark research notes historical or merge residual claims into
-      docs/secrets-management.md; single pointer from research/index.md.
+      2026-08-07: marked research/secrets-architecture-2026-07.md and
+      secrets-sovereign-architecture.md historical with superseded_by pointer;
+      research/index.md Secrets section; secrets-management.md states it is
+      operational authority.
+    next_action: "No further action unless new research claims contradict ops doc."
     github_issue: 15
     blocks_features: false
     opened_at: "2026-07-26"
-    closed_at: null
+    closed_at: "2026-08-07"
 
   - id: OP-BUG-006
     kind: bug

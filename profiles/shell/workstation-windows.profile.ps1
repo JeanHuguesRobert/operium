@@ -43,6 +43,20 @@ $env:OPERIUM_ROOT = Join-Path $script:WorkspaceRoot 'operium'
 $env:COGENTIA_ROOT = Join-Path $script:WorkspaceRoot 'cogentia'
 $env:INSEME_ROOT = Join-Path $script:WorkspaceRoot 'inseme'
 
+# --- User-space tooling PATH (OP-BUG-004) ---
+# Prefer Scoop shims + user npm global + ~/.local/bin over Program Files\nodejs
+# admin globals (EPERM / stale netlify). Does not delete admin installs.
+$script:UserToolPaths = @(
+    (Join-Path $env:USERPROFILE 'scoop\shims'),
+    (Join-Path $env:USERPROFILE '.npm-global'),
+    (Join-Path $env:USERPROFILE '.local\bin')
+) | Where-Object { Test-Path $_ }
+foreach ($toolPath in ($script:UserToolPaths | Select-Object -Unique)) {
+    if ($env:PATH -notlike "$toolPath;*") {
+        $env:PATH = "$toolPath;$env:PATH"
+    }
+}
+
 # --- Helpers (global so they survive the profile scope) ---
 function global:Set-TweesicLocation {
     param([string]$SubPath = '')

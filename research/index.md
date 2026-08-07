@@ -60,6 +60,13 @@ update_policy: UP-DEFAULT-REVIEWED
 - [inox-serve offline on ThinkPad — July 2026 incident](inox-serve-thinkpad-2026-07.md)
 - [Serra corpus integration plan](serra-corpus-integration-plan.md)
 
+### Secrets (authority vs historical research)
+
+- **Operational authority:** [Secrets management](../docs/secrets-management.md) — dual authority, `COGENTIA_API_KEY`, `apply-system-bearer.js`
+- **Historical only (do not implement from these):**
+  - [Secrets architecture notes — 2026-07](secrets-architecture-2026-07.md) (superseded; OP-BUG-005)
+  - [Secrets sovereign architecture — 2026-07](secrets-sovereign-architecture.md) (superseded; OP-BUG-005)
+
 ---
 
 *Corpus index for the Operium registry.*

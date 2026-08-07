@@ -3,7 +3,7 @@ title: "Workstation tooling debt and Operium tool profiles"
 subtitle: "Admin installs, user-space policy, and multi-node reproducibility (PC + fracta + fleet)"
 author: "Jean Hugues Noël Robert"
 date: "2026-07-19"
-last_modified_at: "2026-08-06"
+last_modified_at: "2026-08-07"
 license: "Apache-2.0"
 language: "fr"
 status: "working-method"
@@ -69,20 +69,36 @@ PC  = dette droits + install admin cassée (+ Docker absent)
 fracta = pas d’install binaire + pas de login (+ VPS trop petit pour Docker CLI stack)
 ```
 
-### Netlify CLI — observed state on 2026-08-06
+### Netlify CLI — observed state on 2026-08-06 / closed 2026-08-07
 
 On `i7-thinkpad-jhr`, Netlify CLI `27.1.0` is installed under the user npm
-prefix `C:\Users\admin\.npm-global`. That prefix is first in the persistent user `PATH`, and the explicit user-path
-command verifies version `27.1.0`. Current OpenSSH `-NoProfile` sessions still
-inherit the old service environment and resolve `23.10.0`; a Windows login or
-OpenSSH environment refresh is therefore pending.
+prefix `C:\Users\admin\.npm-global`. User-space policy is enforced by:
 
-A legacy `23.10.0` copy under `C:\Program Files\nodejs` and another pnpm-managed
-copy remain installed. The user prefix is authoritative, but the legacy copy remains first in current
-OpenSSH service sessions until their environment is refreshed. Removing the
-admin-protected copy is not required for JHN work and remains a separate cleanup.
-This advances `OP-BUG-004` but does not close it because other admin-scoped tools
-still require audit and reconciliation.
+| Control | Location |
+|---------|----------|
+| npm prefix | `npm config get prefix` → `%USERPROFILE%\.npm-global` |
+| User PATH lead | `scripts/ops/ensure-user-npm-prefix.ps1` |
+| Interactive shells | `profiles/shell/workstation-windows.profile.ps1` prepends scoop + npm-global + `.local\bin` |
+| Audit | `node scripts/ops/audit-tools.js` |
+
+Legacy `23.10.0` under `C:\Program Files\nodejs` may still win in **OpenSSH
+`-NoProfile`** sessions until the service environment is refreshed. That is a
+session hygiene residual, not a missing user-space install. Optional elevated
+cleanup of admin globals remains optional and is **not** required to close
+OP-BUG-004.
+
+### OP-BUG-004 closeout (2026-08-07)
+
+| Check | Result |
+|-------|--------|
+| npm global prefix user-space | **yes** (`%USERPROFILE%\.npm-global`) |
+| supabase CLI user-space | **yes** (Scoop `2.109.1`) |
+| Program Files broken `supabase@` | **gone** |
+| audit + ensure scripts | **shipped** |
+| forbid admin npm -g policy | profile + shell PATH |
+
+**Residual (non-blocking):** admin-shadow CLIs (old netlify, claude under Program
+Files) until elevated one-time delete or full OpenSSH env refresh.
 
 ## Règle de politique (à adopter)
 
@@ -284,14 +300,16 @@ The site existed at observation time but had no published production deploy.
 | Inventaire multi-machines | **Operium** profiles + drift |
 | Secrets | Operium secrets docs / fichiers nœud — pas le registry public |
 
-## Prochaines livraisons Operium (proposées)
+## Livraisons Operium (état)
 
 1. **Ce document** (fait).  
-2. `profiles/tools.workstation-windows.v1.yaml` — liste prioritaire (supabase, gh, netlify, rsync…).  
-3. `profiles/tools.fracta-vps.v1.yaml` — minimal (node, caddy-related, **pas** Docker Supabase).  
-4. `scripts/ops/audit-tools.ps1` — observation JSON (commande, version, path).  
-5. `scripts/ops/ensure-supabase-cli.ps1` — install Scoop idempotente + smoke.  
-6. Entrée drift ONA / `operium up` (plus tard) : *tooling_profile_mismatch*.
+2. `profiles/tools.workstation-windows.v1.yaml` — **fait** (mis à jour 2026-08-07).  
+3. `profiles/tools.fracta-vps.v1.yaml` — **fait**.  
+4. `scripts/ops/audit-tools.js` — **fait** (JSON + `--human`).  
+5. `scripts/ops/ensure-supabase-cli.ps1` — **fait**.  
+6. `scripts/ops/ensure-user-npm-prefix.ps1` — **fait** (OP-BUG-004).  
+7. Shell profile PATH user-space prepend — **fait**.  
+8. Entrée drift ONA / `operium up` (plus tard) : *tooling_profile_mismatch*.
 
 ## Formule
 

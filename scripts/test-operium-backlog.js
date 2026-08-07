@@ -27,10 +27,10 @@ assert.ok(
   !bugs.some((b) => b.id === "OP-BUG-002"),
   "OP-BUG-002 must remain done unless reopened with new evidence"
 );
-// Residual open bugs (medium/low) still tracked.
+// OP-BUG-004 / OP-BUG-005 closed 2026-08-07 (tooling + docs drift).
 assert.ok(
-  bugs.some((b) => b.id === "OP-BUG-004" || b.id === "OP-BUG-005"),
-  "medium/low open bugs remain visible"
+  !bugs.some((b) => b.id === "OP-BUG-004" || b.id === "OP-BUG-005"),
+  "OP-BUG-004 and OP-BUG-005 must remain done unless reopened with evidence"
 );
 
 const gatewayBlockers = blockingBugs(backlog.items, "agent-gateway");

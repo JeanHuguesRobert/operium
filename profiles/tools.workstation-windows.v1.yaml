@@ -4,7 +4,7 @@
 
 profile_id: tools.workstation-windows.v1
 node_class: workstation-windows
-updated: "2026-08-06"
+updated: "2026-08-07"
 policy:
   install_mode: user-space
   forbid_admin_npm_global: true
@@ -25,9 +25,11 @@ tools:
     priority: 1
     status: present_path_registration_pending
     observed_version: "18.4"
-    observed_at: "2026-08-03"
+    observed_at: "2026-08-07"
+    observation: Scoop app 18.4-2 present under apps/postgresql; psql shim may need session PATH refresh
     remediation: |
       scoop install postgresql
+      pwsh -File scripts/ops/ensure-user-npm-prefix.ps1
       # Use psql only; do not register or start a local PostgreSQL server.
 
   - id: supabase-cli
@@ -42,10 +44,13 @@ tools:
     requires_docker: false
     requires_auth: true
     priority: 1
-    status: debt # broken/incomplete npm global observed 2026-07-19
+    status: present
+    observed_version: "2.109.1"
+    observed_at: "2026-08-07"
+    observed_path: "C:\\Users\\admin\\scoop\\shims\\supabase.exe"
+    observation: Scoop shim authoritative; Program Files npm residue gone
     remediation: |
-      scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
-      scoop install supabase
+      pwsh -File scripts/ops/ensure-supabase-cli.ps1
       # optional once elevated: remove Program Files\nodejs\node_modules\supabase
 
   - id: git
@@ -53,14 +58,19 @@ tools:
       provider: scoop_or_system
       path_command: git
     priority: 1
-    status: unknown
+    status: present
+    observed_at: "2026-08-07"
+    observed_path: "C:\\Program Files\\Git\\cmd\\git.exe"
 
   - id: gh
     desired:
-      provider: scoop
+      provider: scoop_or_msi
       path_command: gh
     priority: 2
-    status: unknown
+    status: present
+    observed_at: "2026-08-07"
+    observed_path: "C:\\Program Files\\GitHub CLI\\gh.exe"
+    notes: MSI under Program Files is acceptable (not npm admin global)
 
   - id: netlify-cli
     desired:
@@ -72,24 +82,30 @@ tools:
     notes: User npm prefix is authoritative; authenticate from JHN vault without committing the token
     requires_auth: true
     priority: 2
-    status: present_path_activation_pending
+    status: present_with_legacy_shadow
     observed_version: "27.1.0"
-    observed_at: "2026-08-06"
+    observed_at: "2026-08-07"
     observed_path: "C:\\Users\\admin\\.npm-global\\netlify.ps1"
-    observation: User npm prefix installed and placed first in the persistent user PATH; the explicit user-path CLI verifies as 27.1.0, while current OpenSSH no-profile sessions still inherit the old PATH and resolve 23.10.0 until their environment is refreshed
-    known_risk: Legacy 23.10.0 remains under Program Files and a pnpm copy also exists; persistent user PATH is corrected, but existing OpenSSH service sessions still expose the legacy copy first
+    observation: >
+      User install 27.1.0 present. Legacy Program Files 23.10.0 may win in
+      -NoProfile sessions; interactive Operium shell profile and
+      ensure-user-npm-prefix.ps1 put user prefix first (OP-BUG-004).
+    known_risk: OpenSSH service env may need refresh to drop legacy first-hit
     remediation: |
-      npm config set prefix "$env:USERPROFILE\.npm-global"
-      npm install --global netlify-cli@latest
-      # Keep the user npm prefix first in the persistent user PATH.
-      # Refresh the Windows login or OpenSSH service environment, then verify Get-Command netlify.
+      pwsh -File scripts/ops/ensure-user-npm-prefix.ps1
+      node scripts/ops/audit-tools.js --human --only netlify-cli
 
   - id: pnpm
     desired:
       provider: corepack_or_scoop
       path_command: pnpm
     priority: 1
-    status: present_but_admin_prefix_risk
+    status: present
+    observed_at: "2026-08-07"
+    observed_path: "C:\\Program Files\\nodejs\\pnpm.ps1"
+    notes: >
+      Runtime may ship with Node under Program Files; do not npm -g install
+      other tools into that prefix. User prefix is enforced for new globals.
 
   - id: node
     desired:
@@ -98,6 +114,8 @@ tools:
     notes: Runtime may stay system; avoid npm -g into Program Files
     priority: 1
     status: present
+    observed_at: "2026-08-07"
+    observed_path: "C:\\Program Files\\nodejs\\node.exe"
 
   - id: docker
     desired:
@@ -126,7 +144,11 @@ tools:
       - "Require ANTHROPIC_API_KEY Console key for default interactive use"
       - "Store OAuth refresh tokens in git"
     priority: 1
-    status: managed
+    status: present
+    observed_at: "2026-08-07"
+    observed_path: "C:\\Users\\admin\\.npm-global\\claude.ps1"
+    observed_version: "2.1.224"
+    observation: Reinstalled under user npm prefix (OP-BUG-004); legacy Program Files shim may remain
     doc: docs/claude-code-mode.md
 
   - id: winfsp

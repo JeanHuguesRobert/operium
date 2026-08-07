@@ -3,13 +3,24 @@ document_role: "source"
 document_kind: "research"
 visibility: "private"
 created: "2026-07-19"
-status: "draft"
+status: "historical"
+lifecycle_state: historical
+last_reviewed: "2026-08-07"
 related:
   - "../docs/secrets-management.md"
   - "secrets-architecture-2026-07.md"
+superseded_by: "../docs/secrets-management.md"
+related_issue: "https://github.com/JeanHuguesRobert/operium/issues/15"
 ---
 
 # Secrets Architecture - Sovereign Approach
+
+> **Historical (2026-07-19).** Operational secret authority lives in
+> [`docs/secrets-management.md`](../docs/secrets-management.md).  
+> This paper records **sovereignty preferences** (age, open-source foundations,
+> avoid proprietary secret APIs). Age encrypt helpers still exist under
+> `inseme/apps/platform/scripts/encrypt-secrets.js` as optional offline backup —
+> not required for day-to-day dual-authority rotation. OP-BUG-005 closed 2026-08-07.
 
 ## Principle: Open Source is Strength, Not Dependency
 

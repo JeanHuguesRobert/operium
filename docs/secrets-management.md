@@ -27,6 +27,13 @@ health:
 This registry tracks API keys, tokens, and other secrets across the Cogentia /
 Inseme / Fractanet operational surface.
 
+**This file is the operational authority** for secret names, dual authority,
+rotation, and apply procedures. July 2026 research drafts
+([`research/secrets-architecture-2026-07.md`](../research/secrets-architecture-2026-07.md),
+[`research/secrets-sovereign-architecture.md`](../research/secrets-sovereign-architecture.md))
+are **historical** — useful for options (age, SOPS, platform APIs) but not for
+live rotation. See research index “Secrets” section (OP-BUG-005).
+
 ## Architecture
 
 ### Dual authority (why two “sources of truth”)
