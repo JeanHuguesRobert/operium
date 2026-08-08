@@ -2,17 +2,19 @@
 document_role: "source"
 document_kind: "operational"
 visibility: "private"
-last_updated: "2026-08-07"
+last_updated: "2026-08-08"
 owner: Operium
 health:
-  score: 4
+  score: 5
   status: "functional"
   reasons:
     - "Dual authority model documented (workstation FS vs edge vault)."
     - "COGENTIA_API_KEY mapped to vault."
     - "Single apply/verify entry point for system bearer runtime copies (OP-BUG-002)."
+    - "Fracta runtime key projection: apply-fracta-runtime-secrets (OPENAI + JHN surface)."
   next_actions:
     - "Use apply-system-bearer after every COGENTIA_API_KEY change."
+    - "Use apply-fracta-runtime-secrets after OPENAI_API_KEY (and related) rotation."
     - "Add rotation schedule for critical provider keys."
     - "Optional age encryption for offline backups."
 ---
@@ -92,7 +94,8 @@ tailscale-rsync-secrets.js  →  Rossignol · ThinkPad · Cloud backup
 | `cogentia_mcp_url` | `COGENTIA_MCP_URL` | Default MCP HTTP endpoint for JHN client | Operium | — | Default `https://cogentia.fractavolta.com/mcp` |
 | `anthropic_api_key` | `ANTHROPIC_API_KEY` | **Legacy / unused for interactive Claude Code** — prefer claude.ai OAuth (`claude auth login`) | Anthropic Console | — | Do not require for `claude-mode pro` |
 | `zai_api_key` | `ZAI_API_KEY` | Claude Code **zai** mode (GLM proxy) | z.ai | As needed | Written into `~/.claude/settings.json` only when mode=zai |
-| `openai_api_key` | `OPENAI_API_KEY` | Embeddings, GPT-4 fallback | OpenAI | Quarterly | .env + vault |
+| `openai_api_key` | `OPENAI_API_KEY` | Embeddings, Guide/JHN synthesis path via Magistral | OpenAI | On rotation | .env + vault; **Fracta copies** via `apply-fracta-runtime-secrets` |
+| *(runtime only)* | `COGENTIA_JHN_OWNER_API_KEY` | Jean Hugues owner tier for `/guide/v1` OpenAI surface | Operium / JHN | On compromise | SoT `.env` optional; projected to `guide.env` + `jhn-mcp.env` |
 | `gemini_api_key` | `GEMINI_API_KEY` | Google AI | Google | As needed | .env (current) |
 | `github_token` | `GITHUB_TOKEN` | GitHub operations | GitHub | As needed | .env (current) |
 | `supabase_service_role_key` | `SUPABASE_SERVICE_ROLE_KEY` | Inseme backend / vault writes | Supabase | Annually | Never auto-push casually |
@@ -150,6 +153,41 @@ node scripts/ops/apply-system-bearer.js --fracta-host fracta
 | Vault | Only with `--apply --vault` (double opt-in → `sync-secrets.js`) |
 | fracta magistral | Planned + `publish-inseme-env-to-fracta.ps1` helper (not silent SSH write) |
 | Restarts / smoke | Checklist only unless operator runs host restarts |
+
+### apply-fracta-runtime-secrets.js (provider / JHN surface keys)
+
+**Location:** `operium/scripts/ops/apply-fracta-runtime-secrets.js`  
+**Library:** `operium/lib/fracta-runtime-secrets.js`
+
+**Normal hygiene** for keys that must live as **runtime copies** on Fracta
+(`magistral.env`, `guide.env`, `jhn-mcp.env`) without reading Supabase on the VPS.
+
+Projects from workstation SoT → remote env files over SSH (fingerprint compare, then write).
+
+```bash
+cd operium
+node scripts/ops/apply-fracta-runtime-secrets.js --human
+node scripts/ops/apply-fracta-runtime-secrets.js --apply --host fracta
+node scripts/ops/apply-fracta-runtime-secrets.js --apply --keys OPENAI_API_KEY
+```
+
+| Catalog key | Fracta targets | Restarts |
+|-------------|----------------|----------|
+| `OPENAI_API_KEY` (required) | `magistral.env`, `guide.env` | magistral, mcp-cogentia |
+| `COGENTIA_API_KEY` | `magistral.env` | magistral |
+| `COGENTIA_MCP_JHN_TOKEN` | `jhn-mcp.env` | mcp-cogentia |
+| `COGENTIA_JHN_OWNER_API_KEY` | `jhn-mcp.env`, `guide.env` | mcp-cogentia |
+
+After rotation of OpenAI (or related) keys:
+
+1. Update `inseme/.env` on the workstation  
+2. `node scripts/ops/apply-fracta-runtime-secrets.js --apply --host fracta`  
+3. Optional edge vault: `cd inseme/apps/platform && node scripts/sync-secrets.js --apply --vault`  
+4. Dry-run again until `ok: true`
+
+Related: full-file publish of authority still available as
+`publish-inseme-env-to-fracta.ps1` + on-box `fracta-secret-propagate.sh` (symlink consumers).
+Prefer **key projection** for systemd `EnvironmentFile` splits (`magistral.env` / `guide.env`).
 
 Low-level single-key helper (used internally and for ad-hoc copies):
 `scripts/ops/sync-env-key.js --source <env> --target <env> --key NAME`.

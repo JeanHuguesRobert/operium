@@ -227,6 +227,19 @@ ssh fracta 'curl -fsS http://127.0.0.1:8791/health | jq .context.retrieval_backe
 ssh fracta 'sudo systemctl restart mcp-cogentia.service'
 ```
 
+### Secret hygiene (OPENAI and related runtime keys)
+
+Do **not** hand-edit Fracta env files for provider keys when the workstation SoT is correct.
+Project keys without reading Supabase on the VPS:
+
+```bash
+cd /path/to/operium   # e.g. C:\tweesic\operium
+node scripts/ops/apply-fracta-runtime-secrets.js --human
+node scripts/ops/apply-fracta-runtime-secrets.js --apply --host fracta
+```
+
+See [secrets-management.md](secrets-management.md) (apply-fracta-runtime-secrets).
+
 After `git pull` on `/srv/cogentia/repos/cogentia` and `/srv/cogentia/repos/Inox`:
 
 ```bash
