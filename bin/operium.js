@@ -26,6 +26,7 @@ import {
   formatGateHuman,
   loadBacklog,
 } from "../lib/backlog.js";
+import { runRatesUpdate } from "../lib/rates.js";
 
 const HELP = `operium — versioned operational environment registry CLI
 
@@ -43,6 +44,7 @@ Usage:
   operium node snapshot [options]  Full ONA projection (GET /node/snapshot)
   operium node drift [options]     Node-local catalogue drift (GET /node/drift)
   operium node diagnose [options]  Merge operium up + ONA status/drift (#51)
+  operium rates update [options]   Fetch live model rate cards from providers
 
 Options:
   --json                  Machine-readable operium.up.v1 output (default)
@@ -191,6 +193,8 @@ function parseArgs(argv) {
     options.subcommand = args.shift() || null;
   } else if (options.command === "backlog") {
     options.subcommand = args.shift() || "list";
+  } else if (options.command === "rates") {
+    options.subcommand = args.shift() || "update";
   }
 
   while (args.length) {
@@ -387,6 +391,16 @@ async function main() {
   if (isBacklogCommand(options)) {
     runBacklogCommand(options);
     return;
+  }
+
+  if (options.command === "rates") {
+    const result = await runRatesUpdate(options);
+    if (options.human && result.output) {
+      console.log(result.output);
+    } else {
+      console.log(JSON.stringify(result, null, 2));
+    }
+    process.exit(result.ok ? 0 : 1);
   }
 
   if (options.command === "node" && !isNodeCommand(options)) {
