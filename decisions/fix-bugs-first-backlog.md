@@ -1,11 +1,16 @@
 ---
 title: "ADR — Fix Bugs First via versioned Bug/Feature backlog"
 date: "2026-07-26"
-document_role: decision
+document_role: "source"
 document_kind: adr
 visibility: public
 lifecycle_state: accepted
 status: accepted
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "strong"
+legacy_document_role: "decision"
 ---
 
 # ADR — Fix Bugs First via versioned Bug/Feature backlog
