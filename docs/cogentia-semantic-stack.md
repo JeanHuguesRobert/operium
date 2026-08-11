@@ -11,6 +11,10 @@ document_role: "operational"
 document_kind: "method"
 visibility: "public"
 lifecycle_state: "active"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
 ---
 # Cogentia Semantic Stack
 
@@ -168,6 +172,25 @@ It should not expose:
 - raw operational incident details.
 
 Magistral should remain loopback-only. Cogentia should be the public boundary.
+
+## Chatbot Channel Ingress Architecture (WhatsApp / Multi-Channel)
+
+Operational doctrine for multi-channel chatbot ingress (WhatsApp, Telegram, Mail):
+
+1. **Headless Cloud Ingress on `fracta`**:
+   - Channel adapters operate as **headless HTTP webhooks** hosted directly on `fracta` (24/7 cloud node).
+   - Ingress webhooks receive incoming messages directly from cloud providers (e.g. WhatsApp Cloud API, Telegram Bot API).
+   - The chatbot engine runs continuously on `fracta` regardless of whether the operator's PC or personal mobile handset is online.
+
+2. **Decoupled Channel Core**:
+   - **Thread History (`conversation-store.js`)**: Sliding-window thread persistence per correspondent under `conversations/<id>.json`.
+   - **History-Aware Disclosure (`disclosure.js`)**: Suppresses verbose disclaimers on active threads after recent delivery.
+   - **Direct Contact Routing**: Explicitly directs users to `jeanhuguesrobert@gmail.com` for human decisions or direct contact.
+   - **Technical Debt Note (Multi-Instance Contact Reconciliation)**: At the current single-principal MVP stage, `contact_email` is loaded directly from the operational Vault/local environment (`contact_email` in `config.js` / `instance_config`). When scaling to multi-tenant / multi-principal instances, `contact_email` resolution will be reconciled with the principal's public identity as exposed on their primary GitHub account (`principal_repo`).
+
+3. **Retirement of Phone-Dependent Baileys / Termux Prototype**:
+   - Local Baileys pairing and Termux phone-dependent daemons are retired as temporary initial MVP placements.
+   - Mobile handsets are treated as transient clients/placements, not memory stores or primary server hosts.
 
 ## Fracta Readiness Checks
 
