@@ -1,12 +1,17 @@
 ---
 title: "Control room MIB-lite v0 — contract (P0)"
 description: "First management contract for Fractanet control-room UI: agents, pull model, global list, node zoom. No central warehouse required."
-document_role: design
+document_role: "operational"
 document_kind: contract
 visibility: public
 lifecycle_state: active
 updated: "2026-07-30"
 decision_note: "v0 auth deferred — Tailscale trust perimeter only (operator 2026-07-30)"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
+legacy_document_role: "design"
 ---
 
 # Control room MIB-lite v0 — contract (P0)

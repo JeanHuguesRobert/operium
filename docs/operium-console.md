@@ -1,12 +1,23 @@
+---
+document_role: "operational"
+document_kind: "documentation"
+visibility: "public"
+lifecycle_state: "active"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "documentation"
+classification_confidence: "medium"
+---
+
 # Operium Console
 
-Standalone Vite + React dashboard at `operium/apps/console/`. **Primary fleet UI** — deploy at `/ops/console/` on fracta. `cogentia/scripts/ops/fractanet-dashboard.html` remains a fallback JSON viewer only.
+Standalone Vite + React dashboard at `operium/apps/console/`. It is the **public read-only La Nasa view** — deploy at `/ops/console/` on Fracta. `cogentia/scripts/ops/fractanet-dashboard.html` remains a fallback JSON viewer only.
 
 ## Constraints
 
 - Browser polls **fracta `/ops/*` only** — never remote peer `:8794`.
 - Fleet views (`/ops/status`, `/ops/blackboard`) are **public** (no token).
-- Node detail (`/ops/node/{encoded_id}/status`, `/drift`) uses build-time `VITE_COGENTIA_OPS_TOKEN` → fracta forwards with server-held `ONA_READ_TOKEN` via `cogentia/scripts/lib/ona-proxy.js`.
+- The public bundle contains no node token, private node detail, or action controls. Those belong behind the authenticated John boundary at `https://jhn.baronsmariani.org/nasa`.
 
 ## Development
 

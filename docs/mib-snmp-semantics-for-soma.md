@@ -1,11 +1,16 @@
 ---
 title: "SNMP MIB semantics → SOMA managed objects"
 description: "How classic SNMP MIB groups guide useful attributes for Fractanet ONA/SOMA without reimplementing ASN.1 OIDs."
-document_role: design
+document_role: "operational"
 document_kind: guide
 visibility: public
 lifecycle_state: active
 updated: "2026-07-30"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
+legacy_document_role: "design"
 ---
 
 # SNMP MIB semantics → SOMA managed objects

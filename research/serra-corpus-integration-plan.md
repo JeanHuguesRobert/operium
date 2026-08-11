@@ -11,6 +11,10 @@ document_kind: "integration-plan"
 visibility: "public"
 lifecycle_state: "active"
 status: "planning"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
 ---
 
 # Serra corpus integration plan

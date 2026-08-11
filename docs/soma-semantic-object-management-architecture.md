@@ -6,10 +6,15 @@ date: 2026-07-28
 last_modified_at: 2026-07-28
 license: Apache-2.0
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/docs/soma-semantic-object-management-architecture.md
-document_role: "architecture"
+document_role: "operational"
 document_kind: "specification"
 visibility: "public"
 lifecycle_state: "working"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
+legacy_document_role: "architecture"
 ---
 
 # SOMA — Semantic Object Management Architecture

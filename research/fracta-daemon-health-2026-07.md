@@ -11,6 +11,10 @@ document_kind: "incident"
 visibility: "public"
 lifecycle_state: "active"
 status: "mitigated — quick health probe deployed"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
 ---
 
 # Incident note — fracta daemon health latency (July 2026)

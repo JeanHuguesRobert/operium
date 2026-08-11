@@ -11,6 +11,10 @@ document_kind: "method"
 visibility: "public"
 lifecycle_state: "active"
 status: "mesh live (4 nodes)"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
 ---
 
 # Fractanet mesh — Tailscale and SSH (July 2026)

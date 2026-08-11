@@ -11,6 +11,10 @@ document_kind: "reference"
 visibility: "public"
 lifecycle_state: "active"
 status: "observed zone export — 2026-07-04"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
 ---
 
 # fractavolta.com DNS zone (Gandi)

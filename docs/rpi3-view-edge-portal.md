@@ -6,6 +6,10 @@ document_kind: runbook
 visibility: public
 lifecycle_state: active
 updated: "2026-07-30"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
 ---
 
 # rpi3-view edge portal — control-room display (step 1)

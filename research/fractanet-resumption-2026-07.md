@@ -11,6 +11,10 @@ document_kind: "handoff"
 visibility: "public"
 lifecycle_state: "active"
 status: "resumed — 4-node embryon live; Phase 2 routing pending"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
 ---
 
 # Fractanet resumption handoff — July 2026 pause

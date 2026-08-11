@@ -11,6 +11,10 @@ related:
   - "operational-health.md"
   - "operium-wip.md"
   - "../backlog/README.md"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
 ---
 
 # Fix Bugs First

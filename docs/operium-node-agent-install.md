@@ -1,3 +1,14 @@
+---
+document_role: "operational"
+document_kind: "documentation"
+visibility: "public"
+lifecycle_state: "active"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "documentation"
+classification_confidence: "medium"
+---
+
 # Operium Node Agent — fleet install
 
 Production rollout for **ONA** (`:8794`) on fracta and capable nodes. Catalogue stanzas live in `registre-mariani/operium/registry/resources.yaml` under `operium_node_agent`.

@@ -9,6 +9,10 @@ visibility: public
 lifecycle_state: active
 update_policy: UP-DEFAULT-REVIEWED
 related_issue: "https://github.com/JeanHuguesRobert/operium/issues/19"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
 ---
 
 # Termux tmux handoff

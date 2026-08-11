@@ -1,3 +1,14 @@
+---
+document_role: "source"
+document_kind: "architecture"
+visibility: "public"
+lifecycle_state: "active"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "architecture"
+classification_confidence: "medium"
+---
+
 # Open Strategy for Model Selector: DHITL-Aligned Architecture
 
 **Status:** Draft v0.1 (2026-07-09)

@@ -35,6 +35,10 @@ source_refs:
   - "inseme/packages/cop-core/schemas/identity.mandate.schema.json"
   - "inseme/research/packet_attractor_fractanet.md"
   - "gabriel/README.md"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
 ---
 
 # FractaNet Control Center

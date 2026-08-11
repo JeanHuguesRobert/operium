@@ -19,6 +19,11 @@ related_documents:
   - "docs/operium-node-agent-install.md"
   - "docs/public-private-split.md"
   - "decisions/ADR-0001-operium-scope.md"
+lifecycle_state: "working"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
 ---
 
 # Workstation tooling debt and Operium tool profiles

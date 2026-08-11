@@ -11,6 +11,10 @@ document_kind: "incident"
 visibility: "public"
 lifecycle_state: "active"
 status: "mitigated — task manually started; install script hardened"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
 ---
 
 # Incident note — inox-serve offline on ThinkPad (July 2026)

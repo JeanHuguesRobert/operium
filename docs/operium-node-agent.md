@@ -6,13 +6,18 @@ date: 2026-07-10
 status: Draft
 layout: default
 license: Apache-2.0
-document_role: "design"
+document_role: "operational"
 document_kind: "architecture"
 visibility: "public"
 lifecycle_state: "draft"
 related_issues:
   - "cogentia#51"
   - "cogentia#52"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
+legacy_document_role: "design"
 ---
 
 # Operium Node Agent (ONA)

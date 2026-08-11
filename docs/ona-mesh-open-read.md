@@ -6,6 +6,10 @@ document_kind: runbook
 visibility: public
 lifecycle_state: active
 updated: "2026-07-30"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
 ---
 
 # ONA mesh-open read (P1)
