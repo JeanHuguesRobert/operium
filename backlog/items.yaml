@@ -124,6 +124,32 @@ items:
     opened_at: "2026-08-06"
     closed_at: "2026-08-06"
 
+  - id: OP-BUG-007
+    kind: bug
+    title: Gateway semantic search called AI-router embeddings inline (IoC violation)
+    subsystem: cogentia-context
+    severity: high
+    status: done
+    evidence: >
+      2026-08-12 audit (research/ioc_continuation_openai_path_audit_2026-08-12.md):
+      contextSemanticSearch on query-embed cache miss called createQueryEmbedding
+      (AI-router /v1/embeddings) on the public context path, unlike CLI
+      semanticSearch which emits a continuation. Fix Bugs First / Agent-Resumable
+      CLI: structural tools must not hide provider judgment. Fixed on cogentia
+      main: cache miss emits semantic-search continuation; hybrid falls back to
+      keyword; health flags semantic_requires_continuation=true;
+      direct_query_embeddings_enabled=false. Supabase/Inox inline embed gated by
+      COGENTIA_ALLOW_INLINE_EMBED_FULFILL=1. Tests: test-query-embedding-cache.js.
+    next_action: "Watch hybrid quality on fracta after deploy; pre-warm embeds via search-with --cache-query where semantic is required."
+    github_issue: null
+    blocks_features: false
+    opened_at: "2026-08-12"
+    closed_at: "2026-08-12"
+    notes: |
+      Related residual: product OpenAI-compatible chat surfaces may still call
+      models by role; negotiation of continuation-blind callers remains product
+      policy (see same audit note).
+
   # ── Features (blocked by subsystem bugs when severity high+) ─────
 
   - id: OP-FEAT-001
