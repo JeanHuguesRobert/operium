@@ -1,0 +1,19 @@
+# Drop-in for agent-john-whatsapp.service — durable COP accounting (WhatsApp own spend)
+# Install on Fracta:
+#   sudo mkdir -p /etc/systemd/system/agent-john-whatsapp.service.d
+#   sudo cp agent-john-whatsapp.accounting.conf.example \
+#     /etc/systemd/system/agent-john-whatsapp.service.d/accounting.conf
+#   sudo systemctl daemon-reload
+#   sudo systemctl restart agent-john-whatsapp
+#
+# Loads Supabase bootstrap from inseme/.env (same authority as mcp-cogentia blackboard-auth).
+# WhatsApp OpenAI synthesis spends are written by this process (surface=whatsapp).
+# Guide spends for the same turn stay in mcp-cogentia (anti double-count).
+#
+# Owner desired-state: operium/docs/agent-john-whatsapp-retrieval.md
+
+[Service]
+EnvironmentFile=-/srv/cogentia/repos/inseme/.env
+Environment=COGENTIA_COP_ACCOUNTING_PERSIST=1
+Environment=COGENTIA_COP_SPEND_SPOOL=/var/lib/cogentia/accounting/spend.ndjson
+Environment=COGENTIA_OPS_STATE_DIR=/var/lib/cogentia

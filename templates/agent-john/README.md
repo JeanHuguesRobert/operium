@@ -6,6 +6,8 @@ Secret-free fragments for Fracta (and similar hosts).
 |------|-----|
 | `agent-john-whatsapp.retrieval.env.example` | Env key list for retrieval modes |
 | `agent-john-whatsapp.service.d-retrieval.conf` | systemd drop-in for **shadow** pilot |
+| `agent-john-whatsapp.accounting.conf.example` | COP durable spend (Supabase + spool) for WhatsApp unit |
+| `mcp-cogentia.accounting.conf.example` | COP flags for Guide/MCP unit |
 
 Desired state and apply/verify steps:
 

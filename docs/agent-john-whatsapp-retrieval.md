@@ -90,6 +90,25 @@ Then restart the unit (below).
 |------|------|
 | [`templates/agent-john/agent-john-whatsapp.retrieval.env.example`](../templates/agent-john/agent-john-whatsapp.retrieval.env.example) | Key list + comments |
 | [`templates/agent-john/agent-john-whatsapp.service.d-retrieval.conf`](../templates/agent-john/agent-john-whatsapp.service.d-retrieval.conf) | systemd drop-in for shadow pilot |
+| [`templates/agent-john/agent-john-whatsapp.accounting.conf.example`](../templates/agent-john/agent-john-whatsapp.accounting.conf.example) | COP durable spend (Supabase + spool) for **WhatsApp own** OpenAI synthesis |
+
+### COP accounting (WhatsApp own spend)
+
+| Spend | Who writes | Process |
+|-------|------------|---------|
+| Guide `/guide/chat` leg of a WhatsApp turn | mcp-cogentia REST store | `mcp-cogentia.service` |
+| WhatsApp OpenAI re-synthesis | cop-surface-accounting in draft.js | `agent-john-whatsapp.service` |
+
+Anti double-count: WhatsApp does **not** re-import Guide spend lines; it only links `guide_packet_id` on its root packet.
+
+Desired env for the WhatsApp unit (in addition to retrieval):
+
+```text
+# via EnvironmentFile=-/srv/cogentia/repos/inseme/.env (SUPABASE_* never committed)
+COGENTIA_COP_ACCOUNTING_PERSIST=1
+COGENTIA_COP_SPEND_SPOOL=/var/lib/cogentia/accounting/spend.ndjson
+COGENTIA_OPS_STATE_DIR=/var/lib/cogentia
+```
 
 ## Apply (Fracta)
 
@@ -100,6 +119,9 @@ Prefer a **systemd drop-in** so the base unit stays readable and rollback is one
 sudo mkdir -p /etc/systemd/system/agent-john-whatsapp.service.d
 sudo cp /srv/cogentia/repos/operium/templates/agent-john/agent-john-whatsapp.service.d-retrieval.conf \
   /etc/systemd/system/agent-john-whatsapp.service.d/retrieval.conf
+# Durable COP for WhatsApp own OpenAI spends (same inseme/.env as mcp-cogentia):
+sudo cp /srv/cogentia/repos/operium/templates/agent-john/agent-john-whatsapp.accounting.conf.example \
+  /etc/systemd/system/agent-john-whatsapp.service.d/accounting.conf
 # edit if Guide URL/port differ on this host
 sudo systemctl daemon-reload
 sudo systemctl restart agent-john-whatsapp
