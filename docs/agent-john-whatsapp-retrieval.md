@@ -176,5 +176,6 @@ If anything looks wrong: set `guide`, restart, re-check.
 | When | Host | Mode set | Smoke | Notes |
 |------|------|----------|-------|-------|
 | 2026-08-13 | workstation | code + smoke only | fixture OK; live shadow vs public Guide + local :8790 OK; live librarian :8790 OK | Fracta unit **not** flipped in that session |
+| 2026-08-13 | **fracta** | **`shadow`** via systemd drop-in `retrieval.conf` | fixture shadow OK; live shadow structural OK (gateway 200; Guide probe sometimes slow/timeout under load) | cogentia `d4c5f79`, operium `fc2b3a9`; stashed prior local draft WIP as `fracta-local-before-retrieval-deploy-2026-08-13`; restarted `cogentia`, `mcp-cogentia`, `agent-john-whatsapp` |
 
 When someone applies on Fracta, append a row with date, commit SHAs (cogentia + operium), and smoke report path.
