@@ -55,6 +55,30 @@ Live file on fracta (not in git):
 /etc/cogentia/magistral-openai-map.json
 ```
 
+### Quality-first Guide map (2026-08 dogfood)
+
+When **quality over cost** for public Guide synthesis (label remains `fractavolta-guide`):
+
+| Profile | Role |
+|---------|------|
+| [`profiles/magistral-map.guide-quality-first.v1.json`](../profiles/magistral-map.guide-quality-first.v1.json) | Primary fast/strong → **`gpt-5.6-sol`**; nano demoted to fallback |
+
+```bash
+# On fracta
+sudo cp /etc/cogentia/magistral-openai-map.json \
+  /etc/cogentia/magistral-openai-map.json.bak.$(date -u +%Y%m%dT%H%M%SZ)
+sudo cp /srv/cogentia/repos/operium/profiles/magistral-map.guide-quality-first.v1.json \
+  /etc/cogentia/magistral-openai-map.json
+sudo chown root:ubuntu /etc/cogentia/magistral-openai-map.json
+sudo chmod 640 /etc/cogentia/magistral-openai-map.json
+sudo systemctl restart magistral.service
+# optional: restart mcp-cogentia if caches assume old routes
+sudo systemctl restart mcp-cogentia
+```
+
+`fractavolta-guide` → daemon alias `magistral` → tier **fast** → highest-weight fast node (`openai-fast` = sol).  
+Cost optimization later: re-promote nano / coding nodes to `fast` with higher weight.
+
 ### Secret authority (copies vs overrides)
 
 **Operium owns** the operational secret registry and rotation procedures

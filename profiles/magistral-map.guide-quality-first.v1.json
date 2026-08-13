@@ -1,0 +1,82 @@
+[
+  {
+    "id": "openai-fast",
+    "url": "https://api.openai.com/v1/chat/completions",
+    "model": "gpt-5.6-sol",
+    "tier": "fast",
+    "weight": 100,
+    "note": "Quality-first primary for Guide (fractavolta-guide → magistral → fast). Best available on live key 2026-08-13 (sol-pro N/A)."
+  },
+  {
+    "id": "openai-strong",
+    "url": "https://api.openai.com/v1/chat/completions",
+    "model": "gpt-5.6-sol",
+    "tier": "strong",
+    "weight": 100,
+    "note": "Quality-first strong tier (same SKU until a higher chat model is available on key)."
+  },
+  {
+    "id": "openai-terra-secondary",
+    "url": "https://api.openai.com/v1/chat/completions",
+    "model": "gpt-5.6-terra",
+    "tier": "fast",
+    "weight": 60,
+    "note": "Secondary fast if sol fails; still quality-first vs nano."
+  },
+  {
+    "id": "openai-nano-fallback",
+    "url": "https://api.openai.com/v1/chat/completions",
+    "model": "gpt-5.4-nano",
+    "tier": "fallback",
+    "weight": 40,
+    "note": "Cost-oriented fallback only (demoted from primary)."
+  },
+  {
+    "id": "openrouter-fast",
+    "url": "https://openrouter.ai/api/v1/chat/completions",
+    "model": "openai/gpt-4o-mini",
+    "tier": "fallback",
+    "weight": 30,
+    "apiKeyEnv": "OPENROUTER_API_KEY",
+    "note": "OpenRouter cloud fallback"
+  },
+  {
+    "id": "openrouter-strong",
+    "url": "https://openrouter.ai/api/v1/chat/completions",
+    "model": "meta-llama/llama-3.3-70b-instruct",
+    "tier": "fallback",
+    "weight": 20,
+    "apiKeyEnv": "OPENROUTER_API_KEY",
+    "note": "OpenRouter strong-ish fallback (demoted while quality-first on OpenAI sol)"
+  },
+  {
+    "id": "coding-grok-fast",
+    "url": "http://100.122.121.68:8793/v1/chat/completions",
+    "model": "grok",
+    "tier": "fallback",
+    "weight": 20,
+    "apiKeyEnv": "COGENTIA_API_KEY",
+    "host": "i7-thinkpad-jhr",
+    "note": "ThinkPad Agent CLI Gateway → Grok Build (fallback while Guide quality-first on OpenAI)"
+  },
+  {
+    "id": "coding-claude-fast",
+    "url": "http://100.122.121.68:8793/v1/chat/completions",
+    "model": "claude",
+    "tier": "fallback",
+    "weight": 15,
+    "apiKeyEnv": "COGENTIA_API_KEY",
+    "host": "i7-thinkpad-jhr",
+    "note": "ThinkPad Agent CLI Gateway → Claude Code"
+  },
+  {
+    "id": "coding-codex-strong",
+    "url": "http://100.122.121.68:8793/v1/chat/completions",
+    "model": "codex",
+    "tier": "fallback",
+    "weight": 20,
+    "apiKeyEnv": "COGENTIA_API_KEY",
+    "host": "i7-thinkpad-jhr",
+    "note": "ThinkPad Agent CLI Gateway → Codex"
+  }
+]
