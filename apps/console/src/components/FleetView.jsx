@@ -1,6 +1,6 @@
 import { HealthBadge } from "./HealthBadge.jsx";
 
-export function FleetView({ status, blackboard, nodes, loading, error, onSelectNode }) {
+export function FleetView({ status, blackboard, nodes, loading, error }) {
   const summary = status?.body?.summary || {};
   const layers = status?.body?.layers || {};
   const action = layers.action || {};
@@ -34,45 +34,18 @@ export function FleetView({ status, blackboard, nodes, loading, error, onSelectN
         </Panel>
       ) : null}
 
-      <Panel title="Operium node agents">
+      <Panel title="Participating node agents">
         {loading && nodes.length === 0 ? (
           <p className="text-sm text-ops-muted">Loading fleet…</p>
         ) : null}
         {!loading && nodes.length === 0 ? (
           <p className="text-sm text-ops-muted">No operium.node.v1 attractors on blackboard.</p>
         ) : null}
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px] text-left text-sm">
-            <thead className="text-xs uppercase tracking-wide text-ops-muted">
-              <tr className="border-b border-ops-border">
-                <th className="px-3 py-2">Hostname</th>
-                <th className="px-3 py-2">Node ID</th>
-                <th className="px-3 py-2">Status</th>
-                <th className="px-3 py-2">Fresh</th>
-                <th className="px-3 py-2">Health</th>
-                <th className="px-3 py-2">Endpoint</th>
-              </tr>
-            </thead>
-            <tbody>
-              {nodes.map(node => (
-                <tr
-                  key={node.id || node.node_id}
-                  className="border-b border-ops-border/70 hover:bg-ops-panel/80 cursor-pointer"
-                  onClick={() => onSelectNode(node)}
-                >
-                  <td className="px-3 py-2 font-medium text-ops-accent">{node.hostname}</td>
-                  <td className="px-3 py-2 font-mono text-xs text-ops-muted">{node.node_id || "—"}</td>
-                  <td className="px-3 py-2">{node.status}</td>
-                  <td className="px-3 py-2">{node.fresh ? "yes" : "no"}</td>
-                  <td className="px-3 py-2">
-                    <HealthBadge score={node.health_score} />
-                  </td>
-                  <td className="px-3 py-2 font-mono text-xs text-ops-muted">{node.endpoint || "—"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        {nodes.length ? (
+          <p className="text-sm text-ops-muted">
+            {nodes.length} advertised node{nodes.length === 1 ? "" : "s"}; identities and endpoints stay private.
+          </p>
+        ) : null}
       </Panel>
 
       <Panel title="Guide / retrieval">

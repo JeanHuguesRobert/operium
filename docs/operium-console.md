@@ -35,7 +35,6 @@ Open http://127.0.0.1:5174 — Vite proxies `/ops` to `https://cogentia.fractavo
 ```bash
 cd operium/apps/console
 export VITE_COGENTIA_OPS_BASE_URL=https://cogentia.fractavolta.com
-export VITE_COGENTIA_OPS_TOKEN="<COGENTIA_OPS_READ_TOKEN>"
 export VITE_CONSOLE_BASE=/ops/console/
 npm run build
 ```
@@ -47,29 +46,25 @@ Deploy `dist/` to fracta static path (e.g. `/ops/console/`). Same-origin `fetch(
 | View | Endpoints | Auth |
 |------|-----------|------|
 | Fleet overview | `GET /ops/status`, `GET /ops/blackboard?capability=operium.node.v1` | none |
-| Node detail | `GET /ops/node/{encodeURIComponent(node_id)}/status` | `VITE_COGENTIA_OPS_TOKEN` |
-| Drift panel | `GET /ops/node/{encodeURIComponent(node_id)}/drift` | same token |
+| Work / Fix Bugs First | `GET /views/fix-bugs-first-dashboard.json?raw` | none (public derived view) |
 
-## Node ID encoding
+The Work / Fix Bugs First panel is public and read-only. It displays the public Cogentia
+projection, preserves each item's native GitHub link, and never edits the
+Operium backlog or GitHub from the browser. Generate and publish it with:
 
-Always use `encodeURIComponent(node_id)` in paths:
+```text
+cd ../cogentia
+node scripts/generate-fix-bugs-first-dashboard.js
+node scripts/cogentia.js publish push fix-bugs-first-dashboard
+node scripts/cogentia.js publish push fix-bugs-first-dashboard-json
+```
 
-| Logical ID | Path segment |
-|------------|--------------|
-| `resource://fracta` | `resource%3A%2F%2Ffracta` |
-| `resource://i7-thinkpad-jhr` | `resource%3A%2F%2Fi7-thinkpad-jhr` |
+## Private work boundary
 
-## Fracta server env (aggregator)
-
-Set on `cogentia-mcp-http` (fracta) — never in the browser bundle:
-
-| Variable | Role |
-|----------|------|
-| `COGENTIA_OPS_READ_TOKEN` | Ingress auth for `GET /ops/node/{id}/status\|drift` from console |
-| `ONA_READ_TOKEN` | Egress bearer when fracta proxies to peer ONA `:8794` |
-| `ONA_PORT` | Expected ONA listen port (default `8794`) for endpoint validation |
-
-`GET /ops/status` and `GET /ops/blackboard` remain unauthenticated.
+`/ops/console/` is intentionally not the private console. Authenticated work is entered through
+John at `https://jhn.baronsmariani.org/nasa`; its server boundary validates a Supabase session and
+an explicit operator allow-list before it can call any action bridge. Do not add a static token,
+node detail, or action endpoint to this public bundle.
 
 ## Toolchain
 

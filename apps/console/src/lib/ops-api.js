@@ -1,13 +1,14 @@
 const viteEnv = typeof import.meta !== "undefined" && import.meta.env ? import.meta.env : {};
 const OPS_BASE = String(viteEnv.VITE_COGENTIA_OPS_BASE_URL || "").replace(/\/$/, "");
-const BUILD_OPS_TOKEN = String(viteEnv.VITE_COGENTIA_OPS_TOKEN || "").trim();
+const VIEWS_BASE = String(viteEnv.VITE_COGENTIA_VIEWS_BASE_URL || "").replace(/\/$/, "");
 const TOKEN_STORAGE_KEY = "operium.ops.token";
+export const FIX_BUGS_FIRST_DASHBOARD_PATH = "/views/fix-bugs-first-dashboard.json?raw";
 
 function runtimeOpsToken() {
   try {
-    return String(globalThis.sessionStorage?.getItem(TOKEN_STORAGE_KEY) || BUILD_OPS_TOKEN).trim();
+    return String(globalThis.sessionStorage?.getItem(TOKEN_STORAGE_KEY) || "").trim();
   } catch {
-    return BUILD_OPS_TOKEN;
+    return "";
   }
 }
 
@@ -65,6 +66,19 @@ export async function fetchOpsJson(path, options = {}) {
 
 export async function fetchFleetStatus(signal) {
   return fetchOpsJson("/ops/status", { signal });
+}
+
+export async function fetchFixBugsFirstDashboard(signal) {
+  const url = `${VIEWS_BASE}${FIX_BUGS_FIRST_DASHBOARD_PATH}`;
+  const response = await fetch(url, { headers: { Accept: "application/json" }, signal });
+  const text = await response.text();
+  let body;
+  try {
+    body = JSON.parse(text || "{}");
+  } catch {
+    body = { error: "invalid_json" };
+  }
+  return { ok: response.ok && body?.schema === "cogentia.fix-bugs-first-dashboard.v1", status: response.status, url, body };
 }
 
 export async function fetchFleetBlackboard(signal) {

@@ -23,6 +23,11 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: true,
         },
+        "/views": {
+          target: proxyTarget,
+          changeOrigin: true,
+          secure: true,
+        },
         "/node": {
           target: "http://127.0.0.1:8794",
           changeOrigin: true,

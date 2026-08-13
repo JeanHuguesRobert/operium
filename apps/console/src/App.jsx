@@ -1,35 +1,28 @@
 import { useCallback, useEffect, useState } from "react";
 import { FleetView } from "./components/FleetView.jsx";
-import { NodeDetail } from "./components/NodeDetail.jsx";
+import { FixBugsFirstView } from "./components/FixBugsFirstView.jsx";
 import {
   fetchFleetBlackboard,
   fetchFleetStatus,
-  fetchNodeDrift,
-  fetchNodeSomaObject,
-  fetchNodeSomaVocabulary,
-  fetchNodeStatus,
-  getOpsConfig,
   listOnaAttractors,
 } from "./lib/ops-api.js";
 
 const FLEET_POLL_MS = 30_000;
-const NODE_POLL_MS = 15_000;
+
+function initialView() {
+  if (typeof window === "undefined") return "fleet";
+  return new URLSearchParams(window.location.search).get("view") === "fix-bugs-first"
+    ? "fix-bugs-first"
+    : "fleet";
+}
 
 export default function App() {
-  const [view, setView] = useState("fleet");
-  const [selectedNode, setSelectedNode] = useState(null);
+  const [view, setView] = useState(initialView);
   const [fleetStatus, setFleetStatus] = useState(null);
   const [fleetBlackboard, setFleetBlackboard] = useState(null);
-  const [nodeStatus, setNodeStatus] = useState(null);
-  const [nodeDrift, setNodeDrift] = useState(null);
-  const [nodeSomaObject, setNodeSomaObject] = useState(null);
-  const [nodeSomaVocabulary, setNodeSomaVocabulary] = useState(null);
   const [fleetLoading, setFleetLoading] = useState(true);
-  const [nodeLoading, setNodeLoading] = useState(false);
   const [fleetError, setFleetError] = useState(null);
-  const [nodeError, setNodeError] = useState(null);
   const [lastRefresh, setLastRefresh] = useState(null);
-  const [authRevision, setAuthRevision] = useState(0);
 
   const nodes = listOnaAttractors(fleetBlackboard?.body || {});
 
@@ -56,33 +49,6 @@ export default function App() {
     }
   }, []);
 
-  const refreshNode = useCallback(async (node, signal) => {
-    if (!node?.node_id) return;
-    setNodeLoading(true);
-    setNodeError(null);
-    try {
-      const [status, drift, somaObject, somaVocabulary] = await Promise.all([
-        fetchNodeStatus(node.node_id, signal),
-        fetchNodeDrift(node.node_id, signal),
-        fetchNodeSomaObject(node.node_id, signal),
-        fetchNodeSomaVocabulary(node.node_id, signal),
-      ]);
-      setNodeStatus(status);
-      setNodeDrift(drift);
-      setNodeSomaObject(somaObject);
-      setNodeSomaVocabulary(somaVocabulary);
-      if (!status.ok && !drift.ok) {
-        setNodeError(status.body?.error || drift.body?.error || `HTTP ${status.status}`);
-      }
-    } catch (error) {
-      if (error.name !== "AbortError") {
-        setNodeError(error.message || "node_fetch_failed");
-      }
-    } finally {
-      setNodeLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
     const controller = new AbortController();
     refreshFleet(controller.signal);
@@ -93,34 +59,24 @@ export default function App() {
     };
   }, [refreshFleet]);
 
-  useEffect(() => {
-    if (view !== "node" || !selectedNode) return undefined;
-    const controller = new AbortController();
-    refreshNode(selectedNode, controller.signal);
-    const timer = setInterval(() => refreshNode(selectedNode, controller.signal), NODE_POLL_MS);
-    return () => {
-      controller.abort();
-      clearInterval(timer);
-    };
-  }, [view, selectedNode, refreshNode, authRevision]);
-
-  const config = getOpsConfig();
-
   return (
     <div className="min-h-screen">
       <header className="border-b border-ops-border px-5 py-4">
         <div className="mx-auto flex max-w-6xl flex-wrap items-end justify-between gap-3">
           <div>
-            <h1 className="text-xl font-semibold tracking-wide">Operium Console</h1>
+            <h1 className="text-xl font-semibold tracking-wide">La Nasa · public view</h1>
             <p className="text-sm text-ops-muted">
-              Fracta aggregator views only — no browser calls to peer :8794
+              Read-only operational projection. No credentials, private node detail, or actions.
             </p>
           </div>
           <div className="text-right text-xs text-ops-muted">
-            <div>ops base: {config.baseUrl || "(same-origin / proxy)"}</div>
-            <div>node token: {config.hasToken ? "configured" : "not set"}</div>
+            <div>public status only</div>
             {lastRefresh ? <div>updated {lastRefresh}</div> : null}
           </div>
+        </div>
+        <div className="mx-auto mt-4 flex max-w-6xl gap-2">
+          <button className={`rounded border px-3 py-1.5 text-xs ${view === "fleet" ? "border-ops-accent text-ops-accent" : "border-ops-border text-ops-muted"}`} onClick={() => setView("fleet")}>Fleet</button>
+          <button className={`rounded border px-3 py-1.5 text-xs ${view === "fix-bugs-first" ? "border-ops-accent text-ops-accent" : "border-ops-border text-ops-muted"}`} onClick={() => setView("fix-bugs-first")}>Work / Fix Bugs First</button>
         </div>
       </header>
 
@@ -132,33 +88,10 @@ export default function App() {
             nodes={nodes}
             loading={fleetLoading}
             error={fleetError}
-            onSelectNode={(node) => {
-              if (!node.node_id) return;
-              setSelectedNode(node);
-              setView("node");
-            }}
           />
-        ) : (
-          <NodeDetail
-            node={selectedNode}
-            status={nodeStatus}
-            drift={nodeDrift}
-            somaObject={nodeSomaObject}
-            somaVocabulary={nodeSomaVocabulary}
-            loading={nodeLoading}
-            error={nodeError}
-            onAuthChange={() => setAuthRevision(value => value + 1)}
-            onBack={() => {
-              setView("fleet");
-              setSelectedNode(null);
-              setNodeStatus(null);
-              setNodeDrift(null);
-              setNodeSomaObject(null);
-              setNodeSomaVocabulary(null);
-              setNodeError(null);
-            }}
-          />
-        )}
+        ) : view === "fix-bugs-first" ? (
+          <FixBugsFirstView onBack={() => setView("fleet")} />
+        ) : null}
       </main>
     </div>
   );
