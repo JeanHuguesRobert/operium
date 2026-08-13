@@ -1,0 +1,16 @@
+# Drop-in for mcp-cogentia.service — durable COP accounting (P0)
+# Install:
+#   sudo cp mcp-cogentia.accounting.conf.example \
+#     /etc/systemd/system/mcp-cogentia.service.d/accounting.conf
+#   sudo systemctl daemon-reload
+#   sudo systemctl restart mcp-cogentia
+#
+# Requires SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY already in service env
+# (e.g. from /srv/cogentia/repos/inseme/.env).
+
+[Service]
+# Persist packet spends to cop_accounting_event / balances (default on if Supabase set)
+Environment=COGENTIA_COP_ACCOUNTING_PERSIST=1
+# Local NDJSON evidence (always useful for persons + ops; not a second ledger)
+Environment=COGENTIA_COP_SPEND_SPOOL=/var/lib/cogentia/accounting/spend.ndjson
+Environment=COGENTIA_OPS_STATE_DIR=/var/lib/cogentia
