@@ -1,0 +1,19 @@
+schema: cogentia.responsibility-claims.v1
+claims:
+  - subject: federated-capacity-registry
+    relation: operates
+    repo: operium
+    path: research/federated-capacity-registry.md
+    scope: public
+    confidence: high
+    evidence:
+      - research/federated-capacity-registry.md
+    note: Operium owns the federated operational view of available capacities; local sources remain authoritative for legitimately declared or measured facts.
+  - subject: federated-capacity-registry
+    relation: must_not_duplicate
+    repo: cogentia
+    scope: public
+    confidence: high
+    evidence:
+      - research/federated-capacity-registry.md
+    note: Cogentia/COP may express requirements and consume Operium candidates but must not create a competing central operational capacity authority.
