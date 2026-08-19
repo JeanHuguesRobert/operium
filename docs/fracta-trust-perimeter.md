@@ -3,7 +3,7 @@ title: "Fracta trust perimeter and secrets"
 description: "How the fracta VPS fits the trusted operational boundary; where secrets live; retrieval backends including Inox session."
 layout: default
 date: 2026-07-03
-last_modified_at: 2026-07-12
+last_modified_at: 2026-08-19
 license: Apache-2.0
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/docs/fracta-trust-perimeter.md
 document_role: "operational"
@@ -71,12 +71,41 @@ fracta exposes a **governed public Cogentia face** (~1 GB RAM VPS):
 Internet
   -> DNS: *.fractavolta.com CNAME fracta.fractavolta.com -> 82.70.234.207 (OCI)
   -> Caddy (cogentia.fractavolta.com, other vhosts — see fractavolta-dns.md)
-  -> mcp-cogentia.service (127.0.0.1:8791)  Guide MCP HTTP
-  -> cogentia.service (127.0.0.1:8790)        Cogentia daemon
+       matches only: /mcp /sse /tools[/*] /guide[/*] /ops/blackboard[/*]
+                     /ops/status /ops/dashboard /ops/route/* /ops/edge/* /ops/node/*
+  -> mcp-cogentia.service (0.0.0.0:8791)      Guide MCP HTTP -- the only service
+       -> cogentia.service (127.0.0.1:8790)     Cogentia daemon -- loopback-only.
+          Not proxied by Caddy under any path; mcp-cogentia reaches it internally
+          via its own daemonGet/daemonPost helpers (COGENTIA_DAEMON_URL), which
+          always forward mcp-cogentia's own resolved view, never a raw
+          client-supplied one. Verified 2026-08-19 by reading the live Caddyfile
+          and `ss -tlnp` on the node -- earlier drafts of this diagram implied
+          cogentia.service sat behind Caddy directly at `/api/*`; it does not.
 ```
+
+Anything not matching the paths above falls through to the Views Store
+(`localhost:3423`), a separate service.
 
 Magistral / model-router stays **loopback-only**. The MCP adapter is the public
 retrieval and chat boundary for visitors.
+
+### Capacity headroom (observed 2026-08-19)
+
+fracta is `VM.Standard.E2.1.Micro` (Oracle Cloud Always-Free "AMD Micro" shape):
+**1 OCPU, 1 GB RAM**, not an Ampere A1 instance. At time of observation: 69 MiB
+free out of ~954 MiB, already running 5 resident Node processes (Magistral AI
+router, Operium node agent, cogentia daemon, mcp-cogentia, Agent JHN WhatsApp)
+plus Caddy, tailscaled, systemd. Treat this as a **tight** box: before adding
+any new always-on process here, check headroom (`free -h`, `ps aux --sort=-%mem`)
+rather than assuming it fits.
+
+On "just get a bigger free VPS": Oracle's Ampere A1 Always-Free allowance was
+quietly halved in June 2026 (was 4 OCPU/24 GB, now 2 OCPU/12 GB per tenancy;
+some reports describe over-quota instances being terminated around
+2026-08-18). This is a fast-moving, inconsistently-documented external change
+-- verify current entitlement directly in the OCI console before planning
+around any specific number, rather than trusting a cached figure (including
+this one).
 
 **Guide synthesis routing** (Magistral → Agent CLI Gateway / coding agents) is
 owned by Operium — see [Magistral coding-agent routing](magistral-coding-agent-routing.md)
@@ -222,7 +251,10 @@ From a trusted workstation:
 
 ```bash
 # Stack health (see cogentia/deploy/fracta/README.md)
-ssh fracta 'sudo /srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stack.sh healthcheck'
+# Note: the script's git-checkout permissions do not carry the executable
+# bit (-rw-rw-r--); invoke it via `bash`, not directly, or sudo reports
+# "command not found" instead of a permissions error.
+ssh fracta 'sudo bash /srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stack.sh healthcheck'
 
 # Guide retrieval backend (no secret values in output)
 ssh fracta 'curl -fsS http://127.0.0.1:8791/health | jq .context.retrieval_backend, .context.inox_retrieval'
@@ -247,7 +279,7 @@ See [secrets-management.md](secrets-management.md) (apply-fracta-runtime-secrets
 After `git pull` on `/srv/cogentia/repos/cogentia` and `/srv/cogentia/repos/Inox`:
 
 ```bash
-ssh fracta 'sudo /srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stack.sh restart'
+ssh fracta 'sudo bash /srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stack.sh restart'
 ```
 
 ## Inox on a capable host (reference)
@@ -271,3 +303,4 @@ This public note only records the pattern.
 | 2026-07-03 | Initial note: trust perimeter, `guide.env`, Phase 4 `inox.session.v1` |
 | 2026-07-04 | Cross-link to [fractanet-mesh.md](fractanet-mesh.md); `COGENTIA_INOX_RETRIEVAL_URL` live via Tailscale |
 | 2026-07-04 | Cross-link to [fractavolta-dns.md](fractavolta-dns.md); public path diagram includes OCI IP |
+| 2026-08-19 | Corrected public-role diagram: `cogentia.service` is loopback-only, never proxied by Caddy directly (verified against the live Caddyfile and `ss -tlnp`, not just assumed); added observed capacity headroom (1 OCPU/1GB, tight) and a dated note on Oracle's Ampere A1 free-tier reduction; fixed operator-checklist commands missing the `bash` prefix the non-executable script needs |
