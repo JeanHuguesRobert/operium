@@ -5,7 +5,7 @@ document_role: "operational"
 document_kind: contract
 visibility: public
 lifecycle_state: active
-updated: "2026-07-30"
+updated: "2026-08-19"
 decision_note: "v0 auth deferred — Tailscale trust perimeter only (operator 2026-07-30)"
 classification_source: "cogentia.js"
 classification_version: "1"
@@ -16,7 +16,11 @@ legacy_document_role: "design"
 
 # Control room MIB-lite v0 — contract (P0)
 
-**Status:** written contract — implementation not started.  
+**Status:** P0–P5 all done (2026-07-30, see §10) — this header was stale until
+2026-08-19; the contract line below described the state when P0 was first
+written, not the shipped result. Verified live 2026-08-19: `fracta` ONA
+`/node/status` and `rpi3-view` edge-portal `status.json` both respond
+correctly.  
 **Product nickname:** control room **“La Nasa”**.  
 **Step 1 (done):** local web home on `rpi3-view` — [rpi3-view-edge-portal.md](rpi3-view-edge-portal.md).  
 **This document:** **step 2 contract** — SNMP-like agents + web UI to browse a management surface (MIB metaphor), global view + node zoom.
