@@ -201,15 +201,17 @@ ssh fracta 'hostname; whoami; uname -a'
 ssh fracta 'systemctl --no-pager --plain list-units "*cogentia*" "*mcp*" "*magistral*"'
 ssh fracta 'curl -fsS http://127.0.0.1:8790/api/context/health'
 ssh fracta 'curl -fsS http://127.0.0.1:8790/api/agent/health'
+ssh fracta 'curl -fsS http://127.0.0.1:8791/cop/health'
 ```
 
-The remote semantic stack is ready only when:
+The remote semantic stack and mutualized attractor are ready only when:
 
 ```text
 context.index_available: true
 context.semantic_available: true
 agent.ai_router.available: true
 agent.ai_router.capabilities.embeddings: true
+cop_attractor.status: online
 ```
 
 If the remote corpus index is absent, rebuild or restore the index before

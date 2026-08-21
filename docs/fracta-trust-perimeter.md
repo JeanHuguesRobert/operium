@@ -71,9 +71,9 @@ fracta exposes a **governed public Cogentia face** (~1 GB RAM VPS):
 Internet
   -> DNS: *.fractavolta.com CNAME fracta.fractavolta.com -> 82.70.234.207 (OCI)
   -> Caddy (cogentia.fractavolta.com, other vhosts — see fractavolta-dns.md)
-       matches only: /mcp /sse /tools[/*] /guide[/*] /ops/blackboard[/*]
-                     /ops/status /ops/dashboard /ops/route/* /ops/edge/* /ops/node/*
-  -> mcp-cogentia.service (0.0.0.0:8791)      Guide MCP HTTP -- the only service
+       matches: /mcp /sse /tools[/*] /guide[/*] /cop[/*] /ops/blackboard[/*]
+                /ops/status /ops/dashboard /ops/route/* /ops/edge/* /ops/node/*
+  -> mcp-cogentia.service (0.0.0.0:8791)      Mutualized Hub: MCP + Guide + OpenAI SSE + COP Attractor
        -> cogentia.service (127.0.0.1:8790)     Cogentia daemon -- loopback-only.
           Not proxied by Caddy under any path; mcp-cogentia reaches it internally
           via its own daemonGet/daemonPost helpers (COGENTIA_DAEMON_URL), which
@@ -87,17 +87,19 @@ Anything not matching the paths above falls through to the Views Store
 (`localhost:3423`), a separate service.
 
 Magistral / model-router stays **loopback-only**. The MCP adapter is the public
-retrieval and chat boundary for visitors.
+retrieval, chat, and Cognitive Packet ingestion boundary for visitors and peer nodes.
 
-### Capacity headroom (observed 2026-08-19)
+### Capacity headroom and Process Mutualization (Decision 2026-08)
 
 fracta is `VM.Standard.E2.1.Micro` (Oracle Cloud Always-Free "AMD Micro" shape):
 **1 OCPU, 1 GB RAM**, not an Ampere A1 instance. At time of observation: 69 MiB
-free out of ~954 MiB, already running 5 resident Node processes (Magistral AI
-router, Operium node agent, cogentia daemon, mcp-cogentia, Agent JHN WhatsApp)
+free out of ~954 MiB, running resident Node processes (Magistral AI
+router, Operium node agent, cogentia daemon, mcp-cogentia hub, Agent JHN WhatsApp)
 plus Caddy, tailscaled, systemd. Treat this as a **tight** box: before adding
 any new always-on process here, check headroom (`free -h`, `ps aux --sort=-%mem`)
 rather than assuming it fits.
+
+**Process Mutualization Policy:** To prevent Linux OOM-Killer crashes from duplicate V8 runtime footprints (~70-130 MiB baseline per Node process), new capabilities such as the **John Cognitive Packet Attractor (`/cop/packet`, `/cop/health`)** and the **OpenAI SSE Completions Surface (`/guide/v1/*`)** are co-located directly inside the `mcp-cogentia.service` process. This preserves a single shared memory heap, avoids port proliferation, and allows `fracta-guide-stack.sh` to supervise the entire surface through a single unified healthcheck.
 
 On "just get a bigger free VPS": Oracle's Ampere A1 Always-Free allowance was
 quietly halved in June 2026 (was 4 OCPU/24 GB, now 2 OCPU/12 GB per tenancy;
