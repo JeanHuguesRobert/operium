@@ -1,0 +1,73 @@
+schema: cogentia.registry.v0.2
+registry:
+  id: registry:federated-capacity
+  name: Operium Federated Capacity Registry
+  registry_class: domain-governance
+
+  records:
+    kinds:
+      - capacity
+      - capacity-observation
+      - capacity-advertisement
+
+  facets:
+    function:
+      - operational-state
+      - discovery
+      - routing
+      - federation
+    authority: federated-local-authority
+    topology: federated
+    temporality:
+      - slow-changing
+      - high-volatility
+      - reconstructible
+    visibility: mixed
+    substrate:
+      - git-markdown
+      - runtime-advertisement
+      - local-cache
+    granularity:
+      - resource
+      - service
+      - node
+    mutation:
+      - source-declared
+      - runtime-managed
+
+  definition_source:
+    repo: JeanHuguesRobert/operium
+    path: research/federated-capacity-registry.md
+
+  record_authority:
+    mode: source-local
+    description: Each node, provider or source remains authoritative for facts it can legitimately declare or measure; global capacity views are projections.
+
+  record_sources:
+    - layer: slow-catalogue
+      authority: declared-durable-resource-truth
+      temporality: slow-changing
+    - layer: fast-blackboard
+      authority: volatile-observation-or-advertisement
+      temporality: high-volatility
+    - layer: node-local-cache
+      authority: reconstructible-hot-projection
+      temporality: ephemeral
+
+  relations:
+    - predicate: federates
+      object: registry:local-capacity-views
+    - predicate: exposes_view
+      object: view:global-capacity
+    - predicate: must_not_duplicate
+      object: cogentia:capacity-operational-authority
+    - predicate: references
+      object: cop:capability-requirements
+
+  freshness:
+    mode: per-record
+    fields:
+      - observed_at
+      - valid_until
+      - confidence
+      - measurement_status
