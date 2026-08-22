@@ -68,5 +68,19 @@ public `tools/list`. Desired: agents learn they exist from Operium docs and
    `initialize` → `tools/list` (mutate absent) → `server/discover` →
    `skills/list` → `resources/list`.
 
+## Workstation daemon (Grok local MCP)
+
+Fracta already has systemd `Restart=` on `cogentia.service`. The workstation
+stdio client (`C:\tweesic\.grok\config.toml` → `:8790`) does not. Observed
+failure mode (2026-08-22 Reality test): MCP reported `daemon_unavailable` for
+**timeouts** while the Node process was still alive — `buildInventory` on
+grep/docs routes blocked the event loop. Fix lives in Cogentia (`getDaemonInventory`
+cache + `daemon_timeout` vs `daemon_unavailable` + JSONL traces). Start/watch:
+
+```powershell
+pwsh -File C:\tweesic\cogentia\scripts\ops\start-cogentia-daemon-windows.ps1
+node C:\tweesic\cogentia\scripts\ops\watch-cogentia-daemon-windows.js
+```
+
 Canonical client wiring: [cogentia-mcp-clients.md](cogentia-mcp-clients.md).
 Canonical adapter contract: Cogentia `docs/cogentia-mcp.md`.
