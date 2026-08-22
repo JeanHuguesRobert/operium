@@ -95,6 +95,7 @@ tailscale-rsync-secrets.js  →  Rossignol · ThinkPad · Cloud backup
 | `anthropic_api_key` | `ANTHROPIC_API_KEY` | **Legacy / unused for interactive Claude Code** — prefer claude.ai OAuth (`claude auth login`) | Anthropic Console | — | Do not require for `claude-mode pro` |
 | `zai_api_key` | `ZAI_API_KEY` | Claude Code **zai** mode (GLM proxy) | z.ai | As needed | Written into `~/.claude/settings.json` only when mode=zai |
 | `openai_api_key` | `OPENAI_API_KEY` | Embeddings, Guide/JHN synthesis path via Magistral | OpenAI | On rotation | .env + vault; **Fracta copies** via `apply-fracta-runtime-secrets` |
+| *(runtime only)* | `OPENROUTER_API_KEY` | Public Guide OpenRouter fallback, including the explicit free-model path | OpenRouter | On rotation | `.env` authority; projected only to Fracta `guide.env` |
 | `openai_admin_key` | `OPENAI_ADMIN_KEY` | Org Admin API — usage/costs only (not chat) | OpenAI Admin keys | On compromise | JHN vault; create at platform.openai.com/settings/organization/admin-keys |
 | *(runtime only)* | `COGENTIA_JHN_OWNER_API_KEY` | Jean Hugues owner tier for `/guide/v1` OpenAI surface | Operium / JHN | On compromise | SoT `.env` optional; projected to `guide.env` + `jhn-mcp.env` |
 | `gemini_api_key` | `GEMINI_API_KEY` | Google AI | Google | As needed | .env (current) |
@@ -175,6 +176,7 @@ node scripts/ops/apply-fracta-runtime-secrets.js --apply --keys OPENAI_API_KEY
 | Catalog key | Fracta targets | Restarts |
 |-------------|----------------|----------|
 | `OPENAI_API_KEY` (required) | `magistral.env`, `guide.env` | magistral, mcp-cogentia |
+| `OPENROUTER_API_KEY` | `guide.env` | mcp-cogentia |
 | `COGENTIA_API_KEY` | `magistral.env` | magistral |
 | `COGENTIA_MCP_JHN_TOKEN` | `jhn-mcp.env` | mcp-cogentia |
 | `COGENTIA_JHN_OWNER_API_KEY` | `jhn-mcp.env`, `guide.env` | mcp-cogentia |

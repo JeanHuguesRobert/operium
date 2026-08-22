@@ -16,7 +16,7 @@ const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "operium-fracta-sec-"));
 const sot = path.join(tmp, "sot.env");
 fs.writeFileSync(
   sot,
-  "OPENAI_API_KEY=sk-proj-test-good\nCOGENTIA_API_KEY=bearer-good\n",
+  "OPENAI_API_KEY=sk-proj-test-good\nOPENROUTER_API_KEY=or-test-good\nCOGENTIA_API_KEY=bearer-good\n",
   { mode: 0o600 }
 );
 
@@ -27,6 +27,7 @@ const remoteState = {
   },
   "/srv/cogentia/secrets/guide.env": {
     OPENAI_API_KEY: "sk-proj-test-stale",
+    OPENROUTER_API_KEY: "or-test-stale",
   },
   "/srv/cogentia/secrets/jhn-mcp.env": {},
 };
@@ -90,7 +91,7 @@ const dry = runFractaRuntimeSecretsProcedure({
   sot,
   host: "mock-fracta",
   apply: false,
-  keys: ["OPENAI_API_KEY", "COGENTIA_API_KEY"],
+  keys: ["OPENAI_API_KEY", "OPENROUTER_API_KEY", "COGENTIA_API_KEY"],
   run: mockRun,
 });
 assert.equal(dry.schema, "operium.fracta-runtime-secrets.v1");
@@ -104,7 +105,7 @@ const applied = runFractaRuntimeSecretsProcedure({
   sot,
   host: "mock-fracta",
   apply: true,
-  keys: ["OPENAI_API_KEY", "COGENTIA_API_KEY"],
+  keys: ["OPENAI_API_KEY", "OPENROUTER_API_KEY", "COGENTIA_API_KEY"],
   run: mockRun,
 });
 assert.equal(applied.ok, true, JSON.stringify(applied, null, 2));
@@ -116,16 +117,21 @@ assert.equal(
   remoteState["/srv/cogentia/secrets/guide.env"].OPENAI_API_KEY,
   "sk-proj-test-good"
 );
+assert.equal(
+  remoteState["/srv/cogentia/secrets/guide.env"].OPENROUTER_API_KEY,
+  "or-test-good"
+);
 
 const again = runFractaRuntimeSecretsProcedure({
   sot,
   host: "mock-fracta",
   apply: false,
-  keys: ["OPENAI_API_KEY", "COGENTIA_API_KEY"],
+  keys: ["OPENAI_API_KEY", "OPENROUTER_API_KEY", "COGENTIA_API_KEY"],
   run: mockRun,
 });
 assert.equal(again.ok, true);
 
 assert.ok(FRACTA_RUNTIME_KEY_CATALOG.some((e) => e.key === "OPENAI_API_KEY"));
+assert.ok(FRACTA_RUNTIME_KEY_CATALOG.some((e) => e.key === "OPENROUTER_API_KEY"));
 
 console.log(JSON.stringify({ ok: true, test: "fracta-runtime-secrets" }, null, 2));
