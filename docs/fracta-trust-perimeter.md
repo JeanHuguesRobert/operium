@@ -3,7 +3,7 @@ title: "Fracta trust perimeter and secrets"
 description: "How the fracta VPS fits the trusted operational boundary; where secrets live; retrieval backends including Inox session."
 layout: default
 date: 2026-07-03
-last_modified_at: 2026-08-19
+last_modified_at: 2026-08-22
 license: Apache-2.0
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/docs/fracta-trust-perimeter.md
 document_role: "operational"
@@ -88,6 +88,9 @@ Anything not matching the paths above falls through to the Views Store
 
 Magistral / model-router stays **loopback-only**. The MCP adapter is the public
 retrieval, chat, and Cognitive Packet ingestion boundary for visitors and peer nodes.
+MCP 2026-07-28 extras (`server/discover`, `resources/*`, `skills/*`, `prompts/*`)
+use the same `POST /mcp` JSON-RPC path — no extra Caddy matchers. Desired catalog
+invariants: [mcp-capability-surface.md](mcp-capability-surface.md).
 
 ### Capacity headroom and Process Mutualization (Decision 2026-08)
 

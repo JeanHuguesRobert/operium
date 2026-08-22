@@ -4,7 +4,7 @@ document_role: source
 document_kind: operational
 visibility: private
 lifecycle_state: active
-last_updated: "2026-07-23"
+last_updated: "2026-08-22"
 related:
   - "coding-infrastructure.md"
   - "cogentia-semantic-stack.md"
@@ -50,11 +50,13 @@ do not automatically inject MCP; each agent product has its own MCP config file.
 - Tools smoke: `https://cogentia.fractavolta.com/tools`  
 - Views: `https://cogentia.fractavolta.com/`  
 
-Public surface is **read-only / public view** (`COGENTIA_MCP_VIEW=public`) for **anonymous** callers. As of cogentia Phase 5 (mcp **0.7.0**):
+Public surface is **read-only / public view** (`COGENTIA_MCP_VIEW=public`) for **anonymous** callers. As of Cogentia MCP **0.9.0** (2026-08-22):
 
-- `tools/list` exposes **26** tools anonymously (mutate hidden; +docs_inspect/gaps, corpus_privacy, consolidate, embeddings_status).
+- `server/discover` advertises MCP **2026-07-28** capabilities: `tools`, `resources`, `prompts`, `completions`, and experimental `io.modelcontextprotocol/skills` (SEP-2640).
+- Anonymous `tools/list` is on the order of **~50** read tools (mutate hidden). This is **not** the maximum set — use `resources/list`, `skills/list`, `cogentia_pattern_list`, and `cogentia_cli_catalog`.
 - `tools/call` returns **packet-shaped** results (`cogentia.mcp_tool_result/v1`).
-- `server/discover.experimental` lists skill ids (tools-first Skills experiment).
+- HTTP MCP (`mcp-cogentia`) uses the **registry-aware** core (same catalog as stdio, including Registry Graph tools).
+- Inseme hub (`inseme-mcp`) **imports this catalog**; it must not keep a parallel Cogentia tool table.
 - **Agent JHN write path (optional):** if operator sets on `mcp-cogentia`:
 
 ```ini
@@ -74,6 +76,10 @@ Deploy (app tree on node):
 ssh fracta
 cd /srv/cogentia/repos/cogentia && git pull --ff-only origin main
 sudo systemctl restart cogentia.service mcp-cogentia.service
+# Optional: keep Inseme checkout aligned (hub catalog; not a systemd unit)
+# cd /srv/cogentia/repos/inseme && git pull --ff-only origin main
 ```
+
+Post-deploy smoke and catalog invariants: [mcp-capability-surface.md](mcp-capability-surface.md).
 
 **Later (not initial):** Netlify Edge (Deno) adapter — same MCP contract, edge-side projection; Fracta remains daemon home. See cogentia `docs/cogentia-js-mcp-agent-path.md` § Deployment topology.

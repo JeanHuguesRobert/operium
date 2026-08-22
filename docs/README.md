@@ -31,6 +31,8 @@ This directory contains Operium documentation.
 - `profiles/tools.termux-android.v1.yaml` / `scripts/ops/publish-inseme-env-to-termux.ps1` — Android coding-node state and authority refresh
 - [Magistral → coding-agent routing](magistral-coding-agent-routing.md) — Guide synthesis path + map apply
 - [Agent John WhatsApp retrieval (Fracta)](agent-john-whatsapp-retrieval.md) — guide/shadow/librarian desired state + systemd drop-in
+- [Cogentia MCP for coding agents](cogentia-mcp-clients.md) — client wiring + Fracta public MCP
+- [MCP capability surface — desired state](mcp-capability-surface.md) — 2026-07-28 catalog invariants, Inseme union, ops vs public
 - [Cogentia Semantic Stack](cogentia-semantic-stack.md)
 - [SOMA — Semantic Object Management Architecture](soma-semantic-object-management-architecture.md) — lightweight semantic model for managed objects, attributes, observations, actions, and projections
 - [Fracta trust perimeter and secrets](fracta-trust-perimeter.md)
