@@ -64,6 +64,18 @@ Confirm that any free response is labelled as such, has a non-empty answer and
 public sources, and that an unavailable or incomplete free completion falls
 back to `extractive_fallback`.
 
+## Deployment record
+
+On 2026-08-22 this configuration was applied on `fracta` with Cogentia commit
+`fe08adb` present and Operium commit `7221d3c` installed. The protected
+`OPENROUTER_API_KEY` was projected from the local runtime secret source to the
+host-only Guide environment file; it was never recorded here. `mcp-cogentia`
+was active, listening on port 8791, and its health endpoint reported the free
+fallback adapter enabled. The public HTTPS Guide returned a cited canonical
+public answer. A forced non-cached request reached the free model, whose
+incomplete completion was rejected by the guard and isolated by its dedicated
+circuit breaker, leaving the existing public fallback contract in force.
+
 ## Rollback
 
 ```bash
