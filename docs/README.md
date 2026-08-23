@@ -42,7 +42,7 @@ This directory contains Operium documentation.
 - [Control room MIB-lite v0 — contract (P0)](control-room-mib-lite-v0.md) — agents + global/zoom UI contract (“La Nasa” step 2)
 - [SNMP MIB semantics → SOMA](mib-snmp-semantics-for-soma.md) — which attributes belong in default zoom (MIB discipline)
 - [ONA mesh-open read (P1)](ona-mesh-open-read.md) — Tailscale trust-plane GET without bearer
-- [Edge trap-directed polling (SNMP pattern)](../cogentia/docs/edge-trap-directed-polling.md) — Pi 3 store-and-forward + fracta manager
+- [Edge trap-directed polling (SNMP pattern)](https://github.com/JeanHuguesRobert/cogentia/blob/main/docs/edge-trap-directed-polling.md) — Pi 3 store-and-forward + fracta manager
 - [fractavolta.com DNS zone](fractavolta-dns.md)
 - [Stalwart mail on fracta](stalwart-private-mail.md) — governed bidirectional Gmail ↔ Twin JHN channel
 - [Operium CLI](operium-cli.md)
