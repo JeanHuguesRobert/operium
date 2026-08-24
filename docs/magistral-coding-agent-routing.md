@@ -191,8 +191,9 @@ bash scripts/ops/deploy-cogentia-service-identity-fracta.sh --dry-run
 bash scripts/ops/deploy-cogentia-service-identity-fracta.sh
 ```
 
-The helper refuses a dirty Cogentia checkout, fast-forwards `main`, restarts the
-existing Guide stack, then verifies the Context and Guide descriptors. Deploy
+The helper refuses tracked Cogentia checkout changes (untracked runtime cache
+files do not block it), fast-forwards `main`, restarts the existing Guide stack,
+then verifies the Context and Guide descriptors. Deploy
 the matching Inseme change and restart `magistral.service` to expose the third
 descriptor. It does **not** switch the current Node Magistral router to ACP.
 That migration is separate: Fracta must first have Deno plus an authenticated

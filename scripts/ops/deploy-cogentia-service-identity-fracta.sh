@@ -26,8 +26,8 @@ test -d "$COGENTIA_ROOT/.git" || {
   exit 2
 }
 
-if [[ -n "$(git -C "$COGENTIA_ROOT" status --porcelain)" ]]; then
-  echo "REFUSE_DIRTY_COGENTIA_CHECKOUT" >&2
+if [[ -n "$(git -C "$COGENTIA_ROOT" status --porcelain --untracked-files=no)" ]]; then
+  echo "REFUSE_TRACKED_COGENTIA_CHECKOUT" >&2
   exit 2
 fi
 
