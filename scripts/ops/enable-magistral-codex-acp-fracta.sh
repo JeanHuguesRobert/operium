@@ -83,7 +83,7 @@ if sudo test -f "$GUIDE_DROPIN"; then
   sudo cp -a "$GUIDE_DROPIN" "$guide_backup"
 fi
 
-cleanup_backup() { rm -f "$backup" "$guide_backup"; }
+cleanup_backup() { sudo rm -f "$backup" "$guide_backup"; }
 rollback() {
   echo "ROLLBACK_MAGISTRAL_ACP" >&2
   if [[ "$had_dropin" -eq 1 ]]; then
@@ -121,6 +121,10 @@ sudo tee "$GUIDE_DROPIN" >/dev/null <<'EOF'
 [Service]
 Environment=COGENTIA_GUIDE_MAGISTRAL_URL=http://127.0.0.1:8880
 Environment=COGENTIA_GUIDE_MAGISTRAL_TIMEOUT_MS=240000
+# One local ACP Codex process is the synthesis capacity.  Keep planning
+# deterministic while it is the only provider; otherwise a short-lived
+# planner request can occupy it and race the synthesis request.
+Environment=COGENTIA_GUIDE_PLANNER=0
 EOF
 
 sudo systemctl daemon-reload

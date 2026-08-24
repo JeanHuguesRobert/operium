@@ -56,6 +56,12 @@ Guide request can contain a substantial public retrieval packet and Codex may
 need time to inspect it. SSE remains the feedback channel while that bounded
 operation runs.
 
+With a single local Codex ACP provider, the promotion helper sets
+`COGENTIA_GUIDE_PLANNER=0`: public retrieval planning remains deterministic,
+while Codex is reserved for the synthesis turn. This prevents a short-lived
+planner call from racing the longer synthesis session. Re-enable LLM planning
+only once Magistral has a queue or an independent planning capacity.
+
 Apply from the Fracta checkout after pulling Operium, Inseme and Cogentia:
 
 ```bash
