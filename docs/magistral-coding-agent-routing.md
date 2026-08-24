@@ -1,6 +1,6 @@
 ---
 title: "Magistral → coding-agent routing (Guide synthesis)"
-date: "2026-07-26"
+date: "2026-08-24"
 document_role: operational
 document_kind: method
 visibility: public
@@ -164,6 +164,40 @@ node scripts/ops/verify-magistral-coding-map.js --live /tmp/magistral-openai-map
 Exit `0` = structure OK (does **not** prove Guide conversational quality — still smoke `/guide/chat`).
 
 ## Health (Operium tools)
+
+## HTTP service identity
+
+The public Guide, its Context daemon, and Magistral (both the current Node
+router and experimental Deno pilot) publish a small, non-secret descriptor at `GET /service-info`. `HEAD
+/service-info` returns the same response headers without a body. Each response
+also includes a deliberately minimal `Server` identifier and a `Link` relation
+to the descriptor:
+
+```text
+Server: Cogentia-Guide | Cogentia-Context | Magistral
+Link: </service-info>; rel="describedby"; type="application/json"
+```
+
+The descriptor states the stable service id, role, instance/environment and
+advertised interfaces. It contains neither a build version nor secret or
+host-specific configuration. This makes an operational probe intelligible
+without turning implementation detail into a public compatibility contract.
+
+On Fracta, apply the Guide/Context part through the controlled helper:
+
+```bash
+cd /srv/cogentia/repos/operium
+bash scripts/ops/deploy-cogentia-service-identity-fracta.sh --dry-run
+bash scripts/ops/deploy-cogentia-service-identity-fracta.sh
+```
+
+The helper refuses a dirty Cogentia checkout, fast-forwards `main`, restarts the
+existing Guide stack, then verifies the Context and Guide descriptors. Deploy
+the matching Inseme change and restart `magistral.service` to expose the third
+descriptor. It does **not** switch the current Node Magistral router to ACP.
+That migration is separate: Fracta must first have Deno plus an authenticated
+Codex/`codex-acp` installation under the service account, and a reviewed
+systemd runtime configuration for the Deno pilot.
 
 ```bash
 # From trusted workstation
