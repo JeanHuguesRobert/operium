@@ -110,7 +110,18 @@ if ! systemctl is-active --quiet magistral.service; then
   exit 1
 fi
 
-service_info="$(curl -fsS -m 30 http://127.0.0.1:8880/service-info)" || { rollback; exit 1; }
+service_info=""
+for attempt in $(seq 1 30); do
+  if service_info="$(curl -fsS -m 2 http://127.0.0.1:8880/service-info 2>/dev/null)"; then
+    break
+  fi
+  sleep 1
+done
+if [[ -z "$service_info" ]]; then
+  echo "MAGISTRAL_ACP_STARTUP_TIMEOUT" >&2
+  rollback
+  exit 1
+fi
 node -e '
   const info = JSON.parse(process.argv[1]);
   if (info?.service?.id !== "magistral") process.exit(1);
