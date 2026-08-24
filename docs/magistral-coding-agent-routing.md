@@ -51,6 +51,11 @@ The service uses an isolated public workspace and an ACP read-only permission
 policy. It does not inject MCP servers into Codex. The host-local executable
 paths and ChatGPT authentication remain outside Git.
 
+ACP prompts are bounded at 240 seconds on this production path: an initial
+Guide request can contain a substantial public retrieval packet and Codex may
+need time to inspect it. SSE remains the feedback channel while that bounded
+operation runs.
+
 Apply from the Fracta checkout after pulling Operium, Inseme and Cogentia:
 
 ```bash

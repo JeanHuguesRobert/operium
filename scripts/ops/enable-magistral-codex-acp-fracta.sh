@@ -64,6 +64,8 @@ if [[ "$DRY_RUN" -eq 1 ]]; then
   exit 0
 fi
 
+sudo install -d -o ubuntu -g ubuntu -m 0750 "$WORK_ROOT"
+sudo chown ubuntu:ubuntu "$WORK_ROOT"
 sudo install -d -o ubuntu -g ubuntu -m 0750 "$WORK_ROOT/public-guide"
 sudo install -d -o root -g root -m 0755 "$(dirname "$DROPIN")"
 sudo install -d -o root -g root -m 0755 "$(dirname "$GUIDE_DROPIN")"
@@ -110,7 +112,7 @@ Environment=CODEX_ACP_COMMAND=$CODEX_ACP_BIN
 Environment=MAGISTRAL_CODEX_ACP_WORKSPACE=$WORK_ROOT/public-guide
 Environment=MAGISTRAL_CODEX_ACP_TIER=fractavolta-guide
 Environment=MAGISTRAL_CODEX_ACP_MODEL=codex-local
-Environment=MAGISTRAL_CODEX_ACP_TIMEOUT_MS=120000
+Environment=MAGISTRAL_CODEX_ACP_TIMEOUT_MS=240000
 ExecStart=
 ExecStart=$NODE_BIN $INSEME_ROOT/packages/magistral/scripts/launcher.js --pilot $INSEME_ROOT/packages/magistral/pilots/reference-js/src/main.js --blueprint coding --map local-codex-acp
 EOF
@@ -118,7 +120,7 @@ EOF
 sudo tee "$GUIDE_DROPIN" >/dev/null <<'EOF'
 [Service]
 Environment=COGENTIA_GUIDE_MAGISTRAL_URL=http://127.0.0.1:8880
-Environment=COGENTIA_GUIDE_MAGISTRAL_TIMEOUT_MS=120000
+Environment=COGENTIA_GUIDE_MAGISTRAL_TIMEOUT_MS=240000
 EOF
 
 sudo systemctl daemon-reload
