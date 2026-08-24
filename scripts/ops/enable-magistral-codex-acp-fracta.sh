@@ -113,6 +113,9 @@ Environment=MAGISTRAL_CODEX_ACP_WORKSPACE=$WORK_ROOT/public-guide
 Environment=MAGISTRAL_CODEX_ACP_TIER=fractavolta-guide
 Environment=MAGISTRAL_CODEX_ACP_MODEL=codex-local
 Environment=MAGISTRAL_CODEX_ACP_TIMEOUT_MS=240000
+# Fracta's inherited localhost proxy is not running.  Bypass it only for the
+# embedding provider; retain the inherited proxy policy for ACP/Codex traffic.
+Environment=NO_PROXY=localhost,127.0.0.1,api.openai.com
 ExecStart=
 ExecStart=$NODE_BIN $INSEME_ROOT/packages/magistral/scripts/launcher.js --pilot $INSEME_ROOT/packages/magistral/pilots/reference-js/src/main.js --blueprint coding --map local-codex-acp
 EOF
