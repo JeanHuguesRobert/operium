@@ -17,7 +17,7 @@ classification_confidence: "medium"
 **App code:** Cogentia Guide / MCP, Inseme Magistral, Agent CLI Gateway.  
 **Decision:** [`decisions/magistral-coding-agent-routing.md`](../decisions/magistral-coding-agent-routing.md).
 
-## Observed path (product)
+## Observed path (product, until ACP promotion)
 
 ```text
 Browser (fractavolta.com/guide)
@@ -35,6 +35,35 @@ Browser (fractavolta.com/guide)
 Server turns are **stateless**. Conversation continuity is client `history`.
 
 Keep **`COGENTIA_GUIDE_AGENT_GATEWAY=0`** so Guide does not bypass Magistral.
+
+## Fracta local Codex ACP promotion
+
+When the shared integration test has passed on Fracta, Magistral can directly
+mobilize the locally authenticated Codex through ACP. This replaces the
+historical remote Agent CLI Gateway hop for the `fractavolta-guide` tier while
+preserving the same loopback OpenAI-compatible boundary for Cogentia:
+
+```text
+Guide → Cogentia daemon → Magistral :8880 → ACP stdio → Codex (Fracta)
+```
+
+The service uses an isolated public workspace and an ACP read-only permission
+policy. It does not inject MCP servers into Codex. The host-local executable
+paths and ChatGPT authentication remain outside Git.
+
+Apply from the Fracta checkout after pulling Operium, Inseme and Cogentia:
+
+```bash
+cd /srv/cogentia/repos/operium
+bash scripts/ops/enable-magistral-codex-acp-fracta.sh --dry-run
+bash scripts/ops/enable-magistral-codex-acp-fracta.sh
+```
+
+The helper writes one final systemd drop-in,
+`99-codex-acp.conf`, and restarts `magistral.service`. If the new process fails
+to start or does not advertise an `acp_stdio` capability at `/service-info`, it
+removes that drop-in and restarts the previous Node router. Revert manually by
+removing the same drop-in and restarting `magistral.service`.
 
 ## Desired Magistral map
 
