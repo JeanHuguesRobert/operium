@@ -121,6 +121,10 @@ sudo tee "$GUIDE_DROPIN" >/dev/null <<'EOF'
 [Service]
 Environment=COGENTIA_GUIDE_MAGISTRAL_URL=http://127.0.0.1:8880
 Environment=COGENTIA_GUIDE_MAGISTRAL_TIMEOUT_MS=240000
+# The public Guide is an explicit embedding fulfiller.  Query vectors therefore
+# travel through its local Magistral router rather than bypassing its provider
+# policy; deterministic retrieval still emits a continuation everywhere else.
+Environment=COGENTIA_ALLOW_INLINE_EMBED_FULFILL=1
 # One local ACP Codex process is the synthesis capacity.  Keep planning
 # deterministic while it is the only provider; otherwise a short-lived
 # planner request can occupy it and race the synthesis request.
