@@ -59,11 +59,13 @@ bash scripts/ops/enable-magistral-codex-acp-fracta.sh --dry-run
 bash scripts/ops/enable-magistral-codex-acp-fracta.sh
 ```
 
-The helper writes one final systemd drop-in,
-`99-codex-acp.conf`, and restarts `magistral.service`. If the new process fails
-to start or does not advertise an `acp_stdio` capability at `/service-info`, it
-removes that drop-in and restarts the previous Node router. Revert manually by
-removing the same drop-in and restarting `magistral.service`.
+The helper writes final (`zzzz-`) systemd drop-ins for Magistral and the Guide,
+then restarts both services. The Guide points to the loopback router and reuses
+the existing `MAGISTRAL_API_KEY` authority; no duplicate Guide secret is
+created. If the new process fails to start or does not advertise an
+`acp_stdio` capability at `/service-info`, it removes both drop-ins and
+restores the previous Node router and Guide configuration. Revert manually by
+removing those same drop-ins and restarting both services.
 
 ## Desired Magistral map
 
