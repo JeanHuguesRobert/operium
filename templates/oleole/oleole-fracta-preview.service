@@ -1,0 +1,22 @@
+[Unit]
+Description=Olé Olé Fracta preview API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/srv/cogentia/repos/inseme/apps/oleole/fracta
+EnvironmentFile=/srv/cogentia/repos/inseme/.env
+Environment=PATH=/usr/local/node-v26.5.0/bin:/usr/bin:/bin
+Environment=OLEOLE_HOST=127.0.0.1
+Environment=OLEOLE_PORT=8892
+ExecStart=/usr/local/node-v26.5.0/bin/deno serve --config deno.json --allow-env=SUPABASE_URL,VITE_SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY,OLEOLE_HOST,OLEOLE_PORT,OLEOLE_IGNORE_PROXY --allow-net --allow-read=/srv/cogentia/repos/inseme /srv/cogentia/repos/inseme/apps/oleole/fracta/oleole-server.ts
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,13 @@
+# Fracta Olé Olé preview. Insert before the final catch-all handle in the
+# fracta.fractavolta.com site block.
+
+@oleole_api path /api/oleole /api/oleole/* /api/corsica/context
+handle @oleole_api {
+	reverse_proxy 127.0.0.1:8880
+}
+
+handle_path /oleole/* {
+	root * /srv/oleole/fracta-preview/current
+	try_files {path} /index.html
+	file_server
+}
