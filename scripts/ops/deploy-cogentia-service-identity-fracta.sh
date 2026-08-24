@@ -58,7 +58,11 @@ assert_service_info() {
   curl -fsS -m 30 -D "$headers" -o "$body" "$url/service-info"
   grep -qi "^Server: $expected_server" "$headers"
   grep -Fqi 'Link: </service-info>; rel="describedby"; type="application/json"' "$headers"
-  grep -Fq '"id":"'"$expected_id"'"' "$body"
+  node -e '
+    const fs = require("fs");
+    const info = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+    if (info?.service?.id !== process.argv[2]) process.exit(1);
+  ' "$body" "$expected_id"
   curl -fsSI -m 30 "$url/service-info" | grep -qi "^Server: $expected_server"
   rm -f "$headers" "$body"
   trap - RETURN
