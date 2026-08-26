@@ -171,11 +171,12 @@ Default permissive tailnet (solo operator). No `funnel` node attribute. Device a
 | Hostname | OS | Tailnet role | WAN | SSH mesh | Other services |
 |----------|-----|--------------|-----|----------|----------------|
 | `fracta` | Ubuntu VPS (OCI) | always-on public face | **own** public WAN | inbound + outbound :22 | Cogentia Guide MCP, blackboard aggregator |
+| `fracta2` | Ubuntu VPS (OCI) | hosted-browser & automation | **own** public WAN | inbound + outbound :22 | KasmVNC :8444, Chrome CDP :9223, ONA :8794, Caddy :80 |
 | `i7-thinkpad-jhr` | Windows 11 | intermittent capable host | **via phone** (typical) | inbound + outbound :22 | `inox-serve` :8792, attractor heartbeat |
 | `rpi3-view` | Raspberry Pi OS (Pi 3) | **site edge / kiosk** | **via phone** or Paoli LAN | inbound + outbound :22 | Local 1 cours Paoli — sole always-on node on LAN; see [Linux node roles](#linux-node-roles-corpus--paoli) |
 | `poco-jhr` | Android Termux (POCO X6 5G) | **capable-mobile + WAN hub** | **cellular 5G → shared to mesh** | inbound + outbound :8022 | Corpus mirror, coding agents; layout `~/srv/cogentia` |
 
-**Enrollment order:** Pi 3 → Android phone → revoke bootstrap auth key — **done 2026-07-05**.
+**Enrollment order:** Pi 3 → Android phone (2026-07-05) → fracta2 (2026-08-26).
 
 **Baseline transfer tool:** `rsync` is required on every FractaNode. It is used for
 corpus mirrors, repo deployment, and low-bandwidth incremental sync. Install or
@@ -189,11 +190,12 @@ Use `-CheckOnly` to audit without installing. The script uses the Tailscale SSH
 aliases below and supports Ubuntu/Debian/Raspberry Pi OS via `apt`, Termux via
 `pkg`, and Windows via an existing Chocolatey/Scoop/MSYS2 package manager.
 
-Verified 2026-07-10:
+Verified 2026-08-26:
 
 | Node | rsync |
 |------|-------|
 | `fracta` | 3.2.7 |
+| `fracta2` | 3.2.7 |
 | `i7-thinkpad-jhr` | 3.4.1 |
 | `rpi3-view` | 3.2.7 |
 | `poco-jhr` | 3.4.4 |
@@ -210,23 +212,26 @@ Per-node **observed** capabilities of the four-node embryon. Hardware figures ar
 
 ### WAN topology
 
-Unlike a classic home LAN where the router provides WAN, this embryon uses the **operator phone as the mobile WAN gateway** for field nodes. Only `fracta` has its own always-on public Internet.
+Unlike a classic home LAN where the router provides WAN, this topology uses the **operator phone as the mobile WAN gateway** for field nodes. `fracta` and `fracta2` have their own always-on public Internet (OCI Marseille).
 
 ```text
-                    Internet (public)
-                          |
-            +-------------+-------------+
-            |                           |
-        fracta (OCI)              poco-jhr (5G)
-        own WAN                   WAN hub / hotspot
-            |                           |
-            |    Tailscale mesh (100.x) |
-            +-------+-------+-----------+
-                    |       |
-            i7-thinkpad-jhr  rpi3-view
-            (intermittent)   (Paoli edge, LAN anchor)
-            typical WAN:     typical WAN:
-            phone tether     phone or Paoli LAN
+                               Internet (public)
+                                       |
+                 +---------------------+---------------------+
+                 |                     |                     |
+            fracta (OCI)          fracta2 (OCI)        poco-jhr (5G)
+            own WAN               own WAN              WAN hub / hotspot
+                 |                     |                     |
+                 +---------------------+---------------------+
+                                       |
+                             Tailscale mesh (100.x)
+                                       |
+                               +-------+-------+
+                               |               |
+                       i7-thinkpad-jhr     rpi3-view
+                       (intermittent)      (Paoli edge, LAN anchor)
+                       typical WAN:        typical WAN:
+                       phone tether        phone or Paoli LAN
 ```
 
 When the phone is offline or Termux is killed, **ThinkPad and Pi lose WAN** unless another path exists (Paoli LAN only helps `rpi3-view` locally; it does not restore fracta reachability for domotics sync).
@@ -243,6 +248,19 @@ When the phone is offline or Termux is killed, **ThinkPad and Pi lose WAN** unle
 | **Retrieval** | Static `guide.env` → ThinkPad `inox-serve` over Tailscale (Phase 4 bootstrap) |
 | **Coding agents** | Server-side Node tooling only; not an operator dev workstation |
 | **Limits** | No `inox-serve` locally; Supabase keys may remain as transitional fallback; not a capable retrieval host |
+
+### `fracta2` — hosted-browser-automation
+
+| Dimension | Observed capability |
+|-----------|---------------------|
+| **Hardware** | OCI VPS (`VM.Standard.E2.1.Micro`), 1 GB RAM, 4 GB swap; 91% CPU idle nominal |
+| **WAN** | Independent public IP (`129.151.245.83`); Caddy port :80 |
+| **Hosted Browser** | KasmVNC 1.5.0 (port :8444 / HTTP :80, 24 FPS, JPEG q6) + Chromium / Google Chrome 152 |
+| **Automation** | Scoped local Chrome DevTools Protocol (`127.0.0.1:9223`) for autonomous agent workflows |
+| **Control Plane** | ONA (:8794), SOMA discovery (`/.well-known/soma`), automated blackboard heartbeat |
+| **SSH mesh** | Ubuntu `sshd` :22; `fractanet-mesh` inbound + outbound; survives reboot |
+| **Corpus** | `/srv/cogentia/repos` mirror (operium, registre-mariani, cogentia) |
+| **Limits** | Single-core micro shape; uncompressed 60 FPS video not recommended; swap enabled |
 
 ### `i7-thinkpad-jhr` — capable-retrieval-host
 
@@ -325,11 +343,13 @@ Local `~/.ssh/config` on the trusted workstation defines:
 
 | Alias | Target | User | Key |
 |-------|--------|------|-----|
-| `fracta` / `fracta-ts` | Tailscale IP of fracta | `ubuntu` | `fractanet-mesh` |
-| `fracta-public` | OCI public IP (break-glass) | `ubuntu` | `oci-fracta-instance-jh1` |
-| `thinkpad-ts` / `i7-thinkpad-jhr` | Tailscale IP of laptop | `admin` | `fractanet-mesh` |
-| `rpi3-view` | MagicDNS hostname | `jh` | `fractanet-mesh` |
-| `poco-jhr` | Tailscale IP, port **8022** | `jh` | `fractanet-mesh` |
+| `fracta` / `fracta-ts` | Tailscale IP of fracta (`100.91.12.74`) | `ubuntu` | `fractanet-mesh` |
+| `fracta-public` | OCI public IP (break-glass: `82.70.234.207`) | `ubuntu` | `oci-fracta-instance-jh1` |
+| `fracta2` / `fracta2-ts` | Tailscale IP of fracta2 (`100.108.221.96`) | `ubuntu` | `fractanet-mesh` |
+| `fracta2-public` | OCI public IP (break-glass: `129.151.245.83`) | `ubuntu` | `oci-fracta-instance-jh1` |
+| `thinkpad-ts` / `i7-thinkpad-jhr` | Tailscale IP of laptop (`100.122.121.68`) | `admin` | `fractanet-mesh` |
+| `rpi3-view` | MagicDNS hostname (`100.117.135.27`) | `jh` | `fractanet-mesh` |
+| `poco-jhr` | Tailscale IP, port **8022** (`100.97.223.45`) | `jh` | `fractanet-mesh` |
 
 Routine ops use **Tailscale aliases** (`ssh fracta`). Public IP SSH remains for break-glass and initial bootstrap.
 

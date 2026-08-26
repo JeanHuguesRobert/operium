@@ -71,8 +71,8 @@ update_policy: UP-DEFAULT-REVIEWED
 
 *Corpus index for the Operium registry.*
 
-## Newly indexed working corpus (July 2026)
-
+- [Hosted Browser POC Architecture](../docs/hosted-browser-kasmvnc-cdp.md)
+- [FractaNode 2 (fracta2) Bootstrap Runbook](../docs/fracta2-node-bootstrap.md)
 - [FractaNet Control Center](../docs/fractanet-control-center.md)
 - [Operium Console](../docs/operium-console.md)
 - [Operium Node Agent — fleet install](../docs/operium-node-agent-install.md)

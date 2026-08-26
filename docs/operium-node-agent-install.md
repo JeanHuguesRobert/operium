@@ -50,17 +50,18 @@ The public Caddy route forwards `/soma/*` so descriptor-relative resource URLs
 remain correct. ONA itself enforces the boundary: `/soma/object` and
 `/soma/observations` return `401` without a valid read token.
 
-### SOMA v0 fleet rollout — 2026-07-28
+### SOMA v0 fleet rollout
 
 | Node | Runtime | Persistence | Verified identity |
 |------|---------|-------------|-------------------|
 | `fracta` | Git checkout `dd724db` | systemd | `resource://fracta` |
+| `fracta2` | Git checkout `d85ee8d` | systemd | `resource://fracta2` |
 | `i7-thinkpad-jhr` | Git checkout `dd724db` | NSSM Windows service | `resource://i7-thinkpad-jhr` |
 | `rpi3-view` | immutable 3 MB runtime artifact, no Git checkout | systemd | `resource://rpi3-view` |
 | `poco-jhr` | `runtime/soma-fractanet` tracking the published checkpoint | Termux:Boot hook | `resource://poco-jhr` |
 
-All four nodes passed `soma.descriptor.v0` discovery. Detailed object access
-returned `401` without a read token on every tested node.
+All five nodes pass `soma.descriptor.v0` discovery. Detailed object access
+returns `401` without a read token on every tested node.
 
 The Pi runs Node `22.23.1` from the Node.js unofficial ARM build because
 `22.12.0` did not expose `node:sqlite`. The downloaded archive was verified
@@ -174,6 +175,42 @@ Units installed:
 | `ona-heartbeat.timer` | Blackboard advertise every 3 min |
 
 Logs: `/var/lib/cogentia/logs/operium-node-agent.log`
+
+---
+
+## fracta2 (Ubuntu VPS) — systemd
+
+Installed 2026-08-26.
+
+ONA runs under standard Ubuntu `systemd` with native `node:sqlite` on Node.js 22.
+
+```bash
+# On fracta2 — secrets under /srv/cogentia/secrets/
+sudo tee /srv/cogentia/secrets/ona.env <<'EOF'
+ONA_ENABLED=1
+ONA_READ_TOKEN=<token>
+ONA_ADMIN_TOKEN=<token>
+ONA_PEER_TOKEN=<token>
+ONA_JOBS=1
+ONA_MESH_OPEN_READ=1
+ONA_LOCATION="Oracle Cloud Infrastructure (eu-marseille-1)"
+ONA_CONTACT="jhr@baronsmariani.org"
+EOF
+sudo chmod 600 /srv/cogentia/secrets/ona.env
+
+sudo tee /srv/cogentia/secrets/ona-heartbeat.env <<'EOF'
+COGENTIA_BLACKBOARD_UPSERT_TOKEN=<shared-token>
+COGENTIA_OPS_STATE_DIR=/var/lib/cogentia/.ops
+COGENTIA_BLACKBOARD_URL=http://100.91.12.74:8791
+ONA_ATTRACTOR_TAILSCALE_IP=100.108.221.96
+ONA_HOSTNAME=fracta2
+EOF
+sudo chmod 600 /srv/cogentia/secrets/ona-heartbeat.env
+```
+
+Unit installed: `/etc/systemd/system/operium-node-agent.service`  
+Caddy routing: `/.well-known/soma` and `/soma/*` -> `127.0.0.1:8794`  
+Heartbeat: in-process scheduler (`ONA_JOBS=1`) advertising `attractor:fracta2:operium-node` to fracta blackboard every 3 min.
 
 ---
 

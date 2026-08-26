@@ -77,7 +77,20 @@ graph TD
 ---
 
 ## 4. Resource Baseline & Performance Targets
-
+ 
 * **Idle footprint per user**: ~180 MB RAM (Chromium base + KasmVNC daemon).
 * **Active browsing footprint**: ~450 MB – 850 MB RAM per active tab cluster.
 * **Network consumption**: ~15–40 KB/s during text typing/reading; ~120 KB/s on full redraws.
+
+### Observed Live Baseline (`fracta2` — 2026-08-26)
+
+| Parameter | Observed Live Value | Notes |
+|---|---|---|
+| **Host / OS** | `fracta2` · Ubuntu 24.04 LTS (x86_64) | OCI Marseille `VM.Standard.E2.1.Micro` |
+| **KasmVNC** | v1.5.0-1 | Port :8444 / HTTP :80 via Caddy |
+| **Chromium Engine** | Google Chrome 152.0.7977.64 | CDP :9223 active |
+| **Window Manager** | Openbox lightweight WM | Minimal memory footprint |
+| **Framerate & Codec** | 24 FPS · JPEG `quality: 6` | `nearest` video encoder, low CPU overhead |
+| **Memory Allocation** | 1 GB RAM + 4 GB NVMe Swap | 432 MB free RAM nominal |
+| **CPU Utilization** | **~91% CPU Idle (0% Steal)** | Stable under continuous session |
+| **Control Plane** | ONA (:8794) + SOMA discovery | Advertises to fracta Blackboard every 3 min |

@@ -67,6 +67,8 @@ decisions/    Architecture Decision Records
 - [`docs/operium-node-agent-install.md`](docs/operium-node-agent-install.md) covers fleet installation and operation.
 - [`docs/operium-console.md`](docs/operium-console.md) introduces the operator console.
 - [`docs/fractanet-control-center.md`](docs/fractanet-control-center.md) describes the FractaNet control-center surface.
+- [`docs/hosted-browser-kasmvnc-cdp.md`](docs/hosted-browser-kasmvnc-cdp.md) defines the Hosted Browser POC architecture (KasmVNC 1.5.0 + Chrome CDP dual-surface).
+- [`docs/fracta2-node-bootstrap.md`](docs/fracta2-node-bootstrap.md) is the bootstrap runbook for `fracta2` and the Hosted Browser stack.
 - [`docs/cogentia-agent-indexing-roadmap.md`](docs/cogentia-agent-indexing-roadmap.md) defines the agile roadmap for stable indexes, branch overlays and agent-facing retrieval.
 - [`docs/operia.md`](docs/operia.md) defines the future AI-assisted layer.
 - [`decisions/ADR-0001-operium-scope.md`](decisions/ADR-0001-operium-scope.md) records the initial scope decision.
@@ -84,9 +86,9 @@ Operia is not a separate project yet.
 
 ## Operium Node Agent Daemon (ONA) & Autonomous Control Plane
 
-- **Operium Node Agent (`operium-node-agent.service`)**: Active 24/7 on node `resource://fracta` (listening on `0.0.0.0:8794`, `health_score: 4`).
-- **SOMA Endpoints**: Managed node descriptors (`/.well-known/soma`, `/soma/object`, `/soma/actions`).
-- **Autonomous Execution**: Background job scheduling and remote site worker dispatch (`/srv/cogentia/work/update_fractavolta_site_remote.js`).
+- **Operium Node Agent (`operium-node-agent.service`)**: Active 24/7 on `resource://fracta` and `resource://fracta2` (listening on `0.0.0.0:8794`).
+- **SOMA Endpoints**: Managed node descriptors (`/.well-known/soma`, `/soma/object`, `/soma/vocabulary`, `/soma/actions`).
+- **Autonomous Execution**: Background job scheduling (`heartbeat:operium-node`), Blackboard peer discovery, and remote site worker dispatch.
 
 ## Status
 
