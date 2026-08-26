@@ -33,7 +33,7 @@ classification_confidence: "high"
 ## 2. Install KasmVNC
 
 ```bash
-KASMVNC_VER="1.3.2"
+KASMVNC_VER="1.5.0"
 wget "https://github.com/kasmtech/KasmVNC/releases/download/v${KASMVNC_VER}/kasmvncserver_noble_${KASMVNC_VER}_amd64.deb"
 sudo apt install -y ./kasmvncserver_noble_${KASMVNC_VER}_amd64.deb
 rm kasmvncserver_noble_${KASMVNC_VER}_amd64.deb
