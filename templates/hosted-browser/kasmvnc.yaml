@@ -1,0 +1,43 @@
+---
+desktop:
+  resolution:
+    width: 1920
+    height: 1080
+  allow_resize: true
+  pixel_depth: 24
+
+network:
+  protocol: http
+  interface: 127.0.0.1
+  websocket_port: auto
+  use_ipv4: true
+  use_ipv6: false
+
+encoding:
+  max_frame_rate: 24
+  full_frame_updates: none
+  rect_encoding_mode:
+    min_quality: 4
+    max_quality: 6
+    consider_lossless_quality: 9
+    rectangle_compress_threads: 2
+
+  video_encoding_mode:
+    jpeg_quality: 6
+    webp_quality: 5
+    max_resolution:
+      width: 1920
+      height: 1080
+    scaling_algorithm: nearest
+
+  compare_framebuffer: auto
+  hextile_improved_compression: true
+
+server:
+  http:
+    headers:
+      - Cross-Origin-Embedder-Policy=require-corp
+      - Cross-Origin-Opener-Policy=same-origin
+    httpd_directory: /usr/share/kasmvnc/www
+  advanced:
+    kasm_password_file: ${HOME}/.kasmpasswd
