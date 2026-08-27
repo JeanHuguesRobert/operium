@@ -22,11 +22,13 @@ fi
 mkdir -p "${USER_DATA_DIR}" "${HOME_DIR}/.vnc"
 chmod 700 "${HOME_DIR}/.hosted-browser"
 
-# Initialize non-interactive KasmVNC password file if missing
+# A session must be provisioned with an explicit, private VNC password file.
+# Never create a predictable fallback credential at runtime.
 if [ ! -f "${PASSWD_FILE}" ]; then
-  echo -e "hosted123\nhosted123\n" | kasmvncpasswd -u "${USER_ID}" -wo "${PASSWD_FILE}"
-  chmod 600 "${PASSWD_FILE}"
+  echo "[hosted-browser] missing VNC password file: ${PASSWD_FILE}" >&2
+  exit 78
 fi
+chmod 600 "${PASSWD_FILE}"
 
 # Bypass KasmVNC desktop environment prompt
 touch "${HOME_DIR}/.vnc/.de-was-selected"

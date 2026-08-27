@@ -1,0 +1,17 @@
+[Unit]
+Description=Native RFB projection for Hosted Browser session %i
+Requires=hosted-browser@%i.service
+After=hosted-browser@%i.service
+
+[Service]
+Type=simple
+User=%i
+Group=%i
+Environment=HOME=/home/%i
+EnvironmentFile=-/etc/operium/hosted-browser/%i.env
+ExecStart=/opt/operium/bin/start-hosted-browser-rfb.sh %i
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
