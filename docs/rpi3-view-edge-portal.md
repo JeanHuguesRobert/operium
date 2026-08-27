@@ -5,7 +5,7 @@ document_role: operational
 document_kind: runbook
 visibility: public
 lifecycle_state: active
-updated: "2026-07-30"
+updated: "2026-08-28"
 classification_source: "cogentia.js"
 classification_version: "1"
 classification_rule: "explicit-metadata"
@@ -14,9 +14,14 @@ classification_confidence: "medium"
 
 # rpi3-view edge portal — control-room display (step 1)
 
-**Operator nickname:** the small always-on screen is affectionately **“La Nasa”**
-(the Fractanet control room). This document freezes **step 1**: a reliable
-local web home on `rpi3-view`, not yet a full management console.
+**Operator nickname:** the small always-on screen is affectionately **“La Nasa”** —
+**Networked Agency Situational Awareness**, the Fractanet control-room concept.
+The name deliberately keeps the NASA mission-control wink, while the architecture
+remains distributed and observer-relative rather than central. See the canonical
+definition: [La Nasa — Networked Agency Situational Awareness](la-nasa.md).
+
+This document freezes **step 1**: a reliable local web home on `rpi3-view`, not
+yet a full management console.
 
 **Stabilized:** 2026-07-30 (Operium `main`).  
 **Runbook owner:** Operium.  
@@ -157,6 +162,7 @@ browser) is **step 2** — contract:
 
 ## Related
 
+- [La Nasa — Networked Agency Situational Awareness](la-nasa.md) — canonical name and architectural meaning
 - [Fractanet mesh](fractanet-mesh.md) — node roles, Paoli edge-kiosk
 - [Fractanet control center](fractanet-control-center.md) — broader control-room ambition
 - [Operium Node Agent](operium-node-agent.md)
