@@ -38,6 +38,7 @@ This directory contains Operium documentation.
 - [Fracta trust perimeter and secrets](fracta-trust-perimeter.md)
 - [Secret-safe inspection protocol](fracta-trust-perimeter.md#secret-safe-inspection-protocol)
 - [Fractanet mesh — Tailscale and SSH](fractanet-mesh.md)
+- [La Nasa — Networked Agency Situational Awareness](la-nasa.md) — canonical control-station meaning: observer-relative, evidence-bearing awareness of distributed state and agency
 - [rpi3-view edge portal — control-room display step 1](rpi3-view-edge-portal.md) — stabilized Pi web home (“La Nasa” step 1)
 - [Control room MIB-lite v0 — contract (P0)](control-room-mib-lite-v0.md) — agents + global/zoom UI contract (“La Nasa” step 2)
 - [SNMP MIB semantics → SOMA](mib-snmp-semantics-for-soma.md) — which attributes belong in default zoom (MIB discipline)
