@@ -15,7 +15,7 @@
 </head>
 <body>
   <h1>Fractanet Edge Portal</h1>
-  <p class="muted">Local home on this Pi · works offline with last snapshot</p>
+  <p class="muted">Local Fractanet home · works offline with last snapshot</p>
 
   <div class="card">
     <h2>Status</h2>
@@ -38,12 +38,13 @@
     function paint(data, checked) {
       var n = data.nodes || {};
       var s = data.services || {};
+      var observer = data.observer && data.observer.hostname || "this node";
       var lines = [
         "Views Store: " + (s.views_store === true ? "ok" : s.views_store === false ? "down" : "?"),
         "Fracta: " + (n.fracta === true ? "ok" : n.fracta === false ? "down" : "?"),
         "Workstation: " + (n.workstation === true ? "ok" : n.workstation === false ? "down" : "?"),
         "Phone: " + (n.phone === true ? "ok" : n.phone === false ? "down" : "?"),
-        "This Pi: ok"
+        "Observer: " + observer
       ];
       document.getElementById("health").textContent = lines.join("\n");
       document.getElementById("meta").textContent =

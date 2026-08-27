@@ -6,12 +6,18 @@ set -euo pipefail
 # Usage: start-hosted-browser.sh <user-id> [display_num]
 
 USER_ID="${1:-hosted-user}"
-DISPLAY_NUM="${2:-1}"
+DISPLAY_NUM="${2:-${HOSTED_BROWSER_DISPLAY:-1}}"
 VNC_PORT=$(( 8443 + DISPLAY_NUM ))
 CDP_PORT=$(( 9222 + DISPLAY_NUM ))
 HOME_DIR="/home/${USER_ID}"
 USER_DATA_DIR="${HOME_DIR}/.hosted-browser/chromium-profile"
 PASSWD_FILE="${HOME_DIR}/.kasmpasswd"
+START_URL="${HOSTED_BROWSER_START_URL:-https://chatgpt.com}"
+
+if ! [[ "${DISPLAY_NUM}" =~ ^[0-9]+$ ]]; then
+  echo "[hosted-browser] HOSTED_BROWSER_DISPLAY must be numeric" >&2
+  exit 64
+fi
 
 mkdir -p "${USER_DATA_DIR}" "${HOME_DIR}/.vnc"
 chmod 700 "${HOME_DIR}/.hosted-browser"
@@ -46,7 +52,7 @@ exec "${BROWSER_BIN}" \
   --disable-gpu \
   --window-size=1920,1080 \
   --window-position=0,0 \
-  "https://chatgpt.com"
+  "${START_URL}"
 EOF
 chmod +x "${HOME_DIR}/.vnc/xstartup"
 

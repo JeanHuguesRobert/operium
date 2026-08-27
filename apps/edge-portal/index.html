@@ -218,6 +218,7 @@
     <div>
       <h1>La Nasa</h1>
       <p class="tagline">Fractanet control room · fleet · node zoom</p>
+      <p class="tagline" id="perspective">Fleet perspective: loading…</p>
     </div>
     <div class="actions">
       <a class="nav" href="/simple.html" title="Status + useful links panel">Links page</a>
@@ -258,6 +259,7 @@
   var detailEl = document.getElementById("detail");
   var flash = document.getElementById("flash");
   var meta = document.getElementById("meta");
+  var perspective = document.getElementById("perspective");
   var refreshBtn = document.getElementById("refresh");
   var fleetCard = document.getElementById("fleet-card");
   var selectedHost = null;
@@ -276,8 +278,17 @@
     return i >= 0 ? t.slice(i + 1).replace(/\.\d+/, "") : t;
   }
 
+  function paintPerspective(data) {
+    var observer = data && data.observer;
+    var hostname = observer && observer.hostname;
+    var view = data && data.view && data.view.id;
+    perspective.textContent = "Fleet perspective: " + (hostname || "unknown") +
+      " · view: " + (view || "local-fractanet");
+  }
+
   function renderFleet(data) {
     fleetData = data;
+    paintPerspective(data);
     var nodes = (data && data.nodes) || [];
     if (!nodes.length) {
       fleetEl.innerHTML = '<span class="muted">No nodes</span>';
@@ -315,38 +326,48 @@
       fleetGraphEl.innerHTML = '<span class="muted">No nodes</span>';
       return;
     }
-    // Fixed layout (diamond / rectangle) for up to 4 fleet nodes
+    // Stable observer-centred layout for the v0 registered Fractanet set.
+    // This describes reachability from the selected observer, not a claim that
+    // one fixed node is the universal mesh hub.
     var W = 280, H = 120, pad = 28;
+    var observerHost = fleetData && fleetData.observer && fleetData.observer.hostname;
+    var observerIndex = nodes.findIndex(function (n) { return n.host === observerHost; });
+    if (observerIndex < 0) observerIndex = 0;
+    var ordered = [nodes[observerIndex]].concat(nodes.filter(function (_, i) {
+      return i !== observerIndex;
+    }));
     var positions = [
+      { x: W / 2, y: H / 2 },
       { x: W / 2, y: pad + 6 },
       { x: W - pad, y: H / 2 },
       { x: W / 2, y: H - pad },
       { x: pad, y: H / 2 },
     ];
-    var pts = nodes.slice(0, 4).map(function (n, i) {
+    var pts = ordered.slice(0, positions.length).map(function (n, i) {
       return {
         host: n.host,
         label: (n.label || n.host).slice(0, 12),
         online: !!n.online,
         selected: selectedHost === n.host,
+        observer: n.host === observerHost,
         x: positions[i] ? positions[i].x : pad + i * 60,
         y: positions[i] ? positions[i].y : H / 2,
       };
     });
     var svg = '<svg class="mesh-svg" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Fleet mesh">';
-    // Fully connected mesh among online pairs; dashed if either offline
-    for (var i = 0; i < pts.length; i++) {
-      for (var j = i + 1; j < pts.length; j++) {
-        var on = pts[i].online && pts[j].online;
-        svg += '<line class="g-edge ' + (on ? "on" : "off") + '" x1="' + pts[i].x +
-          '" y1="' + pts[i].y + '" x2="' + pts[j].x + '" y2="' + pts[j].y + '"/>';
-      }
-    }
+    // The observer is connected to each close node according to this
+    // observer's current probe result. Do not draw inferred peer-to-peer links.
+    var center = pts[0];
+    pts.slice(1).forEach(function (p) {
+      var on = center.online && p.online;
+      svg += '<line class="g-edge ' + (on ? "on" : "off") + '" x1="' + center.x +
+        '" y1="' + center.y + '" x2="' + p.x + '" y2="' + p.y + '"/>';
+    });
     pts.forEach(function (p) {
       var cls = p.online ? "ok" : "bad";
-      if (p.selected) cls = "hub";
+      if (p.observer || p.selected) cls = "hub";
       svg += '<circle class="g-node ' + cls + '" cx="' + p.x + '" cy="' + p.y +
-        '" r="' + (p.selected ? 11 : 9) + '" data-host="' + esc(p.host) + '"/>';
+        '" r="' + (p.observer || p.selected ? 11 : 9) + '" data-host="' + esc(p.host) + '"/>';
       svg += '<text class="g-label" x="' + p.x + '" y="' + (p.y + 22) +
         '" text-anchor="middle">' + esc(p.label) + "</text>";
     });
@@ -959,13 +980,24 @@
       try {
         var r2 = await fetch("/status.json?t=" + Date.now(), { cache: "no-store" });
         var s = await r2.json();
+        var observerHost = s.observer && s.observer.hostname;
+        function fallbackLabel(host, label) {
+          return host === observerHost ? "This node" : label;
+        }
         var nodes = [
-          { host: "fracta", resource_id: "resource://fracta", label: "Fracta", online: !!(s.nodes && s.nodes.fracta), http_status: s.nodes && s.nodes.fracta ? 200 : 0, health_score: null, hostname: null, endpoint: "" },
-          { host: "i7-thinkpad-jhr", resource_id: "resource://i7-thinkpad-jhr", label: "Workstation", online: !!(s.nodes && s.nodes.workstation), http_status: 0, health_score: null, hostname: null, endpoint: "" },
-          { host: "rpi3-view", resource_id: "resource://rpi3-view", label: "This Pi", online: true, http_status: 200, health_score: null, hostname: null, endpoint: "" },
-          { host: "poco-jhr", resource_id: "resource://poco-jhr", label: "Phone", online: !!(s.nodes && s.nodes.phone), http_status: 0, health_score: null, hostname: null, endpoint: "" },
+          { host: "fracta", resource_id: "resource://fracta", label: fallbackLabel("fracta", "Fracta"), online: !!(s.nodes && s.nodes.fracta), http_status: s.nodes && s.nodes.fracta ? 200 : 0, health_score: null, hostname: null, endpoint: "" },
+          { host: "fracta2", resource_id: "resource://fracta2", label: fallbackLabel("fracta2", "Fracta 2"), online: !!(s.nodes && s.nodes.fracta2), http_status: s.nodes && s.nodes.fracta2 ? 200 : 0, health_score: null, hostname: null, endpoint: "" },
+          { host: "i7-thinkpad-jhr", resource_id: "resource://i7-thinkpad-jhr", label: fallbackLabel("i7-thinkpad-jhr", "Workstation"), online: !!(s.nodes && s.nodes.workstation), http_status: 0, health_score: null, hostname: null, endpoint: "" },
+          { host: "rpi3-view", resource_id: "resource://rpi3-view", label: fallbackLabel("rpi3-view", "Raspberry Pi view"), online: !!(s.nodes && s.nodes.rpi3_view), http_status: s.nodes && s.nodes.rpi3_view ? 200 : 0, health_score: null, hostname: null, endpoint: "" },
+          { host: "poco-jhr", resource_id: "resource://poco-jhr", label: fallbackLabel("poco-jhr", "Phone"), online: !!(s.nodes && s.nodes.phone), http_status: 0, health_score: null, hostname: null, endpoint: "" },
         ];
-        renderFleet({ nodes: nodes, generated_at: s.generated_at, mode: "status.json-fallback" });
+        renderFleet({
+          nodes: nodes,
+          generated_at: s.generated_at,
+          mode: "status.json-fallback",
+          observer: s.observer,
+          view: s.view,
+        });
         setFlash("Fleet degraded (status.json)", "busy");
         meta.textContent = "Degraded · " + shortIso(s.generated_at);
         return true;

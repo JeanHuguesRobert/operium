@@ -3,7 +3,7 @@
 # Do not store secret values here.
 
 schema: operium.backlog.v1
-updated_at: "2026-08-07"
+updated_at: "2026-08-27"
 owner: Operium
 
 items:
@@ -274,3 +274,22 @@ items:
     notes: |
       Deliberately out of scope: Android GUI/ADB, arbitrary remote shell,
       autonomous injection. Continuity of Termux sshd across reboot is #6.
+
+  - id: OP-FEAT-009
+    kind: feature
+    title: Trusted-node La Nasa projection with observer-relative views
+    subsystem: ona
+    priority: p2
+    status: open
+    evidence: "operium issue #26"
+    next_action: >
+      Complete the observer/view contract, then validate an unattended trusted
+      Pi display with local La Nasa fallback (issue #26).
+    github_issue: 26
+    opened_at: "2026-08-27"
+    closed_at: null
+    notes: |
+      Separate from personal Hosted Browser thin-client delivery (#24). A
+      trusted display renders La Nasa as seen from a selected FractaNode;
+      observer-local services require allow-listed mesh resolution or an
+      explicitly configured authenticated tunnel, never blind loopback rewrite.
