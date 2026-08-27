@@ -8,18 +8,20 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
+const observerHostname = process.env.NASA_TEST_HOSTNAME || "rpi3-view";
+const observerNodeId = `resource://${observerHostname}`;
 const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "ona-nasa-"));
 const { db } = openNodeMemoryDb({
   dbPath: path.join(tmpDir, "node_memory.sqlite"),
-  nodeId: "resource://rpi3-view",
-  hostname: "rpi3-view",
+  nodeId: observerNodeId,
+  hostname: observerHostname,
 });
 
 const config = loadOnaConfig({
   ONA_COP_DELIVERY: "0",
   ONA_BIND: "127.0.0.1",
-  ONA_HOSTNAME: "rpi3-view",
-  ONA_NODE_ID: "resource://rpi3-view",
+  ONA_HOSTNAME: observerHostname,
+  ONA_NODE_ID: observerNodeId,
   ONA_MESH_OPEN_READ: "1",
   ONA_HEALTH_PUBLIC: "1",
   COGENTIA_OPS_STATE_DIR: tmpDir,
@@ -29,7 +31,7 @@ const server = createOnaHttpServer({
   config,
   db,
   startedAt: new Date().toISOString(),
-  incarnation: "ona:rpi3-view:test",
+  incarnation: `ona:${observerHostname}:test`,
   getNodeId: () => config.nodeId,
   runProbe: async () => ({
     ok: true,
@@ -78,8 +80,8 @@ try {
   assert.equal(fleetBody.schema, "operium.edge-portal.fleet.v1");
   assert.equal(fleetBody.served_by, "ona-nasa-portal");
   assert.deepEqual(fleetBody.observer, {
-    hostname: "rpi3-view",
-    resource_id: "resource://rpi3-view",
+    hostname: observerHostname,
+    resource_id: observerNodeId,
   });
   assert.deepEqual(fleetBody.view, {
     id: "local-fractanet",
@@ -87,11 +89,11 @@ try {
   });
   assert.equal(fleetBody.nodes.length, 5);
   // self should be online (this server)
-  const self = fleetBody.nodes.find((n) => n.host === "rpi3-view");
+  const self = fleetBody.nodes.find((n) => n.host === observerHostname);
   assert.equal(self.online, true);
   assert.equal(self.label, "This node");
 
-  const node = await fetch(`${base}/cgi-bin/node?host=rpi3-view`);
+  const node = await fetch(`${base}/cgi-bin/node?host=${encodeURIComponent(observerHostname)}`);
   assert.equal(node.status, 200);
   const pack = await node.json();
   assert.equal(pack.ok, true);
@@ -99,13 +101,17 @@ try {
   assert.equal(pack.served_by, "ona-nasa-portal");
   assert.ok(pack.status);
 
-  const action = await fetch(`${base}/nasa/action?host=rpi3-view&name=observation.refresh`);
+  const action = await fetch(`${base}/nasa/action?host=${encodeURIComponent(observerHostname)}&name=observation.refresh`);
   assert.equal(action.status, 200);
   const act = await action.json();
   assert.equal(act.ok, true);
   assert.equal(act.mode, "in-process");
 
-  console.log(JSON.stringify({ ok: true, tests: ["static", "fleet", "node", "action_self"] }, null, 2));
+  console.log(JSON.stringify({
+    ok: true,
+    observer: fleetBody.observer,
+    tests: ["static", "fleet", "node", "action_self"],
+  }, null, 2));
 } finally {
   globalThis.fetch = nativeFetch;
   server.closeAllConnections?.();
