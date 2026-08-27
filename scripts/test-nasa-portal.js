@@ -22,6 +22,7 @@ const config = loadOnaConfig({
   ONA_BIND: "127.0.0.1",
   ONA_HOSTNAME: observerHostname,
   ONA_NODE_ID: observerNodeId,
+  ONA_ADMIN_TOKEN: "admin-token",
   ONA_MESH_OPEN_READ: "1",
   ONA_HEALTH_PUBLIC: "1",
   COGENTIA_OPS_STATE_DIR: tmpDir,
@@ -37,6 +38,7 @@ const server = createOnaHttpServer({
     ok: true,
     summary: { health_score: 3, probe_count: 1, failed_count: 0, probed_at: new Date().toISOString() },
   }),
+  requestRestart: () => {},
 });
 
 const port = await new Promise((resolve, reject) => {
@@ -101,8 +103,18 @@ try {
   assert.equal(pack.served_by, "ona-nasa-portal");
   assert.ok(pack.status);
 
-  const action = await fetch(`${base}/nasa/action?host=${encodeURIComponent(observerHostname)}&name=observation.refresh`);
-  assert.equal(action.status, 200);
+  const deniedAction = await fetch(`${base}/nasa/action?host=${encodeURIComponent(observerHostname)}&name=observation.refresh`);
+  assert.equal(deniedAction.status, 404);
+
+  const unauthorisedAction = await fetch(`${base}/nasa/action?host=${encodeURIComponent(observerHostname)}&name=observation.refresh`, {
+    method: "POST",
+  });
+  assert.equal(unauthorisedAction.status, 401);
+
+  const action = await fetch(`${base}/nasa/action?host=${encodeURIComponent(observerHostname)}&name=observation.refresh`, {
+    method: "POST",
+    headers: { Authorization: "Bearer admin-token" },
+  });
   const act = await action.json();
   assert.equal(act.ok, true);
   assert.equal(act.mode, "in-process");
