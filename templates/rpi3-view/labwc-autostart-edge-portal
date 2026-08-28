@@ -2,10 +2,9 @@
 swayidle -w timeout 1800 'wlopm --off \*' resume 'wlopm --on \*' &
 
 # BEGIN operium-edge-kiosk
-# Firefox home portal — normal window + labwc fullscreen (reversible, not --kiosk)
-# F11: toggle fullscreen · Super+Down: minimize · Super: system menu · Alt+F4: close
-# Optional light fallback: BROWSER=dillo PORTAL_URL=http://127.0.0.1/cgi-bin/home
-env KIOSK_MODE=window PORTAL_URL=http://127.0.0.1/boot.html BROWSER=firefox-esr /home/jh/bin/rpi3-view-open-edge-portal.sh &
+# Local NASA baseline — normal window; F11 provides voluntary fullscreen.
+# Do not replace this with a remote projection until it has passed a physical
+# Pi-screen and input validation.
+env KIOSK_MODE=window PORTAL_URL=http://127.0.0.1:8794/boot.html BROWSER=firefox-esr \
+  /home/jh/bin/rpi3-view-open-edge-portal.sh &
 # END operium-edge-kiosk
-
-

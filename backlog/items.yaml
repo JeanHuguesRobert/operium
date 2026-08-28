@@ -3,7 +3,7 @@
 # Do not store secret values here.
 
 schema: operium.backlog.v1
-updated_at: "2026-08-27"
+updated_at: "2026-08-28"
 owner: Operium
 
 items:
@@ -149,6 +149,36 @@ items:
       Related residual: product OpenAI-compatible chat surfaces may still call
       models by role; negotiation of continuation-blind callers remains product
       policy (see same audit note).
+
+  - id: OP-BUG-008
+    kind: bug
+    title: Pi hosted La Nasa viewer survives a tunnel restart without a live VNC session
+    subsystem: mesh
+    severity: medium
+    status: done
+    evidence: >
+      2026-08-28 live rpi3-view: xtigervncviewer had run since the graphical
+      session began, while operium-hosted-nasa-tunnel.service had restarted
+      later. The tunnel listener 127.0.0.1:5902 was present but ss showed no
+      established VNC client connection, and Fracta 2 had no recent Pi VNC
+      session. The viewer could therefore remain fullscreen yet stale after
+      tunnel recovery. Fixed 2026-08-28 with
+      operium-hosted-nasa-viewer.service (PartOf/After the tunnel); one
+      service-managed xtigervncviewer and one ESTABLISHED loopback VNC session
+      were verified after removing the obsolete in-memory desktop loop and
+      after a clean Pi reboot. Physical observation then showed the Pi still
+      displayed an empty desktop: the service process ran outside the labwc
+      graphical session and did not prove a mapped window. The native VNC
+      autostart was then removed. A clean Pi reboot started normal-window
+      Firefox at the local NASA URL, and the operator confirmed La Nasa was
+      visible.
+    next_action: >
+      Native RFB is intentionally not the active projection. Track any
+      KasmVNC Remote Web Session experiment in Operium issue #24, preserving
+      Firefox local as the validated baseline.
+    blocks_features: false
+    opened_at: "2026-08-28"
+    closed_at: "2026-08-28"
 
   # ── Features (blocked by subsystem bugs when severity high+) ─────
 
