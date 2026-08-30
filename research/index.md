@@ -36,7 +36,8 @@ update_policy: UP-DEFAULT-REVIEWED
 - [Operational health](../docs/operational-health.md)
 - [Public / private split](../docs/public-private-split.md)
 - [Fracta trust perimeter and secrets](../docs/fracta-trust-perimeter.md)
-- [Operium CLI](../docs/operium-cli.md) — `operium up`, invoke, node diagnose
+- [Operium CLI](../docs/operium-cli.md) — `operium up`, invoke, node diagnose, calendar
+- [FractaCalendar](../docs/fracta-calendar.md) — federated projection of temporal obligations (issue #29)
 
 ### Live ops priorities (July 2026)
 

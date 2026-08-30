@@ -61,6 +61,7 @@ decisions/    Architecture Decision Records
 - [`docs/fractanet-mesh.md`](docs/fractanet-mesh.md) records the live Tailscale + SSH mesh, Phase 1 blackboard, and inox-serve wiring (July 2026).
 - [`docs/fractavolta-dns.md`](docs/fractavolta-dns.md) records the Gandi DNS zone — fracta OCI IP, service CNAMEs, mail, apex GitHub Pages.
 - [`docs/operium-cli.md`](docs/operium-cli.md) — `operium up` CLI and `operium.up.v1` JSON schema.
+- [`docs/fracta-calendar.md`](docs/fracta-calendar.md) — FractaCalendar projection of temporal obligations (issue #29).
 - [`docs/operium-wip.md`](docs/operium-wip.md) — GitHub-backed WIP handoff/resume for PC, Termux and `fracta`.
 - [`docs/fix-bugs-first.md`](docs/fix-bugs-first.md) — Fix Bugs First; Bug/Feature register (`backlog/`, `operium backlog`).
 - [`docs/operium-node-agent.md`](docs/operium-node-agent.md) describes the Operium Node Agent and its bounded execution model.

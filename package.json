@@ -34,6 +34,7 @@
     "test:ona-actions": "node scripts/test-ona-actions.js",
     "test:env-key-sync": "node scripts/test-sync-env-key.js",
     "test:fracta-runtime-secrets": "node scripts/test-fracta-runtime-secrets.js",
+    "test:calendar": "node scripts/test-operium-calendar.js",
     "test:ona-heartbeat": "node scripts/test-ona-heartbeat.js",
     "test:ona-jobs": "node scripts/test-ona-jobs.js",
     "test:ona-peer-sync": "node scripts/test-ona-peer-sync.js",

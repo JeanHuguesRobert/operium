@@ -8,6 +8,7 @@ export function NodeDetail({
   node,
   status,
   drift,
+  calendar,
   somaObject,
   somaVocabulary,
   loading,
@@ -18,6 +19,7 @@ export function NodeDetail({
   const config = getOpsConfig();
   const statusBody = status?.body || null;
   const driftBody = drift?.body || null;
+  const calendarBody = calendar?.body || null;
 
   return (
     <div className="space-y-6">
@@ -81,6 +83,34 @@ export function NodeDetail({
             <Item label="Failed probes" value={String(statusBody.probes?.failed_count ?? 0)} />
           </dl>
           <ProbeList probes={statusBody.probes?.latest || []} />
+        </Panel>
+      ) : null}
+
+      {calendarBody?.schema === "operium.calendar.projection.v1" ? (
+        <Panel title="FractaCalendar">
+          <p className="mb-3 text-xs text-ops-muted">
+            Projection only. This view does not authorize or execute work.
+          </p>
+          <dl className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
+            <Item label="Items" value={String(calendarBody.summary?.total ?? 0)} />
+            <Item label="Active" value={String(calendarBody.summary?.active ?? 0)} />
+            <Item label="Escalated" value={String(calendarBody.summary?.escalated ?? 0)} />
+            <Item label="Closed" value={String(calendarBody.summary?.closed ?? 0)} />
+          </dl>
+          <ul className="mt-3 space-y-2 text-sm">
+            {(calendarBody.items || []).slice(0, 12).map(item => (
+              <li key={item.id} className="rounded border border-ops-border/70 px-3 py-2">
+                <span className="font-semibold">{item.status}</span>{" "}
+                <span className="text-ops-muted">{item.kind}</span> {item.id}
+                <div className="mt-1 font-mono text-xs text-ops-muted">
+                  next {item.next_run_at || "—"} · {item.source_of_truth}
+                </div>
+              </li>
+            ))}
+            {(calendarBody.items || []).length === 0 ? (
+              <li className="text-ops-muted">No temporal obligations on this node.</li>
+            ) : null}
+          </ul>
         </Panel>
       ) : null}
 

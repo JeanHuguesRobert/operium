@@ -27,6 +27,8 @@ import {
   loadBacklog,
 } from "../lib/backlog.js";
 import { runRatesUpdate } from "../lib/rates.js";
+import { runCalendarCommand } from "../lib/calendar-cli.js";
+import { formatCalendarHuman } from "../lib/format-calendar-human.js";
 
 const HELP = `operium — versioned operational environment registry CLI
 
@@ -45,6 +47,10 @@ Usage:
   operium node drift [options]     Node-local catalogue drift (GET /node/drift)
   operium node diagnose [options]  Merge operium up + ONA status/drift (#51)
   operium rates update [options]   Fetch live model rate cards from providers
+  operium calendar list [options]  FractaCalendar projection (jobs + obligations)
+  operium calendar watch dns       Create an ephemeral DNS delegation watcher
+  operium calendar tick            Run due calendar obligations locally
+  operium calendar ics             Export projection ICS (not an executor)
 
 Options:
   --json                  Machine-readable operium.up.v1 output (default)
@@ -81,6 +87,16 @@ Invoke tool options:
   --content-only          print assistant text only
   --allow-degraded        accept degraded attractors
   --via guide             Route via fracta POST /ops/route/action (#52)
+
+Calendar options (issue #29):
+  --domain <name>         DNS watch domain
+  --expected-ns <list>    Comma-separated expected nameservers
+  --deadline <iso>        Escalation / stop deadline
+  --first-delay <ms>      Delay before the first watch (default 1h)
+  --interval <ms>         Cadence after the first watch (default 3h)
+  --service <slug>        Filter projection by service
+  --project <slug>        Filter projection by project
+  --format ics            Alias of calendar ics
 
 Backlog options (Fix Bugs First — docs/fix-bugs-first.md):
   --kind <bug|feature|incident|debt>
@@ -163,6 +179,15 @@ function parseArgs(argv) {
     filterSeverity: null,
     subsystem: null,
     backlogPath: null,
+    domain: null,
+    expectedNs: null,
+    deadline: null,
+    firstDelayMs: null,
+    intervalMs: null,
+    project: null,
+    service: null,
+    format: null,
+    watchKind: null,
   };
 
   const args = [...argv];
@@ -195,6 +220,11 @@ function parseArgs(argv) {
     options.subcommand = args.shift() || "list";
   } else if (options.command === "rates") {
     options.subcommand = args.shift() || "update";
+  } else if (options.command === "calendar") {
+    options.subcommand = args.shift() || "list";
+    if (options.subcommand === "watch" && args[0] && !args[0].startsWith("-")) {
+      options.watchKind = args.shift();
+    }
   }
 
   while (args.length) {
@@ -318,7 +348,7 @@ function parseArgs(argv) {
         options.onaUrl = args.shift();
         break;
       case "--kind":
-        if (options.command === "backlog") {
+        if (options.command === "backlog" || options.command === "calendar") {
           options.filterKind = args.shift();
         } else {
           options.logKind = args.shift();
@@ -347,6 +377,30 @@ function parseArgs(argv) {
         break;
       case "--peer":
         options.peerNodeId = args.shift();
+        break;
+      case "--domain":
+        options.domain = args.shift();
+        break;
+      case "--expected-ns":
+        options.expectedNs = args.shift();
+        break;
+      case "--deadline":
+        options.deadline = args.shift();
+        break;
+      case "--first-delay":
+        options.firstDelayMs = Number(args.shift());
+        break;
+      case "--interval":
+        options.intervalMs = Number(args.shift());
+        break;
+      case "--service":
+        options.service = args.shift();
+        break;
+      case "--project":
+        options.project = args.shift();
+        break;
+      case "--format":
+        options.format = args.shift();
         break;
       case "-h":
       case "--help":
@@ -391,6 +445,41 @@ async function main() {
   if (isBacklogCommand(options)) {
     runBacklogCommand(options);
     return;
+  }
+
+  if (isCalendarCommand(options)) {
+    try {
+      const result = await runCalendarCommand({
+        subcommand: options.subcommand,
+        watchKind: options.watchKind,
+        domain: options.domain,
+        expectedNs: options.expectedNs,
+        deadline: options.deadline,
+        firstDelayMs: options.firstDelayMs,
+        intervalMs: options.intervalMs,
+        service: options.service,
+        project: options.project,
+        filterStatus: options.filterStatus,
+        filterKind: options.filterKind,
+        format: options.format,
+        url: options.onaUrl,
+        token: options.onaToken || options.token,
+        timeoutMs: options.timeoutMs,
+      });
+      if (result.ics) {
+        process.stdout.write(result.ics);
+        process.exit(0);
+      }
+      if (options.human) {
+        console.log(formatCalendarHuman(result.body.projection || result.body));
+      } else {
+        console.log(JSON.stringify(result.body, null, 2));
+      }
+      process.exit(result.ok ? 0 : 1);
+    } catch (error) {
+      console.error(JSON.stringify({ ok: false, error: error.message }, null, 2));
+      process.exit(2);
+    }
   }
 
   if (options.command === "rates") {
@@ -449,6 +538,8 @@ async function main() {
         console.log(formatNodeDriftHuman(result.body));
       } else if (options.subcommand === "diagnose") {
         console.log(formatNodeDiagnoseHuman(result.body));
+      } else if (options.subcommand === "calendar") {
+        console.log(formatCalendarHuman(result.body));
       } else {
         console.log(JSON.stringify(result.body, null, 2));
       }
@@ -603,8 +694,12 @@ function isInvokeCommand(options) {
   return options.command === "invoke" && options.subcommand === "tool";
 }
 
+function isCalendarCommand(options) {
+  return options.command === "calendar";
+}
+
 function isNodeCommand(options) {
-  return options.command === "node" && ["status", "peers", "logs", "snapshot", "drift", "diagnose"].includes(options.subcommand);
+  return options.command === "node" && ["status", "peers", "logs", "snapshot", "drift", "diagnose", "calendar"].includes(options.subcommand);
 }
 
 async function runWipCommand(options) {
