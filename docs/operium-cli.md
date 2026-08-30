@@ -26,6 +26,7 @@ Companion surfaces:
 |---------|------|
 | `operium up` | Observer on any trusted workstation |
 | `operium backlog list` / `operium backlog gate` | Fix Bugs First register (`backlog/items.yaml`) |
+| `operium calendar list` / `watch dns` / `tick` / `ics` | FractaCalendar projection of jobs and watches ([#29](https://github.com/JeanHuguesRobert/operium/issues/29)) |
 | `operium handoff wip` / `operium resume wip` | GitHub-backed WIP handoff between trusted nodes |
 | `GET /ops/status` | Runtime aggregator on fracta (same schema subset) |
 | `/ops/dashboard` | Human web UI |
@@ -111,6 +112,24 @@ Top-level fields:
 | `next_actions[]` | Actionable follow-ups |
 
 **No secret values** appear in output — only refs and file-exists checks.
+
+---
+
+## Command: `operium calendar`
+
+FractaCalendar is a **projection** of temporal obligations. It does not authorize
+or execute work. See [`docs/fracta-calendar.md`](fracta-calendar.md).
+
+```bash
+operium calendar list [--json|--human] [--service NAME] [--project NAME]
+operium calendar watch dns --domain <name> --expected-ns <a,b> [--first-delay MS] [--interval MS]
+operium calendar tick [--json]
+operium calendar ics
+operium node calendar [--json|--human]   # GET /node/calendar on a running ONA
+```
+
+`watch dns` records an ephemeral, auto-closing nameserver check. It never
+applies registrar or Cloudflare writes.
 
 ---
 

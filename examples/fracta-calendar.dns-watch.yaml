@@ -1,0 +1,29 @@
+# Example FractaCalendar obligation (issue #29).
+# This file is documentation, not an executor and not a mandate.
+
+schema: operium.calendar.obligation.v1
+id: dns-delegation:acorsica.org
+kind: dns.watch
+status: active
+owner_or_mandate: observation-only
+scope: project
+service: dns
+project: acorsica.org
+cadence_or_trigger:
+  kind: after_first
+  first_delay_ms: 3600000
+  interval_ms: 10800000
+priority: high
+interruptible: true
+stop_condition:
+  type: nameservers_match
+escalation_policy:
+  after_ms: 86400000
+  reason: public_ns_still_diverge
+source_of_truth: calendar_obligations:dns-delegation:acorsica.org
+authorized: false
+config:
+  domain: acorsica.org
+  expected_ns:
+    - ada.ns.cloudflare.com
+    - bob.ns.cloudflare.com

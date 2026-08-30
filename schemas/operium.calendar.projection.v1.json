@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "operium.calendar.projection.v1",
+  "title": "FractaCalendar federated projection",
+  "description": "Read-only grouping of temporal obligations. Does not execute or authorize.",
+  "type": "object",
+  "required": ["schema", "generated_at", "items", "views"],
+  "properties": {
+    "schema": { "const": "operium.calendar.projection.v1" },
+    "node_id": { "type": ["string", "null"] },
+    "hostname": { "type": ["string", "null"] },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "not_an_executor": { "const": true },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "active": { "type": "integer", "minimum": 0 },
+        "escalated": { "type": "integer", "minimum": 0 },
+        "closed": { "type": "integer", "minimum": 0 },
+        "from_jobs": { "type": "integer", "minimum": 0 },
+        "from_obligations": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": true
+    },
+    "items": {
+      "type": "array",
+      "items": { "$ref": "operium.calendar.obligation.v1" }
+    },
+    "views": {
+      "type": "object",
+      "properties": {
+        "by_node": { "type": "object" },
+        "by_service": { "type": "object" },
+        "by_project": { "type": "object" }
+      },
+      "additionalProperties": false
+    },
+    "personal_calendar": {
+      "type": "object",
+      "description": "Interop metadata. Importing ICS does not make a personal calendar an executor.",
+      "properties": {
+        "ics_is_projection_only": { "const": true },
+        "personal_calendar_is_executor": { "const": false }
+      }
+    }
+  },
+  "additionalProperties": true
+}

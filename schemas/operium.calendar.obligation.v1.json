@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "operium.calendar.obligation.v1",
+  "title": "FractaCalendar temporal obligation",
+  "description": "Normalized projection of a temporal obligation. A calendar never authorizes action.",
+  "type": "object",
+  "required": [
+    "schema",
+    "id",
+    "kind",
+    "status",
+    "source_of_truth",
+    "authorized"
+  ],
+  "properties": {
+    "schema": { "const": "operium.calendar.obligation.v1" },
+    "id": { "type": "string", "minLength": 1 },
+    "kind": { "type": "string", "minLength": 1 },
+    "status": {
+      "type": "string",
+      "enum": ["active", "paused", "escalated", "closed"]
+    },
+    "owner_or_mandate": { "type": ["string", "null"] },
+    "scope": { "type": ["string", "null"] },
+    "target_node": { "type": ["string", "null"] },
+    "service": { "type": ["string", "null"] },
+    "project": { "type": ["string", "null"] },
+    "earliest_at": { "type": ["string", "null"], "format": "date-time" },
+    "next_run_at": { "type": ["string", "null"], "format": "date-time" },
+    "cadence_or_trigger": {
+      "type": ["object", "null"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["interval", "once", "after_first"]
+        },
+        "interval_ms": { "type": ["integer", "null"], "minimum": 0 },
+        "first_delay_ms": { "type": ["integer", "null"], "minimum": 0 }
+      },
+      "additionalProperties": true
+    },
+    "deadline": { "type": ["string", "null"], "format": "date-time" },
+    "priority": {
+      "type": "string",
+      "enum": ["low", "normal", "high", "critical"]
+    },
+    "interruptible": { "type": "boolean" },
+    "budget": { "type": ["object", "null"] },
+    "stop_condition": {
+      "type": ["object", "null"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["none", "always", "nameservers_match", "predicate"]
+        },
+        "field": { "type": "string" },
+        "equals": true
+      },
+      "additionalProperties": true
+    },
+    "escalation_policy": {
+      "type": ["object", "null"],
+      "properties": {
+        "at": { "type": "string", "format": "date-time" },
+        "after_ms": { "type": "integer", "minimum": 0 },
+        "reason": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "last_run_at": { "type": ["string", "null"], "format": "date-time" },
+    "last_ok": { "type": ["boolean", "null"] },
+    "last_evidence": { "type": ["object", "null"] },
+    "source_of_truth": { "type": "string", "minLength": 1 },
+    "authorized": {
+      "type": "boolean",
+      "description": "Always false on a projection. capable != authorized."
+    },
+    "executes": {
+      "type": "boolean",
+      "description": "True only when the cited source_of_truth is the executor, not this projection."
+    },
+    "config": { "type": "object" },
+    "run_count": { "type": "integer", "minimum": 0 },
+    "created_at": { "type": ["string", "null"], "format": "date-time" },
+    "updated_at": { "type": ["string", "null"], "format": "date-time" },
+    "closed_at": { "type": ["string", "null"], "format": "date-time" }
+  },
+  "additionalProperties": true
+}
