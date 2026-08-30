@@ -4,6 +4,7 @@ import http from "node:http";
 import { loadOnaConfig } from "../lib/node-agent/config.js";
 import { openNodeMemoryDb } from "../lib/node-agent/db.js";
 import { createOnaHttpServer } from "../lib/node-agent/http-server.js";
+import { readNasaDnsStatus } from "../lib/node-agent/nasa-portal.js";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -11,6 +12,23 @@ import path from "node:path";
 const observerHostname = process.env.NASA_TEST_HOSTNAME || "rpi3-view";
 const observerNodeId = `resource://${observerHostname}`;
 const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "ona-nasa-"));
+const dnsStatusPath = path.join(tmpDir, "dns-status.json");
+process.env.ONA_NASA_DNS_STATUS_JSON = dnsStatusPath;
+fs.writeFileSync(dnsStatusPath, JSON.stringify({
+  schema: "operium.nasa.dns-view.v1",
+  observed_at: "2026-08-29T12:00:00.000Z",
+  source: { kind: "operator-snapshot", reference: "test-fixture" },
+  domains: [{
+    domain: "fractavolta.com",
+    migration_state: "pending",
+    registrar: "Gandi",
+    active_authoritative_dns: "Gandi LiveDNS",
+    standby_dns: "Cloudflare",
+    edge_mode: "dns-only",
+    dnssec_state: "not_observed",
+    api_token: "must-not-appear",
+  }],
+}));
 const { db } = openNodeMemoryDb({
   dbPath: path.join(tmpDir, "node_memory.sqlite"),
   nodeId: observerNodeId,
@@ -89,6 +107,11 @@ try {
     id: "local-fractanet",
     membership: "registered-tailnet-nodes",
   });
+  assert.equal(fleetBody.dns.availability, "available");
+  assert.equal(fleetBody.dns.domains[0].domain, "fractavolta.com");
+  assert.equal(fleetBody.dns.domains[0].active_authoritative_dns, "Gandi LiveDNS");
+  assert.equal(Object.hasOwn(fleetBody.dns.domains[0], "api_token"), false);
+  assert.equal(readNasaDnsStatus({ ONA_NASA_DNS_STATUS_JSON: path.join(tmpDir, "missing.json") }).availability, "unavailable");
   assert.equal(fleetBody.nodes.length, 5);
   // self should be online (this server)
   const self = fleetBody.nodes.find((n) => n.host === observerHostname);

@@ -49,6 +49,11 @@
     }
     .card.pulse { border-color: var(--accent); }
     .fleet-list { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+    .dns-list { margin-top: 0.25rem; font-size: 0.72rem; }
+    .dns-row { padding: 0.18rem 0; border-bottom: 1px solid var(--line); }
+    .dns-row:last-child { border-bottom: 0; }
+    .dns-row .dns-domain { font-weight: 700; }
+    .dns-row .dns-meta { color: var(--muted); margin-top: 0.08rem; }
     .node-row {
       display: flex; align-items: center; gap: 0.4rem;
       padding: 0.32rem 0.25rem; border-bottom: 1px solid var(--line);
@@ -233,6 +238,8 @@
       <div id="fleet" class="fleet-list"><span class="muted">Loading fleet…</span></div>
       <h2>Mesh graph</h2>
       <div id="fleet-graph" class="muted" style="font-size:0.72rem">—</div>
+      <h2 style="margin-top:0.45rem">DNS configuration</h2>
+      <div id="dns" class="dns-list"><span class="muted">Loading public DNS snapshot…</span></div>
     </article>
     <article class="card" id="detail-card">
       <h2>Zoom</h2>
@@ -256,6 +263,7 @@
 <script>
   var fleetEl = document.getElementById("fleet");
   var fleetGraphEl = document.getElementById("fleet-graph");
+  var dnsEl = document.getElementById("dns");
   var detailEl = document.getElementById("detail");
   var flash = document.getElementById("flash");
   var meta = document.getElementById("meta");
@@ -289,6 +297,7 @@
   function renderFleet(data) {
     fleetData = data;
     paintPerspective(data);
+    renderDns(data && data.dns);
     var nodes = (data && data.nodes) || [];
     if (!nodes.length) {
       fleetEl.innerHTML = '<span class="muted">No nodes</span>';
@@ -317,6 +326,31 @@
       });
     });
     renderFleetMesh(nodes);
+  }
+
+  function renderDns(dns) {
+    if (!dnsEl) return;
+    if (!dns || dns.availability !== "available") {
+      var why = (dns && dns.reason) || "no public snapshot";
+      dnsEl.innerHTML = '<span class="muted">Unavailable · ' + esc(why) + '</span>';
+      return;
+    }
+    var domains = dns.domains || [];
+    if (!domains.length) {
+      dnsEl.innerHTML = '<span class="muted">Available snapshot · no declared domains</span>';
+      return;
+    }
+    dnsEl.innerHTML = domains.map(function (d) {
+      var state = d.migration_state || "unknown";
+      var cls = state === "active" || state === "source" ? "ok" : state === "failed" ? "bad" : "warn";
+      var authority = d.active_authoritative_dns || "unknown authority";
+      var bits = [authority, d.edge_mode, d.dnssec_state].filter(Boolean).join(" · ");
+      return '<div class="dns-row">' +
+        '<span class="dns-domain">' + esc(d.domain) + '</span> ' +
+        '<span class="badge ' + cls + '">' + esc(state) + '</span>' +
+        '<div class="dns-meta">' + esc(bits || "no provider state") + '</div>' +
+        '</div>';
+    }).join("");
   }
 
   function renderFleetMesh(nodes) {
@@ -961,6 +995,7 @@
           mode: "status.json-fallback",
           observer: s.observer,
           view: s.view,
+          dns: s.dns,
         });
         setFlash("Fleet degraded (status.json)", "busy");
         meta.textContent = "Degraded · " + shortIso(s.generated_at);
