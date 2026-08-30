@@ -8,7 +8,7 @@ lifecycle_state: working
 update_policy: UP-INFRASTRUCTURE-HEALTH
 language: en
 date: "2026-08-29"
-last_modified_at: "2026-08-29"
+last_modified_at: "2026-08-30"
 related:
   - "fractavolta-dns.md"
   - "fractanet-mesh.md"
@@ -90,6 +90,22 @@ On 2026-08-29, the Cloudflare zone for `fractavolta.com` was created in
 `pending` state. Pending state does not alter public DNS; activation requires
 an explicit nameserver change at the registrar after the mirrored zone has
 been verified.
+
+## `fractavolta.com` mirror evidence — 2026-08-30
+
+The Gandi source export contained 38 RRsets and 42 individual record values:
+six A, 26 CNAME, three MX, five SRV and two TXT values. All source TTL values
+were compatible with Cloudflare (300 or 10,800 seconds).
+
+The pending Cloudflare zone now contains 40 DNS-only records: six A, 26 CNAME,
+three MX, three SRV and two TXT. No Cloudflare record is proxied. This does not
+alter the public authoritative answers while Gandi nameservers remain active.
+
+Two Gandi SRV values intentionally use the DNS root target `.` to denote a
+disabled service. Cloudflare's record API rejects that target because it
+requires a hostname. They were deliberately not substituted, omitted silently,
+or redirected. The zone is therefore **not mirror-verified** and its
+nameservers must not yet be changed.
 
 ## `fractavolta.com` migration gate
 
