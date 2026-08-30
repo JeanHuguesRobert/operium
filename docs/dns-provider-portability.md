@@ -97,9 +97,10 @@ The Gandi source export contained 38 RRsets and 42 individual record values:
 six A, 26 CNAME, three MX, five SRV and two TXT values. All source TTL values
 were compatible with Cloudflare (300 or 10,800 seconds).
 
-The pending Cloudflare zone now contains 40 DNS-only records: six A, 26 CNAME,
-three MX, three SRV and two TXT. No Cloudflare record is proxied. This does not
-alter the public authoritative answers while Gandi nameservers remain active.
+The initial pending Cloudflare zone contained 40 DNS-only records: six A, 26
+CNAME, three MX, three SRV and two TXT. No Cloudflare record was proxied. This
+did not alter the public authoritative answers while Gandi nameservers remained
+active.
 
 Two Gandi SRV values intentionally use the DNS root target `.` to denote a
 disabled service. Cloudflare's record API rejects that target because it
@@ -107,14 +108,35 @@ requires a hostname. They were deliberately not substituted, omitted silently,
 or redirected. The zone is therefore **not mirror-verified** and its
 nameservers must not yet be changed.
 
+## Intentional mail profile — 2026-08-30
+
+The intended mail capability is inbound forwarding only. Gandi currently has
+no mailbox for this domain and forwards `contact`, `info`, `jhr`, and `john`
+to one operator-owned external mailbox. The `john` address was added on
+2026-08-30 to preserve a distinct intent-bearing entry point.
+
+IMAP, POP3 and SMTP client auto-discovery is outside that intended capability.
+The three representable SRV records were removed from the pending Cloudflare
+zone; the two root-target SRV records remain deliberately unrepresented. The
+pending zone now has 37 DNS-only records (six A, 26 CNAME, three MX and two
+TXT), with no SRV records.
+
+This is an intended configuration decision, not evidence that Cloudflare Email
+Routing is active. Before any nameserver transition, Cloudflare Email Routing
+must be onboarded, the external destination verified, and explicit rules for
+all four local parts created. That onboarding will replace the incoming-mail MX
+and associated authentication records; it must be reviewed as a mail-provider
+transition, not treated as a passive DNS mirror.
+
 ## `fractavolta.com` migration gate
 
 Before replacing Gandi nameservers with the Cloudflare-assigned nameservers:
 
 1. Export the current Gandi LiveDNS zone using its authenticated API.
 2. Normalize and compare it with the Cloudflare zone.
-3. Preserve apex GitHub Pages records, mail MX/DKIM/SPF/SRV records, the
-   `mail` subdomain, origin records, and all application CNAMEs.
+3. Preserve apex GitHub Pages records, the `mail` subdomain, origin records,
+   and all application CNAMEs. Record current mail MX/DKIM/SPF evidence, then
+   choose and validate the intended incoming-mail provider explicitly.
 4. Keep imported Cloudflare records DNS-only for the first activation.
 5. Record DNSSEC status and do not enable or transfer it implicitly.
 6. Verify public DNS answers and dependent HTTPS/mail services before any
