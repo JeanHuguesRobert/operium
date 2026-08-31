@@ -124,7 +124,7 @@ parallel `watch dns` inside ACP.
 
 | Capability | CLI | ONA HTTP | COP packet | Fracta `/ops/node` proxy | MCP | Web UX |
 | --- | --- | --- | --- | --- | --- | --- |
-| `calendar.list` | `operium calendar list` / `operium node calendar` | `GET /node/calendar` | `cop/node.query.v1` query=`calendar` | `GET /ops/node/:id/calendar` (Cogentia #125, ops-read token) | none | helper exists, **not wired**; public La Nasa must stay empty of node calendar |
+| `calendar.list` | `operium calendar list` / `operium node calendar` (same HTTP) | `GET /node/calendar` | `cop/node.query.v1` query=`calendar` | `GET /ops/node/:id/calendar` (Cogentia #125, ops-read token) | none | helper exists, **not wired**; public La Nasa must stay empty of node calendar |
 | `calendar.schedule` | `operium calendar schedule --file` | `POST /node/calendar/schedule` | `cop/node.wake.v1` on `POST /node/cop` | no | none | no |
 | `calendar.tick` | `operium calendar tick` | `POST /node/calendar/tick` | ONA job tick also runs due wakes | no | none | no |
 | `calendar.ics` | `operium calendar ics` | none (derive from GET) | none | no | none | no |
@@ -148,20 +148,21 @@ same capability
 JSON-RPC appears as **MCP** (`POST /mcp` JSON-RPC) on Cogentia, not as a
 second Operium RPC server. Do not fork a calendar catalog under Operium.
 
-### CLI today (this branch)
+### CLI
+
+Default transport is **ONA HTTP**, same as `operium node status`. `--local`
+opens the node SQLite in-process (tests, or no daemon). Both paths call
+`lib/calendar-capabilities.js`.
 
 ```bash
 operium calendar list [--json|--human] [--service S] [--project P]
 operium calendar schedule --file path/to/wake-packet.json
 operium calendar tick [--json|--human]
 operium calendar ics
-operium node calendar [--json|--human]   # GET /node/calendar
+operium node calendar [--json|--human]   # alias of calendar.list over HTTP
 operium calendar watch dns …             # sugar only
+operium calendar list --local            # in-process SQLite
 ```
-
-`list` / `ics` without `--url` read the **local** ONA SQLite. `node calendar`
-always goes through HTTP. That split is accidental and should collapse: the
-CLI should call the same capability function the HTTP handler calls.
 
 ## Example wake packet
 
