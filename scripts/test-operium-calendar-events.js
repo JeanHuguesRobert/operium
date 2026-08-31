@@ -5,11 +5,12 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { continuationWakePacket, parseWakePacket } from "../lib/cop-wake.js";
+import { continuationWakePacket, dnsObservationWakePacket, obligationFromWakePacket, parseWakePacket } from "../lib/cop-wake.js";
 import { listCalendar, scheduleCalendar, tickCalendar } from "../lib/calendar-capabilities.js";
 import { openNodeMemoryDb } from "../lib/node-agent/db.js";
 import { LATEST_SCHEMA_VERSION } from "../lib/node-agent/migrate.js";
-import { comparableWakeItems, replayCalendarObligations } from "../lib/node-agent/calendar-replay.js";
+import { upsertCalendarObligation } from "../lib/node-agent/calendar-store.js";
+import { backfillWakeEventsFromObligations, comparableWakeItems, replayCalendarObligations } from "../lib/node-agent/calendar-replay.js";
 import { COP_CALENDAR_KINDS, listCopEvents } from "../lib/node-agent/cop-events.js";
 import { handleCopHttpRequest } from "../lib/node-agent/cop-handler.js";
 import { COP_NODE_PACKETS } from "../lib/node-agent/envelope.js";
@@ -125,6 +126,39 @@ assert.ok(beforeSweep >= 2);
 runTtlSweeper(db, { now: new Date("2030-01-01T00:00:00.000Z") });
 assert.equal(listCopEvents(db).length, beforeSweep);
 
+const legacyPath = path.join(tmpDir, "legacy.sqlite");
+const { db: legacyDb } = openNodeMemoryDb({
+  dbPath: legacyPath,
+  nodeId: "resource://fracta",
+  hostname: "fracta",
+  backfillCopEvents: false,
+});
+const legacyWake = dnsObservationWakePacket({
+  domain: "legacy.test",
+  expected_ns: ["ns1.legacy.test"],
+  first_delay_ms: 0,
+  now,
+}, { node_id: "resource://fracta", hostname: "fracta" });
+upsertCalendarObligation(
+  legacyDb,
+  obligationFromWakePacket(legacyWake, { node_id: "resource://fracta", hostname: "fracta" }),
+  { node_id: "resource://fracta", hostname: "fracta", now },
+);
+assert.equal(listCopEvents(legacyDb).length, 0);
+const filled = backfillWakeEventsFromObligations(legacyDb, { now });
+assert.equal(filled.created, 1);
+const legacyDeps = {
+  db: legacyDb,
+  config: { nodeId: "resource://fracta", hostname: "fracta" },
+  nodeId: "resource://fracta",
+  hostname: "fracta",
+  now,
+};
+const legacyLive = comparableWakeItems(listCalendar(legacyDeps));
+replayCalendarObligations(legacyDb, { node_id: "resource://fracta", hostname: "fracta" });
+assert.deepEqual(comparableWakeItems(listCalendar(legacyDeps)), legacyLive);
+legacyDb.close();
+
 db.close();
 fs.rmSync(tmpDir, { recursive: true, force: true });
 
@@ -136,5 +170,6 @@ console.log(JSON.stringify({
     "continuation_wake_handler_unauthorized",
     "cop_events_query",
     "cop_events_not_ttl_swept",
+    "backfill_pre_event_log_obligations",
   ],
 }, null, 2));

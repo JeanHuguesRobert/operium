@@ -91,7 +91,9 @@ FractaCalendar projector
 
 The durable log is SQLite `cop_events` (not TTL-swept). `calendar_obligations`
 is a COP Task-style **projection** rebuildable by replaying wake / evidence /
-close / escalate Events. Warm `event_log` (`ona.calendar.ran` /
+close / escalate Events. Opening the node DB backfills a wake Event for any
+pre-v5 obligation that already stores `config.wake`, so replay does not drop
+live rows. Warm `event_log` (`ona.calendar.ran` /
 `ona.calendar.closed`) remains an operational breadcrumb with a 14-day TTL; it
 is not the source of truth.
 
