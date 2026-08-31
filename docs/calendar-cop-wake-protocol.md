@@ -124,8 +124,8 @@ parallel `watch dns` inside ACP.
 
 | Capability | CLI | ONA HTTP | COP packet | Fracta `/ops/node` proxy | MCP | Web UX |
 | --- | --- | --- | --- | --- | --- | --- |
-| `calendar.list` | `operium calendar list` / `operium node calendar` | `GET /node/calendar` | missing (`cop/node.query` has peers/logs only) | **not allowlisted** (proxy is status/drift/soma only) | none | helper exists, **not wired**; public La Nasa must stay empty of node calendar |
-| `calendar.schedule` | `operium calendar schedule --file` | `POST /node/calendar/schedule` | `cop/node.wake.v1` body accepted over HTTP, not via `POST /node/cop` handler | no | none | no |
+| `calendar.list` | `operium calendar list` / `operium node calendar` | `GET /node/calendar` | `cop/node.query.v1` query=`calendar` | **not allowlisted** (proxy is status/drift/soma only) | none | helper exists, **not wired**; public La Nasa must stay empty of node calendar |
+| `calendar.schedule` | `operium calendar schedule --file` | `POST /node/calendar/schedule` | `cop/node.wake.v1` on `POST /node/cop` | no | none | no |
 | `calendar.tick` | `operium calendar tick` | `POST /node/calendar/tick` | ONA job tick also runs due wakes | no | none | no |
 | `calendar.ics` | `operium calendar ics` | none (derive from GET) | none | no | none | no |
 | DNS sugar | `operium calendar watch dns` | `POST /node/calendar/watch` | — | no | none | no |
