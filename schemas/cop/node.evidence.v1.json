@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cop/node.evidence.v1",
+  "title": "COP node evidence Event — durable result of a wake handler",
+  "description": "Tick-caused Event. The tick itself must not mutate COP state. Handler evidence, close, and escalate are Events.",
+  "type": "object",
+  "required": ["id", "packet_type", "payload"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "packet_type": { "const": "cop/node.evidence.v1" },
+    "artifact_type": { "type": "string" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "payload": {
+      "type": "object",
+      "required": ["schema", "obligation_id"],
+      "properties": {
+        "schema": { "const": "cop/node.evidence.v1" },
+        "obligation_id": { "type": "string", "minLength": 1 },
+        "ok": { "type": "boolean" },
+        "closed": { "type": "boolean" },
+        "status": { "type": "string" },
+        "next_run_at": { "type": ["string", "null"], "format": "date-time" },
+        "evidence": { "type": "object" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

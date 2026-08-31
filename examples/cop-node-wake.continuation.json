@@ -1,0 +1,31 @@
+{
+  "id": "cop:wake:continuation:example-judgment",
+  "packet_type": "cop/node.wake.v1",
+  "artifact_type": "cop/cognitive-packet",
+  "payload": {
+    "schema": "cop/node.wake.v1",
+    "due_at": null,
+    "cadence": {
+      "kind": "after_first",
+      "first_delay_ms": 0,
+      "interval_ms": 86400000
+    },
+    "deadline": null,
+    "stop_condition": { "type": "none" },
+    "escalation_policy": null,
+    "authorized": false,
+    "packet": {
+      "envelope": {
+        "packet_kind": "continuation",
+        "transmission_mode": "copy",
+        "status": "active"
+      },
+      "payload": {
+        "kind": "continuation.judgment",
+        "id": "continuation:example-judgment",
+        "question": "Example continuation wake. Does not grant a mandate.",
+        "owner_or_mandate": "observation-only"
+      }
+    }
+  }
+}

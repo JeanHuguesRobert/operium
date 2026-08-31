@@ -21,6 +21,8 @@ import { LATEST_SCHEMA_VERSION } from "../lib/node-agent/migrate.js";
 import { syncScheduledJobs } from "../lib/node-agent/job-scheduler.js";
 import { upsertDnsWatch, getCalendarObligation } from "../lib/node-agent/calendar-store.js";
 import { runDueCalendarObligations } from "../lib/node-agent/calendar-runner.js";
+import { comparableWakeItems, replayCalendarObligations } from "../lib/node-agent/calendar-replay.js";
+import { COP_CALENDAR_KINDS, listCopEvents } from "../lib/node-agent/cop-events.js";
 import { buildNodeCalendar } from "../lib/node-agent/calendar-view.js";
 import { checkDnsDelegation } from "../lib/node-agent/dns-watch.js";
 import { formatCalendarHuman } from "../lib/format-calendar-human.js";
@@ -49,6 +51,7 @@ const job = {
 const fromJob = obligationFromScheduledJob(job, { node_id: "resource://fracta" });
 assert.equal(fromJob.schema, "operium.calendar.obligation.v1");
 assert.equal(fromJob.source_of_truth, "scheduled_jobs:heartbeat:operium-node");
+assert.equal(fromJob.calendar_origin, "catalogue");
 assert.equal(fromJob.authorized, false);
 assert.equal(fromJob.executes, true);
 assert.equal(fromJob.service, "ona");
@@ -95,6 +98,7 @@ const { db, migration } = openNodeMemoryDb({
 });
 assert.equal(migration.latest, LATEST_SCHEMA_VERSION);
 assert.ok(migration.applied.includes(4));
+assert.ok(migration.applied.includes(5));
 
 syncScheduledJobs(db, [job]);
 upsertDnsWatch(db, {
@@ -129,6 +133,35 @@ const closed = await runDueCalendarObligations(db, {
 assert.equal(closed.results[0].closed, true);
 assert.equal(getCalendarObligation(db, "dns-delegation:acorsica.org").status, "closed");
 assert.equal(getCalendarObligation(db, "dns-delegation:acorsica.org").next_run_at, null);
+
+const storedProjection = buildNodeCalendar({
+  db,
+  config: { nodeId: "resource://fracta", hostname: "fracta" },
+  nodeId: "resource://fracta",
+  now,
+});
+const storedWakeItems = comparableWakeItems(storedProjection);
+assert.equal(storedWakeItems.length, 1);
+assert.equal(storedWakeItems[0].status, "closed");
+assert.equal(storedWakeItems[0].calendar_origin, "wake");
+const liveEvents = listCopEvents(db, { obligation_id: "dns-delegation:acorsica.org", order: "asc" });
+assert.ok(liveEvents.some(event => event.kind === COP_CALENDAR_KINDS.WAKE));
+assert.ok(liveEvents.some(event => event.kind === COP_CALENDAR_KINDS.EVIDENCE));
+assert.ok(liveEvents.some(event => event.kind === COP_CALENDAR_KINDS.CLOSE));
+assert.ok(liveEvents.some(event => event.kind === COP_CALENDAR_KINDS.ESCALATE));
+replayCalendarObligations(db, { node_id: "resource://fracta", hostname: "fracta" });
+const replayedProjection = buildNodeCalendar({
+  db,
+  config: { nodeId: "resource://fracta", hostname: "fracta" },
+  nodeId: "resource://fracta",
+  now,
+});
+assert.deepEqual(comparableWakeItems(replayedProjection), storedWakeItems);
+assert.ok(replayedProjection.items.some(item => item.id === "job:heartbeat:operium-node" && item.calendar_origin === "catalogue"));
+assert.equal(
+  listCopEvents(db, { obligation_id: "job:heartbeat:operium-node" }).length,
+  0,
+);
 
 const idle = await runDueCalendarObligations(db, { now: "2026-09-01T19:00:00.000Z" });
 assert.equal(idle.ran, 0);
@@ -341,6 +374,7 @@ console.log(JSON.stringify({
     "cli_http_list_and_schedule",
     "cli_watch_list_ics",
     "cop_wake_packet_schedule",
+    "cop_event_log_replay",
   ],
 }, null, 2));
 
