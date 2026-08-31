@@ -151,7 +151,7 @@ ACP is **not** a calendar transport. It is a coding-agent session protocol
 | `calendar.list` | `operium calendar list` / `operium node calendar` (same HTTP) | `GET /node/calendar` | `cop/node.query.v1` query=`calendar` or `cop_events` | `GET /ops/node/:id/calendar` (Cogentia #125, ops-read token) | `operium_calendar_list` (private-read / JHN; not anonymous) | La Nasa node pack (`/nasa/node`); public `/ops/console` stays empty |
 | `calendar.schedule` | `operium calendar schedule --file` | `POST /node/calendar/schedule` | `cop/node.wake.v1` on `POST /node/cop` | no | none | no |
 | `calendar.tick` | `operium calendar tick` | `POST /node/calendar/tick` | ONA job tick also runs due wakes | no | none | no |
-| `calendar.resolve` | none (not a calendar CLI verb) | none | `cop/node.resolve.v1` on `POST /node/cop` | no | none | no |
+| `calendar.resolve` | none (not a calendar CLI verb) | none | `cop/node.resolve.v1` on `POST /node/cop` (**admin token**, not peer) | no | none | no |
 | `calendar.ics` | `operium calendar ics` | none (derive from GET) | none | no | none | no |
 | DNS sugar | `operium calendar watch dns` | `POST /node/calendar/watch` | — | no | none | no |
 

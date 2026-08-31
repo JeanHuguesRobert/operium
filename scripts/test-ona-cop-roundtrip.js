@@ -196,6 +196,19 @@ assert.equal(httpCop.body.ok, true);
 const unauthorized = await postJson(`http://127.0.0.1:${apiPort}/node/cop`, {}, {});
 assert.equal(unauthorized.status, 401);
 
+const peerResolveDenied = await postJson(`http://127.0.0.1:${apiPort}/node/cop`, {
+  id: "cop:resolve-peer-http",
+  packet_type: COP_NODE_PACKETS.RESOLVE,
+  sender: { node_id: "resource://i7-thinkpad-jhr" },
+  payload: {
+    schema: "cop/node.resolve.v1",
+    obligation_id: "continuation:missing",
+    decision: "resolved",
+  },
+}, { Authorization: "Bearer peer-token" });
+assert.equal(peerResolveDenied.status, 401);
+assert.equal(peerResolveDenied.body.error, "unauthorized_admin");
+
 db.close();
 await new Promise((resolve) => peerServer.close(resolve));
 await new Promise((resolve) => apiServer.close(resolve));
@@ -212,6 +225,7 @@ console.log(JSON.stringify({
     "cop_unknown_400",
     "cop_outbox_delivery",
     "cop_http_route",
+    "cop_resolve_requires_admin",
   ],
 }, null, 2));
 

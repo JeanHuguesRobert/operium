@@ -9,7 +9,7 @@ import { continuationWakePacket, dnsObservationWakePacket, obligationFromWakePac
 import { listCalendar, resolveCalendar, scheduleCalendar, tickCalendar } from "../lib/calendar-capabilities.js";
 import { openNodeMemoryDb } from "../lib/node-agent/db.js";
 import { LATEST_SCHEMA_VERSION } from "../lib/node-agent/migrate.js";
-import { upsertCalendarObligation } from "../lib/node-agent/calendar-store.js";
+import { getCalendarObligation, upsertCalendarObligation } from "../lib/node-agent/calendar-store.js";
 import { backfillWakeEventsFromObligations, comparableWakeItems, replayCalendarObligations } from "../lib/node-agent/calendar-replay.js";
 import { COP_CALENDAR_KINDS, listCopEvents } from "../lib/node-agent/cop-events.js";
 import { handleCopHttpRequest } from "../lib/node-agent/cop-handler.js";
@@ -161,7 +161,7 @@ const held = resolveCalendar(deps, {
   payload: {
     schema: "cop/node.resolve.v1",
     obligation_id: "continuation:example-judgment",
-    decision: "pending",
+    decision: "resolved",
     authorized: false,
     step_result: {
       type: "step_result",
@@ -176,6 +176,24 @@ assert.equal(held.closed, false);
 assert.equal(held.obligation.status, "active");
 assert.equal(held.obligation.last_evidence.pending, true);
 assert.equal(held.obligation.last_evidence.hitl, true);
+assert.equal(held.obligation.last_evidence.decision, "resolved");
+
+const peerResolve = await handleCopHttpRequest({
+  id: "cop:resolve-peer-denied",
+  packet_type: COP_NODE_PACKETS.RESOLVE,
+  payload: {
+    obligation_id: "continuation:example-judgment",
+    decision: "cancelled",
+  },
+}, {
+  config: deps.config,
+  db,
+  nodeId: "resource://fracta",
+  adminAuth: false,
+});
+assert.equal(peerResolve.status, 401);
+assert.equal(peerResolve.body.error, "unauthorized_admin");
+assert.equal(getCalendarObligation(db, "continuation:example-judgment").status, "active");
 
 const resolveFile = JSON.parse(fs.readFileSync(path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -185,6 +203,7 @@ const copResolve = await handleCopHttpRequest(resolveFile, {
   config: deps.config,
   db,
   nodeId: "resource://fracta",
+  adminAuth: true,
 });
 assert.equal(copResolve.status, 200);
 assert.equal(copResolve.body.handler, "resolve");
@@ -264,7 +283,8 @@ console.log(JSON.stringify({
     "packet_ref_unreadable_fails_closed",
     "packet_ref_wake_from_registered_packet",
     "resolve_rejects_non_continuation",
-    "resolve_needs_acceptance_does_not_close",
+    "resolve_needs_acceptance_overrides_decision",
+    "resolve_requires_admin_auth",
     "cop_resolve_hitl_closes_unauthorized",
     "resolve_replay_matches_projection",
     "closed_continuation_not_due",
