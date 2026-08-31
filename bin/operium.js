@@ -48,8 +48,9 @@ Usage:
   operium node diagnose [options]  Merge operium up + ONA status/drift (#51)
   operium rates update [options]   Fetch live model rate cards from providers
   operium calendar list [options]  FractaCalendar projection (jobs + obligations)
-  operium calendar watch dns       Create an ephemeral DNS delegation watcher
-  operium calendar tick            Run due calendar obligations locally
+  operium calendar schedule        Schedule a cop/node.wake.v1 packet (--file)
+  operium calendar watch dns       Sugar: build a DNS observation wake packet
+  operium calendar tick            Local tick: deliver due wakes (not a domain verb)
   operium calendar ics             Export projection ICS (not an executor)
 
 Options:
@@ -88,9 +89,10 @@ Invoke tool options:
   --allow-degraded        accept degraded attractors
   --via guide             Route via fracta POST /ops/route/action (#52)
 
-Calendar options (issue #29):
-  --domain <name>         DNS watch domain
-  --expected-ns <list>    Comma-separated expected nameservers
+Calendar options (issue #29; protocol: docs/calendar-cop-wake-protocol.md):
+  --file <path>           Wake packet JSON for `calendar schedule`
+  --domain <name>         DNS watch sugar only
+  --expected-ns <list>    Comma-separated expected nameservers (sugar)
   --deadline <iso>        Escalation / stop deadline
   --first-delay <ms>      Delay before the first watch (default 1h)
   --interval <ms>         Cadence after the first watch (default 3h)
@@ -188,6 +190,7 @@ function parseArgs(argv) {
     service: null,
     format: null,
     watchKind: null,
+    file: null,
   };
 
   const args = [...argv];
@@ -402,6 +405,9 @@ function parseArgs(argv) {
       case "--format":
         options.format = args.shift();
         break;
+      case "--file":
+        options.file = args.shift();
+        break;
       case "-h":
       case "--help":
         options.help = true;
@@ -462,6 +468,7 @@ async function main() {
         filterStatus: options.filterStatus,
         filterKind: options.filterKind,
         format: options.format,
+        file: options.file,
         url: options.onaUrl,
         token: options.onaToken || options.token,
         timeoutMs: options.timeoutMs,

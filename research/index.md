@@ -38,6 +38,7 @@ update_policy: UP-DEFAULT-REVIEWED
 - [Fracta trust perimeter and secrets](../docs/fracta-trust-perimeter.md)
 - [Operium CLI](../docs/operium-cli.md) — `operium up`, invoke, node diagnose, calendar
 - [FractaCalendar](../docs/fracta-calendar.md) — federated projection of temporal obligations (issue #29)
+- [FractaCalendar ↔ COP wake protocol](../docs/calendar-cop-wake-protocol.md) — ticks are not packets; wakes deliver packets
 
 ### Live ops priorities (July 2026)
 

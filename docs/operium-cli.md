@@ -26,7 +26,7 @@ Companion surfaces:
 |---------|------|
 | `operium up` | Observer on any trusted workstation |
 | `operium backlog list` / `operium backlog gate` | Fix Bugs First register (`backlog/items.yaml`) |
-| `operium calendar list` / `watch dns` / `tick` / `ics` | FractaCalendar projection of jobs and watches ([#29](https://github.com/JeanHuguesRobert/operium/issues/29)) |
+| `operium calendar list` / `schedule` / `tick` / `ics` | FractaCalendar projection; `schedule` takes a `cop/node.wake.v1` packet ([protocol](calendar-cop-wake-protocol.md)) |
 | `operium handoff wip` / `operium resume wip` | GitHub-backed WIP handoff between trusted nodes |
 | `GET /ops/status` | Runtime aggregator on fracta (same schema subset) |
 | `/ops/dashboard` | Human web UI |
@@ -118,18 +118,21 @@ Top-level fields:
 ## Command: `operium calendar`
 
 FractaCalendar is a **projection** of temporal obligations. It does not authorize
-or execute work. See [`docs/fracta-calendar.md`](fracta-calendar.md).
+or execute work. See [`fracta-calendar.md`](fracta-calendar.md) and the COP
+wake protocol [`calendar-cop-wake-protocol.md`](calendar-cop-wake-protocol.md).
 
 ```bash
 operium calendar list [--json|--human] [--service NAME] [--project NAME]
+operium calendar schedule --file examples/cop-node-wake.dns-observation.json
 operium calendar watch dns --domain <name> --expected-ns <a,b> [--first-delay MS] [--interval MS]
 operium calendar tick [--json]
 operium calendar ics
 operium node calendar [--json|--human]   # GET /node/calendar on a running ONA
 ```
 
-`watch dns` records an ephemeral, auto-closing nameserver check. It never
-applies registrar or Cloudflare writes.
+`schedule` accepts a `cop/node.wake.v1` Event that carries a Cognitive Packet
+(by copy). `watch dns` is sugar for one observation payload. Neither applies
+registrar or Cloudflare writes.
 
 ---
 
