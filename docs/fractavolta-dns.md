@@ -3,7 +3,7 @@ title: "fractavolta.com DNS zone (Gandi)"
 description: "Observed DNS records for fractavolta.com — fracta OCI VPS, GitHub Pages apex, Gandi mail, service CNAMEs."
 layout: default
 date: 2026-07-04
-last_modified_at: 2026-07-04
+last_modified_at: 2026-08-31
 license: Apache-2.0
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/docs/fractavolta-dns.md
 document_role: "operational"
@@ -85,6 +85,22 @@ www.fractavolta.com.      10800 IN   CNAME fracta.fractavolta.com.
 ```
 
 This is the **public IPv4** of the fracta node. Caddy terminates TLS for HTTPS vhosts that CNAME here.
+
+## `www` TLS coverage — 2026-08-31
+
+**Observed defect:** `www.fractavolta.com` already resolved to `fracta`, but
+the live Caddyfile had no corresponding site name. HTTPS therefore failed
+certificate validation before the planned DNS-provider migration.
+
+**Decision and applied correction:** add `www.fractavolta.com` as an alias of
+the existing `fracta.fractavolta.com` Caddy vhost. This preserves the DNS
+intent and the existing routing; it does not redirect `www` to the GitHub Pages
+apex and does not alter public DNS or mail routing.
+
+**Evidence:** Caddy configuration validation and reload succeeded. External
+HTTPS returned `200`; the certificate CN and SAN both cover
+`www.fractavolta.com`. A pre-change backup is retained on `fracta` as
+`/etc/caddy/Caddyfile.bak.www-fractavolta.fixbugsfirst`.
 
 ---
 
