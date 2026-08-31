@@ -47,6 +47,7 @@ Usage:
   operium node snapshot [options]  Full ONA projection (GET /node/snapshot)
   operium node drift [options]     Node-local catalogue drift (GET /node/drift)
   operium node diagnose [options]  Merge operium up + ONA status/drift (#51)
+  operium node recover-ona --host <node>  Bounded SSH recovery of a registered ONA
   operium rates update [options]   Fetch live model rate cards from providers
   operium calendar list [options]  FractaCalendar projection via ONA HTTP
   operium calendar schedule        POST a cop/node.wake.v1 packet (--file)
@@ -75,6 +76,7 @@ Node options:
   --kind <name>           Logs: filter by event kind
   --limit <n>             Logs: max rows (default 20)
   --since <iso>           Logs: logged_at >= since
+  --recover-ona           Diagnose only: attempt registered ONA recovery for --host
 
 Invoke tool options:
   --capability <cap>      blackboard capability (e.g. dev.tools.shell)
@@ -199,6 +201,7 @@ function parseArgs(argv) {
     file: null,
     local: false,
     manifestPath: null,
+    recoverOna: false,
   };
 
   const args = [...argv];
@@ -429,6 +432,9 @@ function parseArgs(argv) {
       case "--manifest":
         options.manifestPath = args.shift();
         break;
+      case "--recover-ona":
+        options.recoverOna = true;
+        break;
       case "-h":
       case "--help":
         options.help = true;
@@ -552,6 +558,8 @@ async function main() {
       logKind: options.logKind,
       logLimit: options.logLimit,
       logSince: options.logSince,
+      invokeHost: options.invokeHost,
+      recoverOna: options.recoverOna,
       timeoutMs: options.timeoutMs,
       probe: options.probe,
       registryPath: options.registryPath,
@@ -747,7 +755,7 @@ function isDnsCommand(options) {
 }
 
 function isNodeCommand(options) {
-  return options.command === "node" && ["status", "peers", "logs", "snapshot", "drift", "diagnose", "calendar"].includes(options.subcommand);
+  return options.command === "node" && ["status", "peers", "logs", "snapshot", "drift", "diagnose", "calendar", "recover-ona"].includes(options.subcommand);
 }
 
 async function runWipCommand(options) {
