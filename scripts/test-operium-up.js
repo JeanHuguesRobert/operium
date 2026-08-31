@@ -50,6 +50,21 @@ const drift = computeDrift({
 });
 assert.ok(drift.some(item => item.kind === "catalogue_vs_live"));
 
+const identityDrift = computeDrift({
+  catalogue: { nodes: [
+    { hostname: "i7-thinkpad-jhr" },
+    { hostname: "poco-jhr", device: "POCO X6 5G", intermittent: true },
+  ], planned_nodes: [] },
+  mesh: {
+    available: true,
+    hostname: "i7-thinkpad-jhr",
+    peers: [{ hostname: "POCO X6 5G", online: false }],
+  },
+  runtime: mapped,
+  local: {},
+});
+assert.equal(identityDrift.some(item => item.kind === "catalogue_vs_live"), false);
+
 const result = await buildOperiumUp({ probe: false });
 assert.equal(result.schema, "operium.up.v1");
 assert.equal(result.observer.probe_mode, "catalogue_only");

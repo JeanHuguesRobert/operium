@@ -197,15 +197,12 @@ Writing or refreshing this snapshot stays outside La Nasa. It follows the
 read-only export/normalize/diff workflow, preserving the distinction between
 observed provider state and intended evolution.
 
-## Next implementation increment
+## Tooling scope
 
-Implement read-only provider adapters first:
+No provider-API read adapters are planned. They would add convenience for
+checking provider-internal state, but no operational capability needed for a
+safe DNS change.
 
-```text
-operium dns export --provider gandi --domain <domain>
-operium dns export --provider cloudflare --domain <domain>
-operium dns diff --domain <domain>
-```
-
-Write/apply commands require a separate, explicit authorization and must
-retain a dated export before making a change.
+Public resolver and HTTPS checks, together with dated operator evidence for
+private mail and pending-zone state, are sufficient for this capability.
+Write/apply commands remain separate, explicitly human-authorized actions.
