@@ -10,7 +10,7 @@ related:
   - "fracta-calendar.md"
   - "../schemas/cop/node.envelope.v1.json"
   - "../schemas/cop/node.wake.v1.json"
-github_issue: 29
+github_issue: 31
 supersedes_cli_verb: "operium calendar watch dns"
 classification_source: "cogentia.js"
 classification_version: "1"
@@ -89,6 +89,21 @@ FractaCalendar projector
   synthesizes obligations from wake Events + scheduled_jobs
 ```
 
+The durable log is SQLite `cop_events` (not TTL-swept). `calendar_obligations`
+is a COP Task-style **projection** rebuildable by replaying wake / evidence /
+close / escalate Events. Warm `event_log` (`ona.calendar.ran` /
+`ona.calendar.closed`) remains an operational breadcrumb with a 14-day TTL; it
+is not the source of truth.
+
+Catalogue cadences (`scheduled_jobs`, including ONA heartbeats) stay Events of
+kind `cop/attractor.advertised`. They are **projected** into FractaCalendar.
+They are not wrapped in `cop/node.wake.v1` packets.
+
+A wake may carry `packet_kind: continuation` by copy. Dispatch uses the same
+handler table as `observation.*`. Continuations stay `authorized: false` until
+a real COP/HITL path exists. There is no `operium calendar watch continuation`
+verb: new observations are a packet file plus a handler.
+
 Invariants (unchanged from issue #29):
 
 - `capable != authorized` — a wake does not grant a mandate.
@@ -124,7 +139,7 @@ ACP is **not** a calendar transport. It is a coding-agent session protocol
 
 | Capability | CLI | ONA HTTP | COP packet | Fracta `/ops/node` proxy | MCP | Web UX |
 | --- | --- | --- | --- | --- | --- | --- |
-| `calendar.list` | `operium calendar list` / `operium node calendar` (same HTTP) | `GET /node/calendar` | `cop/node.query.v1` query=`calendar` | `GET /ops/node/:id/calendar` (Cogentia #125, ops-read token) | `operium_calendar_list` (private-read / JHN; not anonymous) | La Nasa node pack (`/nasa/node`); public `/ops/console` stays empty |
+| `calendar.list` | `operium calendar list` / `operium node calendar` (same HTTP) | `GET /node/calendar` | `cop/node.query.v1` query=`calendar` or `cop_events` | `GET /ops/node/:id/calendar` (Cogentia #125, ops-read token) | `operium_calendar_list` (private-read / JHN; not anonymous) | La Nasa node pack (`/nasa/node`); public `/ops/console` stays empty |
 | `calendar.schedule` | `operium calendar schedule --file` | `POST /node/calendar/schedule` | `cop/node.wake.v1` on `POST /node/cop` | no | none | no |
 | `calendar.tick` | `operium calendar tick` | `POST /node/calendar/tick` | ONA job tick also runs due wakes | no | none | no |
 | `calendar.ics` | `operium calendar ics` | none (derive from GET) | none | no | none | no |

@@ -10,7 +10,7 @@ related:
   - "operium-cli.md"
   - "operium-node-agent.md"
   - "fix-bugs-first.md"
-github_issue: 29
+github_issue: 31
 classification_source: "cogentia.js"
 classification_version: "1"
 classification_rule: "explicit-metadata"
@@ -56,8 +56,11 @@ packet-shaped (`cop/node.wake.v1` → `cop/cognitive-packet`).
 `operium calendar watch dns` is sugar that builds that packet.
 
 Catalogue cadences stay in `scheduled_jobs` and are executed by the ONA job
-runner. Scheduled wakes live in `calendar_obligations` as stored wake packets.
-The projection reads both and duplicates neither.
+runner (heartbeats remain `cop/attractor.advertised`). Wake packets are COP
+Events in `cop_events`. `calendar_obligations` is the rebuildable projection
+of those Events (COP Task semantics). The calendar reads both sources and
+duplicates neither. Ticks do not mutate; wake, evidence, close, and escalate
+are Events.
 
 ## Obligation model
 

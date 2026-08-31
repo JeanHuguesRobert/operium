@@ -335,6 +335,20 @@ Retention: max **1000 rows**.
 
 Retention: max **2000 rows**.
 
+#### `cop_events` (temperature: cold — source of truth)
+
+Durable COP Event log for calendar wakes. **Not TTL-swept.**
+`calendar_obligations` is a projection of this table.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `seq` | INTEGER PK | Append order (replay) |
+| `id` | TEXT UNIQUE | Envelope id |
+| `kind` | TEXT | `cop/node.wake.v1`, `cop/node.evidence.v1`, `cop/node.close.v1`, `cop/node.escalate.v1` |
+| `obligation_id` | TEXT | Calendar obligation id |
+| `envelope_json` | TEXT | Full COP envelope |
+| `created_at` | TEXT ISO | Event time (replay order) |
+
 ### Blackboard advertisement
 
 ONA heartbeat (`operium/scripts/ona-heartbeat.js`, scheduled like `attractor-heartbeat.js`) **must probe local ONA before upsert** — same pattern as `agent-gateway-heartbeat.js`:
@@ -425,7 +439,7 @@ Example `cop/node.status.v1` response payload:
 | Packet type | PR 5 handler | Phase 3 / deferred | Notes |
 |-------------|--------------|---------------------|-------|
 | `cop/node.status.v1` | **yes** | — | Request/response; updates `peer_snapshots` on inbound |
-| `cop/node.query.v1` | **yes** | — | Structured query over `peer_nodes`, `probe_history`, `event_log`, `calendar` |
+| `cop/node.query.v1` | **yes** | — | Structured query over `peer_nodes`, `probe_history`, `event_log`, `cop_events`, `calendar` |
 | `cop/node.wake.v1` | **yes** | — | Schedule a wake; does not authorize engaging acts |
 | `cop/node.event.v1` | **yes** | — | Fire-and-forget; append to `event_log` |
 | `cop/node.snapshot.v1` | stub `501` | **Phase 3** (PR 7) | Full projection export; HTTP `GET /node/snapshot` + COP handler in PR 7 |

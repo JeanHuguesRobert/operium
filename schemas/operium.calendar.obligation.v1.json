@@ -71,6 +71,11 @@
     "last_ok": { "type": ["boolean", "null"] },
     "last_evidence": { "type": ["object", "null"] },
     "source_of_truth": { "type": "string", "minLength": 1 },
+    "calendar_origin": {
+      "type": "string",
+      "enum": ["catalogue", "wake"],
+      "description": "catalogue = scheduled_jobs / attractor heartbeats (projected only). wake = cop/node.wake.v1 Event log."
+    },
     "authorized": {
       "type": "boolean",
       "description": "Always false on a projection. capable != authorized."
