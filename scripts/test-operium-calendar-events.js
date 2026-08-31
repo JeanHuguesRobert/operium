@@ -6,10 +6,10 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { continuationWakePacket, dnsObservationWakePacket, obligationFromWakePacket, parseWakePacket } from "../lib/cop-wake.js";
-import { listCalendar, scheduleCalendar, tickCalendar } from "../lib/calendar-capabilities.js";
+import { listCalendar, resolveCalendar, scheduleCalendar, tickCalendar } from "../lib/calendar-capabilities.js";
 import { openNodeMemoryDb } from "../lib/node-agent/db.js";
 import { LATEST_SCHEMA_VERSION } from "../lib/node-agent/migrate.js";
-import { upsertCalendarObligation } from "../lib/node-agent/calendar-store.js";
+import { getCalendarObligation, upsertCalendarObligation } from "../lib/node-agent/calendar-store.js";
 import { backfillWakeEventsFromObligations, comparableWakeItems, replayCalendarObligations } from "../lib/node-agent/calendar-replay.js";
 import { COP_CALENDAR_KINDS, listCopEvents } from "../lib/node-agent/cop-events.js";
 import { handleCopHttpRequest } from "../lib/node-agent/cop-handler.js";
@@ -121,6 +121,117 @@ assert.equal(query.status, 200);
 assert.equal(query.body.response_envelope.payload.query, "cop_events");
 assert.ok(query.body.response_envelope.payload.events.length >= 2);
 
+assert.throws(
+  () => scheduleCalendar(deps, {
+    id: "cop:wake:missing-ref",
+    packet_type: "cop/node.wake.v1",
+    payload: {
+      schema: "cop/node.wake.v1",
+      authorized: false,
+      packet_ref: "continuation:does-not-exist",
+    },
+  }),
+  (error) => error.message === "packet_ref_unreadable",
+);
+
+const packetRefFile = JSON.parse(fs.readFileSync(path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../examples/cop-node-wake.packet-ref.json",
+), "utf8"));
+packetRefFile.payload.due_at = now;
+const byRef = scheduleCalendar(deps, packetRefFile);
+assert.equal(byRef.authorized, false);
+assert.equal(byRef.obligation.kind, "continuation.judgment");
+assert.equal(byRef.obligation.id, "continuation:example-judgment:by-ref");
+assert.equal(byRef.obligation.config.wake.payload.packet_ref, "continuation:example-judgment");
+
+assert.throws(
+  () => resolveCalendar(deps, {
+    id: "cop:resolve-dns-1",
+    packet_type: COP_NODE_PACKETS.RESOLVE,
+    payload: { obligation_id: scheduled.obligation.id, decision: "resolved" },
+  }),
+  (error) => error.message === "resolve_requires_continuation",
+);
+
+const held = resolveCalendar(deps, {
+  id: "cop:resolve-hold-1",
+  packet_type: COP_NODE_PACKETS.RESOLVE,
+  sender: { node_id: "resource://i7-thinkpad-jhr" },
+  payload: {
+    schema: "cop/node.resolve.v1",
+    obligation_id: "continuation:example-judgment",
+    decision: "resolved",
+    authorized: false,
+    step_result: {
+      type: "step_result",
+      continuation_id: "continuation:example-judgment",
+      status: "needs_acceptance",
+      reason: "No mandate to close",
+    },
+  },
+});
+assert.equal(held.authorized, false);
+assert.equal(held.closed, false);
+assert.equal(held.obligation.status, "active");
+assert.equal(held.obligation.last_evidence.pending, true);
+assert.equal(held.obligation.last_evidence.hitl, true);
+assert.equal(held.obligation.last_evidence.decision, "resolved");
+
+const peerResolve = await handleCopHttpRequest({
+  id: "cop:resolve-peer-denied",
+  packet_type: COP_NODE_PACKETS.RESOLVE,
+  payload: {
+    obligation_id: "continuation:example-judgment",
+    decision: "cancelled",
+  },
+}, {
+  config: deps.config,
+  db,
+  nodeId: "resource://fracta",
+  adminAuth: false,
+});
+assert.equal(peerResolve.status, 401);
+assert.equal(peerResolve.body.error, "unauthorized_admin");
+assert.equal(getCalendarObligation(db, "continuation:example-judgment").status, "active");
+
+const resolveFile = JSON.parse(fs.readFileSync(path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../examples/cop-node-resolve.continuation.json",
+), "utf8"));
+const copResolve = await handleCopHttpRequest(resolveFile, {
+  config: deps.config,
+  db,
+  nodeId: "resource://fracta",
+  adminAuth: true,
+});
+assert.equal(copResolve.status, 200);
+assert.equal(copResolve.body.handler, "resolve");
+assert.equal(copResolve.body.response_envelope.payload.authorized, false);
+assert.equal(copResolve.body.response_envelope.payload.closed, true);
+assert.equal(copResolve.body.response_envelope.payload.obligation.status, "closed");
+
+const afterResolve = listCalendar(deps);
+const resolvedItem = afterResolve.items.find(item => item.id === "continuation:example-judgment");
+assert.equal(resolvedItem.status, "closed");
+assert.equal(resolvedItem.authorized, false);
+assert.equal(resolvedItem.last_evidence.hitl, true);
+assert.equal(resolvedItem.last_evidence.pending, false);
+
+const resolvedEvents = listCopEvents(db, { obligation_id: "continuation:example-judgment" });
+assert.ok(resolvedEvents.some(event => event.kind === COP_CALENDAR_KINDS.RESOLVE));
+assert.ok(resolvedEvents.some(event => event.kind === COP_CALENDAR_KINDS.CLOSE));
+
+const liveAfterResolve = comparableWakeItems(listCalendar(deps));
+replayCalendarObligations(db, { node_id: "resource://fracta", hostname: "fracta" });
+assert.deepEqual(comparableWakeItems(listCalendar(deps)), liveAfterResolve);
+
+const afterReplayTick = await tickCalendar(deps, { now });
+assert.equal(
+  afterReplayTick.results.some(item => item.id === "continuation:example-judgment"),
+  false,
+);
+
 const beforeSweep = listCopEvents(db).length;
 assert.ok(beforeSweep >= 2);
 runTtlSweeper(db, { now: new Date("2030-01-01T00:00:00.000Z") });
@@ -169,6 +280,14 @@ console.log(JSON.stringify({
     "catalogue_jobs_are_not_wake_packets",
     "continuation_wake_handler_unauthorized",
     "cop_events_query",
+    "packet_ref_unreadable_fails_closed",
+    "packet_ref_wake_from_registered_packet",
+    "resolve_rejects_non_continuation",
+    "resolve_needs_acceptance_overrides_decision",
+    "resolve_requires_admin_auth",
+    "cop_resolve_hitl_closes_unauthorized",
+    "resolve_replay_matches_projection",
+    "closed_continuation_not_due",
     "cop_events_not_ttl_swept",
     "backfill_pre_event_log_obligations",
   ],

@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cop/node.resolve.v1",
+  "title": "COP node resolve Event — HITL judgment for a continuation wake",
+  "description": "Human or mandated handler judgment. Not a tick. Does not grant a mandate (authorized is always false). Do not add a calendar-specific judgment CLI; post this packet to /node/cop.",
+  "type": "object",
+  "required": ["id", "packet_type", "payload"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "packet_type": { "const": "cop/node.resolve.v1" },
+    "artifact_type": { "const": "cop/cognitive-packet" },
+    "sender": { "type": "object" },
+    "recipient": { "type": "object" },
+    "trace": { "type": "object" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "payload": {
+      "type": "object",
+      "required": ["schema", "obligation_id"],
+      "properties": {
+        "schema": { "const": "cop/node.resolve.v1" },
+        "obligation_id": { "type": "string", "minLength": 1 },
+        "continuation_id": { "type": "string" },
+        "decision": {
+          "type": "string",
+          "description": "resolved | cancelled | pending | hibernating"
+        },
+        "step_result": {
+          "type": ["object", "null"],
+          "description": "Optional cogentia.continuation step_result. needs_acceptance does not close."
+        },
+        "reason": { "type": ["string", "null"] },
+        "actor": { "type": ["string", "null"] },
+        "authorized": { "const": false }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

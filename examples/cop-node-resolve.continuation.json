@@ -1,0 +1,24 @@
+{
+  "id": "cop:resolve:continuation:example-judgment",
+  "packet_type": "cop/node.resolve.v1",
+  "artifact_type": "cop/cognitive-packet",
+  "payload": {
+    "schema": "cop/node.resolve.v1",
+    "obligation_id": "continuation:example-judgment",
+    "continuation_id": "continuation:example-judgment",
+    "decision": "resolved",
+    "authorized": false,
+    "step_result": {
+      "type": "step_result",
+      "continuation_id": "continuation:example-judgment",
+      "status": "success",
+      "result": {
+        "decision": "Example HITL resolve. Does not grant a mandate.",
+        "reason": "Operator judgment recorded as a COP Event."
+      },
+      "reason": "HITL path for calendar continuation wakes",
+      "mandate_basis": "operator_hitl"
+    },
+    "reason": "HITL path for calendar continuation wakes"
+  }
+}
