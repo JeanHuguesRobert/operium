@@ -394,7 +394,8 @@ All envelopes follow COP envelope shape (artifact type, packet type, sender, rec
 | Packet type | Direction | Purpose |
 |-------------|-----------|---------|
 | `cop/node.status.v1` | request/response | Lightweight health + schema version |
-| `cop/node.query.v1` | request/response | Structured query (peers, probes, drift subset) |
+| `cop/node.query.v1` | request/response | Structured query (peers, probes, logs, calendar) |
+| `cop/node.wake.v1` | request/response | Deliver a calendar wake packet (`authorized: false`) |
 | `cop/node.snapshot.v1` | response | Full node projection export |
 | `cop/node.probe.v1` | request | Ask peer to run probe kind, return result |
 | `cop/node.consolidate.v1` | request | Trigger TTL sweep + snapshot compaction |
@@ -424,7 +425,8 @@ Example `cop/node.status.v1` response payload:
 | Packet type | PR 5 handler | Phase 3 / deferred | Notes |
 |-------------|--------------|---------------------|-------|
 | `cop/node.status.v1` | **yes** | — | Request/response; updates `peer_snapshots` on inbound |
-| `cop/node.query.v1` | **yes** | — | Structured query over `peer_nodes`, `probe_history`, `event_log` subsets |
+| `cop/node.query.v1` | **yes** | — | Structured query over `peer_nodes`, `probe_history`, `event_log`, `calendar` |
+| `cop/node.wake.v1` | **yes** | — | Schedule a wake; does not authorize engaging acts |
 | `cop/node.event.v1` | **yes** | — | Fire-and-forget; append to `event_log` |
 | `cop/node.snapshot.v1` | stub `501` | **Phase 3** (PR 7) | Full projection export; HTTP `GET /node/snapshot` + COP handler in PR 7 |
 | `cop/node.probe.v1` | stub `501` | **Phase 3** (post-PR 7) | Remote probe via COP; HTTP `POST /node/probe` (local self-probe trigger) ships in PR 6 |

@@ -56,6 +56,44 @@ const queryResult = await handleCopHttpRequest({
 assert.equal(queryResult.status, 200);
 assert.equal(queryResult.body.response_envelope.payload.schema, "cop/node.query.result.v1");
 
+const wakeResult = await handleCopHttpRequest({
+  id: "cop:wake-1",
+  packet_type: COP_NODE_PACKETS.WAKE,
+  artifact_type: "cop/cognitive-packet",
+  sender: { node_id: "resource://i7-thinkpad-jhr" },
+  payload: {
+    schema: "cop/node.wake.v1",
+    due_at: new Date().toISOString(),
+    stop_condition: { type: "nameservers_match" },
+    authorized: false,
+    packet: {
+      envelope: { packet_kind: "observation", transmission_mode: "copy", status: "active" },
+      payload: {
+        kind: "observation.dns.delegation",
+        domain: "acorsica.org",
+        expected_ns: ["ada.ns.cloudflare.com"],
+      },
+    },
+  },
+}, deps);
+assert.equal(wakeResult.status, 200);
+assert.equal(wakeResult.body.handler, "wake");
+assert.equal(wakeResult.body.response_envelope.payload.authorized, false);
+assert.equal(wakeResult.body.response_envelope.payload.obligation.kind, "observation.dns.delegation");
+
+const calendarQuery = await handleCopHttpRequest({
+  id: "cop:query-calendar-1",
+  packet_type: COP_NODE_PACKETS.QUERY,
+  sender: { node_id: "resource://i7-thinkpad-jhr" },
+  payload: { query: "calendar" },
+}, deps);
+assert.equal(calendarQuery.status, 200);
+assert.equal(calendarQuery.body.response_envelope.payload.query, "calendar");
+assert.equal(calendarQuery.body.response_envelope.payload.calendar.schema, "operium.calendar.projection.v1");
+assert.ok(calendarQuery.body.response_envelope.payload.calendar.items.some(
+  item => item.kind === "observation.dns.delegation",
+));
+
 const eventResult = await handleCopHttpRequest({
   id: "cop:event-1",
   packet_type: COP_NODE_PACKETS.EVENT,
@@ -168,6 +206,7 @@ console.log(JSON.stringify({
   tests: [
     "cop_status_handler",
     "cop_query_handler",
+    "cop_wake_and_calendar_query",
     "cop_event_handler",
     "cop_snapshot_handler",
     "cop_unknown_400",
