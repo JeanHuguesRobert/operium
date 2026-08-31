@@ -88,8 +88,9 @@ the fracta stash `fracta-wip-pre-calendar-main`.
 
 ## Resume prompt
 
+The prompt is a **by-reference handle**. Constraints and start-here live in
+issue #40 (this file is linked from there). Do not paste a second brief.
+
 ```text
-Resume Operium calendar COP remaining depth after #31.
-Read operium/research/handoff-calendar-cop-2026-08-31.md and GitHub issue #40.
-Do not redo Event log or surfaces. Do not pop fracta stash fracta-wip-pre-calendar-main.
+Resume Operium GitHub issue #40
 ```
