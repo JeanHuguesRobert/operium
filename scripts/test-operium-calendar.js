@@ -224,6 +224,36 @@ assert.equal(created.body.authorized, false);
 assert.equal(created.body.obligation.kind, "observation.dns.delegation");
 assert.equal(created.body.obligation.config.wake.packet_type, "cop/node.wake.v1");
 
+const viaNodeHttp = await runNodeCliCommand({
+  subcommand: "calendar",
+  url: baseUrl,
+  token: "cal-read",
+});
+const viaCliHttp = await runCalendarCommand({
+  subcommand: "list",
+  url: baseUrl,
+  token: "cal-read",
+});
+assert.equal(viaCliHttp.body.schema, "operium.calendar.projection.v1");
+assert.deepEqual(
+  viaCliHttp.body.items.map(item => item.id).sort(),
+  viaNodeHttp.body.items.map(item => item.id).sort(),
+);
+
+const exampleForHttp = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../examples/cop-node-wake.dns-observation.json",
+);
+const viaScheduleHttp = await runCalendarCommand({
+  subcommand: "schedule",
+  file: exampleForHttp,
+  url: baseUrl,
+  token: "cal-admin",
+});
+assert.equal(viaScheduleHttp.body.schema, "operium.calendar.schedule.v1");
+assert.equal(viaScheduleHttp.body.packet_type, "cop/node.wake.v1");
+assert.equal(viaScheduleHttp.body.authorized, false);
+
 db.close();
 await new Promise(resolve => server.close(resolve));
 
@@ -308,6 +338,7 @@ console.log(JSON.stringify({
     "ics_not_executor",
     "doh_check",
     "http_calendar",
+    "cli_http_list_and_schedule",
     "cli_watch_list_ics",
     "cop_wake_packet_schedule",
   ],

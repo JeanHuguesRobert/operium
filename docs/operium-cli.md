@@ -134,6 +134,10 @@ operium node calendar [--json|--human]   # GET /node/calendar on a running ONA
 (by copy). `watch dns` is sugar for one observation payload. Neither applies
 registrar or Cloudflare writes.
 
+By default these commands talk to the local ONA over HTTP (`ONA_URL`, same as
+`operium node`). `--local` uses the node SQLite in-process. Both call
+`lib/calendar-capabilities.js`.
+
 ---
 
 ## Data flow

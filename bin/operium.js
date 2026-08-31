@@ -47,11 +47,11 @@ Usage:
   operium node drift [options]     Node-local catalogue drift (GET /node/drift)
   operium node diagnose [options]  Merge operium up + ONA status/drift (#51)
   operium rates update [options]   Fetch live model rate cards from providers
-  operium calendar list [options]  FractaCalendar projection (jobs + obligations)
-  operium calendar schedule        Schedule a cop/node.wake.v1 packet (--file)
-  operium calendar watch dns       Sugar: build a DNS observation wake packet
-  operium calendar tick            Local tick: deliver due wakes (not a domain verb)
-  operium calendar ics             Export projection ICS (not an executor)
+  operium calendar list [options]  FractaCalendar projection via ONA HTTP
+  operium calendar schedule        POST a cop/node.wake.v1 packet (--file)
+  operium calendar watch dns       Sugar: POST a DNS observation wake packet
+  operium calendar tick            POST /node/calendar/tick (deliver due wakes)
+  operium calendar ics             ICS view of the same HTTP projection
 
 Options:
   --json                  Machine-readable operium.up.v1 output (default)
@@ -91,6 +91,7 @@ Invoke tool options:
 
 Calendar options (issue #29; protocol: docs/calendar-cop-wake-protocol.md):
   --file <path>           Wake packet JSON for calendar schedule
+  --local                 Use local SQLite instead of ONA HTTP (tests / no daemon)
   --domain <name>         DNS watch sugar only
   --expected-ns <list>    Comma-separated expected nameservers (sugar)
   --deadline <iso>        Escalation / stop deadline
@@ -191,6 +192,7 @@ function parseArgs(argv) {
     format: null,
     watchKind: null,
     file: null,
+    local: false,
   };
 
   const args = [...argv];
@@ -408,6 +410,9 @@ function parseArgs(argv) {
       case "--file":
         options.file = args.shift();
         break;
+      case "--local":
+        options.local = true;
+        break;
       case "-h":
       case "--help":
         options.help = true;
@@ -472,6 +477,7 @@ async function main() {
         url: options.onaUrl,
         token: options.onaToken || options.token,
         timeoutMs: options.timeoutMs,
+        local: options.local,
       });
       if (result.ics) {
         process.stdout.write(result.ics);
