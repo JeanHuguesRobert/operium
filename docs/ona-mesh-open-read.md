@@ -28,6 +28,17 @@ If unset, **defaults to the same value as `ONA_HEALTH_PUBLIC`** (so desk/fleet
 nodes that already publish public health also open read GETs). Set
 `ONA_MESH_OPEN_READ=0` to force token-only read.
 
+Fracta aggregator `GET /ops/node/:id/{status,drift,calendar,soma/object,soma/vocabulary}`
+follows the same split:
+
+| Client | Auth |
+| --- | --- |
+| Public HTTPS (`cogentia.fractavolta.com`) | ops-read bearer required |
+| Tailscale mesh (peer `100.64/10` or Tailscale ULA, or loopback + trusted `X-Forwarded-For` from that range) | GET allowed without bearer |
+| Browsing the **public** URL while “on Tailscale” | still the public visitor path |
+
+`schedule` / `tick` stay token-only everywhere.
+
 When open, these succeed **without** `Authorization: Bearer …`:
 
 - `GET /node/status`, `/node/peers`, `/node/snapshot`, `/node/drift`, `/node/logs`

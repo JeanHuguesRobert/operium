@@ -148,6 +148,17 @@ same capability
 JSON-RPC appears as **MCP** (`POST /mcp` JSON-RPC) on Cogentia, not as a
 second Operium RPC server. Do not fork a calendar catalog under Operium.
 
+### Visitor vs mesh
+
+Anonymous **public** visitors (HTTPS on `*.fractavolta.com`) get the empty
+console and 401 on `/ops/node/…` without an ops-read token.
+
+Hosts **inside the Tailscale trust perimeter** hitting the node or the
+aggregator on a tailnet address get the same GET read surfaces as
+`ONA_MESH_OPEN_READ` (status, SOMA, calendar). They do not get `schedule` or
+`tick`. Browsing the public hostname while connected to Tailscale is still
+the public visitor path.
+
 ### CLI
 
 Default transport is **ONA HTTP**, same as `operium node status`. `--local`
