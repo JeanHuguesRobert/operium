@@ -125,6 +125,8 @@ try {
   assert.equal(pack.live, true);
   assert.equal(pack.served_by, "ona-nasa-portal");
   assert.ok(pack.status);
+  assert.equal(pack.calendar?.schema, "operium.calendar.projection.v1");
+  assert.equal(pack.calendar?.not_an_executor, true);
 
   const deniedAction = await fetch(`${base}/nasa/action?host=${encodeURIComponent(observerHostname)}&name=observation.refresh`);
   assert.equal(deniedAction.status, 404);
