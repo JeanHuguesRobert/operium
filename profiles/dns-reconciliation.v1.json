@@ -1,0 +1,51 @@
+{
+  "schema": "operium.dns.reconciliation.v1",
+  "observed_at": "2026-08-31T16:19:36Z",
+  "source": {
+    "kind": "operator-handoff",
+    "reference": "Operium issue #37, Handoff de pause, 2026-08-31"
+  },
+  "domains": [
+    {
+      "domain": "acorsica.org",
+      "registrar": "Gandi",
+      "expected_authoritative_dns": "Cloudflare",
+      "expected_nameserver_suffix": "cloudflare.com",
+      "migration_state": "active",
+      "dnssec_state": "not_observed",
+      "mail": { "mode": "gandi-forwarding", "forwarding_address_count": 8 },
+      "https_hosts": ["acorsica.org"]
+    },
+    {
+      "domain": "baronsmariani.org",
+      "registrar": "Gandi",
+      "expected_authoritative_dns": "Cloudflare",
+      "expected_nameserver_suffix": "cloudflare.com",
+      "migration_state": "active",
+      "dnssec_state": "not_observed",
+      "mail": { "mode": "gandi-forwarding", "forwarding_address_count": 16 },
+      "https_hosts": ["baronsmariani.org"]
+    },
+    {
+      "domain": "lepp.fr",
+      "registrar": "Gandi",
+      "expected_authoritative_dns": "Cloudflare",
+      "expected_nameserver_suffix": "cloudflare.com",
+      "migration_state": "active",
+      "dnssec_state": "not_observed",
+      "mail": { "mode": "gandi-forwarding", "forwarding_address_count": 12 },
+      "https_hosts": ["lepp.fr"]
+    },
+    {
+      "domain": "fractavolta.com",
+      "registrar": "Gandi",
+      "expected_authoritative_dns": "Gandi",
+      "expected_nameserver_suffix": "gandi.net",
+      "migration_state": "pending",
+      "dnssec_state": "not_observed",
+      "mail": { "mode": "gandi-forwarding", "forwarding_address_count": 10 },
+      "https_hosts": ["fractavolta.com", "www.fractavolta.com"],
+      "notes": "Cloudflare zone and Email Routing are prepared but are not public until an explicitly authorized nameserver change."
+    }
+  ]
+}

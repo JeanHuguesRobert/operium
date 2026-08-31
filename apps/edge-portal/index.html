@@ -306,12 +306,13 @@
     fleetEl.innerHTML = nodes.map(function (n) {
       var cls = n.online ? "ok" : "bad";
       var hs = n.health_score != null ? "h" + n.health_score : "";
+      var mesh = n.mesh_reachable === true ? "VPN" : n.mesh_reachable === false ? "VPN down" : "VPN ?";
       var sel = selectedHost === n.host ? " selected" : "";
       return (
         '<div class="node-row' + sel + '" role="button" tabindex="0" data-host="' + n.host + '">' +
         '<span class="dot ' + cls + '"></span>' +
         '<span class="name">' + (n.label || n.host) + "</span>" +
-        '<span class="meta">' + (n.online ? "online " + hs : "offline") + "</span>" +
+        '<span class="meta">' + mesh + " · " + (n.online ? "ONA " + hs : "ONA down") + "</span>" +
         "</div>"
       );
     }).join("");

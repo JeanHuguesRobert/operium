@@ -197,12 +197,26 @@ Writing or refreshing this snapshot stays outside La Nasa. It follows the
 read-only export/normalize/diff workflow, preserving the distinction between
 observed provider state and intended evolution.
 
-## Tooling scope
+## Read-only public reconciliation
 
-No provider-API read adapters are planned. They would add convenience for
-checking provider-internal state, but no operational capability needed for a
-safe DNS change.
+The first implementation is deliberately credential-free and cannot mutate a
+provider. `profiles/dns-reconciliation.v1.json` is the public, dated control
+record for the four initial domains. It retains no mailbox destinations,
+provider identifiers, tokens, or record contents.
+
+```bash
+operium dns reconcile --manifest profiles/dns-reconciliation.v1.json
+```
+
+It queries the public nameserver delegation through Cloudflare and Google
+resolvers, checks the expected provider suffix, and makes HTTPS `HEAD` checks
+for the declared public surfaces. Its structured result separates observed
+answers, detected drift, and resolver uncertainty. It does not prove private
+provider configuration, forwarding-rule contents, Cloudflare-zone readiness,
+or mail delivery; those remain dated operator evidence.
 
 Public resolver and HTTPS checks, together with dated operator evidence for
 private mail and pending-zone state, are sufficient for this capability.
+Provider-API read adapters are intentionally out of scope: they add convenience,
+not an operational capability needed for a safe DNS change.
 Write/apply commands remain separate, explicitly human-authorized actions.

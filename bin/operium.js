@@ -29,6 +29,7 @@ import {
 import { runRatesUpdate } from "../lib/rates.js";
 import { runCalendarCommand } from "../lib/calendar-cli.js";
 import { formatCalendarHuman } from "../lib/format-calendar-human.js";
+import { reconcileDns } from "../lib/dns-reconcile.js";
 
 const HELP = `operium — versioned operational environment registry CLI
 
@@ -52,6 +53,7 @@ Usage:
   operium calendar watch dns       Sugar: POST a DNS observation wake packet
   operium calendar tick            POST /node/calendar/tick (deliver due wakes)
   operium calendar ics             ICS view of the same HTTP projection
+  operium dns reconcile [options]  Read-only public DNS and HTTPS reconciliation (#37)
 
 Options:
   --json                  Machine-readable operium.up.v1 output (default)
@@ -100,6 +102,9 @@ Calendar options (issue #29; protocol: docs/calendar-cop-wake-protocol.md):
   --service <slug>        Filter projection by service
   --project <slug>        Filter projection by project
   --format ics            Alias of calendar ics
+
+DNS reconciliation options (issue #37; never writes provider state):
+  --manifest <path>       Public domain control manifest (required)
 
 Backlog options (Fix Bugs First — docs/fix-bugs-first.md):
   --kind <bug|feature|incident|debt>
@@ -193,6 +198,7 @@ function parseArgs(argv) {
     watchKind: null,
     file: null,
     local: false,
+    manifestPath: null,
   };
 
   const args = [...argv];
@@ -202,6 +208,10 @@ function parseArgs(argv) {
   }
 
   options.command = args.shift();
+  if (options.command === "-h" || options.command === "--help") {
+    options.help = true;
+    return options;
+  }
   if (options.command === "invoke" && args[0] === "tool") {
     options.subcommand = args.shift();
   } else if (
@@ -230,6 +240,9 @@ function parseArgs(argv) {
     if (options.subcommand === "watch" && args[0] && !args[0].startsWith("-")) {
       options.watchKind = args.shift();
     }
+  }
+  else if (options.command === "dns") {
+    options.subcommand = args.shift() || "reconcile";
   }
 
   while (args.length) {
@@ -413,6 +426,9 @@ function parseArgs(argv) {
       case "--local":
         options.local = true;
         break;
+      case "--manifest":
+        options.manifestPath = args.shift();
+        break;
       case "-h":
       case "--help":
         options.help = true;
@@ -488,6 +504,21 @@ async function main() {
       } else {
         console.log(JSON.stringify(result.body, null, 2));
       }
+      process.exit(result.ok ? 0 : 1);
+    } catch (error) {
+      console.error(JSON.stringify({ ok: false, error: error.message }, null, 2));
+      process.exit(2);
+    }
+  }
+
+  if (isDnsCommand(options)) {
+    if (options.subcommand !== "reconcile") {
+      console.error(`unknown_dns_subcommand: ${options.subcommand}`);
+      process.exit(2);
+    }
+    try {
+      const result = await reconcileDns({ manifestPath: options.manifestPath, timeoutMs: options.timeoutMs });
+      console.log(JSON.stringify(result, null, 2));
       process.exit(result.ok ? 0 : 1);
     } catch (error) {
       console.error(JSON.stringify({ ok: false, error: error.message }, null, 2));
@@ -709,6 +740,10 @@ function isInvokeCommand(options) {
 
 function isCalendarCommand(options) {
   return options.command === "calendar";
+}
+
+function isDnsCommand(options) {
+  return options.command === "dns";
 }
 
 function isNodeCommand(options) {

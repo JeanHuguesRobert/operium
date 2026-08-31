@@ -45,6 +45,7 @@ This directory contains Operium documentation.
 - [ONA mesh-open read (P1)](ona-mesh-open-read.md) — Tailscale trust-plane GET without bearer
 - [Edge trap-directed polling (SNMP pattern)](https://github.com/JeanHuguesRobert/cogentia/blob/main/docs/edge-trap-directed-polling.md) — Pi 3 store-and-forward + fracta manager
 - [fractavolta.com DNS zone](fractavolta-dns.md)
+- [fracta Caddy vhost contract](fractavolta-caddy-contract.md)
 - [DNS provider portability and reversible migration](dns-provider-portability.md)
 - [Stalwart mail on fracta](stalwart-private-mail.md) — governed bidirectional Gmail ↔ Twin JHN channel
 - [Operium CLI](operium-cli.md)
