@@ -101,14 +101,16 @@ Catalogue cadences (`scheduled_jobs`, including ONA heartbeats) stay Events of
 kind `cop/attractor.advertised`. They are **projected** into FractaCalendar.
 They are not wrapped in `cop/node.wake.v1` packets.
 
-A wake may carry `packet_kind: continuation` by copy. Dispatch uses the same
-handler table as `observation.*`. Continuations stay `authorized: false` until
-a real COP/HITL path exists. There is no `operium calendar watch continuation`
-verb: new observations are a packet file plus a handler.
+A wake may carry `packet_kind: continuation` by copy, or `payload.packet_ref`
+when the inner packet is already in the node Event log. Dispatch uses the same
+handler table as `observation.*`. Continuations stay `authorized: false`. A
+tick records `pending` evidence only. Judgment is a `cop/node.resolve.v1`
+Event on `POST /node/cop` (capability `calendar.resolve`). There is no
+`operium calendar resolve` or `watch continuation` verb: new observations are
+a packet file plus a handler.
 
-Remaining intended evolution (HITL resolve, `packet_ref`) is **not** current
-state: GitHub [#40](https://github.com/JeanHuguesRobert/operium/issues/40),
-handoff [`research/handoff-calendar-cop-2026-08-31.md`](../research/handoff-calendar-cop-2026-08-31.md).
+Standing pattern (GitHub [#40](https://github.com/JeanHuguesRobert/operium/issues/40)):
+new observation kinds remain packet + handler, not a domain CLI verb.
 
 Invariants (unchanged from issue #29):
 
@@ -134,8 +136,9 @@ ACP is **not** a calendar transport. It is a coding-agent session protocol
 | Id | Effect | Auth |
 | --- | --- | --- |
 | `calendar.list` | Read projection | read |
-| `calendar.schedule` | Accept a wake packet (by copy) | admin |
+| `calendar.schedule` | Accept a wake packet (by copy or `packet_ref`) | admin |
 | `calendar.tick` | Deliver due wakes (local tick) | admin |
+| `calendar.resolve` | HITL `cop/node.resolve.v1` for continuation wakes | admin |
 | `calendar.ics` | ICS view of the same projection | read |
 
 `calendar.watch.dns` is **not** a capability. It is sugar that builds a
@@ -148,6 +151,7 @@ ACP is **not** a calendar transport. It is a coding-agent session protocol
 | `calendar.list` | `operium calendar list` / `operium node calendar` (same HTTP) | `GET /node/calendar` | `cop/node.query.v1` query=`calendar` or `cop_events` | `GET /ops/node/:id/calendar` (Cogentia #125, ops-read token) | `operium_calendar_list` (private-read / JHN; not anonymous) | La Nasa node pack (`/nasa/node`); public `/ops/console` stays empty |
 | `calendar.schedule` | `operium calendar schedule --file` | `POST /node/calendar/schedule` | `cop/node.wake.v1` on `POST /node/cop` | no | none | no |
 | `calendar.tick` | `operium calendar tick` | `POST /node/calendar/tick` | ONA job tick also runs due wakes | no | none | no |
+| `calendar.resolve` | none (not a calendar CLI verb) | none | `cop/node.resolve.v1` on `POST /node/cop` | no | none | no |
 | `calendar.ics` | `operium calendar ics` | none (derive from GET) | none | no | none | no |
 | DNS sugar | `operium calendar watch dns` | `POST /node/calendar/watch` | — | no | none | no |
 
@@ -201,3 +205,12 @@ operium calendar list --local            # in-process SQLite
 See [`examples/cop-node-wake.dns-observation.json`](../examples/cop-node-wake.dns-observation.json).
 The DNS fields exist only inside `payload.packet.payload`. The control layer
 does not know what a nameserver is.
+
+By-reference wakes: [`examples/cop-node-wake.packet-ref.json`](../examples/cop-node-wake.packet-ref.json).
+The inner packet must already be in `cop_events` (a prior by-copy wake
+registers it). Unreadable refs fail closed (`packet_ref_unreadable`); they
+are not reconstructed from lore.
+
+HITL resolve: [`examples/cop-node-resolve.continuation.json`](../examples/cop-node-resolve.continuation.json)
+posted as `cop/node.resolve.v1`. `needs_acceptance` records evidence and
+does not close. `authorized` stays false.

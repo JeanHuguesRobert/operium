@@ -55,6 +55,10 @@ blindly.
 - Catalogue heartbeats stay `scheduled_jobs` / `cop/attractor.advertised`.
 - Continuation **accept + dispatch**: `packet_kind: continuation`, same handler
   table as `observation.*`, `authorized: false`. No `watch continuation` CLI.
+- Continuation **HITL resolve**: `cop/node.resolve.v1` on `POST /node/cop`.
+  Tick still cannot close a continuation. `authorized` stays false.
+- **`packet_ref`**: by-copy wakes register the inner packet; by-ref wakes
+  look it up or fail `packet_ref_unreadable`.
 - Live apply: ONA restart; loopback calendar 200; public encoded ops calendar
   path 401; `continuation:live-apply-38` scheduled on fracta (pending, not
   closed).
@@ -63,11 +67,13 @@ Doctrine: [`docs/calendar-cop-wake-protocol.md`](../docs/calendar-cop-wake-proto
 
 ## Remaining (priority)
 
-1. **COP/HITL resolve for continuation wakes** (backlog `OP-FEAT-010`) — handler
-   records `pending` only. Do not grant a mandate from a tick.
-2. **`packet_ref` by-reference wakes** (backlog `OP-FEAT-011`) — protocol allows
-   it; implementation is by-copy only.
+1. **COP/HITL resolve for continuation wakes** (backlog `OP-FEAT-010`) — **done**
+   as `cop/node.resolve.v1` on `POST /node/cop`. Tick still records `pending`
+   only. `authorized` stays false. No calendar judgment CLI.
+2. **`packet_ref` by-reference wakes** (backlog `OP-FEAT-011`) — **done**.
+   Unreadable refs fail closed.
 3. **New observation kinds** — packet file + handler. No new domain CLI verbs.
+   Standing pattern; not a specific kind in this issue.
 
 ## Leave closed
 

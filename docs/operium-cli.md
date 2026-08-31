@@ -131,8 +131,9 @@ operium node calendar [--json|--human]   # GET /node/calendar on a running ONA
 ```
 
 `schedule` accepts a `cop/node.wake.v1` Event that carries a Cognitive Packet
-(by copy). `watch dns` is sugar for one observation payload. Neither applies
-registrar or Cloudflare writes.
+(by copy or `packet_ref`). `watch dns` is sugar for one observation payload.
+Continuation judgment is `cop/node.resolve.v1` on `POST /node/cop`, not a
+calendar CLI verb. None of these apply registrar or Cloudflare writes.
 
 By default these commands talk to the local ONA over HTTP (`ONA_URL`, same as
 `operium node`). `--local` uses the node SQLite in-process. Both call
