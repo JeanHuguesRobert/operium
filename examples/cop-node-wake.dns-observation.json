@@ -1,0 +1,30 @@
+{
+  "id": "cop:wake:dns-delegation:acorsica.org",
+  "packet_type": "cop/node.wake.v1",
+  "artifact_type": "cop/cognitive-packet",
+  "payload": {
+    "schema": "cop/node.wake.v1",
+    "due_at": null,
+    "cadence": {
+      "kind": "after_first",
+      "first_delay_ms": 3600000,
+      "interval_ms": 10800000
+    },
+    "deadline": null,
+    "stop_condition": { "type": "nameservers_match" },
+    "escalation_policy": { "after_ms": 86400000, "reason": "public_ns_still_diverge" },
+    "authorized": false,
+    "packet": {
+      "envelope": {
+        "packet_kind": "observation",
+        "transmission_mode": "copy",
+        "status": "active"
+      },
+      "payload": {
+        "kind": "observation.dns.delegation",
+        "domain": "acorsica.org",
+        "expected_ns": ["ada.ns.cloudflare.com", "bob.ns.cloudflare.com"]
+      }
+    }
+  }
+}

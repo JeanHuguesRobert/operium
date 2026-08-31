@@ -26,6 +26,8 @@ import { checkDnsDelegation } from "../lib/node-agent/dns-watch.js";
 import { formatCalendarHuman } from "../lib/format-calendar-human.js";
 import { runCalendarCommand } from "../lib/calendar-cli.js";
 import { runNodeCliCommand } from "../lib/node-cli.js";
+import { dnsObservationWakePacket, obligationFromWakePacket, parseWakePacket } from "../lib/cop-wake.js";
+import { fileURLToPath } from "node:url";
 
 const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "operium-calendar-"));
 const dbPath = path.join(tmpDir, "node_memory.sqlite");
@@ -219,7 +221,8 @@ const created = await postJson(`${baseUrl}/node/calendar/watch`, {
 }, "cal-admin");
 assert.equal(created.status, 200);
 assert.equal(created.body.authorized, false);
-assert.equal(created.body.obligation.kind, "dns.watch");
+assert.equal(created.body.obligation.kind, "observation.dns.delegation");
+assert.equal(created.body.obligation.config.wake.packet_type, "cop/node.wake.v1");
 
 db.close();
 await new Promise(resolve => server.close(resolve));
@@ -243,6 +246,38 @@ const watched = await runCalendarCommand({
   dbPath: cliDb,
 });
 assert.equal(watched.body.obligation.id, "dns-delegation:acorsica.org");
+assert.equal(watched.body.obligation.kind, "observation.dns.delegation");
+
+const exampleWake = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../examples/cop-node-wake.dns-observation.json",
+);
+const parsedExample = parseWakePacket(JSON.parse(fs.readFileSync(exampleWake, "utf8")));
+assert.equal(parsedExample.ok, true);
+assert.equal(parsedExample.envelope.payload.packet.envelope.packet_kind, "observation");
+const fromExample = obligationFromWakePacket(JSON.parse(fs.readFileSync(exampleWake, "utf8")));
+assert.equal(fromExample.kind, "observation.dns.delegation");
+assert.match(fromExample.source_of_truth, /^cop\/node\.wake\.v1:/);
+
+const sugar = dnsObservationWakePacket({
+  domain: "acorsica.org",
+  expected_ns: ["ada.ns.cloudflare.com"],
+  first_delay_ms: 0,
+  now,
+});
+assert.equal(sugar.packet_type, "cop/node.wake.v1");
+assert.equal(sugar.payload.packet.payload.kind, "observation.dns.delegation");
+
+const scheduled = await runCalendarCommand({
+  subcommand: "schedule",
+  file: exampleWake,
+  now,
+  env,
+  dbPath: cliDb,
+});
+assert.equal(scheduled.body.packet_type, "cop/node.wake.v1");
+assert.equal(scheduled.body.authorized, false);
+assert.equal(scheduled.body.obligation.kind, "observation.dns.delegation");
 
 const listed = await runCalendarCommand({
   subcommand: "list",
@@ -274,6 +309,7 @@ console.log(JSON.stringify({
     "doh_check",
     "http_calendar",
     "cli_watch_list_ics",
+    "cop_wake_packet_schedule",
   ],
 }, null, 2));
 

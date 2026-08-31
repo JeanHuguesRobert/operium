@@ -445,7 +445,8 @@ Unknown `packet_type` → `400` with `unknown_packet_type`. Stubs return COP err
 | `POST` | `/node/probe` | admin token | Trigger self-probe cycle |
 | `GET` | `/node/drift` | read token | Node-local drift vs catalogue entry |
 | `GET` | `/node/calendar` | read token | FractaCalendar projection (`operium.calendar.projection.v1`) — not an executor |
-| `POST` | `/node/calendar/watch` | admin token | Create an ephemeral DNS watcher (observation only) |
+| `POST` | `/node/calendar/schedule` | admin token | Accept a `cop/node.wake.v1` packet |
+| `POST` | `/node/calendar/watch` | admin token | Sugar: DNS observation wake packet |
 | `POST` | `/node/calendar/tick` | admin token | Run due calendar obligations now |
 
 **Auth tokens:**

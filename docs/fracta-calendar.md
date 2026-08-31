@@ -49,10 +49,15 @@ local timer or ONA job
 
 Each level publishes a **synthesis**. Only one source **executes**.
 
+The control protocol is COP, not a DNS CLI: see
+[`calendar-cop-wake-protocol.md`](calendar-cop-wake-protocol.md).
+A **tick** is not a Cognitive Packet; the **work a tick delivers** is
+packet-shaped (`cop/node.wake.v1` → `cop/cognitive-packet`).
+`operium calendar watch dns` is sugar that builds that packet.
+
 Catalogue cadences stay in `scheduled_jobs` and are executed by the ONA job
-runner. Ephemeral watches (DNS delegation, one-shot probes) live in
-`calendar_obligations` and are executed by the calendar runner. The projection
-reads both and duplicates neither.
+runner. Scheduled wakes live in `calendar_obligations` as stored wake packets.
+The projection reads both and duplicates neither.
 
 ## Obligation model
 
@@ -93,8 +98,9 @@ grant a mandate to apply nameservers, restart a node, or send mail.
 | Surface | Role |
 | --- | --- |
 | `operium calendar list` | Local SQLite projection (`operium.calendar.projection.v1`) |
-| `operium calendar watch dns` | Create an ephemeral DNS watcher (observation only) |
-| `operium calendar tick` | Run due watchers against the local node database |
+| `operium calendar schedule --file` | Accept a `cop/node.wake.v1` packet (preferred) |
+| `operium calendar watch dns` | Sugar that builds a DNS **observation** wake packet |
+| `operium calendar tick` | Local tick: deliver due wakes to handlers |
 | `operium calendar ics` | ICS export; header `X-OPERIUM-NOT-EXECUTOR:1` |
 | `operium node calendar` | Same projection via `GET /node/calendar` |
 | `GET /node/calendar` | ONA read surface |
@@ -108,6 +114,8 @@ Example from issue #29: watch `acorsica.org` until public NS records match
 the expected set, then **auto-close**.
 
 ```bash
+operium calendar schedule --file examples/cop-node-wake.dns-observation.json
+# sugar for the same observation payload:
 operium calendar watch dns \
   --domain acorsica.org \
   --expected-ns ada.ns.cloudflare.com,bob.ns.cloudflare.com \

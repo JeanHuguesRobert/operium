@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cop/node.wake.v1",
+  "title": "COP node wake Event — deliver a packet, do not execute a domain verb",
+  "description": "Tick-caused Event. Durable effect of a scheduler tick. The Cognitive Packet is in payload.packet (by copy) or payload.packet_ref (by reference).",
+  "type": "object",
+  "required": ["id", "packet_type", "payload"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "packet_type": { "const": "cop/node.wake.v1" },
+    "artifact_type": { "const": "cop/cognitive-packet" },
+    "sender": { "type": "object" },
+    "recipient": { "type": "object" },
+    "trace": { "type": "object" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "payload": {
+      "type": "object",
+      "required": ["schema"],
+      "properties": {
+        "schema": { "const": "cop/node.wake.v1" },
+        "due_at": { "type": ["string", "null"], "format": "date-time" },
+        "deadline": { "type": ["string", "null"], "format": "date-time" },
+        "cadence": { "type": ["object", "null"] },
+        "stop_condition": { "type": ["object", "null"] },
+        "escalation_policy": { "type": ["object", "null"] },
+        "authorized": { "const": false },
+        "packet": {
+          "type": "object",
+          "description": "Cognitive Packet by copy: envelope + payload.",
+          "properties": {
+            "envelope": {
+              "type": "object",
+              "properties": {
+                "packet_kind": {
+                  "type": "string",
+                  "description": "continuation | observation | objection | hypothesis | decision | failure | routing | …"
+                },
+                "transmission_mode": { "enum": ["copy", "reference"] },
+                "status": { "type": "string" }
+              }
+            },
+            "payload": { "type": "object" }
+          }
+        },
+        "packet_ref": {
+          "type": ["string", "null"],
+          "description": "By-reference packet id when the store is shared and stable."
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}
