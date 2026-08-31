@@ -90,7 +90,7 @@ Invoke tool options:
   --via guide             Route via fracta POST /ops/route/action (#52)
 
 Calendar options (issue #29; protocol: docs/calendar-cop-wake-protocol.md):
-  --file <path>           Wake packet JSON for `calendar schedule`
+  --file <path>           Wake packet JSON for calendar schedule
   --domain <name>         DNS watch sugar only
   --expected-ns <list>    Comma-separated expected nameservers (sugar)
   --deadline <iso>        Escalation / stop deadline
