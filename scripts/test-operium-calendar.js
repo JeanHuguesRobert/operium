@@ -287,6 +287,18 @@ assert.equal(viaScheduleHttp.body.schema, "operium.calendar.schedule.v1");
 assert.equal(viaScheduleHttp.body.packet_type, "cop/node.wake.v1");
 assert.equal(viaScheduleHttp.body.authorized, false);
 
+const missingRef = await postJson(`${baseUrl}/node/calendar/schedule`, {
+  id: "cop:wake:missing-ref",
+  packet_type: "cop/node.wake.v1",
+  payload: {
+    schema: "cop/node.wake.v1",
+    authorized: false,
+    packet_ref: "continuation:does-not-exist",
+  },
+}, "cal-admin");
+assert.equal(missingRef.status, 400);
+assert.equal(missingRef.body.error, "packet_ref_unreadable");
+
 db.close();
 await new Promise(resolve => server.close(resolve));
 
@@ -374,6 +386,7 @@ console.log(JSON.stringify({
     "cli_http_list_and_schedule",
     "cli_watch_list_ics",
     "cop_wake_packet_schedule",
+    "packet_ref_unreadable_http_400",
     "cop_event_log_replay",
   ],
 }, null, 2));
