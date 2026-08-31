@@ -58,6 +58,7 @@ update_policy: UP-DEFAULT-REVIEWED
 ### Incidents & handoffs
 
 - [Fractanet resumption handoff — July 2026 pause](fractanet-resumption-2026-07.md)
+- [FractaCalendar COP remaining depth — 2026-08-31 pause](handoff-calendar-cop-2026-08-31.md)
 - [fracta daemon health latency — July 2026 incident](fracta-daemon-health-2026-07.md)
 - [inox-serve offline on ThinkPad — July 2026 incident](inox-serve-thinkpad-2026-07.md)
 - [Serra corpus integration plan](serra-corpus-integration-plan.md)

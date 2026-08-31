@@ -3,7 +3,7 @@
 # Do not store secret values here.
 
 schema: operium.backlog.v1
-updated_at: "2026-08-28"
+updated_at: "2026-08-31"
 owner: Operium
 
 items:
@@ -323,3 +323,37 @@ items:
       trusted display renders La Nasa as seen from a selected FractaNode;
       observer-local services require allow-listed mesh resolution or an
       explicitly configured authenticated tunnel, never blind loopback rewrite.
+
+  - id: OP-FEAT-010
+    kind: feature
+    title: COP/HITL resolve path for calendar continuation wakes
+    subsystem: ona
+    priority: p2
+    status: open
+    evidence: >
+      2026-08-31: #31/#38 shipped accept+dispatch only. Live fracta
+      continuation:live-apply-38 ticks pending, authorized:false, not closed.
+    next_action: >
+      Resume from research/handoff-calendar-cop-2026-08-31.md and issue #40.
+      Do not invent a calendar-specific judgment CLI.
+    github_issue: 40
+    opened_at: "2026-08-31"
+    closed_at: null
+    notes: |
+      Handler records pending evidence. Stay authorized:false until a real
+      COP/HITL path exists.
+
+  - id: OP-FEAT-011
+    kind: feature
+    title: Accept calendar wakes by packet_ref (by reference)
+    subsystem: ona
+    priority: p3
+    status: open
+    evidence: >
+      cop/node.wake.v1 already allows payload.packet_ref; implementation is
+      by-copy only (#31/#38).
+    next_action: >
+      After or with OP-FEAT-010; keep one wake protocol, no new CLI verb.
+    github_issue: 40
+    opened_at: "2026-08-31"
+    closed_at: null

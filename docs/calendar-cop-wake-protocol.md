@@ -106,6 +106,10 @@ handler table as `observation.*`. Continuations stay `authorized: false` until
 a real COP/HITL path exists. There is no `operium calendar watch continuation`
 verb: new observations are a packet file plus a handler.
 
+Remaining intended evolution (HITL resolve, `packet_ref`) is **not** current
+state: GitHub [#40](https://github.com/JeanHuguesRobert/operium/issues/40),
+handoff [`research/handoff-calendar-cop-2026-08-31.md`](../research/handoff-calendar-cop-2026-08-31.md).
+
 Invariants (unchanged from issue #29):
 
 - `capable != authorized` — a wake does not grant a mandate.
