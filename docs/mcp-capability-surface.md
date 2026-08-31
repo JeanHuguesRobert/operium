@@ -51,6 +51,10 @@ Approximate public `tools/list` size after 0.9.0: **~50** (not a freeze; catalog
 
 ## Operium invoke (ops, not anonymous MCP)
 
+`operium_calendar_list` is a **private-read** MCP tool (JHN / full view). It is
+not on anonymous `tools/list`. It is `calendar.list` only — same schema as
+`GET /node/calendar`. ACP is not a calendar transport.
+
 `operium up`, `operium invoke`, and `POST /ops/route/action` stay on the **ops**
 plane (`/ops/*` behind the aggregator). They are **discoverable** as catalog
 rows (`cogentia://cli/catalog` / this note) and are **not** added to anonymous

@@ -104,9 +104,9 @@ The **capability** is stable. Interfaces are adapters for a consumer class
 (`operium.calendar.projection.v1`, `cop/node.wake.v1`). They do not grow
 domain verbs.
 
-ACP is **not** a calendar transport. It is a coding-agent session protocol.
-An ACP agent that needs the calendar uses MCP or the CLI, it does not get a
-parallel `watch dns` inside ACP.
+ACP is **not** a calendar transport. It is a coding-agent session protocol
+(Codex on Fracta). An ACP agent that needs the calendar uses MCP
+(`operium_calendar_list`) or the CLI. Do not add calendar verbs to ACP.
 
 ### Capabilities (not CLI nouns)
 
@@ -124,7 +124,7 @@ parallel `watch dns` inside ACP.
 
 | Capability | CLI | ONA HTTP | COP packet | Fracta `/ops/node` proxy | MCP | Web UX |
 | --- | --- | --- | --- | --- | --- | --- |
-| `calendar.list` | `operium calendar list` / `operium node calendar` (same HTTP) | `GET /node/calendar` | `cop/node.query.v1` query=`calendar` | `GET /ops/node/:id/calendar` (Cogentia #125, ops-read token) | none | helper exists, **not wired**; public La Nasa must stay empty of node calendar |
+| `calendar.list` | `operium calendar list` / `operium node calendar` (same HTTP) | `GET /node/calendar` | `cop/node.query.v1` query=`calendar` | `GET /ops/node/:id/calendar` (Cogentia #125, ops-read token) | `operium_calendar_list` (private-read / JHN; not anonymous) | La Nasa node pack (`/nasa/node`); public `/ops/console` stays empty |
 | `calendar.schedule` | `operium calendar schedule --file` | `POST /node/calendar/schedule` | `cop/node.wake.v1` on `POST /node/cop` | no | none | no |
 | `calendar.tick` | `operium calendar tick` | `POST /node/calendar/tick` | ONA job tick also runs due wakes | no | none | no |
 | `calendar.ics` | `operium calendar ics` | none (derive from GET) | none | no | none | no |
