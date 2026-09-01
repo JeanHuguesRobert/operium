@@ -40,6 +40,7 @@
     "test:ona-heartbeat": "node scripts/test-ona-heartbeat.js",
     "test:ona-jobs": "node scripts/test-ona-jobs.js",
     "test:ona-recovery": "node scripts/test-ona-recovery.js",
+    "test:ona-recovery-observer": "node scripts/test-ona-recovery-observer.js",
     "test:ona-peer-sync": "node scripts/test-ona-peer-sync.js",
     "test:ona-cop": "node scripts/test-ona-cop-roundtrip.js",
     "test:ona-probe": "node scripts/test-ona-probe-route.js",
