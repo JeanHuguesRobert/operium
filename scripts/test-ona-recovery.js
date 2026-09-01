@@ -7,6 +7,7 @@ import path from "node:path";
 import { loadRegistry } from "../lib/registry.js";
 import { openNodeMemoryDb } from "../lib/node-agent/db.js";
 import { recoverOna } from "../lib/ona-recovery.js";
+import { buildNodeStatus } from "../lib/node-agent/status.js";
 
 const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "operium-ona-recovery-"));
 const registryPath = path.join(tmpDir, "resources.yaml");
@@ -46,6 +47,14 @@ assert.equal(calls.length, 2);
 
 const receipts = db.prepare("SELECT outcome FROM ona_recovery_receipts WHERE hostname = ? ORDER BY observed_at").all("poco-jhr");
 assert.deepEqual(receipts.map(row => row.outcome), ["recovered", "cooldown_active"]);
+const status = buildNodeStatus({
+  db,
+  config: { nodeId: "resource://test", hostname: "test", version: "0.1.0" },
+  nodeId: "resource://test",
+  startedAt: now.toISOString(),
+});
+assert.equal(status.recovery.recent_receipts.length, 2);
+assert.equal(status.recovery.active_cooldowns.length, 0);
 db.close();
 fs.rmSync(tmpDir, { recursive: true, force: true });
 console.log(JSON.stringify({ ok: true, tests: ["durable_cooldown", "ssh_gate", "audit_receipts"] }));

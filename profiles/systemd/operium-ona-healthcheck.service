@@ -1,0 +1,8 @@
+[Unit]
+Description=Operium ONA local health recovery
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/srv/cogentia/repos/operium/scripts/ops/ona-local-healthcheck.sh
