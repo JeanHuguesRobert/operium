@@ -67,12 +67,17 @@ graph TD
 
 ## 3. Checkpoints & Verification Criteria
 
-| Checkpoint | Target Property | Verification Method |
-|---|---|---|
-| **Checkpoint A** | Resilient FractaNode baseline | Host online on Tailscale mesh, zero swap pressure, monitored by Operium. |
-| **Checkpoint B** | Persistent Single-User Session | Human logs into services (Gmail/ChatGPT), restarts systemd service, verifies session persistence. |
-| **Checkpoint C** | Multi-User Independence | 2 separate users running simultaneously on distinct displays/ports with zero cross-talk. |
-| **Checkpoint D** | Dual Human/Machine Control | Human interacts via KasmVNC while local script navigates and reads DOM via CDP. |
+| Checkpoint | Target Property | Verification Method | Status |
+|---|---|---|---|
+| **Checkpoint A** | Resilient FractaNode baseline | Host online on Tailscale mesh, zero swap pressure, monitored by Operium. | ✅ Validated |
+| **Checkpoint B** | Persistent Single-User Session | Human logs into services (Gmail/ChatGPT/X), restarts systemd service, verifies session persistence. | ✅ Validated |
+| **Checkpoint C** | Multi-User Independence | 2 separate users running simultaneously on distinct displays/ports with zero cross-talk. | ✅ Validated |
+| **Checkpoint D** | Dual Human/Machine Control | Human interacts via KasmVNC while local script navigates, detects active profile (`@suvranu`), and extracts session cookies via CDP (:9223). | ✅ Validated (2026-09-01) |
+
+### Live Evidence for Checkpoint D (`fracta2` — 2026-09-01)
+- **Tooling :** `scripts/ops/cdp-browser-cli.js --whoami`
+- **Result :** Active X.com DOM inspected via CDP over WebSocket on `127.0.0.1:9223`. Successfully resolved profile `@suvranu`, extracted `auth_token` and `ct0` into local secrets vault in <100ms.
+- **Reference Doc :** [`cogentia/docs/cdp_hosted_browser_session_bridge.md`](../../cogentia/docs/cdp_hosted_browser_session_bridge.md)
 
 ---
 
