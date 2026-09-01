@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { runScheduledJob } from "../lib/node-agent/job-runner.js";
 import { runScheduledHeartbeat } from "../scripts/ops/recover-ona-observer.js";
 
 const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "operium-ona-observer-"));
@@ -16,5 +17,15 @@ const result = await runScheduledHeartbeat({
 });
 assert.equal(result.ok, true);
 assert.equal(result.results[0].outcome, "not_configured");
+
+const fromScheduler = await runScheduledJob({
+  kind: "script",
+  config: {
+    script: "operium/scripts/ops/recover-ona-observer.js",
+    args: ["rpi3-view"],
+  },
+}, { env: { OPERIUM_REGISTRY: registryPath } });
+assert.equal(fromScheduler.ok, true);
+assert.equal(fromScheduler.results[0].outcome, "not_configured");
 fs.rmSync(tmpDir, { recursive: true, force: true });
-console.log(JSON.stringify({ ok: true, tests: ["in_process_observer", "no_process_exit"] }));
+console.log(JSON.stringify({ ok: true, tests: ["in_process_observer", "scheduler_args", "no_process_exit"] }));
