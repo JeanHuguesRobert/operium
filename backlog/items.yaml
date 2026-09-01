@@ -3,7 +3,7 @@
 # Do not store secret values here.
 
 schema: operium.backlog.v1
-updated_at: "2026-08-31"
+updated_at: "2026-09-01"
 owner: Operium
 
 items:
@@ -179,6 +179,32 @@ items:
     blocks_features: false
     opened_at: "2026-08-28"
     closed_at: "2026-08-28"
+
+  - id: OP-BUG-009
+    kind: bug
+    title: Public Cogentia Guide and aggregator reachability is broken
+    subsystem: magistral-routing
+    severity: critical
+    status: open
+    evidence: >
+      2026-09-01 operium up --json observed the critical Cogentia path as
+      broken: https://cogentia.fractavolta.com/ops/status was unreachable and
+      the remote MCP and Guide probes failed. The local tailnet observer was
+      unavailable to the execution context, so this evidence does not yet
+      localize the fault to public ingress, the fracta Guide/MCP process, or
+      aggregator routing.
+    next_action: >
+      Establish the failing plane, restore the existing public baseline with
+      operation receipts and public smoke checks, then perform the separately
+      governed Agent John V2 feature-flag rollout and rollback observation.
+    github_issue: 42
+    blocks_features: true
+    opened_at: "2026-09-01"
+    closed_at: null
+    notes: |
+      Blocks live activation of COGENTIA_REASONING_LOOP_V2. Related Cogentia
+      #123 / PR #143 and Inseme PR #60 establish only the tested contract and
+      reversible surface bridge; they are not live deployment evidence.
 
   # ── Features (blocked by subsystem bugs when severity high+) ─────
 
