@@ -3,7 +3,7 @@
 # Do not store secret values here.
 
 schema: operium.backlog.v1
-updated_at: "2026-09-01"
+updated_at: "2026-09-02"
 owner: Operium
 
 items:
@@ -205,6 +205,47 @@ items:
       Blocks live activation of COGENTIA_REASONING_LOOP_V2. Related Cogentia
       #123 / PR #143 and Inseme PR #60 establish only the tested contract and
       reversible surface bridge; they are not live deployment evidence.
+
+  - id: OP-BUG-010
+    kind: bug
+    title: Cogentia Level-2 resumption suite overclaims pause/resume
+    subsystem: docs
+    severity: medium
+    status: open
+    evidence: >
+      2026-09-02 worktree at cogentia 6a3cc79: test-continuation-frontier-resumption.js
+      passes while a second harness.run() re-fires orientation (count 1 then 2).
+      executeFundedBranch maps stopReason=step_budget to viability=exhausted.
+      F3 process-death capsule path is the one that keeps orientationRuns=0.
+      Resume packet: https://github.com/JeanHuguesRobert/cogentia/issues/150
+      PR: https://github.com/JeanHuguesRobert/cogentia/pull/149
+    next_action: >
+      Merge cogentia PR #149; resume via cogentia#150. Do not treat the
+      Antigravity resumption file as proof. github_issue stays null (that
+      field is Operium-issue numbered, not cogentia).
+    github_issue: null
+    blocks_features: false
+    opened_at: "2026-09-02"
+    closed_at: null
+    notes: |
+      Live runner remains cogentia#141 / PR #144. Does not block magistral-routing.
+
+  - id: OP-DEBT-001
+    kind: debt
+    title: R1 Level-2 residue note not yet on cogentia main
+    subsystem: docs
+    status: open
+    evidence: >
+      Note lives on cogentia branch docs/r1-evidence-residue as PR #149.
+      R1 closure PR #143 is already on main and over-declares resume.
+    next_action: >
+      Merge https://github.com/JeanHuguesRobert/cogentia/pull/149 then mark
+      this item done. Resume packet: cogentia issue 150.
+    github_issue: null
+    opened_at: "2026-09-02"
+    closed_at: null
+    notes: |
+      Dual-plane: this YAML is FBF authority; cogentia GitHub is the resume handle.
 
   # ── Features (blocked by subsystem bugs when severity high+) ─────
 
