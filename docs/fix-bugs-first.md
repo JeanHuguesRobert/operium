@@ -25,6 +25,15 @@ features and **restore control through a Bug/Feature tracking system**.
 This is an old operator doctrine, restated for Operium and interactive
 multi-agent development.
 
+**Attention vs engagement.** Toward the human Principal, Fix Bugs First is an
+**attention reminder** (pending judged-priority work). It is not the
+Engagement Gatekeeper (HITL for externally engaging Acts). It does not block,
+constrain, or surveil the Principal. Shared agent wording:
+[`cogentia/instructions/AGENTS.shared.md`](https://github.com/JeanHuguesRobert/cogentia/blob/main/instructions/AGENTS.shared.md)
+(section *Fix Bugs First is an attention reminder*). The mechanical
+subsystem `gate` below remains **agent self-discipline** for unsolicited
+feature work on a broken ops surface — not a lock on Jean Hugues Robert.
+
 ## One-line rule
 
 > **Known bugs block new features in the same subsystem**, unless an explicit
@@ -137,6 +146,8 @@ When an agent or human starts work in Operium (or ops-touching corpus work):
 - Renaming bugs to “debt” or “enhancement” to skip the gate
 - Feature PRs that “include a small fix later”
 - GitHub Issues with no kind / no subsystem / no next_action
+- Using the register or dashboard to block, score, or watch the Principal
+- Treating a Principal override as an incident or as missing waiver theatre
 - Parallel freestyle ops scripts that bypass the register
 - Waivers without `reason`, `owner`, and `expires_at`
 
