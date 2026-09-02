@@ -1138,3 +1138,22 @@ Ordered incremental PRs across **operium** and **cogentia** repositories.
 ---
 
 *End of design document.*
+
+---
+
+## Guarded ONA recovery
+
+An ONA recovery design has three independent layers:
+
+1. The host supervisor restarts a failed process.
+2. A local systemd healthcheck timer probes loopback `/health` and restarts a
+   stopped or wedged ONA.
+3. A peer observer may restart a remote ONA only after mesh reachability, SSH
+   reachability, and an unavailable ONA endpoint have all been established.
+
+Peer recovery is bounded: one registered command, a persistent cooldown,
+re-probe, and an append-only receipt. The peer observer is not a substitute
+for local recovery: a stopped node cannot execute its own observer.
+
+The reusable unit templates are `profiles/systemd/operium-ona-healthcheck.*`;
+they deliberately contain no topology, account, token, or host-specific data.
