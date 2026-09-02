@@ -98,6 +98,104 @@ Exit codes for `gate`:
 | 1 | Features blocked — open high/critical bugs |
 | 2 | Backlog unreadable / invalid |
 
+## Invariant failures and Reality Tests
+
+Fix Bugs First also applies when a **known invariant has failed** and further
+feature work would make the system harder to reason about, less safe to change,
+or more likely to encode a false assumption as architecture.
+
+A useful operational reading is:
+
+```text
+FixBugsFirst ~= RestoreKnownInvariantsBeforeExpandingCapability
+```
+
+This does **not** mean that every defect blocks every feature. The scope remains
+causal. A failure blocks feature work when the proposed feature depends on the
+same subsystem, baseline, contract, or invariant whose behaviour is currently
+known to be wrong or unverified.
+
+```text
+ObservedInvariantFailure(S)
+AND FeatureDependsOn(S)
+=> FixOrWaiveBeforeFeature
+```
+
+This extends `subsystem` scoping rather than replacing it. When useful, the
+tracked item should make the dependency / causal scope explicit so an unrelated
+feature elsewhere in the system is not blocked merely because some bug exists.
+
+### Reality Tests as bug generators
+
+A Reality Test is not only a final validation step. It is a controlled way for
+**the real system to answer**. When that answer exposes a broken assumption,
+failed invariant, or missing baseline property, the residue should be tracked
+before additional capability is layered on top of it:
+
+```text
+Feature or hypothesis
+  -> Reality Test
+  -> observed residue / invariant failure
+  -> Bug or Incident
+  -> Fix Bugs First gate
+  -> restored, evidenced baseline
+  -> next Feature / experiment
+```
+
+The residue is evidence, not embarrassment. Hiding it as `debt`, silently
+weakening the acceptance criterion, or immediately adding another feature to
+work around it defeats the learning loop.
+
+### Baseline before comparison
+
+An experiment that changes a subsystem cannot establish that the change is
+better when the baseline is already known to be broken in the same causal
+path. Restore or explicitly waive the baseline first; then compare under the
+same probes and preserve a rollback path where practical.
+
+A concrete example is **Operium issue #42**: the public Cogentia Guide /
+aggregator path was observed unreachable while the Agent John V2 bridge was
+ready behind a feature flag. FixBugsFirst correctly blocks the V2 live rollout
+until the existing public baseline is restored, evidenced, and a measured
+rollback-capable comparison can be performed.
+
+This distinction is important:
+
+```text
+implemented != integrated != runtime-verified != safe-to-roll-out
+```
+
+Mocks, adapters, local tests and successful builds are useful evidence at their
+own layer, but they must not silently substitute for the next layer of reality.
+For example, an adapter tested against a mock backend does not establish that
+the live backend, process boundary, persistence or operational path works.
+
+### Capability expansion and control
+
+The same rule applies to agentic systems. Adding tools, providers, routes,
+storage backends or physical capabilities while an authority or admission
+invariant is known to fail increases the reachable state space before control
+has been restored.
+
+Therefore, when consequential execution is involved, a known failure to keep
+states such as these distinct is a FixBugsFirst concern in the affected causal
+scope:
+
+```text
+known / discovered
+reachable
+healthy
+admissible
+selected
+mandated / authorized
+invoked
+committed
+```
+
+The objective is not to freeze development. It is to ensure that **capability
+expansion follows demonstrated control**, or an explicit, bounded and recorded
+waiver.
+
 ## Dual plane: git register + GitHub
 
 | Plane | Role |
@@ -145,6 +243,8 @@ When an agent or human starts work in Operium (or ops-touching corpus work):
 - [`backlog/README.md`](../backlog/README.md) — register format
 - [`operational-health.md`](operational-health.md) — health scores
 - [`operium-wip.md`](operium-wip.md) — session handoff (not the backlog)
+- [Operium issue #42](https://github.com/JeanHuguesRobert/operium/issues/42) — real baseline-before-rollout case
+- [Inseme issue #66](https://github.com/JeanHuguesRobert/inseme/issues/66) — `reachable != admissible != authorized` regression family
 - Classic XP-adjacent slogan: [Fix Bugs First (c2)](https://wiki.c2.com/?FixBugsFirst) — same impulse; Operium makes it **tracked and gated**
 
 ## Provenance (historical, not ops)
