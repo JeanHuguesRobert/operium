@@ -915,6 +915,18 @@
         "</div></div>";
     }
 
+    var recovery = st.recovery || {};
+    var receipts = recovery.recent_receipts || [];
+    var cooldowns = recovery.active_cooldowns || [];
+    if (receipts.length || cooldowns.length) {
+      html += '<div class="sec"><h3>Recovery</h3><div class="chips">' +
+        chip("cooldowns", String(cooldowns.length), cooldowns.length ? "bad" : "ok") +
+        chip("receipts", String(receipts.length), "ok") +
+        '</div>' + receipts.slice(0, 3).map(function (r) {
+          return '<div class="muted">' + esc(r.observed_at || "?") + ' · ' + esc(r.host || "?") + ' · ' + esc(r.outcome || "?") + '</div>';
+        }).join("") + '</div>';
+    }
+
     html += '<div class="links">' +
       '<a href="' + esc(b) + '/.well-known/soma" target="_blank" rel="noopener">SOMA</a>' +
       '<a href="' + esc(b) + '/node/status" target="_blank" rel="noopener">status</a>' +
