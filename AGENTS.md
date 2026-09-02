@@ -81,15 +81,21 @@ scope:
 - Prefer terminology that remains meaningful outside the current deployment,
   while keeping concrete Fracta/Fractanet evidence in examples and runbooks.
 
-## Fix Bugs First (mandatory for interactive work)
+## Fix Bugs First (attention reminder; agent self-discipline)
 
 When Operium (or an ops-touching session) feels **out of control**, apply
 [`docs/fix-bugs-first.md`](docs/fix-bugs-first.md):
 
 1. `operium backlog list --kind bug --status openish --human`
-2. `operium backlog gate --subsystem <slug>` before feature work in that slug
-3. Prefer fixing or waiving **bugs** over opening new features
+2. `operium backlog gate --subsystem <slug>` before **agent-initiated** feature
+   work in that slug
+3. Prefer fixing or waiving **bugs** over inventing new features
 4. Update `backlog/items.yaml` (authority); GitHub Issues are the discussion mirror
+
+Remind the Principal **once** if relevant priority work is pending, then follow
+their present request. Do not refuse, nag, or treat the dashboard as surveillance
+of the Principal. The subsystem `gate` is agent self-discipline, not a lock on
+Jean Hugues Robert. Shared wording: Cogentia `instructions/AGENTS.shared.md`.
 
 Do not invent a parallel ops path that bypasses the backlog.
 
