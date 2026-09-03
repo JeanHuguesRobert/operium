@@ -63,6 +63,28 @@ graph TD
 * **CDP Scoping**: CDP is bound exclusively to `127.0.0.1` or the Fractanet Tailscale mesh. It is **never** exposed to the public Internet.
 * **Exclusion of Kasm Workspaces**: The deployment intentionally uses only standalone **KasmVNC (GPL-2.0)** without proprietary Kasm Workspaces or heavy Docker/OCI layers.
 
+### Generic workspace provisioning
+
+Use `scripts/ops/provision-hosted-browser-user.sh` after the node-level
+KasmVNC templates are installed. It derives a stable Unix workspace from a
+canonical Gmail address, allocates an explicit display, and requires existing
+private KasmVNC and RFB password files. It never receives a Google password,
+creates a Google account, or performs a Google sign-in.
+
+```bash
+sudo scripts/ops/provision-hosted-browser-user.sh \
+  --gmail person@gmail.com \
+  --display 3 \
+  --kasm-password-file /root/private/person.kasm \
+  --rfb-password-file /root/private/person.rfb \
+  --dry-run
+```
+
+Remove the final `--dry-run` only after confirming that the display is unused
+and the supplied password files contain the intended private credentials. The
+web-facing Caddy route is a separate operational decision: a newly provisioned
+workspace is not automatically made public.
+
 ---
 
 ## 3. Checkpoints & Verification Criteria
