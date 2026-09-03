@@ -185,26 +185,25 @@ items:
     title: Public Cogentia Guide and aggregator reachability is broken
     subsystem: magistral-routing
     severity: critical
-    status: open
+    status: done
     evidence: >
-      2026-09-01 operium up --json observed the critical Cogentia path as
-      broken: https://cogentia.fractavolta.com/ops/status was unreachable and
-      the remote MCP and Guide probes failed. The local tailnet observer was
-      unavailable to the execution context, so this evidence does not yet
-      localize the fault to public ingress, the fracta Guide/MCP process, or
-      aggregator routing.
+      2026-09-01: public /ops/status and Guide probes failed (operium up).
+      2026-09-02T17:46Z: operium up public_face 3/3, /ops/status HTTP 200 (issue #42).
+      2026-09-02T18:34Z: GET /guide 200 Server=Cogentia-Guide Via=Caddy.
+      2026-09-02T18:35Z: POST /guide/chat "What is Potentics?" ok=true
+      mode=conversational synthesis=magistral_router model=codex-local (~37s).
+      2026-09-03: further conversational turn recorded on issue #42.
     next_action: >
-      Establish the failing plane, restore the existing public baseline with
-      operation receipts and public smoke checks, then perform the separately
-      governed Agent John V2 feature-flag rollout and rollback observation.
+      V2 flag remains a separate governed rollout. Do not treat this close as
+      authorization for COGENTIA_REASONING_LOOP_V2=true on live Guide/WhatsApp.
     github_issue: 42
-    blocks_features: true
+    blocks_features: false
     opened_at: "2026-09-01"
-    closed_at: null
+    closed_at: "2026-09-03"
     notes: |
-      Blocks live activation of COGENTIA_REASONING_LOOP_V2. Related Cogentia
-      #123 / PR #143 and Inseme PR #60 establish only the tested contract and
-      reversible surface bridge; they are not live deployment evidence.
+      Reachability restored. Live V2 still withheld pending Operium rollout
+      observation and rollback (Cogentia PR #143). s7 precomputed-index miss
+      and planner_disabled are residue, not this outage.
 
   - id: OP-BUG-010
     kind: bug
