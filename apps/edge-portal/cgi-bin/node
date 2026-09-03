@@ -27,7 +27,7 @@ if [ -z "$host" ]; then
 fi
 
 case "$host" in
-  fracta|i7-thinkpad-jhr|rpi3-view|poco-jhr) ;;
+  fracta|fracta2|i7-thinkpad-jhr|rpi3-view|poco-jhr) ;;
   *)
     json_headers
     printf '{"ok":false,"error":"unknown_host","host":"%s"}\n' "$host"
