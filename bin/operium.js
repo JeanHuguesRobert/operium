@@ -599,7 +599,10 @@ async function main() {
       console.log(JSON.stringify(result.body, null, 2));
     }
 
-    process.exit(exitCodeForNodeResult(result, options.subcommand));
+    // Let native HTTP/Tailscale handles close naturally on Windows.  Forcing
+    // process.exit() after a diagnose can trip Node's UV_HANDLE_CLOSING assert.
+    process.exitCode = exitCodeForNodeResult(result, options.subcommand);
+    return;
   }
 
   if (isInvokeCommand(options)) {
