@@ -4,7 +4,7 @@ description: "Step-by-step runbook for provisioning fracta2, joining Fractanet, 
 layout: default
 nav_order: 16
 date: 2026-08-26T00:00:00.000Z
-last_modified_at: 2026-08-26T00:00:00.000Z
+last_modified_at: 2026-09-03T00:00:00.000Z
 license: CC BY-SA 4.0
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/docs/fracta2-node-bootstrap.md
 document_role: operational
@@ -27,7 +27,9 @@ classification_confidence: "high"
 * **Packages**:
   ```bash
   sudo apt update && sudo apt install -y \
-    curl git chromium-browser caddy libx11-6 x11-xserver-utils xauth
+    curl git caddy libx11-6 x11-xserver-utils xauth
+  # Live fracta2 uses Google Chrome 152; Chromium is the launcher fallback.
+  # Install google-chrome-stable from Google's repo, or chromium-browser.
   ```
 
 ## 2. Install KasmVNC
@@ -58,16 +60,26 @@ sudo systemctl daemon-reload
 
 ## 5. Instantiate a Personal Hosted Browser
 
+Do not hand-create `hosted-jhr` for new people. Use the provisioner in
+[`hosted-browser-kasmvnc-cdp.md`](hosted-browser-kasmvnc-cdp.md) (issue #25):
+create private `vncpasswd` / RFB files, `--dry-run`, then apply. Copy the
+script to the node first:
+
 ```bash
-# Create dedicated user account
-sudo useradd -m -s /bin/bash hosted-jhr
-sudo usermod -aG kasmvnc-cert hosted-jhr
+sudo install -m 0755 scripts/ops/provision-hosted-browser-user.sh \
+  /opt/operium/bin/provision-hosted-browser-user.sh
+sudo install -m 0755 scripts/ops/list-hosted-browser-workspaces.sh \
+  /opt/operium/bin/list-hosted-browser-workspaces.sh
+```
 
-# Enable and start user session on display :1
-sudo systemctl enable --now hosted-browser@hosted-jhr.service
+`hosted-jhr` on display `:1` is a **legacy** workspace name. Leave it running
+until a human-validated migration copies its Chrome profile into a canonical
+`hosted-<gmail-key>` account and switches any public Caddy route. Google sign-in
+inside Chrome remains a human step.
 
-# Verify status
-sudo systemctl status hosted-browser@hosted-jhr.service
+```bash
+sudo /opt/operium/bin/list-hosted-browser-workspaces.sh
+sudo systemctl status 'hosted-browser@*.service'
 ```
 
 ## 6. Configure a Dedicated La Nasa Workspace
