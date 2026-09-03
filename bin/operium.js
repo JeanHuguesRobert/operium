@@ -17,6 +17,7 @@ import {
 } from "../lib/node-cli.js";
 import { buildWipStatus, handoffWip, resumeWip } from "../lib/git-wip.js";
 import { invokeTool } from "../lib/invoke-tool.js";
+import { finishCli } from "../lib/cli-exit.js";
 import { buildOperiumUp, exitCodeForUp } from "../lib/operium-up.js";
 import {
   defaultBacklogPath,
@@ -457,12 +458,14 @@ async function main() {
   } catch (error) {
     console.error(error.message);
     console.error("Run operium --help");
-    process.exit(2);
+    finishCli(2);
+    return;
   }
 
   if (options.help || options.command === "help" || !options.command) {
     process.stdout.write(HELP);
-    process.exit(0);
+    finishCli(0);
+    return;
   }
 
   if (isWipCommand(options)) {
@@ -472,7 +475,8 @@ async function main() {
     } else {
       console.log(JSON.stringify(result, null, 2));
     }
-    process.exit(result.ok ? 0 : 2);
+    finishCli(result.ok ? 0 : 2);
+    return;
   }
 
   if (isBacklogCommand(options)) {
@@ -503,32 +507,38 @@ async function main() {
       });
       if (result.ics) {
         process.stdout.write(result.ics);
-        process.exit(0);
+        finishCli(0);
+        return;
       }
       if (options.human) {
         console.log(formatCalendarHuman(result.body.projection || result.body));
       } else {
         console.log(JSON.stringify(result.body, null, 2));
       }
-      process.exit(result.ok ? 0 : 1);
+      finishCli(result.ok ? 0 : 1);
+      return;
     } catch (error) {
       console.error(JSON.stringify({ ok: false, error: error.message }, null, 2));
-      process.exit(2);
+      finishCli(2);
+      return;
     }
   }
 
   if (isDnsCommand(options)) {
     if (options.subcommand !== "reconcile") {
       console.error(`unknown_dns_subcommand: ${options.subcommand}`);
-      process.exit(2);
+      finishCli(2);
+      return;
     }
     try {
       const result = await reconcileDns({ manifestPath: options.manifestPath, timeoutMs: options.timeoutMs });
       console.log(JSON.stringify(result, null, 2));
-      process.exit(result.ok ? 0 : 1);
+      finishCli(result.ok ? 0 : 1);
+      return;
     } catch (error) {
       console.error(JSON.stringify({ ok: false, error: error.message }, null, 2));
-      process.exit(2);
+      finishCli(2);
+      return;
     }
   }
 
@@ -539,13 +549,15 @@ async function main() {
     } else {
       console.log(JSON.stringify(result, null, 2));
     }
-    process.exit(result.ok ? 0 : 1);
+    finishCli(result.ok ? 0 : 1);
+    return;
   }
 
   if (options.command === "node" && !isNodeCommand(options)) {
     console.error(`unknown_node_subcommand: ${options.subcommand || "(missing)"}`);
     console.error("Run operium --help");
-    process.exit(2);
+    finishCli(2);
+    return;
   }
 
   if (isNodeCommand(options)) {
@@ -574,7 +586,8 @@ async function main() {
         url: result.url,
         message: result.message,
       }, null, 2));
-      process.exit(2);
+      finishCli(2);
+      return;
     }
 
     if (options.human) {
@@ -599,9 +612,7 @@ async function main() {
       console.log(JSON.stringify(result.body, null, 2));
     }
 
-    // Let native HTTP/Tailscale handles close naturally on Windows.  Forcing
-    // process.exit() after a diagnose can trip Node's UV_HANDLE_CLOSING assert.
-    process.exitCode = exitCodeForNodeResult(result, options.subcommand);
+    finishCli(exitCodeForNodeResult(result, options.subcommand));
     return;
   }
 
@@ -609,7 +620,8 @@ async function main() {
     if (options.via && options.via !== "guide") {
       console.error(`unknown_via: ${options.via}`);
       console.error("Run operium --help");
-      process.exit(2);
+      finishCli(2);
+      return;
     }
 
     const result = await invokeTool({
@@ -634,20 +646,23 @@ async function main() {
     if (options.contentOnly && result.ok) {
       process.stdout.write(`${result.content || ""}`);
       if (result.content && !String(result.content).endsWith("\n")) process.stdout.write("\n");
-      process.exit(0);
+      finishCli(0);
+      return;
     }
     if (options.human) {
       console.log(formatInvokeHuman(result));
     } else {
       console.log(JSON.stringify(result, null, 2));
     }
-    process.exit(result.ok ? 0 : 1);
+    finishCli(result.ok ? 0 : 1);
+    return;
   }
 
   if (options.command !== "up") {
     console.error(`unknown_command: ${options.command}`);
     console.error("Run operium --help");
-    process.exit(2);
+    finishCli(2);
+    return;
   }
 
   const result = await buildOperiumUp({
@@ -667,7 +682,7 @@ async function main() {
     console.log(JSON.stringify(result, null, 2));
   }
 
-  process.exit(exitCodeForUp(result));
+  finishCli(exitCodeForUp(result));
 }
 
 function isWipCommand(options) {
@@ -687,7 +702,8 @@ function runBacklogCommand(options) {
   if (!["list", "gate"].includes(sub)) {
     console.error(`unknown_backlog_subcommand: ${sub}`);
     console.error("Use: operium backlog list|gate");
-    process.exit(2);
+    finishCli(2);
+    return;
   }
 
   let backlog;
@@ -701,13 +717,15 @@ function runBacklogCommand(options) {
         2
       )
     );
-    process.exit(2);
+    finishCli(2);
+    return;
   }
 
   if (sub === "gate") {
     if (!options.subsystem) {
       console.error("gate requires --subsystem <slug>");
-      process.exit(2);
+      finishCli(2);
+      return;
     }
     const gate = evaluateGate(backlog, options.subsystem);
     if (options.human) {
@@ -715,7 +733,8 @@ function runBacklogCommand(options) {
     } else {
       console.log(JSON.stringify({ ok: !gate.blocked, ...gate }, null, 2));
     }
-    process.exit(gate.blocked ? 1 : 0);
+    finishCli(gate.blocked ? 1 : 0);
+    return;
   }
 
   const filtered = filterItems(backlog.items, {
@@ -742,7 +761,7 @@ function runBacklogCommand(options) {
   } else {
     console.log(JSON.stringify(payload, null, 2));
   }
-  process.exit(0);
+  finishCli(0);
 }
 
 function isInvokeCommand(options) {
@@ -784,5 +803,5 @@ async function runWipCommand(options) {
 
 main().catch(error => {
   console.error(JSON.stringify({ ok: false, error: error.message }, null, 2));
-  process.exit(2);
+  finishCli(2);
 });

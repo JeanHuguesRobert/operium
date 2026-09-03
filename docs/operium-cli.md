@@ -83,6 +83,12 @@ operium up --aggregator https://cogentia.fractavolta.com --json
 | `2` | Broken critical path |
 | `3` | Incomplete (probes skipped or unknown section) |
 
+On Windows + Node 24, the CLI **must not** call `process.exit()` after live
+probes (`fetch`, Tailscale `execFile`). That short-circuit races libuv and
+aborts with `UV_HANDLE_CLOSING` in `src/win/async.c` ([nodejs/node#56645](https://github.com/nodejs/node/issues/56645)).
+Commands set `process.exitCode` via `lib/cli-exit.js` (`finishCli`) and let
+handles drain. Same workaround as `operium node diagnose`.
+
 ### Environment
 
 | Variable | Default |
