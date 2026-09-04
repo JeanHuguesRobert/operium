@@ -26,6 +26,7 @@ Companion surfaces:
 |---------|------|
 | `operium up` | Observer on any trusted workstation |
 | `operium resume` | Re-entry reconnaissance: session anchor, operational delta, FBF gate |
+| `operium pause` | Safe session suspension: pre-flight leak check, updates anchor, notifies mesh |
 | `operium backlog list` / `operium backlog gate` | Fix Bugs First register (`backlog/items.yaml`) |
 | `operium calendar list` / `schedule` / `tick` / `ics` | FractaCalendar projection; `schedule` takes a `cop/node.wake.v1` packet ([protocol](calendar-cop-wake-protocol.md)) |
 | `operium handoff wip` / `operium resume wip` | GitHub-backed WIP handoff between trusted nodes |
@@ -114,6 +115,25 @@ Provides a unified, automated re-entry context for returning operators and codin
 3. **Fix Bugs First Gate:** Evaluates whether open critical/high bugs in the active subsystem block feature progress (`evaluateGate`).
 4. **Git Workspace Divergence:** Inspects branch status and dirty worktrees across primary repositories (`operium`, `cogentia`, `JeanHuguesRobert`).
 5. **Actionable Direction:** Outputs the immediate next step or highlights blocking issues.
+
+---
+
+## Safe Session Suspension: `operium pause`
+
+```bash
+operium pause                  # Suspend session, update anchor, notify remotes
+operium pause --dry-run        # Preview suspension without modifying files
+operium pause --human          # Force human format
+operium pause --json           # Machine-readable JSON (operium.pause_state.v1)
+```
+
+Provides a symmetrical counterpart to `operium resume`:
+
+1. **Pre-flight Safety Check:** Scans workspaces and aborts immediately if secret-like files (`.env`, private keys) are found.
+2. **Catalogues Workspaces:** Inspects dirty worktrees and commit SHAs across primary repositories (`operium`, `cogentia`, `JeanHuguesRobert`).
+3. **Sovereign Anchor Update:** Generates a new continuation packet (`cop.continuation_packet/v1`) and updates `JeanHuguesRobert/RESUME-SESSION.md` on `main`.
+4. **Mesh Alignment:** Dispatches background `git fetch` to reachable Fractanet nodes (`fracta`, `rpi3-view`) to prevent branch drift.
+5. **Confirmation:** Emits a clean suspension confirmation with the exact `resume` command.
 
 ---
 

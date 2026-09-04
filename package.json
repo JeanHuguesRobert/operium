@@ -15,6 +15,7 @@
     "test:cli-exit": "node scripts/test-operium-cli-exit.js",
     "test:wip": "node scripts/test-operium-wip.js",
     "test:resume": "node scripts/test-operium-resume.js",
+    "test:pause": "node scripts/test-operium-pause.js",
     "test:backlog": "node scripts/test-operium-backlog.js",
     "test:termux-tmux-handoff": "node scripts/test-termux-tmux-handoff.js",
     "test:invoke-tool": "node scripts/test-operium-invoke-tool.js",

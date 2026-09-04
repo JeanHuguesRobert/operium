@@ -32,12 +32,14 @@ import { runCalendarCommand } from "../lib/calendar-cli.js";
 import { formatCalendarHuman } from "../lib/format-calendar-human.js";
 import { reconcileDns } from "../lib/dns-reconcile.js";
 import { reconSession, formatResumeHuman } from "../lib/resume-session.js";
+import { pauseSession, formatPauseHuman } from "../lib/pause-session.js";
 
 const HELP = `operium — versioned operational environment registry CLI
 
 Usage:
   operium up [options]             Check what is up (Fractanet observer)
   operium resume [options]         Re-entry reconnaissance (session anchor, delta, FBF gate)
+  operium pause [options]          Safe session suspension (catalog WIP, update anchor, push)
   operium backlog list [options]   List Bug/Feature register (Fix Bugs First)
   operium backlog gate --subsystem <slug>   Feature gate for a subsystem
   operium invoke tool [options]    Route a tool invocation via blackboard → agent-gateway
@@ -489,6 +491,17 @@ async function main() {
       console.log(JSON.stringify(result, null, 2));
     }
     finishCli(result.fbf_gate?.blocked ? 1 : 0);
+    return;
+  }
+
+  if (options.command === "pause") {
+    const result = await pauseSession({ ...options, cli: true });
+    if (options.human || (!options.json && process.stdout.isTTY)) {
+      console.log(formatPauseHuman(result));
+    } else {
+      console.log(JSON.stringify(result, null, 2));
+    }
+    finishCli(result.ok ? 0 : 2);
     return;
   }
 
