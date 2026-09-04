@@ -301,6 +301,9 @@ function parseArgs(argv) {
       case "--topic":
         options.topic = args.shift();
         break;
+      case "--issue":
+        options.issue = args.shift();
+        break;
       case "--branch":
         options.branch = args.shift();
         break;
