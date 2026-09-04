@@ -16,6 +16,7 @@
     "test:wip": "node scripts/test-operium-wip.js",
     "test:resume": "node scripts/test-operium-resume.js",
     "test:pause": "node scripts/test-operium-pause.js",
+    "test:pause-continuation": "node scripts/test-operium-pause-continuation.js",
     "test:checkpoint": "node scripts/test-operium-checkpoint.js",
     "test:status": "node scripts/test-operium-status.js",
     "test:next": "node scripts/test-operium-next.js",

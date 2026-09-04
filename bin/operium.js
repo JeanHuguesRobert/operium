@@ -304,6 +304,15 @@ function parseArgs(argv) {
       case "--issue":
         options.issue = args.shift();
         break;
+      case "--resume-continuation":
+      case "--continuation":
+        options.resumeContinuation = args.shift();
+        break;
+      case "--choice":
+      case "--decision":
+        options.choice = args.shift();
+        if (!options.issue) options.issue = options.choice;
+        break;
       case "--repo":
         if (!options.repos) options.repos = [];
         options.repos.push(args.shift());
@@ -527,7 +536,8 @@ async function main() {
     } else {
       console.log(JSON.stringify(result, null, 2));
     }
-    finishCli(result.ok ? 0 : 2);
+    const exitCode = result.ok ? 0 : (result.status === "pending_continuation" ? 3 : 2);
+    finishCli(exitCode);
     return;
   }
 
