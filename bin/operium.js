@@ -304,6 +304,10 @@ function parseArgs(argv) {
       case "--issue":
         options.issue = args.shift();
         break;
+      case "--repo":
+        if (!options.repos) options.repos = [];
+        options.repos.push(args.shift());
+        break;
       case "--branch":
         options.branch = args.shift();
         break;
