@@ -2,7 +2,7 @@
 document_role: "source"
 document_kind: "operational"
 visibility: "private"
-last_updated: "2026-07-27"
+last_updated: "2026-09-04"
 health:
   score: 4
   status: "functional"
@@ -10,8 +10,10 @@ health:
     - "All launchers operational and tested"
     - "Command Code integrated with 43 models"
     - "Secret management via Inseme vault"
+    - "Multi-node workspace AGENTS.md pointer aligned across Fractanet"
 related:
   - "secrets-management.md"
+  - "corpus-replication-topology.md"
   - "../inseme/apps/platform/scripts/lib/config.js"
 ---
 
@@ -106,7 +108,7 @@ Interactive shells should land in `C:\tweesic` and load the Operium workspace pr
 
 - **User thin profiles:** `Documents\PowerShell\profile.ps1` + `Microsoft.PowerShell_profile.ps1`
 - **Operium authority:** `operium/profiles/shell/workstation-windows.profile.ps1`
-- **Registry:** `COGENTIA_REGISTRY` → `C:\tweesic\JeanHuguesRobert` (not a root `.cogentia.json` subset)
+- **Registry:** `COGENTIA_REGISTRY` → `C:\tweesic\JeanHuguesRobert\.cogentia.json` (not a root `.cogentia.json` subset)
 
 ### Command Code (Multi-Model Interface)
 
@@ -191,6 +193,22 @@ node apps/platform/scripts/sync-secrets.js
 | **Long-running tasks** | GLM 5.2 | Long-horizon autonomous coding |
 | **Official support** | Claude (Anthropic) | Enterprise support, stability |
 | **Local/offline** | AGY | No external dependency |
+
+## Agent Governance & Instruction Architecture (`AGENTS.md`)
+
+All coding agents operating across the workstation and Fractanet mesh nodes are governed by Cogentia's Mandate Architecture:
+
+1. **Workspace Root Pointer (`AGENTS.md`):**
+   - Maintained identically across all workspace hosts: `C:\tweesic\AGENTS.md` (Windows), `/srv/cogentia/repos/AGENTS.md` (`fracta`, `fracta2`, `rpi3-view`), and `~/srv/cogentia/repos/AGENTS.md` (`poco-jhr`).
+   - Ultra-minimal pointer (16 lines) redirecting immediately to the Git-versioned workspace guidance:
+     [`cogentia/instructions/AGENTS.workspace.md`](https://github.com/JeanHuguesRobert/cogentia/blob/main/instructions/AGENTS.workspace.md).
+
+2. **Core Governance Invariants:**
+   - **Anti-Capture Doctrine:** No hidden, vendor-specific, or unversioned local memory persistence (such as `/learn` or unversioned `.agents/rules` overrides). All architectural choices and decisions must be recorded in Git commits on `main` or as versioned Cognitive Packet events (`cogentia.agent_skill/v1`, `cop.event/v1`).
+   - **Cognitive Packets & Continuations:** Agents act as handlers (`cogentia/skills/continuation-handling/SKILL.md`) for suspended judgment packets (`ctn_*`).
+   - **Monotonic Mandate Attenuation:** Sub-project `AGENTS.md` specializations may restrict authority, but never enlarge it ($\text{Authority}_{\text{child}} \subseteq \text{Authority}_{\text{parent}}$).
+   - **Language Rule:** Technical artifacts (code, tests, PRs, commit messages, technical docs) MUST be written in English.
+   - **Optimistic Locking:** Default to direct atomic commits on `main` under Measured Risk.
 
 ## Operational Procedures
 

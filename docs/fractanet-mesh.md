@@ -3,14 +3,14 @@ title: "Fractanet mesh — Tailscale and SSH (July 2026)"
 description: "Operational record of the virteal tailnet, bidirectional SSH mesh, capable-host wiring, and Packet Attractor Phase 1 on fracta."
 layout: default
 date: 2026-07-04
-last_modified_at: 2026-07-26
+last_modified_at: 2026-09-04
 license: Apache-2.0
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/docs/fractanet-mesh.md
 document_role: "operational"
 document_kind: "method"
 visibility: "public"
 lifecycle_state: "active"
-status: "mesh live (4 nodes)"
+status: "mesh live (5 nodes)"
 classification_source: "cogentia.js"
 classification_version: "1"
 classification_rule: "explicit-metadata"

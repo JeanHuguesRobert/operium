@@ -27,6 +27,8 @@ This directory contains Operium documentation.
 - [Fix Bugs First](fix-bugs-first.md) — Bug/Feature tracking + feature gate when out of control
 - [Termux tmux handoff](termux-tmux-handoff.md) — bounded human-authorized relay into a named mobile terminal session
 - [Secrets management](secrets-management.md) — dual authority (`inseme/.env` vs vault), `COGENTIA_API_KEY`, rotation
+- [Corpus replication topology](corpus-replication-topology.md) — 5-node workspace mesh, AGENTS.md root pointer, non-destructive replication
+- [FractaNode 2 bootstrap](fracta2-node-bootstrap.md) — hosted browser, KasmVNC, ONA worker node
 - [Fracta coding workspace](fracta-coding-workspace.md) — isolated development clones, secure authority transfer, and allowlisted runtime secret views
 - `profiles/tools.termux-android.v1.yaml` / `scripts/ops/publish-inseme-env-to-termux.ps1` — Android coding-node state and authority refresh
 - [Magistral → coding-agent routing](magistral-coding-agent-routing.md) — Guide synthesis path + map apply

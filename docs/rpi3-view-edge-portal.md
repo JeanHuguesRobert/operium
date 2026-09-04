@@ -31,11 +31,22 @@ yet a full management console.
 
 | Is | Is not |
 |----|--------|
-| Local HTTP home at `http://127.0.0.1/` (and tailnet `http://rpi3-view/`) | Coding workspace or corpus monorepo |
+| Local HTTP home at `http://127.0.0.1/` (and tailnet `http://rpi3-view/`) | Primary write authority or heavy build server |
 | Reachability dashboard (mesh nodes + Views Store) | SOMA/MIB browser or ONA drill-down |
 | Cached `status.json` for WAN-down consultation | Central control plane / Fracta authority |
 | Firefox home window (reversible fullscreen via labwc) | Locked-down kiosk with no desktop access |
 | **Step 1** of a future control-room UI | Full “La Nasa” multi-panel ops console |
+
+## Workspace replica & edge agent capacity (Updated 2026-09-04)
+
+`rpi3-view` hosts a full replicated copy of the Cogentia workspace under `/srv/cogentia/repos/`:
+
+- **Path:** `/srv/cogentia/repos` (owned by `jh:jh`, populated with all 23 repositories, ~4.1 GB).
+- **Storage capacity:** 14 GB free space remaining on the 32 GB SD card (`/dev/root` at 49% utilization).
+- **Workspace root guidance:** `/srv/cogentia/repos/AGENTS.md` deployed, canonically redirecting to `cogentia/instructions/AGENTS.workspace.md`.
+- **Installed runtime:** Node.js v22.23.1, npm, npx, Git 2.39.5, Python 3.11.2 (in `~/.local/bin/`).
+- **Sync mechanism:** `~/sync-repos.sh` performs sequential, low-RAM rsync repo-by-repo from `fracta`.
+- **Edge coding agent role:** Bounded edge continuations, code inspection, AST/grep search, and git operations. Heavy compilation tasks (Vite/Webpack, massive `npm install`) remain offloaded to cloud workers (`fracta`, `fracta2`) or the workstation (`i7-thinkpad-jhr`) to preserve the 1 GB RAM envelope.
 
 **Next steps:** SNMP-like management agents + global/zoom web UI — **P0 contract:**
 [control-room-mib-lite-v0.md](control-room-mib-lite-v0.md). Background:
