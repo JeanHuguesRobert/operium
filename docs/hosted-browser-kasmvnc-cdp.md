@@ -69,55 +69,56 @@ graph TD
 |----------|------------|----------------|
 | Unix account | Workspace owner UID, home, systemd `User=` | The KasmVNC login prompt |
 | Hosted Browser workspace | Persistent Chrome profile + display + ports | A Cogentia Principal or Twin |
-| KasmVNC user | HTTP Basic login in `~/.kasmpasswd` (Websockify realm) | Gmail, Unix, or Principal |
+| KasmVNC user | HTTP Basic login = Gmail local part `uuuu` | Unix account, Google session, or Principal |
 | Google / site sessions | Created by a human inside Chrome | Something the provisioner logs into |
 
 Default isolation is **one person / one Unix workspace / one write-capable KasmVNC login**. Extra KasmVNC viewers on the same display are an explicit grant (`vncpasswd -u …`), not the way to give a second person their own browser.
 
 ### What the public password prompt is
 
-Observed 2026-09-03: `https://browser.fractavolta.com/` returns **HTTP 401** `WWW-Authenticate: Basic realm="Websockify"` behind two Caddy hops. That prompt is **KasmVNC HTTP Basic** from the workspace `~/.kasmpasswd` file. It is not Unix `login(1)`, not Gmail, and not Cogentia.
+Observed 2026-09-03: `https://browser.fractavolta.com/` returns **HTTP 401** `WWW-Authenticate: Basic realm="Websockify"` behind two Caddy hops. That prompt is **KasmVNC HTTP Basic** from the workspace `~/.kasmpasswd` file. It is not Unix `login(1)` and not Cogentia.
+
+Temporary lab password (issue #25, until a later auth scheme): for Gmail `uuuu@gmail.com` the Websockify username is `uuuu` and the password is `sesame-uuuu`. This is the same *family* as other Operium lab sesames. It is **not a security boundary**. Anyone who knows the Gmail local part can derive the password. Do not treat the public hostname as protected by this prompt. Google sign-in inside Chrome is a separate human step and is not this password.
 
 Display `N` binds KasmVNC HTTP/WebSocket to `127.0.0.1:(8443+N)`, Chrome CDP to `127.0.0.1:(9222+N)`, optional RFB to `127.0.0.1:(5900+N)`. Display `:1` is therefore `:8444` / `:9223` / `:5901`. Only a chosen KasmVNC HTTP port may be published; RFB and CDP stay off the public Internet.
 
 ### Generic workspace provisioning
 
 Use `scripts/ops/provision-hosted-browser-user.sh` after the node-level
-KasmVNC templates are installed. It derives a stable Unix workspace from a
-canonical Gmail address, allocates an explicit display, and requires existing
-private KasmVNC and RFB password files. It never receives a Google password,
-creates a Google account, or performs a Google sign-in.
-
-Create those password files **before** provision, as root, with KasmVNC 1.5
-`vncpasswd` (same tool as `kasmvncpasswd`). The `-u` name is the Websockify
-login; prefer the workspace key, not the Gmail address, so the public prompt
-does not display an email:
-
-```bash
-# Interactive; password min 6 chars. -w = keyboard/mouse. Skip -o unless this
-# login should call the KasmVNC developer API.
-sudo vncpasswd -u exampleperson -w /root/private/person.kasm
-# Classic RFB file for the optional localhost x11vnc projection (#24).
-sudo x11vnc -storepasswd /root/private/person.rfb
-sudo chmod 600 /root/private/person.kasm /root/private/person.rfb
-```
-
-Then dry-run, then apply:
+KasmVNC templates are installed. A canonical Gmail address is required
+(`uuuu@gmail.com`, no plus-alias). The Unix account is
+`hosted-<uuuu-without-dots>`. The provisioner writes the lab KasmVNC
+login with `vncpasswd` / `kasmvncpasswd` on the node. It never receives a
+Google password, creates a Google account, or signs into Google.
 
 ```bash
 sudo scripts/ops/provision-hosted-browser-user.sh \
   --gmail person@gmail.com \
   --display 3 \
-  --kasm-password-file /root/private/person.kasm \
-  --rfb-password-file /root/private/person.rfb \
   --dry-run
 ```
 
-Remove the final `--dry-run` only after confirming that the display is unused
-and the supplied password files contain the intended private credentials. The
-web-facing Caddy route is a separate operational decision: a newly provisioned
-workspace is not automatically made public. Optional fragment:
+Dry-run prints the Websockify user and `sesame-<uuuu>` formula. Remove
+`--dry-run` only after the display is free. Optional
+`--kasm-password-file` overrides the lab sesame when a later auth scheme
+lands. `--with-rfb` still needs a separate classic RFB password file
+(TigerVNC/x11vnc truncates; do not reuse the sesame there).
+
+The web-facing Caddy route is a separate operational decision: a newly
+provisioned workspace is not automatically made public. Optional fragment:
 `templates/hosted-browser/Caddyfile.browser.fragment`.
+
+Legacy Unix names (`hosted-jhr`) migrate with
+`scripts/ops/migrate-hosted-browser-user.sh`. `--password-only` rewrites
+sesame on the existing account; the default path renames user/group/home
+to `hosted-<gmail-key>` and keeps the Chrome profile. `--test-local`
+checks `https://127.0.0.1:(8443+display)/` (KasmVNC speaks TLS on that
+port; plain HTTP is empty).
+
+Observed 2026-09-04 on `fracta2`: `hosted-jhr` →
+`hosted-jeanhuguesrobert` on display `:1`. Local TLS Websockify returned
+200 for the lab sesame and 401 otherwise. `hosted-nasa` was left
+unchanged.
 
 ### List, rotate, revoke
 
@@ -129,12 +130,11 @@ sudo scripts/ops/list-hosted-browser-workspaces.sh --json
 Listing reads `/etc/operium/hosted-browser/*.env` and systemd active state. It
 does not open password files.
 
-**Rotate** the Websockify login by writing a new `vncpasswd` file, installing it
-over `/home/<unix>/.kasmpasswd` (mode 0600, owner = workspace), and restarting
-`hosted-browser@<unix>.service`. KasmVNC file edits are **not** applied live;
-the developer API can change users without restart but is out of scope for this
-MVP. Then sign in from a browser **outside** Tailscale to the published
-hostname if that workspace is public.
+**Rotate** while the lab sesame is in force by re-running the provisioner
+(same Gmail + display) or by writing `~/.kasmpasswd` with `vncpasswd -u uuuu -w`
+and password `sesame-uuuu`, then restarting `hosted-browser@<unix>.service`.
+File edits are **not** applied live. When the future auth scheme lands, stop
+using this formula and treat remaining `sesame-*` files as expired.
 
 **Revoke an extra KasmVNC viewer** (same workspace, not a second person):
 

@@ -2,18 +2,25 @@
 set -euo pipefail
 
 # Provision one isolated Hosted Browser workspace on an already bootstrapped
-# FractaNode. It deliberately does not create browser or Google credentials.
+# FractaNode. It does not create a Google account or sign into Google.
 
 usage() {
   cat <<'EOF'
 Usage:
   provision-hosted-browser-user.sh --gmail EMAIL --display NUMBER \
-    --kasm-password-file PATH --rfb-password-file PATH [--start-url URL] [--with-rfb] [--dry-run]
+    [--start-url URL] [--with-rfb] [--rfb-password-file PATH] \
+    [--kasm-password-file PATH] [--dry-run]
 
-The Gmail local part supplies the stable workspace key. For example,
-jeanhuguesrobert@gmail.com becomes the Unix account hosted-jeanhuguesrobert.
-The supplied password files must already have been created privately with the
-appropriate KasmVNC / x11vnc tooling; this script never accepts a password.
+The Gmail local part (uuuu in uuuu@gmail.com) is required. Dots are stripped
+only for the Unix account hosted-<key>. The temporary KasmVNC HTTP Basic
+login is:
+
+  username: uuuu
+  password: sesame-uuuu
+
+That lab sesame is not a security boundary. A later auth scheme will replace
+it. --kasm-password-file overrides the sesame file if you already have one.
+This script never accepts a Google password.
 EOF
 }
 
@@ -39,8 +46,12 @@ while (($#)); do
   esac
 done
 
-if [[ -z "$gmail" || -z "$display" || -z "$kasm_password_file" || -z "$rfb_password_file" ]]; then
+if [[ -z "$gmail" || -z "$display" ]]; then
   usage >&2
+  exit 64
+fi
+if "$with_rfb" && [[ -z "$rfb_password_file" ]]; then
+  echo "--with-rfb requires --rfb-password-file (classic RFB is not the lab sesame)" >&2
   exit 64
 fi
 
@@ -58,9 +69,11 @@ if [[ "$start_url" == *$'\n'* || "$start_url" == *$'\r'* || ! "$start_url" =~ ^h
   exit 64
 fi
 
-workspace_key="${gmail%@gmail.com}"
-workspace_key="${workspace_key//./}"
+gmail_local="${gmail%@gmail.com}"
+workspace_key="${gmail_local//./}"
 unix_user="hosted-${workspace_key}"
+kasm_user="$gmail_local"
+kasm_password="sesame-${gmail_local}"
 home_dir="/home/${unix_user}"
 env_dir='/etc/operium/hosted-browser'
 env_file="${env_dir}/${unix_user}.env"
@@ -75,8 +88,12 @@ if ! "$dry_run" && [[ "$(id -u)" -ne 0 ]]; then
   echo "run as root (for example: sudo $0 ...)" >&2
   exit 77
 fi
-if ! "$dry_run" && { [[ ! -s "$kasm_password_file" ]] || [[ ! -s "$rfb_password_file" ]]; }; then
-  echo "password files must exist, be non-empty, and remain private" >&2
+if ! "$dry_run" && [[ -n "$kasm_password_file" && ! -s "$kasm_password_file" ]]; then
+  echo "--kasm-password-file must exist, be non-empty, and remain private" >&2
+  exit 66
+fi
+if ! "$dry_run" && [[ -n "$rfb_password_file" && ! -s "$rfb_password_file" ]]; then
+  echo "--rfb-password-file must exist, be non-empty, and remain private" >&2
   exit 66
 fi
 
@@ -100,11 +117,41 @@ fi
 if "$dry_run"; then
   plan "create or reconcile Unix account ${unix_user}"
   plan "install isolated profile under ${home_dir}/.hosted-browser"
+  if [[ -n "$kasm_password_file" ]]; then
+    plan "install KasmVNC password file from ${kasm_password_file}"
+  else
+    plan "KasmVNC HTTP Basic user=${kasm_user} password=sesame-${gmail_local} (lab sesame; not a security boundary)"
+  fi
   plan "write ${env_file} with display :${display}, CDP :$((9222 + display)), RFB :${rfb_port}"
   plan "enable hosted-browser@${unix_user}.service"
   "$with_rfb" && plan "enable localhost-only hosted-browser-rfb@${unix_user}.service"
   exit 0
 fi
+
+write_lab_kasmpasswd() {
+  local dest="$1"
+  local tool=""
+  tool="$(command -v vncpasswd || true)"
+  [[ -n "$tool" ]] || tool="$(command -v kasmvncpasswd || true)"
+  [[ -n "$tool" ]] || {
+    echo "vncpasswd or kasmvncpasswd is required to write ~/.kasmpasswd" >&2
+    exit 69
+  }
+  local tmp
+  tmp="$(mktemp)"
+  rm -f "$tmp"
+  if ! printf '%s\n%s\n' "$kasm_password" "$kasm_password" | "$tool" -u "$kasm_user" -w "$tmp"; then
+    echo "failed to write KasmVNC password file with ${tool}" >&2
+    exit 70
+  fi
+  [[ -s "$tmp" ]] || {
+    echo "${tool} produced an empty password file (does it require a TTY?)" >&2
+    rm -f "$tmp"
+    exit 70
+  }
+  install -o "$unix_user" -g "$unix_user" -m 0600 "$tmp" "$dest"
+  rm -f "$tmp"
+}
 
 for required in /opt/operium/bin/start-hosted-browser.sh /etc/systemd/system/hosted-browser@.service; do
   [[ -f "$required" ]] || { echo "missing Hosted Browser prerequisite: $required" >&2; exit 69; }
@@ -118,8 +165,14 @@ usermod -aG kasmvnc-cert "$unix_user"
 
 install -d -o root -g root -m 0755 "$env_dir"
 install -d -o "$unix_user" -g "$unix_user" -m 0700 "${home_dir}/.hosted-browser" "${home_dir}/.vnc"
-install -o "$unix_user" -g "$unix_user" -m 0600 "$kasm_password_file" "${home_dir}/.kasmpasswd"
-install -o "$unix_user" -g "$unix_user" -m 0600 "$rfb_password_file" "${home_dir}/.vnc/passwd"
+if [[ -n "$kasm_password_file" ]]; then
+  install -o "$unix_user" -g "$unix_user" -m 0600 "$kasm_password_file" "${home_dir}/.kasmpasswd"
+else
+  write_lab_kasmpasswd "${home_dir}/.kasmpasswd"
+fi
+if [[ -n "$rfb_password_file" ]]; then
+  install -o "$unix_user" -g "$unix_user" -m 0600 "$rfb_password_file" "${home_dir}/.vnc/passwd"
+fi
 
 tmp_env="$(mktemp)"
 trap 'rm -f "$tmp_env"' EXIT
@@ -134,5 +187,5 @@ if "$with_rfb"; then
   systemctl enable --now "hosted-browser-rfb@${unix_user}.service"
 fi
 
-printf 'Provisioned %s for %s on display :%s. Google login remains a human step.\n' \
-  "$unix_user" "$gmail" "$display"
+printf 'Provisioned %s on display :%s. KasmVNC login is the Gmail local part with lab sesame password. Google sign-in inside Chrome remains a human step.\n' \
+  "$unix_user" "$display"

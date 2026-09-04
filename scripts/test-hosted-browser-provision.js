@@ -9,6 +9,7 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const provision = path.join(root, "scripts/ops/provision-hosted-browser-user.sh");
+const migrate = path.join(root, "scripts/ops/migrate-hosted-browser-user.sh");
 const listWorkspaces = path.join(root, "scripts/ops/list-hosted-browser-workspaces.sh");
 
 function resolveBash() {
@@ -51,19 +52,24 @@ const plusAlias = bash([
   provision,
   "--gmail", "person+tag@gmail.com",
   "--display", "3",
-  "--kasm-password-file", "/tmp/kasm",
-  "--rfb-password-file", "/tmp/rfb",
   "--dry-run",
 ]);
 assert.equal(plusAlias.status, 64, plusAlias.stderr);
 assert.match(plusAlias.stderr, /plus alias/);
 
+const rfbNeedsFile = bash([
+  provision,
+  "--gmail", "person@gmail.com",
+  "--display", "3",
+  "--with-rfb",
+  "--dry-run",
+]);
+assert.equal(rfbNeedsFile.status, 64, rfbNeedsFile.stderr);
+
 const dry = bash([
   provision,
   "--gmail", "Example.Person@gmail.com",
   "--display", "3",
-  "--kasm-password-file", "/tmp/kasm",
-  "--rfb-password-file", "/tmp/rfb",
   "--dry-run",
 ]);
 assert.equal(dry.status, 0, dry.stderr);
@@ -71,7 +77,32 @@ assert.match(dry.stdout, /hosted-exampleperson/);
 assert.match(dry.stdout, /display :3/);
 assert.match(dry.stdout, /CDP :9225/);
 assert.match(dry.stdout, /RFB :5903/);
-assert.doesNotMatch(dry.stdout, /google password|sign-in/i);
+assert.match(dry.stdout, /user=example\.person password=sesame-example\.person/);
+assert.match(dry.stdout, /lab sesame/);
+assert.doesNotMatch(dry.stdout, /Google password/i);
+
+const migrateDry = bash([
+  migrate,
+  "--from-unix", "hosted-jhr",
+  "--gmail", "jeanhuguesrobert@gmail.com",
+  "--display", "1",
+  "--dry-run",
+]);
+assert.equal(migrateDry.status, 0, migrateDry.stderr);
+assert.match(migrateDry.stdout, /hosted-jeanhuguesrobert/);
+assert.match(migrateDry.stdout, /user=jeanhuguesrobert password=sesame-jeanhuguesrobert/);
+
+const migratePasswordOnly = bash([
+  migrate,
+  "--from-unix", "hosted-jhr",
+  "--gmail", "jeanhuguesrobert@gmail.com",
+  "--password-only",
+  "--test-local",
+  "--dry-run",
+]);
+assert.equal(migratePasswordOnly.status, 0, migratePasswordOnly.stderr);
+assert.match(migratePasswordOnly.stdout, /rewrite .*hosted-jhr\/.kasmpasswd/);
+assert.match(migratePasswordOnly.stdout, /GET https:\/\/127\.0\.0\.1:8444\//);
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "hosted-browser-list-"));
 fs.writeFileSync(path.join(tmp, "hosted-exampleperson.env"), [
@@ -101,5 +132,5 @@ fs.rmSync(tmp, { recursive: true, force: true });
 
 console.log(JSON.stringify({
   ok: true,
-  tests: ["provision-usage", "reject-plus-alias", "dry-run-key", "list-env-dir"],
+  tests: ["provision-usage", "reject-plus-alias", "rfb-needs-file", "lab-sesame", "migrate-dry", "list-env-dir"],
 }, null, 2));

@@ -62,7 +62,8 @@ sudo systemctl daemon-reload
 
 Do not hand-create `hosted-jhr` for new people. Use the provisioner in
 [`hosted-browser-kasmvnc-cdp.md`](hosted-browser-kasmvnc-cdp.md) (issue #25):
-create private `vncpasswd` / RFB files, `--dry-run`, then apply. Copy the
+`--gmail` + `--display`, `--dry-run`, then apply. Lab Websockify password is
+`sesame-<gmail-local-part>` (not a security boundary). Copy the
 script to the node first:
 
 ```bash
@@ -72,10 +73,10 @@ sudo install -m 0755 scripts/ops/list-hosted-browser-workspaces.sh \
   /opt/operium/bin/list-hosted-browser-workspaces.sh
 ```
 
-`hosted-jhr` on display `:1` is a **legacy** workspace name. Leave it running
-until a human-validated migration copies its Chrome profile into a canonical
-`hosted-<gmail-key>` account and switches any public Caddy route. Google sign-in
-inside Chrome remains a human step.
+`hosted-jhr` was the legacy operator workspace on display `:1`. On 2026-09-04
+it was renamed in place to `hosted-jeanhuguesrobert` (same Chrome profile,
+lab sesame Websockify login). `hosted-nasa` is a separate workspace and was
+not renamed. Google sign-in inside Chrome remains a human step.
 
 ```bash
 sudo /opt/operium/bin/list-hosted-browser-workspaces.sh
