@@ -308,6 +308,11 @@ function parseArgs(argv) {
       case "--continuation":
         options.resumeContinuation = args.shift();
         break;
+      case "--require-choice":
+      case "--force-choice":
+      case "--choose":
+        options.requireChoice = true;
+        break;
       case "--choice":
       case "--decision":
         options.choice = args.shift();
