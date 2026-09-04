@@ -19,6 +19,7 @@
     "test:checkpoint": "node scripts/test-operium-checkpoint.js",
     "test:status": "node scripts/test-operium-status.js",
     "test:next": "node scripts/test-operium-next.js",
+    "test:cogentia-bridge": "node scripts/test-operium-cogentia-bridge.js",
     "test:backlog": "node scripts/test-operium-backlog.js",
     "test:termux-tmux-handoff": "node scripts/test-termux-tmux-handoff.js",
     "test:invoke-tool": "node scripts/test-operium-invoke-tool.js",
