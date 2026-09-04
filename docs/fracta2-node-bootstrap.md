@@ -51,10 +51,13 @@ sudo tailscale up --hostname=fracta2 --accept-routes
 ## 4. Install Hosted Browser Template & Scripts
 
 ```bash
-sudo mkdir -p /opt/operium/bin
+sudo mkdir -p /opt/operium/bin /opt/operium/templates/hosted-browser
 sudo cp templates/hosted-browser/start-hosted-browser.sh /opt/operium/bin/
 sudo chmod +x /opt/operium/bin/start-hosted-browser.sh
+sudo cp templates/hosted-browser/openbox-*.xml /opt/operium/templates/hosted-browser/
 sudo cp templates/hosted-browser/hosted-browser@.service /etc/systemd/system/
+sudo install -m 0755 scripts/ops/hosted-workspace-policy.sh \
+  scripts/ops/configure-hosted-browser-workspace.sh /opt/operium/bin/
 sudo systemctl daemon-reload
 ```
 

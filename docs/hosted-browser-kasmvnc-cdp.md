@@ -82,6 +82,31 @@ Temporary lab password (issue #25, until a later auth scheme): for Gmail `uuuu@g
 
 Display `N` binds KasmVNC HTTP/WebSocket to `127.0.0.1:(8443+N)`, Chrome CDP to `127.0.0.1:(9222+N)`, optional RFB to `127.0.0.1:(5900+N)`. Display `:1` is therefore `:8444` / `:9223` / `:5901`. Only a chosen KasmVNC HTTP port may be published; RFB and CDP stay off the public Internet.
 
+### Session mode vs assurance (issue #49)
+
+The X session is a **Hosted Workspace**. Chrome is an application, not the session process.
+
+| Knob | Values | Role |
+|------|--------|------|
+| `HOSTED_SESSION` | `kiosk` (default) or `desktop` | Kiosk: Chrome only, restart on exit with cooldown. Desktop: Openbox is the session; right-click menu Chrome / terminal / restart Chrome / logout. |
+| `HOSTED_ASSURANCE` | `lab-sesame` (now), `mesh-session`, `future-idp` | How strongly we believe the person at the prompt. Future auth **opens** capacities; it does not rewrite the launcher. |
+
+Fail closed (`scripts/ops/hosted-workspace-policy.sh`):
+
+- `desktop` on `lab-sesame` + public bind is refused unless `HOSTED_ASSURANCE_WAIVER=principal-lab`.
+- Host admin / sudo on the Chrome UID is never a workspace capacity.
+- Lowering assurance must close desktop again (re-run configure).
+
+```bash
+sudo scripts/ops/configure-hosted-browser-workspace.sh \
+  --unix hosted-someone --session kiosk --dry-run
+sudo scripts/ops/configure-hosted-browser-workspace.sh \
+  --unix hosted-jeanhuguesrobert --session desktop --bind public \
+  --assurance lab-sesame --waiver principal-lab --restart
+```
+
+New workspaces provision as kiosk. Do not grant desktop to a regular user on the public sesame prompt.
+
 ### Generic workspace provisioning
 
 Use `scripts/ops/provision-hosted-browser-user.sh` after the node-level

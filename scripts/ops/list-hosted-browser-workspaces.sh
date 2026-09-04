@@ -48,6 +48,8 @@ for env_file in "${files[@]}"; do
   display="$(sed -n 's/^HOSTED_BROWSER_DISPLAY=//p' "$env_file" | head -n 1)"
   start_url="$(sed -n 's/^HOSTED_BROWSER_START_URL=//p' "$env_file" | head -n 1)"
   rfb_port="$(sed -n 's/^HOSTED_BROWSER_RFB_PORT=//p' "$env_file" | head -n 1)"
+  session="$(sed -n 's/^HOSTED_SESSION=//p' "$env_file" | head -n 1)"
+  assurance="$(sed -n 's/^HOSTED_ASSURANCE=//p' "$env_file" | head -n 1)"
   websocket_port=""
   cdp_port=""
   if [[ "$display" =~ ^[0-9]+$ ]]; then
@@ -61,7 +63,7 @@ for env_file in "${files[@]}"; do
     active="$(systemctl is-active "$unit" 2>/dev/null || true)"
     [[ -n "$active" ]] || active="unknown"
   fi
-  rows+=("${unix_user}|${display}|${websocket_port}|${cdp_port}|${rfb_port}|${active}|${start_url}|${env_file}")
+  rows+=("${unix_user}|${display}|${websocket_port}|${cdp_port}|${rfb_port}|${active}|${session:-kiosk}|${assurance:-lab-sesame}|${start_url}|${env_file}")
 done
 
 json_escape() {
@@ -72,24 +74,25 @@ if "$as_json"; then
   printf '{"schema":"operium.hosted-browser.list.v1","count":%s,"workspaces":[' "${#rows[@]}"
   first=true
   for row in "${rows[@]}"; do
-    IFS='|' read -r unix_user display websocket_port cdp_port rfb_port active start_url env_file <<<"$row"
+    IFS='|' read -r unix_user display websocket_port cdp_port rfb_port active session assurance start_url env_file <<<"$row"
     "$first" || printf ','
     first=false
-    printf '{"unix_user":"%s","display":"%s","websocket_port":"%s","cdp_port":"%s","rfb_port":"%s","systemd_active":"%s","start_url":"%s","env_file":"%s"}' \
+    printf '{"unix_user":"%s","display":"%s","websocket_port":"%s","cdp_port":"%s","rfb_port":"%s","systemd_active":"%s","session":"%s","assurance":"%s","start_url":"%s","env_file":"%s"}' \
       "$(json_escape "$unix_user")" "$(json_escape "$display")" \
       "$(json_escape "$websocket_port")" "$(json_escape "$cdp_port")" \
       "$(json_escape "$rfb_port")" "$(json_escape "$active")" \
+      "$(json_escape "$session")" "$(json_escape "$assurance")" \
       "$(json_escape "$start_url")" "$(json_escape "$env_file")"
   done
   printf ']}\n'
   exit 0
 fi
 
-printf '%-28s %-8s %-10s %-8s %-8s %-10s %s\n' \
-  "UNIX_USER" "DISPLAY" "KASM_HTTP" "CDP" "RFB" "UNIT" "START_URL"
+printf '%-28s %-8s %-8s %-12s %-10s %-8s %-8s %-10s %s\n' \
+  "UNIX_USER" "DISPLAY" "SESSION" "ASSURANCE" "KASM_HTTP" "CDP" "RFB" "UNIT" "START_URL"
 for row in "${rows[@]}"; do
-  IFS='|' read -r unix_user display websocket_port cdp_port rfb_port active start_url env_file <<<"$row"
-  printf '%-28s %-8s %-10s %-8s %-8s %-10s %s\n' \
-    "$unix_user" "${display:+:$display}" "${websocket_port:-}" "${cdp_port:-}" \
-    "${rfb_port:-}" "$active" "${start_url:-}"
+  IFS='|' read -r unix_user display websocket_port cdp_port rfb_port active session assurance start_url env_file <<<"$row"
+  printf '%-28s %-8s %-8s %-12s %-10s %-8s %-8s %-10s %s\n' \
+    "$unix_user" "${display:+:$display}" "$session" "$assurance" \
+    "${websocket_port:-}" "${cdp_port:-}" "${rfb_port:-}" "$active" "${start_url:-}"
 done
