@@ -34,14 +34,19 @@ import { reconcileDns } from "../lib/dns-reconcile.js";
 import { reconSession, formatResumeHuman } from "../lib/resume-session.js";
 import { pauseSession, formatPauseHuman } from "../lib/pause-session.js";
 import { checkpointSession, formatCheckpointHuman } from "../lib/checkpoint-session.js";
+import { statusSession, formatStatusHuman } from "../lib/status-session.js";
+import { planNextSteps, executeNextStep, formatNextHuman } from "../lib/next-session.js";
 
 const HELP = `operium — versioned operational environment registry CLI
 
 Usage:
   operium up [options]             Check what is up (Fractanet observer)
-  operium resume [options]         Re-entry reconnaissance (session anchor, delta, FBF gate)
-  operium pause [options]          Safe session suspension (catalog WIP, update anchor, push)
+  operium status [options]         Situational report (sitrep: anchor, git, mesh, FBF)
+  operium next? [options]          Deliberate next logical steps (plan & ranking)
+  operium next [options]           Execute the top recommended next step
   operium checkpoint [options]     Consolidate session in-flight (seal, scan leaks, probe FBF)
+  operium pause [options]          Safe session suspension (catalog WIP, update anchor, push)
+  operium resume [options]         Re-entry reconnaissance (session anchor, delta, FBF gate)
   operium backlog list [options]   List Bug/Feature register (Fix Bugs First)
   operium backlog gate --subsystem <slug>   Feature gate for a subsystem
   operium invoke tool [options]    Route a tool invocation via blackboard → agent-gateway
@@ -221,6 +226,18 @@ function parseArgs(argv) {
   if (options.command === "-h" || options.command === "--help") {
     options.help = true;
     return options;
+  }
+  if (options.command === "st" || options.command === "sitrep") {
+    options.command = "status";
+  } else if (
+    options.command === "next?" ||
+    options.command === "plan" ||
+    (options.command === "next" && (args[0] === "?" || args.includes("--plan") || args.includes("-?")))
+  ) {
+    options.command = "next?";
+    if (args[0] === "?") args.shift();
+  } else if (options.command === "continue") {
+    options.command = "next";
   }
   if (options.command === "invoke" && args[0] === "tool") {
     options.subcommand = args.shift();
@@ -511,6 +528,39 @@ async function main() {
     const result = await checkpointSession({ ...options, cli: true });
     if (options.human || (!options.json && process.stdout.isTTY)) {
       console.log(formatCheckpointHuman(result));
+    } else {
+      console.log(JSON.stringify(result, null, 2));
+    }
+    finishCli(result.ok ? 0 : 1);
+    return;
+  }
+
+  if (options.command === "status") {
+    const result = await statusSession({ ...options, cli: true });
+    if (options.human || (!options.json && process.stdout.isTTY)) {
+      console.log(formatStatusHuman(result));
+    } else {
+      console.log(JSON.stringify(result, null, 2));
+    }
+    finishCli(result.ok ? 0 : 1);
+    return;
+  }
+
+  if (options.command === "next?") {
+    const result = await planNextSteps({ ...options, cli: true });
+    if (options.human || (!options.json && process.stdout.isTTY)) {
+      console.log(formatNextHuman(result, "plan"));
+    } else {
+      console.log(JSON.stringify(result, null, 2));
+    }
+    finishCli(result.ok ? 0 : 1);
+    return;
+  }
+
+  if (options.command === "next") {
+    const result = await executeNextStep({ ...options, cli: true });
+    if (options.human || (!options.json && process.stdout.isTTY)) {
+      console.log(formatNextHuman(result, "exec"));
     } else {
       console.log(JSON.stringify(result, null, 2));
     }

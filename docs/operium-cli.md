@@ -25,9 +25,12 @@ Companion surfaces:
 | Surface | Role |
 |---------|------|
 | `operium up` | Observer on any trusted workstation |
-| `operium resume` | Re-entry reconnaissance: session anchor, operational delta, FBF gate |
-| `operium pause` | Safe session suspension: pre-flight leak check, updates anchor, notifies mesh |
+| `operium status` / `st` / `sitrep` | Situational report: read-only view of anchor, git, mesh, and FBF gate |
+| `operium next?` / `plan` | Deliberation: prioritized list of next logical steps |
+| `operium next` / `continue` | Execution: executes top recommended next step |
 | `operium checkpoint` / `cp` | In-flight consolidation: seal anchor, leak scan, probe mesh & FBF gate |
+| `operium pause` | Safe session suspension: pre-flight leak check, updates anchor, notifies mesh |
+| `operium resume` | Re-entry reconnaissance: session anchor, operational delta, FBF gate |
 | `operium backlog list` / `operium backlog gate` | Fix Bugs First register (`backlog/items.yaml`) |
 | `operium calendar list` / `schedule` / `tick` / `ics` | FractaCalendar projection; `schedule` takes a `cop/node.wake.v1` packet ([protocol](calendar-cop-wake-protocol.md)) |
 | `operium handoff wip` / `operium resume wip` | GitHub-backed WIP handoff between trusted nodes |
@@ -155,6 +158,50 @@ Provides in-flight consolidation without interrupting active work:
 3. **Dispatches Mesh Notification:** Triggers background `git fetch` to reachable remote nodes (`fracta`, `rpi3-view`).
 4. **Probes Real-time Health & Gate:** Checks Tailscale mesh health and evaluates the *FixBugsFirst* gate on the active subsystem.
 5. **Fresh Cognitive Horizon:** Emits a concise confirmation that state is safe and ready to proceed.
+
+---
+
+## Situational Report: `operium status` (aliases `st`, `sitrep`)
+
+```bash
+operium status                 # Machine-readable JSON (or human if TTY)
+operium status --human         # Force human format
+operium st                     # Short alias
+operium sitrep                 # Operational situation report alias
+```
+
+Pure read-only inspection answering *"Where are we right now?"*:
+1. **Intention:** Reads session anchor from `JeanHuguesRobert/RESUME-SESSION.md` (active issue, packet ID, status).
+2. **Material:** Inspects Git workspaces (`operium`, `cogentia`, `JeanHuguesRobert`) for dirty files, branches, and commits ahead/behind.
+3. **Environment:** Checks Tailscale peers and live health score of the Fractanet cluster.
+4. **Compass:** Checks the *FixBugsFirst* gate on the active subsystem.
+
+---
+
+## Deliberation: `operium next?` (alias `plan`)
+
+```bash
+operium "next?"                # Output prioritized list of next logical actions
+operium "next?" --human        # Force human format
+operium plan                   # Alias without special characters
+```
+
+Derives a ranked, justified list of logical next steps:
+1. **P0 (FixBugsFirst):** If blocking bugs exist in the active subsystem, resolution is strictly recommended before features.
+2. **P1 (Replication / Test):** Sync unpushed commits or run verification tests on modified components.
+3. **P2 (Consolidation / Features):** Consolidate progress with `checkpoint` or continue active issue checklist items.
+
+---
+
+## Action Execution: `operium next` (alias `continue`)
+
+```bash
+operium next                   # Execute top-priority recommended action
+operium continue               # Natural language alias
+operium next --dry-run         # Preview what would be executed
+```
+
+Automatically executes the #1 recommended step determined by `next?` (running test suites, executing checkpoints, pushing commits, or surfacing agent prompts).
 
 ---
 

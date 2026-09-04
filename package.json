@@ -17,6 +17,8 @@
     "test:resume": "node scripts/test-operium-resume.js",
     "test:pause": "node scripts/test-operium-pause.js",
     "test:checkpoint": "node scripts/test-operium-checkpoint.js",
+    "test:status": "node scripts/test-operium-status.js",
+    "test:next": "node scripts/test-operium-next.js",
     "test:backlog": "node scripts/test-operium-backlog.js",
     "test:termux-tmux-handoff": "node scripts/test-termux-tmux-handoff.js",
     "test:invoke-tool": "node scripts/test-operium-invoke-tool.js",
