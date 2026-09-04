@@ -27,6 +27,7 @@ Companion surfaces:
 | `operium up` | Observer on any trusted workstation |
 | `operium resume` | Re-entry reconnaissance: session anchor, operational delta, FBF gate |
 | `operium pause` | Safe session suspension: pre-flight leak check, updates anchor, notifies mesh |
+| `operium checkpoint` / `cp` | In-flight consolidation: seal anchor, leak scan, probe mesh & FBF gate |
 | `operium backlog list` / `operium backlog gate` | Fix Bugs First register (`backlog/items.yaml`) |
 | `operium calendar list` / `schedule` / `tick` / `ics` | FractaCalendar projection; `schedule` takes a `cop/node.wake.v1` packet ([protocol](calendar-cop-wake-protocol.md)) |
 | `operium handoff wip` / `operium resume wip` | GitHub-backed WIP handoff between trusted nodes |
@@ -134,6 +135,26 @@ Provides a symmetrical counterpart to `operium resume`:
 3. **Sovereign Anchor Update:** Generates a new continuation packet (`cop.continuation_packet/v1`) and updates `JeanHuguesRobert/RESUME-SESSION.md` on `main`.
 4. **Mesh Alignment:** Dispatches background `git fetch` to reachable Fractanet nodes (`fracta`, `rpi3-view`) to prevent branch drift.
 5. **Confirmation:** Emits a clean suspension confirmation with the exact `resume` command.
+
+---
+
+## In-Flight Consolidation: `operium checkpoint` (alias `cp`)
+
+```bash
+operium checkpoint             # Immediate pause + resume consolidation
+operium cp                     # Shorthand alias
+operium checkpoint --dry-run   # Preview consolidation without writing anchor
+operium checkpoint --human     # Force human format
+operium checkpoint --json      # Machine-readable JSON (operium.checkpoint_state.v1)
+```
+
+Provides in-flight consolidation without interrupting active work:
+
+1. **Pre-flight Safety Scan:** Ensures no naked credentials (`.env`, private keys) exist.
+2. **Seals Sovereign Anchor:** Writes and pushes a `cop-pkt-...-checkpoint` continuation packet in `JeanHuguesRobert/RESUME-SESSION.md`.
+3. **Dispatches Mesh Notification:** Triggers background `git fetch` to reachable remote nodes (`fracta`, `rpi3-view`).
+4. **Probes Real-time Health & Gate:** Checks Tailscale mesh health and evaluates the *FixBugsFirst* gate on the active subsystem.
+5. **Fresh Cognitive Horizon:** Emits a concise confirmation that state is safe and ready to proceed.
 
 ---
 
