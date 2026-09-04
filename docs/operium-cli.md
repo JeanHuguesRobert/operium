@@ -25,6 +25,7 @@ Companion surfaces:
 | Surface | Role |
 |---------|------|
 | `operium up` | Observer on any trusted workstation |
+| `operium resume` | Re-entry reconnaissance: session anchor, operational delta, FBF gate |
 | `operium backlog list` / `operium backlog gate` | Fix Bugs First register (`backlog/items.yaml`) |
 | `operium calendar list` / `schedule` / `tick` / `ics` | FractaCalendar projection; `schedule` takes a `cop/node.wake.v1` packet ([protocol](calendar-cop-wake-protocol.md)) |
 | `operium handoff wip` / `operium resume wip` | GitHub-backed WIP handoff between trusted nodes |
@@ -95,6 +96,24 @@ handles drain. Same workaround as `operium node diagnose`.
 |----------|---------|
 | `OPERIUM_REGISTRY` | `~/.cogentia/registry/resources.yaml` (canonical copy: `registre-mariani/operium/registry/resources.yaml` in private git) |
 | `OPERIUM_AGGREGATOR_URL` | `https://cogentia.fractavolta.com` |
+
+---
+
+## Re-entry Reconnaissance: `operium resume`
+
+```bash
+operium resume            # Human summary on TTY, JSON on pipe
+operium resume --human    # Force human format
+operium resume --json     # Force JSON (operium.resume_recon.v1)
+```
+
+Provides a unified, automated re-entry context for returning operators and coding agents:
+
+1. **Session Anchor:** Reads the last declared intention in `JeanHuguesRobert/RESUME-SESSION.md` (`packet_id`, `topic_id`, active issue handle).
+2. **Operational Delta:** Probes live Fractanet mesh (`fracta`, `fracta2`, `poco-jhr`, `rpi3-view`), Guide aggregator, and runtime services.
+3. **Fix Bugs First Gate:** Evaluates whether open critical/high bugs in the active subsystem block feature progress (`evaluateGate`).
+4. **Git Workspace Divergence:** Inspects branch status and dirty worktrees across primary repositories (`operium`, `cogentia`, `JeanHuguesRobert`).
+5. **Actionable Direction:** Outputs the immediate next step or highlights blocking issues.
 
 ---
 
