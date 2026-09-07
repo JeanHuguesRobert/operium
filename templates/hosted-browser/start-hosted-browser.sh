@@ -6,21 +6,29 @@ set -euo pipefail
 # Usage: start-hosted-browser.sh <user-id> [display_num]
 
 USER_ID="${1:-hosted-user}"
-DISPLAY_NUM="${2:-1}"
+DISPLAY_NUM="${2:-${HOSTED_BROWSER_DISPLAY:-1}}"
 VNC_PORT=$(( 8443 + DISPLAY_NUM ))
 CDP_PORT=$(( 9222 + DISPLAY_NUM ))
 HOME_DIR="/home/${USER_ID}"
 USER_DATA_DIR="${HOME_DIR}/.hosted-browser/chromium-profile"
 PASSWD_FILE="${HOME_DIR}/.kasmpasswd"
+START_URL="${HOSTED_BROWSER_START_URL:-https://chatgpt.com}"
+
+if ! [[ "${DISPLAY_NUM}" =~ ^[0-9]+$ ]]; then
+  echo "[hosted-browser] HOSTED_BROWSER_DISPLAY must be numeric" >&2
+  exit 64
+fi
 
 mkdir -p "${USER_DATA_DIR}" "${HOME_DIR}/.vnc"
 chmod 700 "${HOME_DIR}/.hosted-browser"
 
-# Initialize non-interactive KasmVNC password file if missing
+# A session must be provisioned with an explicit, private VNC password file.
+# Never create a predictable fallback credential at runtime.
 if [ ! -f "${PASSWD_FILE}" ]; then
-  echo -e "hosted123\nhosted123\n" | kasmvncpasswd -u "${USER_ID}" -wo "${PASSWD_FILE}"
-  chmod 600 "${PASSWD_FILE}"
+  echo "[hosted-browser] missing VNC password file: ${PASSWD_FILE}" >&2
+  exit 78
 fi
+chmod 600 "${PASSWD_FILE}"
 
 # Bypass KasmVNC desktop environment prompt
 touch "${HOME_DIR}/.vnc/.de-was-selected"
@@ -46,7 +54,7 @@ exec "${BROWSER_BIN}" \
   --disable-gpu \
   --window-size=1920,1080 \
   --window-position=0,0 \
-  "https://chatgpt.com"
+  "${START_URL}"
 EOF
 chmod +x "${HOME_DIR}/.vnc/xstartup"
 

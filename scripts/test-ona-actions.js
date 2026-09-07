@@ -70,14 +70,13 @@ try {
   assert.equal(denied.status, 401);
   assert.equal(probeRuns, 0);
 
-  // Mesh desk sesame (Tailscale trust) — no real admin token
+  // Mesh-open read never grants state-changing authority.
   const deskRefresh = await fetchJson(`${base}/soma/actions/observation.refresh`, {
     method: "POST",
     headers: { Authorization: "Bearer sesame42" },
   });
-  assert.equal(deskRefresh.status, 200);
-  assert.equal(deskRefresh.body.state, "completed");
-  assert.equal(probeRuns, 1);
+  assert.equal(deskRefresh.status, 401);
+  assert.equal(probeRuns, 0);
 
   const refresh = await fetchJson(`${base}/soma/actions/observation.refresh`, {
     method: "POST",
@@ -86,7 +85,7 @@ try {
   assert.equal(refresh.status, 200);
   assert.equal(refresh.body.state, "completed");
   assert.equal(refresh.body.result.health_score, 98);
-  assert.equal(probeRuns, 2);
+  assert.equal(probeRuns, 1);
 
   const refreshStatus = await fetchJson(
     `${base}/soma/actions/${encodeURIComponent(refresh.body.action_id)}`,

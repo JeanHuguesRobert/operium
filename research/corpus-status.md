@@ -57,25 +57,22 @@ graph LR
   r_acorsica_org["acorsica.org"]
   r_structenv["StructEnv"]
   r_cogentia -->|110| r_barons_mariani
-  r_jeanhuguesrobert -->|91| r_barons_mariani
   r_barons_mariani -->|71| r_cogentia
-  r_jeanhuguesrobert -->|54| r_cogentia
+  r_jeanhuguesrobert -->|68| r_barons_mariani
   r_fractavolta -->|52| r_cogentia
   r_inseme -->|40| r_cogentia
-  r_jeanhuguesrobert -->|39| r_marenostrum
   r_fractavolta -->|37| r_marenostrum
+  r_jeanhuguesrobert -->|37| r_cogentia
   r_cogentia -->|29| r_inseme
-  r_jeanhuguesrobert -->|26| r_fractavolta
-  r_jeanhuguesrobert -->|26| r_inseme
   r_barons_mariani -->|22| r_marenostrum
   r_fractavolta -->|22| r_inseme
   r_inseme -->|20| r_barons_mariani
-  r_jeanhuguesrobert -->|20| r_inox
   r_barons_mariani -->|19| r_fractavolta
   r_cogentia -->|19| r_marenostrum
   r_fractavolta -->|19| r_barons_mariani
   r_barons_mariani -->|18| r_inseme
   r_inox -->|16| r_cogentia
+  r_jeanhuguesrobert -->|16| r_marenostrum
   r_marenostrum -->|16| r_cogentia
   r_inseme -->|12| r_fractavolta
   r_inseme -->|12| r_inox
@@ -84,18 +81,19 @@ graph LR
   r_marenostrum -->|11| r_barons_mariani
   r_inox -->|10| r_fractavolta
   r_inox -->|9| r_inseme
+  r_jeanhuguesrobert -->|9| r_fractavolta
   r_fractavolta -->|8| r_inox
   r_inox -->|8| r_marenostrum
-  r_jeanhuguesrobert -->|8| r_ubikia
-  r_ubikia -->|8| r_cogentia
   r_cogentia -->|7| r_jeanhuguesrobert
   r_inseme -->|7| r_jeanhuguesrobert
+  r_jeanhuguesrobert -->|7| r_inseme
   r_inseme -->|6| r_kudos
+  r_jeanhuguesrobert -->|6| r_inox
+  r_ubikia -->|6| r_cogentia
   r_barons_mariani -->|5| r_inox
   r_barons_mariani -->|5| r_jeanhuguesrobert
   r_cogentia -->|5| r_fractavolta
   r_operium -->|5| r_cogentia
-  r_ubikia -->|5| r_barons_mariani
   r_barons_mariani -->|4| r_ubikia
   r_fractavolta -->|4| r_jeanhuguesrobert
   r_marianivillage -->|4| r_fractavolta
@@ -103,7 +101,7 @@ graph LR
   r_ubikia -->|4| r_jeanhuguesrobert
   r_github -->|3| r_gouvernance
   r_cogentia -->|3| r_operium
-  r_jeanhuguesrobert -->|3| r_institut_mariani
+  r_jeanhuguesrobert -->|3| r_ubikia
   r_kudos -->|3| r_barons_mariani
   r_operium -->|3| r_barons_mariani
   r_operium -->|3| r_inseme

@@ -69,3 +69,25 @@ sudo systemctl enable --now hosted-browser@hosted-jhr.service
 # Verify status
 sudo systemctl status hosted-browser@hosted-jhr.service
 ```
+
+## 6. Configure a Dedicated La Nasa Workspace
+
+The template accepts a per-workspace, non-secret environment file. This keeps
+the Unix workspace identity separate from its display number and initial page.
+
+```bash
+sudo install -d -o root -g root -m 0755 /etc/operium/hosted-browser
+sudo cp templates/hosted-browser/hosted-browser.env.example \
+  /etc/operium/hosted-browser/hosted-nasa.env
+sudoedit /etc/operium/hosted-browser/hosted-nasa.env
+```
+
+Allocate a unique `HOSTED_BROWSER_DISPLAY` (for example `2`). Set
+`HOSTED_BROWSER_START_URL` to the observer perspective required:
+
+- `http://127.0.0.1:8794/` when the La Nasa observer is `fracta2` itself;
+- `http://rpi3-view:8794/` when the observer is `rpi3-view`.
+
+A literal `127.0.0.1` is local to the Hosted Browser host. Do not use it to
+refer to another node; use that node's allow-listed mesh origin or a separately
+configured authenticated tunnel/proxy.

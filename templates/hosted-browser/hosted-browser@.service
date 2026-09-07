@@ -6,12 +6,11 @@ After=network.target sound.target
 Type=simple
 User=%i
 Group=%i
-Environment=DISPLAY=:%i
 Environment=HOME=/home/%i
 Environment=XDG_CONFIG_HOME=/home/%i/.config
 Environment=XDG_DATA_HOME=/home/%i/.local/share
+EnvironmentFile=-/etc/operium/hosted-browser/%i.env
 WorkingDirectory=/home/%i
-ExecStartPre=-/usr/bin/vncserver -kill :%i
 ExecStart=/opt/operium/bin/start-hosted-browser.sh %i
 Restart=on-failure
 RestartSec=5

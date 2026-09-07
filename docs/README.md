@@ -38,12 +38,14 @@ This directory contains Operium documentation.
 - [Fracta trust perimeter and secrets](fracta-trust-perimeter.md)
 - [Secret-safe inspection protocol](fracta-trust-perimeter.md#secret-safe-inspection-protocol)
 - [Fractanet mesh — Tailscale and SSH](fractanet-mesh.md)
+- [La Nasa — Networked Agency Situational Awareness](la-nasa.md) — canonical control-station meaning: observer-relative, evidence-bearing awareness of distributed state and agency
 - [rpi3-view edge portal — control-room display step 1](rpi3-view-edge-portal.md) — stabilized Pi web home (“La Nasa” step 1)
 - [Control room MIB-lite v0 — contract (P0)](control-room-mib-lite-v0.md) — agents + global/zoom UI contract (“La Nasa” step 2)
 - [SNMP MIB semantics → SOMA](mib-snmp-semantics-for-soma.md) — which attributes belong in default zoom (MIB discipline)
 - [ONA mesh-open read (P1)](ona-mesh-open-read.md) — Tailscale trust-plane GET without bearer
 - [Edge trap-directed polling (SNMP pattern)](https://github.com/JeanHuguesRobert/cogentia/blob/main/docs/edge-trap-directed-polling.md) — Pi 3 store-and-forward + fracta manager
 - [fractavolta.com DNS zone](fractavolta-dns.md)
+- [DNS provider portability and reversible migration](dns-provider-portability.md)
 - [Stalwart mail on fracta](stalwart-private-mail.md) — governed bidirectional Gmail ↔ Twin JHN channel
 - [Operium CLI](operium-cli.md)
 - [Operium Node Agent (ONA)](operium-node-agent.md)

@@ -93,6 +93,10 @@ export async function fetchNodeDrift(nodeId, signal) {
   return fetchOpsJson(buildNodeOpsPath(nodeId, "drift"), { auth: true, signal });
 }
 
+export async function fetchNodeCalendar(nodeId, signal) {
+  return fetchOpsJson(buildNodeOpsPath(nodeId, "calendar"), { auth: true, signal });
+}
+
 export async function fetchNodeSomaObject(nodeId, signal) {
   return fetchOpsJson(buildNodeOpsPath(nodeId, "soma/object"), { auth: true, signal });
 }

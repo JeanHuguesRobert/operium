@@ -25,6 +25,10 @@ assert.equal(
   buildNodeOpsPath("resource://fracta", "soma/object"),
   "/ops/node/resource%3A%2F%2Ffracta/soma/object",
 );
+assert.equal(
+  buildNodeOpsPath("resource://fracta", "calendar"),
+  "/ops/node/resource%3A%2F%2Ffracta/calendar",
+);
 assert.equal(healthTone(4), "ok");
 assert.equal(healthTone(2), "bad");
 assert.equal(setOpsToken("test-token"), true);
