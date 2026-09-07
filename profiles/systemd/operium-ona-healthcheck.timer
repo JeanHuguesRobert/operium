@@ -1,0 +1,11 @@
+[Unit]
+Description=Periodic Operium ONA local health recovery
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+Persistent=true
+Unit=operium-ona-healthcheck.service
+
+[Install]
+WantedBy=timers.target
