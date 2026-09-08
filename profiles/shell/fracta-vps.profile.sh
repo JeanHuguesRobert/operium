@@ -28,7 +28,7 @@ export FRACTA_WORK="${FRACTA_WORK:-/srv/cogentia/work}"
 # Full registry lives in the JeanHuguesRobert checkout on the VPS.
 _jhr="$CORPUS_REPOS/JeanHuguesRobert"
 if [ -f "$_jhr/.cogentia.json" ]; then
-  export COGENTIA_REGISTRY="${COGENTIA_REGISTRY:-$_jhr/.cogentia.json}"
+  export COGENTIA_REGISTRY="${COGENTIA_REGISTRY:-$_jhr}"
 fi
 unset _jhr
 
