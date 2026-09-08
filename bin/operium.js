@@ -296,7 +296,12 @@ function parseArgs(argv) {
         options.registryPath = args.shift();
         break;
       case "--repo":
-        options.repoPath = args.shift();
+        {
+          const repo = args.shift();
+          options.repoPath = repo;
+          if (!options.repos) options.repos = [];
+          options.repos.push(repo);
+        }
         break;
       case "--topic":
         options.topic = args.shift();
@@ -317,10 +322,6 @@ function parseArgs(argv) {
       case "--decision":
         options.choice = args.shift();
         if (!options.issue) options.issue = options.choice;
-        break;
-      case "--repo":
-        if (!options.repos) options.repos = [];
-        options.repos.push(args.shift());
         break;
       case "--branch":
         options.branch = args.shift();
@@ -357,6 +358,10 @@ function parseArgs(argv) {
         break;
       case "--no-push":
         options.noPush = true;
+        options.push = false;
+        break;
+      case "--no-fetch-remotes":
+        options.fetchRemotes = false;
         break;
       case "--allow-dirty":
         options.allowDirty = true;
