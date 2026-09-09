@@ -43,9 +43,20 @@ chmod 600 "${PASSWD_FILE}"
 
 touch "${HOME_DIR}/.vnc/.de-was-selected"
 
-BROWSER_BIN="/usr/bin/google-chrome"
-if [ ! -x "${BROWSER_BIN}" ]; then
-  BROWSER_BIN="/usr/bin/chromium-browser"
+# Fracta2 does not run Google Chrome; prefer an explicit env binary, then Brave, then Chromium.
+BROWSER_BIN="${HOSTED_BROWSER_BINARY:-}"
+if [[ -z "${BROWSER_BIN}" || ! -x "${BROWSER_BIN}" ]]; then
+  BROWSER_BIN=""
+  for candidate in /usr/bin/brave-browser /usr/bin/chromium-browser /usr/bin/chromium; do
+    if [[ -x "$candidate" ]]; then
+      BROWSER_BIN="$candidate"
+      break
+    fi
+  done
+fi
+if [[ -z "${BROWSER_BIN}" ]]; then
+  echo "[hosted-browser] no supported browser binary (set HOSTED_BROWSER_BINARY; Chrome is not used here)" >&2
+  exit 69
 fi
 
 TERMINAL_BIN="xterm"
@@ -56,27 +67,37 @@ for candidate in x-terminal-emulator xterm xfce4-terminal lxterminal; do
   fi
 done
 
-cat > "${HOME_DIR}/.hosted-browser/run-chrome.sh" <<EOF
-#!/bin/sh
-exec "${BROWSER_BIN}" \\
-  --user-data-dir="${USER_DATA_DIR}" \\
-  --no-first-run \\
-  --no-default-browser-check \\
-  --remote-debugging-address=127.0.0.1 \\
-  --remote-debugging-port=${CDP_PORT} \\
-  --disable-dev-shm-usage \\
-  --disable-gpu \\
-  --window-size=1920,1080 \\
-  --window-position=0,0 \\
-  "${START_URL}"
+SUPERVISE_SRC="${TEMPLATE_DIR}/supervise-hosted-browser.sh"
+if [[ ! -f "$SUPERVISE_SRC" ]]; then
+  SUPERVISE_SRC="/opt/operium/bin/supervise-hosted-browser.sh"
+fi
+if [[ ! -f "$SUPERVISE_SRC" ]]; then
+  SUPERVISE_SRC="$(cd "$(dirname "$0")" && pwd)/supervise-hosted-browser.sh"
+fi
+if [[ -f "$SUPERVISE_SRC" ]]; then
+  install -m 0755 "$SUPERVISE_SRC" "${HOME_DIR}/.hosted-browser/supervise-hosted-browser.sh"
+fi
+
+cat > "${HOME_DIR}/.hosted-browser/run-browser.sh" <<EOF
+#!/usr/bin/env bash
+export HOSTED_BROWSER_BINARY="${BROWSER_BIN}"
+export HOSTED_BROWSER_PROFILE_DIR="${USER_DATA_DIR}"
+export HOSTED_BROWSER_START_URL="${START_URL}"
+export HOSTED_BROWSER_CDP_PORT="${CDP_PORT}"
+export HOSTED_CHROME_RESTART="${CHROME_RESTART}"
+export HOSTED_CHROME_COOLDOWN_SECONDS="${COOLDOWN}"
+export HOSTED_BROWSER_SUPERVISOR_LOG="${HOME_DIR}/.hosted-browser/supervisor.log"
+exec "${HOME_DIR}/.hosted-browser/supervise-hosted-browser.sh"
 EOF
-chmod +x "${HOME_DIR}/.hosted-browser/run-chrome.sh"
+chmod +x "${HOME_DIR}/.hosted-browser/run-browser.sh"
+# Keep the old name so the Openbox menu still works.
+ln -sfn run-browser.sh "${HOME_DIR}/.hosted-browser/run-chrome.sh"
 
 cat > "${HOME_DIR}/.hosted-browser/restart-chrome.sh" <<EOF
 #!/bin/sh
 pkill -f -- "--user-data-dir=${USER_DATA_DIR}" 2>/dev/null || true
 sleep 1
-exec "${HOME_DIR}/.hosted-browser/run-chrome.sh"
+exec "${HOME_DIR}/.hosted-browser/run-browser.sh"
 EOF
 chmod +x "${HOME_DIR}/.hosted-browser/restart-chrome.sh"
 
@@ -105,39 +126,23 @@ MENU
 if [[ "${SESSION_MODE}" == desktop ]]; then
   install_openbox_file openbox-desktop-menu.xml "${HOME_DIR}/.config/openbox/menu.xml"
   install_openbox_file openbox-desktop-rc.xml "${HOME_DIR}/.config/openbox/rc.xml"
-  cat > "${HOME_DIR}/.vnc/xstartup" <<EOF
-#!/bin/sh
-xrdb \$HOME/.Xresources 2>/dev/null || true
-openbox &
-"${HOME_DIR}/.hosted-browser/run-chrome.sh" &
-wait
-EOF
 else
   install_openbox_file openbox-kiosk-rc.xml "${HOME_DIR}/.config/openbox/rc.xml"
   rm -f "${HOME_DIR}/.config/openbox/menu.xml"
-  cat > "${HOME_DIR}/.vnc/xstartup" <<EOF
+fi
+cat > "${HOME_DIR}/.vnc/xstartup" <<EOF
 #!/bin/sh
 xrdb \$HOME/.Xresources 2>/dev/null || true
 openbox &
-n=0
-while true; do
-  "${HOME_DIR}/.hosted-browser/run-chrome.sh"
-  if [ "${CHROME_RESTART}" != "on-exit" ]; then
-    wait
-    exit 0
-  fi
-  n=\$((n + 1))
-  if [ "\$n" -gt 6 ]; then n=6; fi
-  sleep \$(( ${COOLDOWN} * n ))
-done
+"${HOME_DIR}/.hosted-browser/run-browser.sh"
+wait
 EOF
-fi
 chmod +x "${HOME_DIR}/.vnc/xstartup"
 
 echo "[hosted-browser] Killing any existing display :${DISPLAY_NUM}..."
 /usr/bin/vncserver -kill ":${DISPLAY_NUM}" 2>/dev/null || true
 
-echo "[hosted-browser] Starting KasmVNC on display :${DISPLAY_NUM} mode=${SESSION_MODE} (HTTP/WS port ${VNC_PORT}, CDP port ${CDP_PORT})..."
+echo "[hosted-browser] Starting KasmVNC on display :${DISPLAY_NUM} mode=${SESSION_MODE} browser=${BROWSER_BIN} (HTTP/WS port ${VNC_PORT}, CDP port ${CDP_PORT})..."
 exec /usr/bin/vncserver -fg ":${DISPLAY_NUM}" \
   -geometry 1920x1080 \
   -depth 24 \

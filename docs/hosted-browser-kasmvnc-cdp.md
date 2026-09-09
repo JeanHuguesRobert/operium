@@ -107,6 +107,10 @@ sudo scripts/ops/configure-hosted-browser-workspace.sh \
 
 New workspaces provision as kiosk. Do not grant desktop to a regular user on the public sesame prompt.
 
+The browser process is supervised (`supervise-hosted-browser.sh`): each start/exit is logged to `~/.hosted-browser/supervisor.log` (UTC timestamp, binary, exit code, duration, crash streak, next sleep). Short-lived exits back off (`cooldown * min(streak, 8)`). A run longer than `HOSTED_BROWSER_HEALTHY_SECONDS` (default 45) resets the streak. Singleton lock files are cleared only after a crash. The executable is `HOSTED_BROWSER_BINARY` if set and executable, otherwise Brave then Chromium. Google Chrome is not selected on this FractaNode.
+
+Read the loop: `sudo tail -f /home/<unix>/.hosted-browser/supervisor.log`.
+
 ### Generic workspace provisioning
 
 Use `scripts/ops/provision-hosted-browser-user.sh` after the node-level

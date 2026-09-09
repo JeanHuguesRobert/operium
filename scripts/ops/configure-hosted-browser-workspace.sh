@@ -92,6 +92,7 @@ fi
 display="$(read_env HOSTED_BROWSER_DISPLAY 1)"
 start_url="$(read_env HOSTED_BROWSER_START_URL https://www.google.com/)"
 rfb_port="$(read_env HOSTED_BROWSER_RFB_PORT $((5900 + display)))"
+browser_binary="$(read_env HOSTED_BROWSER_BINARY "")"
 
 plan() { printf '[plan] %s\n' "$*"; }
 
@@ -109,17 +110,21 @@ fi
 install -d -o root -g root -m 0755 "$env_dir"
 tmp="$(mktemp)"
 trap 'rm -f "$tmp"' EXIT
-cat > "$tmp" <<EOF
-HOSTED_BROWSER_DISPLAY=${display}
-HOSTED_BROWSER_START_URL=${start_url}
-HOSTED_BROWSER_RFB_PORT=${rfb_port}
-HOSTED_SESSION=${session}
-HOSTED_ASSURANCE=${assurance}
-HOSTED_BIND=${bind}
-HOSTED_ASSURANCE_WAIVER=${waiver}
-HOSTED_CHROME_RESTART=${chrome_restart}
-HOSTED_CHROME_COOLDOWN_SECONDS=${cooldown}
-EOF
+{
+  printf '%s\n' \
+    "HOSTED_BROWSER_DISPLAY=${display}" \
+    "HOSTED_BROWSER_START_URL=${start_url}" \
+    "HOSTED_BROWSER_RFB_PORT=${rfb_port}" \
+    "HOSTED_SESSION=${session}" \
+    "HOSTED_ASSURANCE=${assurance}" \
+    "HOSTED_BIND=${bind}" \
+    "HOSTED_ASSURANCE_WAIVER=${waiver}" \
+    "HOSTED_CHROME_RESTART=${chrome_restart}" \
+    "HOSTED_CHROME_COOLDOWN_SECONDS=${cooldown}"
+  if [[ -n "$browser_binary" ]]; then
+    printf 'HOSTED_BROWSER_BINARY=%s\n' "$browser_binary"
+  fi
+} > "$tmp"
 install -o root -g root -m 0640 "$tmp" "$env_file"
 
 if "$do_restart"; then

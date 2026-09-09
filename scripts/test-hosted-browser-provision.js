@@ -191,6 +191,24 @@ assert.equal(payload.workspaces[0].cdp_port, "9225");
 
 fs.rmSync(tmp, { recursive: true, force: true });
 
+const supervise = path.join(root, "templates/hosted-browser/supervise-hosted-browser.sh");
+const supDir = fs.mkdtempSync(path.join(os.tmpdir(), "hosted-browser-supervise-"));
+const posixSupDir = supDir.replaceAll("\\", "/");
+const fakeBrowser = `${posixSupDir}/fake-browser.sh`;
+const supLog = `${posixSupDir}/supervisor.log`;
+fs.writeFileSync(path.join(supDir, "fake-browser.sh"), "#!/bin/sh\nexit 7\n");
+const supRun = bash(["-c", `chmod +x "${fakeBrowser}" && HOSTED_BROWSER_BINARY="${fakeBrowser}" HOSTED_BROWSER_PROFILE_DIR="${posixSupDir}/profile" HOSTED_BROWSER_SUPERVISOR_LOG="${supLog}" HOSTED_CHROME_RESTART=on-exit HOSTED_CHROME_COOLDOWN_SECONDS=1 HOSTED_BROWSER_HEALTHY_SECONDS=99 HOSTED_SUPERVISE_MAX_RUNS=3 "${supervise.replaceAll("\\", "/")}"`], {
+  env: { ...process.env, HOME: posixSupDir },
+});
+assert.equal(supRun.status, 0, supRun.stdout + supRun.stderr);
+const supLogText = fs.readFileSync(path.join(supDir, "supervisor.log"), "utf8");
+assert.match(supLogText, /event=supervisor_start/);
+assert.match(supLogText, /event=start run=1/);
+assert.match(supLogText, /event=exit run=3 code=7/);
+assert.match(supLogText, /event=stop reason=max_runs/);
+assert.match(supLogText, /next_sleep_s=3/);
+fs.rmSync(supDir, { recursive: true, force: true });
+
 console.log(JSON.stringify({
   ok: true,
   tests: [
@@ -201,5 +219,6 @@ console.log(JSON.stringify({
     "migrate-dry",
     "policy-gate",
     "list-env-dir",
+    "supervise-loop",
   ],
 }, null, 2));
