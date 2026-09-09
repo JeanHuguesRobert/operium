@@ -12,6 +12,7 @@
   },
   "scripts": {
     "test:up": "node scripts/test-operium-up.js",
+    "test:hosted-browser-provision": "node scripts/test-hosted-browser-provision.js",
     "test:wip": "node scripts/test-operium-wip.js",
     "test:backlog": "node scripts/test-operium-backlog.js",
     "test:termux-tmux-handoff": "node scripts/test-termux-tmux-handoff.js",

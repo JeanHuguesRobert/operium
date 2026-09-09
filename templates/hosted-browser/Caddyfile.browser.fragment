@@ -1,0 +1,11 @@
+# Optional public projection for ONE Hosted Browser workspace.
+# This is not applied by provision-hosted-browser-user.sh.
+# Raw RFB and CDP must stay off the public Internet.
+#
+# Display N listens on 127.0.0.1:(8443 + N). Display :1 is :8444.
+# On fracta2, proxy to that loopback port. A second Caddy hop on fracta
+# may publish the hostname; keep Basic auth from KasmVNC (Websockify).
+#
+# browser.fractavolta.com {
+#     reverse_proxy 127.0.0.1:8444
+# }

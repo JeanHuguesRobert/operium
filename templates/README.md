@@ -37,4 +37,5 @@ Templates should remain simple, human-readable and usable before scripts or dash
 ## Service fragments
 
 - [`stalwart/`](stalwart/) — secret-free Caddy fragment, env example, and accounts plan for private Stalwart on fracta (see [`docs/stalwart-private-mail.md`](../docs/stalwart-private-mail.md)).
+- [`hosted-browser/`](hosted-browser/) — KasmVNC + Chrome systemd units and an optional unpublished Caddy fragment (`Caddyfile.browser.fragment`). Provisioning is `scripts/ops/provision-hosted-browser-user.sh` ([`docs/hosted-browser-kasmvnc-cdp.md`](../docs/hosted-browser-kasmvnc-cdp.md)).
 - [`agent-john/`](agent-john/) — WhatsApp retrieval env + systemd drop-in for shadow pilot (see [`docs/agent-john-whatsapp-retrieval.md`](../docs/agent-john-whatsapp-retrieval.md)).

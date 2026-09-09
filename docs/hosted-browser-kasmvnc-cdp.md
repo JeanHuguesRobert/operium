@@ -4,7 +4,7 @@ description: "Architecture, isolation model, multi-user separation, and dual hum
 layout: default
 nav_order: 15
 date: 2026-08-26T00:00:00.000Z
-last_modified_at: 2026-08-26T00:00:00.000Z
+last_modified_at: 2026-09-03T00:00:00.000Z
 license: CC BY-SA 4.0
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/docs/hosted-browser-kasmvnc-cdp.md
 document_role: operational
@@ -41,9 +41,9 @@ graph TD
     subgraph "FractaNode Tier (fracta2 / Ubuntu Linux)"
         VNC["KasmVNC Server (Websocket 127.0.0.1:8444)"]
         CDP["Native CDP Port (127.0.0.1:9223)"]
-        Chromium["Chromium Browser Instance"]
+        Chromium["Google Chrome (Chromium fallback)"]
         Profile["Persistent Profile (/home/user/.hosted-browser)"]
-        Caddy["Caddy Reverse Proxy (HTTPS + Tailscale auth)"]
+        Caddy["Caddy reverse proxy (optional public HTTPS)"]
     end
 
     Human -->|"HTTPS / WebSocket (KasmVNC UI)"| Caddy
@@ -58,10 +58,100 @@ graph TD
 
 ## 2. Multi-User Isolation & Security Constraints
 
-* **Strict Unix Account Separation**: Each user operates under a dedicated Unix UID (e.g. `hosted-jhr`, `hosted-pilot`).
+* **Strict Unix Account Separation**: Each person gets a dedicated Unix UID (canonical form `hosted-<gmail-local-part-without-dots>`). Legacy names such as `hosted-jhr` remain valid until migrated.
 * **Profile Privacy**: `chmod 700 /home/${USER}/.hosted-browser`. Cookies, session tokens, and localStorage never leak across users.
 * **CDP Scoping**: CDP is bound exclusively to `127.0.0.1` or the Fractanet Tailscale mesh. It is **never** exposed to the public Internet.
 * **Exclusion of Kasm Workspaces**: The deployment intentionally uses only standalone **KasmVNC (GPL-2.0)** without proprietary Kasm Workspaces or heavy Docker/OCI layers.
+
+### Identities (do not conflate)
+
+| Identity | What it is | What it is not |
+|----------|------------|----------------|
+| Unix account | Workspace owner UID, home, systemd `User=` | The KasmVNC login prompt |
+| Hosted Browser workspace | Persistent Chrome profile + display + ports | A Cogentia Principal or Twin |
+| KasmVNC user | HTTP Basic login = Gmail local part `uuuu` | Unix account, Google session, or Principal |
+| Google / site sessions | Created by a human inside Chrome | Something the provisioner logs into |
+
+Default isolation is **one person / one Unix workspace / one write-capable KasmVNC login**. Extra KasmVNC viewers on the same display are an explicit grant (`vncpasswd -u …`), not the way to give a second person their own browser.
+
+### What the public password prompt is
+
+Observed 2026-09-03: `https://browser.fractavolta.com/` returns **HTTP 401** `WWW-Authenticate: Basic realm="Websockify"` behind two Caddy hops. That prompt is **KasmVNC HTTP Basic** from the workspace `~/.kasmpasswd` file. It is not Unix `login(1)` and not Cogentia.
+
+Temporary lab password (issue #25, until a later auth scheme): for Gmail `uuuu@gmail.com` the Websockify username is `uuuu` and the password is `sesame-uuuu`. This is the same *family* as other Operium lab sesames. It is **not a security boundary**. Anyone who knows the Gmail local part can derive the password. Do not treat the public hostname as protected by this prompt. Google sign-in inside Chrome is a separate human step and is not this password.
+
+Display `N` binds KasmVNC HTTP/WebSocket to `127.0.0.1:(8443+N)`, Chrome CDP to `127.0.0.1:(9222+N)`, optional RFB to `127.0.0.1:(5900+N)`. Display `:1` is therefore `:8444` / `:9223` / `:5901`. Only a chosen KasmVNC HTTP port may be published; RFB and CDP stay off the public Internet.
+
+### Generic workspace provisioning
+
+Use `scripts/ops/provision-hosted-browser-user.sh` after the node-level
+KasmVNC templates are installed. A canonical Gmail address is required
+(`uuuu@gmail.com`, no plus-alias). The Unix account is
+`hosted-<uuuu-without-dots>`. The provisioner writes the lab KasmVNC
+login with `vncpasswd` / `kasmvncpasswd` on the node. It never receives a
+Google password, creates a Google account, or signs into Google.
+
+```bash
+sudo scripts/ops/provision-hosted-browser-user.sh \
+  --gmail person@gmail.com \
+  --display 3 \
+  --dry-run
+```
+
+Dry-run prints the Websockify user and `sesame-<uuuu>` formula. Remove
+`--dry-run` only after the display is free. Optional
+`--kasm-password-file` overrides the lab sesame when a later auth scheme
+lands. `--with-rfb` still needs a separate classic RFB password file
+(TigerVNC/x11vnc truncates; do not reuse the sesame there).
+
+The web-facing Caddy route is a separate operational decision: a newly
+provisioned workspace is not automatically made public. Optional fragment:
+`templates/hosted-browser/Caddyfile.browser.fragment`.
+
+Legacy Unix names (`hosted-jhr`) migrate with
+`scripts/ops/migrate-hosted-browser-user.sh`. `--password-only` rewrites
+sesame on the existing account; the default path renames user/group/home
+to `hosted-<gmail-key>` and keeps the Chrome profile. `--test-local`
+checks `https://127.0.0.1:(8443+display)/` (KasmVNC speaks TLS on that
+port; plain HTTP is empty).
+
+Observed 2026-09-04 on `fracta2`: `hosted-jhr` →
+`hosted-jeanhuguesrobert` on display `:1`. Local TLS Websockify returned
+200 for the lab sesame and 401 otherwise. `hosted-nasa` was left
+unchanged.
+
+### List, rotate, revoke
+
+```bash
+sudo scripts/ops/list-hosted-browser-workspaces.sh
+sudo scripts/ops/list-hosted-browser-workspaces.sh --json
+```
+
+Listing reads `/etc/operium/hosted-browser/*.env` and systemd active state. It
+does not open password files.
+
+**Rotate** while the lab sesame is in force by re-running the provisioner
+(same Gmail + display) or by writing `~/.kasmpasswd` with `vncpasswd -u uuuu -w`
+and password `sesame-uuuu`, then restarting `hosted-browser@<unix>.service`.
+File edits are **not** applied live. When the future auth scheme lands, stop
+using this formula and treat remaining `sesame-*` files as expired.
+
+**Revoke an extra KasmVNC viewer** (same workspace, not a second person):
+
+```bash
+sudo vncpasswd -u viewer -d /home/<unix>/.kasmpasswd
+sudo systemctl restart hosted-browser@<unix>.service
+```
+
+**Disable a workspace** without deleting the credential-bearing Chrome profile:
+
+```bash
+sudo systemctl disable --now hosted-browser@<unix>.service
+```
+
+Do not `userdel -r` or delete `~/.hosted-browser` unless a human has accepted
+loss of that profile. If a Caddy site was published for that display, remove
+that site in the same change; provision never added it.
 
 ---
 
