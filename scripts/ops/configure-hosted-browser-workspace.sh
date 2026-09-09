@@ -93,6 +93,7 @@ display="$(read_env HOSTED_BROWSER_DISPLAY 1)"
 start_url="$(read_env HOSTED_BROWSER_START_URL https://www.google.com/)"
 rfb_port="$(read_env HOSTED_BROWSER_RFB_PORT $((5900 + display)))"
 browser_binary="$(read_env HOSTED_BROWSER_BINARY "")"
+max_crash_streak="$(read_env HOSTED_BROWSER_MAX_CRASH_STREAK 5)"
 
 plan() { printf '[plan] %s\n' "$*"; }
 
@@ -120,7 +121,8 @@ trap 'rm -f "$tmp"' EXIT
     "HOSTED_BIND=${bind}" \
     "HOSTED_ASSURANCE_WAIVER=${waiver}" \
     "HOSTED_CHROME_RESTART=${chrome_restart}" \
-    "HOSTED_CHROME_COOLDOWN_SECONDS=${cooldown}"
+    "HOSTED_CHROME_COOLDOWN_SECONDS=${cooldown}" \
+    "HOSTED_BROWSER_MAX_CRASH_STREAK=${max_crash_streak}"
   if [[ -n "$browser_binary" ]]; then
     printf 'HOSTED_BROWSER_BINARY=%s\n' "$browser_binary"
   fi

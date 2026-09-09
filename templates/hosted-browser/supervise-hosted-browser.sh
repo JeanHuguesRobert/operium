@@ -14,6 +14,7 @@ RESTART="${HOSTED_CHROME_RESTART:-on-exit}"
 HEALTHY_SECONDS="${HOSTED_BROWSER_HEALTHY_SECONDS:-45}"
 MAX_BACKOFF_MULT="${HOSTED_BROWSER_BACKOFF_CAP:-8}"
 MAX_RUNS="${HOSTED_SUPERVISE_MAX_RUNS:-0}"
+MAX_CRASH_STREAK="${HOSTED_BROWSER_MAX_CRASH_STREAK:-5}"
 CLEAR_LOCKS="${HOSTED_BROWSER_CLEAR_LOCKS:-on-crash}"
 
 mkdir -p "$(dirname "$LOG_FILE")" "$PROFILE_DIR"
@@ -23,6 +24,9 @@ if ! [[ "${COOLDOWN}" =~ ^[0-9]+$ ]] || ((COOLDOWN < 1)); then
 fi
 if ! [[ "${HEALTHY_SECONDS}" =~ ^[0-9]+$ ]]; then
   HEALTHY_SECONDS=45
+fi
+if ! [[ "${MAX_CRASH_STREAK}" =~ ^[0-9]+$ ]] || ((MAX_CRASH_STREAK < 1)); then
+  MAX_CRASH_STREAK=5
 fi
 
 rotate_log() {
@@ -72,7 +76,7 @@ if [[ -z "$BROWSER_BIN" ]]; then
   exit 69
 fi
 
-log_event "event=supervisor_start binary=${BROWSER_BIN} profile=${PROFILE_DIR} cdp=${CDP_PORT} restart=${RESTART} cooldown=${COOLDOWN}s healthy_after=${HEALTHY_SECONDS}s"
+log_event "event=supervisor_start binary=${BROWSER_BIN} profile=${PROFILE_DIR} cdp=${CDP_PORT} restart=${RESTART} cooldown=${COOLDOWN}s healthy_after=${HEALTHY_SECONDS}s max_crash_streak=${MAX_CRASH_STREAK}"
 
 streak=0
 run=0
@@ -134,6 +138,10 @@ while true; do
   if [[ "$RESTART" != on-exit ]]; then
     log_event "event=stop reason=restart_off code=${code}"
     exit "$code"
+  fi
+  if ((streak >= MAX_CRASH_STREAK)); then
+    log_event "event=stop reason=crash_streak streak=${streak} max=${MAX_CRASH_STREAK}"
+    exit 0
   fi
   sleep "$sleep_s"
 done
