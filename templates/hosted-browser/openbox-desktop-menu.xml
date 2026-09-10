@@ -54,6 +54,7 @@
     </item>
 
     <separator label="Session" />
+    <separator label="Ctrl+Alt+M menu · Ctrl+Alt+Espace fenêtres · Ctrl+Alt+↑/↓" />
     <item label="Recharger le menu">
       <action name="Reconfigure"/>
     </item>

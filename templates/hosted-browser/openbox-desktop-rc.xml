@@ -19,7 +19,9 @@
     <firstdesk>1</firstdesk>
   </desktops>
   <keyboard>
-    <keybind key="A-Tab">
+    <!-- Windows (and the local browser) keep Alt+Tab / Alt+F4 / Win+*.
+         Hosted session uses Ctrl+Alt+* so the keys reach KasmVNC. -->
+    <keybind key="C-A-Up">
       <action name="NextWindow">
         <iconic>yes</iconic>
         <finalactions>
@@ -29,7 +31,7 @@
         </finalactions>
       </action>
     </keybind>
-    <keybind key="A-S-Tab">
+    <keybind key="C-A-Down">
       <action name="PreviousWindow">
         <iconic>yes</iconic>
         <finalactions>
@@ -39,14 +41,14 @@
         </finalactions>
       </action>
     </keybind>
-    <keybind key="A-F4">
-      <action name="Close"/>
-    </keybind>
-    <keybind key="A-space">
-      <action name="ShowMenu"><menu>client-menu</menu></action>
-    </keybind>
-    <keybind key="A-F2">
+    <keybind key="C-A-space">
       <action name="ShowMenu"><menu>client-list-combined-menu</menu></action>
+    </keybind>
+    <keybind key="C-A-m">
+      <action name="ShowMenu"><menu>root-menu</menu></action>
+    </keybind>
+    <keybind key="Menu">
+      <action name="ShowMenu"><menu>root-menu</menu></action>
     </keybind>
   </keyboard>
   <mouse>
@@ -131,6 +133,12 @@
       </mousebind>
     </context>
     <context name="Root">
+      <mousebind button="Left" action="Press">
+        <action name="Focus"/>
+      </mousebind>
+      <mousebind button="Left" action="DoubleClick">
+        <action name="ShowMenu"><menu>root-menu</menu></action>
+      </mousebind>
       <mousebind button="Middle" action="Press">
         <action name="ShowMenu"><menu>client-list-combined-menu</menu></action>
       </mousebind>
