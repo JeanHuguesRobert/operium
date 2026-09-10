@@ -3,7 +3,7 @@
 # Do not store secret values here.
 
 schema: operium.backlog.v1
-updated_at: "2026-08-31"
+updated_at: "2026-09-10"
 owner: Operium
 
 items:
@@ -179,6 +179,38 @@ items:
     blocks_features: false
     opened_at: "2026-08-28"
     closed_at: "2026-08-28"
+
+  - id: OP-INC-001
+    kind: incident
+    title: Insider feature updates blocked by legacy printer driver packages
+    subsystem: tooling
+    severity: medium
+    status: in_progress
+    evidence: >
+      2026-09-10 workstation evidence: Windows Update repeatedly failed Insider
+      feature updates (26340.9233, then 28020.2207). Panther compatibility
+      output marked Microsoft printer packages oem66.inf (prnms009.inf) and
+      oem67.inf (prnms001.inf) as BlockMigration=True with unsigned binaries.
+      Earlier outcomes included 0xC1900101, 0xC0000005, and 0x800704C7.
+      oem67.inf was associated with the unused Microsoft XPS Document Writer;
+      its queue and visible PnP instance were removed, but the driver-store
+      deletion still reported a remaining device reference. A full hidden-device
+      query returned no current oem67.inf binding.
+    next_action: >
+      Restart Windows to release stale Plug-and-Play state; retry deletion of
+      oem67.inf without /force and verify the driver store. Then identify the
+      current binding of oem66.inf before changing it, and retry the Insider
+      update only after both migration blockers are resolved or consciously
+      retained.
+    github_issue: null
+    blocks_features: false
+    opened_at: "2026-09-10"
+    closed_at: null
+    notes: |
+      Do not force-delete driver packages. No printer credential or other secret
+      is recorded. A clean Windows Update download cache and free-space recovery
+      preceded this investigation; the compatibility scan is the present lead,
+      not proof that every later update failure has the same cause.
 
   # ── Features (blocked by subsystem bugs when severity high+) ─────
 

@@ -57,6 +57,7 @@ update_policy: UP-DEFAULT-REVIEWED
 
 ### Incidents & handoffs
 
+- [Hosted Browser and workstation recovery — 2026-09-10](handoff-hosted-browser-workstation-2026-09-10.md)
 - [Fractanet resumption handoff — July 2026 pause](fractanet-resumption-2026-07.md)
 - [FractaCalendar COP remaining depth — 2026-08-31 pause](handoff-calendar-cop-2026-08-31.md)
 - [fracta daemon health latency — July 2026 incident](fracta-daemon-health-2026-07.md)
@@ -85,4 +86,3 @@ update_policy: UP-DEFAULT-REVIEWED
 - [Generic Model Selector Design](model-selector-design.md)
 - [Open Strategy for Model Selector](open-strategy-model-selector.md)
 - [Workstation tooling debt and tool profiles](../docs/workstation-tooling-debt-and-profiles.md)
-
