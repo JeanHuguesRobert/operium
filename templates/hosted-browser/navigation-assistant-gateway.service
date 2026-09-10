@@ -1,0 +1,18 @@
+[Unit]
+Description=Navigation assistant Tailscale gateway (hosted extension relay)
+After=network-online.target tailscaled.service
+Wants=tailscaled.service
+
+[Service]
+Type=simple
+User=hosted-jeanhuguesrobert
+Group=hosted-jeanhuguesrobert
+WorkingDirectory=/home/hosted-jeanhuguesrobert/src/cogentia
+ExecStart=/usr/bin/node /home/hosted-jeanhuguesrobert/src/cogentia/scripts/ops/navigation-assistant-gateway.js
+Environment=NAV_ASSIST_GATEWAY_PORT=8776
+Environment=NAV_ASSIST_GATEWAY_INSTANCE=hosted-jeanhuguesrobert
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
