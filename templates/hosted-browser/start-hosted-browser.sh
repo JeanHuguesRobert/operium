@@ -146,4 +146,5 @@ exec /usr/bin/vncserver -fg ":${DISPLAY_NUM}" \
   -depth 24 \
   -websocketPort "${VNC_PORT}" \
   -interface 127.0.0.1 \
-  -PasswordFile "${PASSWD_FILE}"
+  -PasswordFile "${PASSWD_FILE}" \
+  -SecurityTypes None

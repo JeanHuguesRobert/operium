@@ -285,6 +285,7 @@ assert.match(logoutScript, /vncserver -kill/);
 const startScript = fs.readFileSync(path.join(root, "templates/hosted-browser/start-hosted-browser.sh"), "utf8");
 assert.match(startScript, /logout-hosted-session\.sh/);
 assert.match(startScript, /ob_pid/);
+assert.match(startScript, /-SecurityTypes None/);
 const unitFile = fs.readFileSync(path.join(root, "templates/hosted-browser/hosted-browser@.service"), "utf8");
 assert.match(unitFile, /Restart=always/);
 
