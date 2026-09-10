@@ -4,7 +4,8 @@ description: "Step-by-step runbook for provisioning fracta2, joining Fractanet, 
 layout: default
 nav_order: 16
 date: 2026-08-26T00:00:00.000Z
-last_modified_at: 2026-08-26T00:00:00.000Z
+last_modified_at: 2026-09-10T00:00:00.000Z
+language: en
 license: CC BY-SA 4.0
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/docs/fracta2-node-bootstrap.md
 document_role: operational
@@ -23,7 +24,8 @@ classification_confidence: "high"
 
 ## 1. Node Provisioning & OS Baseline
 
-* **Target OS**: Ubuntu 24.04 LTS (x86_64)
+* **Current observed host (2026-09-10)**: Ubuntu 24.04.4 LTS, ARM64 (`aarch64`), two available CPUs, 11,927 MiB RAM and 4,095 MiB swap. See the [live baseline](hosted-browser-kasmvnc-cdp.md).
+* **Recipe scope**: The original installation recipe below targeted x86_64. It has not been validated for the current ARM64 host; verify package architecture and the deployed browser execution mechanism before reprovisioning.
 * **Packages**:
   ```bash
   sudo apt update && sudo apt install -y \
@@ -31,6 +33,10 @@ classification_confidence: "high"
   ```
 
 ## 2. Install KasmVNC
+
+Historical x86_64 recipe only: the `amd64` artifact below is not an ARM64
+installation instruction. KasmVNC `1.5.0-1` is installed on the current host,
+but its installation path was not audited in the 2026-09-10 check.
 
 ```bash
 KASMVNC_VER="1.5.0"

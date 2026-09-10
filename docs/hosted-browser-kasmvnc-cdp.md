@@ -4,7 +4,8 @@ description: "Architecture, isolation model, multi-user separation, and dual hum
 layout: default
 nav_order: 15
 date: 2026-08-26T00:00:00.000Z
-last_modified_at: 2026-08-26T00:00:00.000Z
+last_modified_at: 2026-09-10T00:00:00.000Z
+language: en
 license: CC BY-SA 4.0
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/docs/hosted-browser-kasmvnc-cdp.md
 document_role: operational
@@ -82,7 +83,9 @@ graph TD
 * **Active browsing footprint**: ~450 MB – 850 MB RAM per active tab cluster.
 * **Network consumption**: ~15–40 KB/s during text typing/reading; ~120 KB/s on full redraws.
 
-### Observed Live Baseline (`fracta2` — 2026-08-26)
+### Historical Baseline (`fracta2` — 2026-08-26; superseded)
+
+This table preserves the earlier observation; it is not the current host inventory.
 
 | Parameter | Observed Live Value | Notes |
 |---|---|---|
@@ -94,3 +97,30 @@ graph TD
 | **Memory Allocation** | 1 GB RAM + 4 GB NVMe Swap | 432 MB free RAM nominal |
 | **CPU Utilization** | **~91% CPU Idle (0% Steal)** | Stable under continuous session |
 | **Control Plane** | ONA (:8794) + SOMA discovery | Advertises to fracta Blackboard every 3 min |
+
+
+### Observed Live Baseline (`fracta2` — 2026-09-10)
+
+Read-only checks ran over SSH through `fracta`: `/etc/os-release`, `uname -m`,
+`nproc`, `free -m`, `dpkg-query`, `systemctl`, `ss -ltn`, and an HTTP GET of
+`http://127.0.0.1:9223/json/version`. No services or browser state were changed.
+
+| Parameter | Observed value | Evidence / limit |
+|---|---|---|
+| Host / OS | `fracta2`, Ubuntu 24.04.4 LTS, ARM64 (`aarch64`) | OS release and kernel architecture; current OCI shape not checked |
+| Compute | 2 available CPUs; 11,927 MiB RAM; 4,095 MiB swap | `nproc` and `free -m`; swap unused at observation |
+| KasmVNC | Package `1.5.0-1`; loopback listener :8444 | Hosted-browser, browser supervisor, and companion RFB services active |
+| Browser automation | CDP responds on loopback :9223; reports `Chrome/152.0.7977.83` | Browser metadata only; navigation, clicks, screenshots and login persistence not exercised |
+| Navigation gateway | `navigation-assistant-gateway.service` active | Listeners on loopback and mesh :8776; workflow not tested |
+| Server services | Operium Node Agent, Caddy, cron and Tailscale active | ONA :8794 and HTTP :80 listening; heartbeat delivery and reboot recovery not checked |
+| Development tools | Node, Python 3 and Git found on PATH | Installed commands, not a full build validation |
+
+The CDP user-agent reports Linux x86_64 while the host kernel reports ARM64.
+The browser's execution mechanism was not inspected; do not infer host
+architecture from the user-agent. Remote graphical interaction still requires
+end-to-end validation; see [session status](remote-web-session-status.md).
+
+Correction trace (2026-09-10): the earlier 1 GB x86 micro-instance description
+was stale. The current baseline is ARM64 with two available CPUs and roughly
+12 GB RAM. Keep measurements dated and verify the live host before choosing
+architecture-specific packages or capacity limits.

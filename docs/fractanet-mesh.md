@@ -251,16 +251,27 @@ When the phone is offline or Termux is killed, **ThinkPad and Pi lose WAN** unle
 
 ### `fracta2` — hosted-browser-automation
 
+Hardware and service observations refreshed on 2026-09-10 over SSH through
+`fracta`; see [dated evidence and limits](hosted-browser-kasmvnc-cdp.md).
+
 | Dimension | Observed capability |
 |-----------|---------------------|
-| **Hardware** | OCI VPS (`VM.Standard.E2.1.Micro`), 1 GB RAM, 4 GB swap; 91% CPU idle nominal |
-| **WAN** | Independent public IP (`129.151.245.83`); Caddy port :80 |
-| **Hosted Browser** | KasmVNC 1.5.0 (port :8444 / HTTP :80, 24 FPS, JPEG q6) + Chromium / Google Chrome 152 |
-| **Automation** | Scoped local Chrome DevTools Protocol (`127.0.0.1:9223`) for autonomous agent workflows |
-| **Control Plane** | ONA (:8794), SOMA discovery (`/.well-known/soma`), automated blackboard heartbeat |
+| **Hardware** | Ubuntu 24.04.4 LTS, ARM64 (`aarch64`), 2 available CPUs, 11,927 MiB RAM, 4,095 MiB swap; current OCI shape unverified |
+| **WAN** | Independent public WAN previously recorded; current public address not rechecked; Caddy active with :80 listening |
+| **Hosted Browser** | KasmVNC package 1.5.0-1; hosted-browser, supervisor and companion RFB services active; loopback :8444 listening; visual interaction not tested |
+| **Automation** | Loopback CDP :9223 responds to `/json/version`, reporting Chrome 152.0.7977.83; navigation assistant gateway active on :8776 |
+| **Control Plane** | ONA active with :8794 listening; SOMA discovery and blackboard heartbeat delivery not revalidated |
 | **SSH mesh** | Ubuntu `sshd` :22; `fractanet-mesh` inbound + outbound; survives reboot |
 | **Corpus** | `/srv/cogentia/repos` mirror (operium, registre-mariani, cogentia) |
-| **Limits** | Single-core micro shape; uncompressed 60 FPS video not recommended; swap enabled |
+| **Development tools** | Node, Python 3 and Git found on PATH |
+| **Limits** | Current browser performance, login persistence and graphical interaction not tested; earlier single-core / 1 GB limits are superseded |
+
+Phone-local coding tools and assistant-session integrations are separate
+capabilities. On 2026-09-10, the phone workspace provided Node, Python 3 and Git;
+its Codex session exposed web search, image generation and connected-app tools.
+Those session tools are not established Fracta2 host capabilities. The observed
+SSH route allows a phone-side agent to use Fracta2's server/browser facilities
+within mandate, without moving the assistant session itself.
 
 ### `i7-thinkpad-jhr` — capable-retrieval-host
 
@@ -345,8 +356,8 @@ Local `~/.ssh/config` on the trusted workstation defines:
 |-------|--------|------|-----|
 | `fracta` / `fracta-ts` | Tailscale IP of fracta (`100.91.12.74`) | `ubuntu` | `fractanet-mesh` |
 | `fracta-public` | OCI public IP (break-glass: `82.70.234.207`) | `ubuntu` | `oci-fracta-instance-jh1` |
-| `fracta2` / `fracta2-ts` | Tailscale IP of fracta2 (`100.108.221.96`) | `ubuntu` | `fractanet-mesh` |
-| `fracta2-public` | OCI public IP (break-glass: `129.151.245.83`) | `ubuntu` | `oci-fracta-instance-jh1` |
+| `fracta2` / `fracta2-ts` | Resolve current Fracta2 mesh address; previous `100.108.221.96` is stale as of 2026-09-10 | `ubuntu` | `fractanet-mesh` |
+| `fracta2-public` | Historical OCI public IP (`129.151.245.83`); verify current address before break-glass use | `ubuntu` | `oci-fracta-instance-jh1` |
 | `thinkpad-ts` / `i7-thinkpad-jhr` | Tailscale IP of laptop (`100.122.121.68`) | `admin` | `fractanet-mesh` |
 | `rpi3-view` | MagicDNS hostname (`100.117.135.27`) | `jh` | `fractanet-mesh` |
 | `poco-jhr` | Tailscale IP, port **8022** (`100.97.223.45`) | `jh` | `fractanet-mesh` |

@@ -7,7 +7,7 @@ lifecycle_state: working
 update_policy: UP-INFRASTRUCTURE-HEALTH
 language: en
 date: "2026-08-28"
-last_modified_at: "2026-08-28"
+last_modified_at: "2026-09-10"
 related:
   - "hosted-browser-kasmvnc-cdp.md"
   - "https://github.com/JeanHuguesRobert/cogentia/blob/main/research/nasa_situated_views_and_interactive_surfaces.md"
@@ -32,14 +32,28 @@ does not redefine the Hosted Browser architecture described in
 | Native VNC viewer on Pi | rejected for this path | It could connect but did not create a human-visible Pi surface. The VNC autostart was removed; see [Operium #24](https://github.com/JeanHuguesRobert/operium/issues/24). |
 | Pi Remote Access service | present, not end-to-end validated | `wayvnc` was active with `enable_auth=true`; remote human interaction was not tested in this record. |
 
-## Known discrepancy requiring audit
+## Fracta2 follow-up — 2026-09-10
+
+Read-only SSH inspection confirmed that the hosted-browser service, browser
+supervisor, companion native RFB service and navigation assistant gateway are
+active together. KasmVNC package `1.5.0-1` is installed; loopback :8444 and
+CDP :9223 are listening. CDP `/json/version` responds and reports
+`Chrome/152.0.7977.83`. See the [host baseline and evidence](hosted-browser-kasmvnc-cdp.md).
+
+This establishes service coexistence and a responding browser automation
+endpoint. It does not validate the Pi display path, shared browser identity
+across transports, pointer/keyboard interaction, authenticated sessions,
+reconnection, or reboot persistence. The Pi observations above remain dated
+2026-08-28 and were not repeated.
+
+## Transport relationship requiring further validation
 
 The existing Hosted Browser POC records KasmVNC as an architectural and
 observed baseline. The live route investigated here exposed an RFB endpoint
-through `x11vnc` and a Pi SSH tunnel. These may be parallel deployments,
-successive implementations, or stale documentation. Do not treat either as the
-sole current truth until an explicit Fracta2 service audit resolves the
-relationship.
+through `x11vnc` and a Pi SSH tunnel. The 2026-09-10 inspection confirms active
+hosted-browser and companion RFB services together, narrowing the earlier
+uncertainty. Their exact display/session mapping and the human-visible Pi
+route still require end-to-end validation.
 
 ## Intended evolution
 
