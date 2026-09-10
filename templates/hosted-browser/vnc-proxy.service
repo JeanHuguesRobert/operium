@@ -1,0 +1,13 @@
+[Unit]
+Description=Public VNC Proxy Service to Hosted Browser Node
+Requires=vnc-proxy.socket
+After=vnc-proxy.socket
+
+[Service]
+Type=notify
+ExecStart=/lib/systemd/systemd-socket-proxyd 100.84.109.87:5901
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

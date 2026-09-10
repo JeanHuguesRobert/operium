@@ -25,7 +25,10 @@ if [ ! -s "${PASSWD_FILE}" ]; then
   exit 78
 fi
 
-# SSH forwards from trusted viewers are the only ingress; do not publish RFB.
+RFB_LISTEN="${HOSTED_BROWSER_RFB_LISTEN:-0.0.0.0}"
+
+# Native RFB projection: binds to RFB_LISTEN (default: all local/mesh interfaces).
+# Public internet access is rejected by host iptables; incoming traffic is accepted via Tailscale mesh.
 exec /usr/bin/x11vnc -display ":${DISPLAY_NUM}" -auth "${HOME_DIR}/.Xauthority" \
-  -rfbauth "${PASSWD_FILE}" -rfbport "${RFB_PORT}" -localhost -forever -shared \
+  -rfbauth "${PASSWD_FILE}" -rfbport "${RFB_PORT}" -listen "${RFB_LISTEN}" -forever -shared \
   -noxrecord -noxfixes -noxdamage

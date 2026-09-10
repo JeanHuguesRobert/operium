@@ -21,6 +21,7 @@ fi
 
 mkdir -p "${USER_DATA_DIR}" "${HOME_DIR}/.vnc"
 chmod 700 "${HOME_DIR}/.hosted-browser"
+rm -f "${USER_DATA_DIR}"/Singleton*
 
 # A session must be provisioned with an explicit, private VNC password file.
 # Never create a predictable fallback credential at runtime.
@@ -33,10 +34,20 @@ chmod 600 "${PASSWD_FILE}"
 # Bypass KasmVNC desktop environment prompt
 touch "${HOME_DIR}/.vnc/.de-was-selected"
 
-# Determine browser binary
-BROWSER_BIN="/usr/bin/google-chrome"
-if [ ! -x "${BROWSER_BIN}" ]; then
-  BROWSER_BIN="/usr/bin/chromium-browser"
+# Determine browser binary (Brave, Google Chrome, or Chromium)
+BROWSER_BIN="${HOSTED_BROWSER_BINARY:-}"
+if [ -z "${BROWSER_BIN}" ]; then
+  for candidate in /usr/bin/brave-browser /usr/bin/google-chrome /usr/bin/chromium-browser /usr/bin/chromium; do
+    if [ -x "${candidate}" ]; then
+      BROWSER_BIN="${candidate}"
+      break
+    fi
+  done
+fi
+
+if [ -z "${BROWSER_BIN}" ] || [ ! -x "${BROWSER_BIN}" ]; then
+  echo "[hosted-browser] No supported browser binary found (checked brave-browser, google-chrome, chromium-browser, chromium)" >&2
+  exit 72
 fi
 
 # Create xstartup script for this session
@@ -44,17 +55,21 @@ cat << EOF > "${HOME_DIR}/.vnc/xstartup"
 #!/bin/sh
 xrdb \$HOME/.Xresources 2>/dev/null || true
 openbox &
-exec "${BROWSER_BIN}" \
-  --user-data-dir="${USER_DATA_DIR}" \
-  --no-first-run \
-  --no-default-browser-check \
-  --remote-debugging-address=127.0.0.1 \
-  --remote-debugging-port=${CDP_PORT} \
-  --disable-dev-shm-usage \
-  --disable-gpu \
-  --window-size=1920,1080 \
-  --window-position=0,0 \
-  "${START_URL}"
+while true; do
+  rm -f "${USER_DATA_DIR}"/Singleton*
+  "${BROWSER_BIN}" \
+    --user-data-dir="${USER_DATA_DIR}" \
+    --no-first-run \
+    --no-default-browser-check \
+    --remote-debugging-address=127.0.0.1 \
+    --remote-debugging-port=${CDP_PORT} \
+    --disable-dev-shm-usage \
+    --disable-gpu \
+    --window-size=1920,1080 \
+    --window-position=0,0 \
+    "${START_URL}" || true
+  sleep 1
+done
 EOF
 chmod +x "${HOME_DIR}/.vnc/xstartup"
 

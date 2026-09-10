@@ -12,8 +12,8 @@ Environment=XDG_DATA_HOME=/home/%i/.local/share
 EnvironmentFile=-/etc/operium/hosted-browser/%i.env
 WorkingDirectory=/home/%i
 ExecStart=/opt/operium/bin/start-hosted-browser.sh %i
-Restart=on-failure
-RestartSec=5
+Restart=always
+RestartSec=3
 LimitNOFILE=65536
 
 [Install]

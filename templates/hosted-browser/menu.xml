@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openbox_menu xmlns="http://openbox.org/"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://openbox.org/
+                file:///usr/share/openbox/menu.xsd">
+
+<menu id="root-menu" label="FractaNode">
+  <item label="💻 Terminal (Terminator)">
+    <action name="Execute">
+      <execute>terminator</execute>
+    </action>
+  </item>
+  <item label="🚀 Terminal Multiplexeur (Zellij)">
+    <action name="Execute">
+      <execute>terminator -T "Zellij Workspace" -e zellij</execute>
+    </action>
+  </item>
+  <item label="📟 Terminal (Tilix)">
+    <action name="Execute">
+      <execute>tilix</execute>
+    </action>
+  </item>
+
+  <separator label="Applications" />
+
+  <item label="🦁 Brave Browser (Nouvelle fenêtre)">
+    <action name="Execute">
+      <execute>/usr/bin/brave-browser --user-data-dir=/home/hosted-jeanhuguesrobert/.hosted-browser/chromium-profile https://chatgpt.com</execute>
+    </action>
+  </item>
+  <item label="🌐 Chromium">
+    <action name="Execute">
+      <execute>chromium</execute>
+    </action>
+  </item>
+  <item label="🦊 Firefox">
+    <action name="Execute">
+      <execute>firefox</execute>
+    </action>
+  </item>
+  <item label="📁 Explorateur de fichiers (PCManFM)">
+    <action name="Execute">
+      <execute>pcmanfm /home/hosted-jeanhuguesrobert</execute>
+    </action>
+  </item>
+
+  <separator label="Outils &amp; Surveillance" />
+
+  <item label="📊 Moniteur Système (htop)">
+    <action name="Execute">
+      <execute>terminator -T "Moniteur Système (htop)" -e htop</execute>
+    </action>
+  </item>
+
+  <menu id="mesh-tools" label="🕸️ Fractanet &amp; Réseau">
+    <item label="Statut Tailscale">
+      <action name="Execute">
+        <execute>terminator -T "Tailscale Status" -e "bash -c 'tailscale status; echo; tailscale ip -4; echo; read -n 1 -s -r -p \"Appuyez sur une touche pour fermer...\"'"</execute>
+      </action>
+    </item>
+    <item label="Statut ONA &amp; SOMA">
+      <action name="Execute">
+        <execute>terminator -T "ONA Status" -e "bash -c 'curl -s http://127.0.0.1:8794/health | jq . 2>/dev/null || curl -s http://127.0.0.1:8794/health; echo; read -n 1 -s -r -p \"Appuyez sur une touche pour fermer...\"'"</execute>
+      </action>
+    </item>
+  </menu>
+
+  <separator label="Gestion de session" />
+
+  <item label="🔄 Recharger le menu">
+    <action name="Reconfigure" />
+  </item>
+  <item label="🪟 Réorganiser les fenêtres">
+    <action name="Restart" />
+  </item>
+</menu>
+</openbox_menu>

@@ -1,0 +1,11 @@
+[Unit]
+Description=Periodic Hosted Browser KasmVNC listener health check for %i
+
+[Timer]
+OnBootSec=45s
+OnUnitActiveSec=30s
+RandomizedDelaySec=5s
+Unit=hosted-browser-health@%i.service
+
+[Install]
+WantedBy=timers.target

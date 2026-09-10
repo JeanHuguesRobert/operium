@@ -1,0 +1,9 @@
+[Unit]
+Description=Public VNC Proxy Socket to Hosted Browser Node (:0 and :1)
+
+[Socket]
+ListenStream=5900
+ListenStream=5901
+
+[Install]
+WantedBy=sockets.target
