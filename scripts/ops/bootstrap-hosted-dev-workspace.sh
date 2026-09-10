@@ -107,12 +107,16 @@ EOF
 chown "$unix_user:$unix_user" "$env_file" "$profile_snip"
 chmod 0644 "$env_file" "$profile_snip"
 
-profile="${home_dir}/.profile"
-touch "$profile"
-chown "$unix_user:$unix_user" "$profile"
-if ! grep -q 'hosted-dev/profile.sh' "$profile" 2>/dev/null; then
-  printf '\n# hosted-dev workspace\n[ -f "$HOME/.config/hosted-dev/profile.sh" ] && . "$HOME/.config/hosted-dev/profile.sh"\n' >> "$profile"
-fi
+hook_profile() {
+  local file="$1"
+  touch "$file"
+  chown "$unix_user:$unix_user" "$file"
+  if ! grep -q 'hosted-dev/profile.sh' "$file" 2>/dev/null; then
+    printf '\n# hosted-dev workspace\n[ -f "$HOME/.config/hosted-dev/profile.sh" ] && . "$HOME/.config/hosted-dev/profile.sh"\n' >> "$file"
+  fi
+}
+hook_profile "${home_dir}/.profile"
+hook_profile "${home_dir}/.bashrc"
 
 as_user npm config set prefix "${home_dir}/.npm-global"
 
