@@ -97,3 +97,10 @@ Allocate a unique `HOSTED_BROWSER_DISPLAY` (for example `2`). Set
 A literal `127.0.0.1` is local to the Hosted Browser host. Do not use it to
 refer to another node; use that node's allow-listed mesh origin or a separately
 configured authenticated tunnel/proxy.
+
+## 7. Development tooling
+
+The 2026-09-10 development baseline adds native build tools, Python venv/pip,
+Deno, pnpm, coding CLIs and the core repository clones. See
+[Fracta2 development environment](fracta2-development.md) for deployed versions,
+verification, provisioning, sign-in status and deferred maintenance.

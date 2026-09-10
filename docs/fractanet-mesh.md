@@ -262,8 +262,8 @@ Hardware and service observations refreshed on 2026-09-10 over SSH through
 | **Automation** | Loopback CDP :9223 responds to `/json/version`, reporting Chrome 152.0.7977.83; navigation assistant gateway active on :8776 |
 | **Control Plane** | ONA active with :8794 listening; SOMA discovery and blackboard heartbeat delivery not revalidated |
 | **SSH mesh** | Ubuntu `sshd` :22; `fractanet-mesh` inbound + outbound; survives reboot |
-| **Corpus** | `/srv/cogentia/repos` mirror (operium, registre-mariani, cogentia) |
-| **Development tools** | Node, Python 3 and Git found on PATH |
+| **Corpus** | `/srv/cogentia/repos`: existing operium and registre-mariani; cogentia, inseme and Inox cloned on 2026-09-10 |
+| **Development tools** | Node/npm, GCC/G++/Make/CMake, Python venv/pip, Deno, pnpm, Codex, Claude Code, gh and ripgrep; [deployment and sign-in status](fracta2-development.md) |
 | **Limits** | Current browser performance, login persistence and graphical interaction not tested; earlier single-core / 1 GB limits are superseded |
 
 Phone-local coding tools and assistant-session integrations are separate

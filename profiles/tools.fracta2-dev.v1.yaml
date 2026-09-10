@@ -1,0 +1,78 @@
+profile_id: tools.fracta2-dev.v1
+node_id: fracta2
+node_class: ubuntu-arm64-development
+ssh_alias: fracta2
+updated: "2026-09-10"
+policy:
+  install_mode: user-npm-and-system-apt
+  forbid_sudo_npm_global: true
+  workspace_root: /srv/cogentia/repos
+  live_checkouts: preserve_existing_branches_and_work
+  service_restarts: deferred_to_maintenance
+  build_concurrency: 1
+bootstrap: scripts/ops/bootstrap-fracta2-dev.sh
+evidence: docs/fracta2-development.md
+
+tools:
+  - id: node
+    desired:
+      path_command: node
+    status: present
+    version: "22.23.2"
+  - id: gcc
+    desired:
+      path_command: gcc
+    status: present
+    version: "13.3.0"
+  - id: cmake
+    desired:
+      path_command: cmake
+    status: present
+    version: "3.28.3"
+  - id: python
+    desired:
+      path_command: python3
+    status: present
+    version: "3.12.3"
+    notes: venv and pip verified
+  - id: deno
+    desired:
+      path_command: deno
+      install: user_npm
+    status: present
+    version: "2.9.6"
+  - id: pnpm
+    desired:
+      path_command: pnpm
+      install: user_npm
+    status: present
+    version: "10.28.2"
+    notes: Matches inseme packageManager declaration
+  - id: codex
+    desired:
+      path_command: codex
+      install: user_npm
+    status: present
+    version: "0.154.0"
+    auth: not_logged_in
+  - id: claude-code
+    desired:
+      path_command: claude
+      install: user_npm
+    status: present
+    version: "2.1.268"
+    auth: not_logged_in
+  - id: github-cli
+    desired:
+      path_command: gh
+    status: present
+    version: "2.45.0"
+    auth: not_logged_in
+  - id: ripgrep
+    desired:
+      path_command: rg
+    status: present
+  - id: git
+    desired:
+      path_command: git
+    status: present
