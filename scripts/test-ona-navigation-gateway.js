@@ -1,13 +1,34 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import http from "node:http";
 import path from "node:path";
 import { createRequire } from "node:module";
+import { pathToFileURL } from "node:url";
 import { attachNavigationAssistantGateway } from "../lib/node-agent/navigation-gateway.js";
-import { createNavigationGateway } from "../../cogentia/scripts/ops/navigation-assistant-gateway.js";
 import { resolveCogentiaRoot } from "../lib/paths.js";
 
-const { WebSocket } = createRequire(path.join(resolveCogentiaRoot(), "package.json"))("ws");
+function findCogentiaRoot() {
+  const fromLib = resolveCogentiaRoot();
+  if (fromLib) return fromLib;
+  let dir = process.cwd();
+  for (let i = 0; i < 8; i++) {
+    const candidate = path.join(dir, "cogentia");
+    if (fs.existsSync(path.join(candidate, "scripts", "ops", "navigation-assistant-gateway.js"))) {
+      return candidate;
+    }
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  throw new Error("cogentia root missing");
+}
+
+const cogentiaRoot = findCogentiaRoot();
+const { createNavigationGateway } = await import(
+  pathToFileURL(path.join(cogentiaRoot, "scripts", "ops", "navigation-assistant-gateway.js")).href
+);
+const { WebSocket } = createRequire(path.join(cogentiaRoot, "package.json"))("ws");
 
 const disabled = await attachNavigationAssistantGateway({
   env: { ONA_NAV_ASSIST_GATEWAY: "0" },
