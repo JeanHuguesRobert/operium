@@ -107,11 +107,11 @@ sudo scripts/ops/configure-hosted-browser-workspace.sh \
 
 New workspaces provision as kiosk. Do not grant desktop to a regular user on the public sesame prompt.
 
-The browser process is supervised (`supervise-hosted-browser.sh`): each start/exit is logged to `~/.hosted-browser/supervisor.log` (UTC timestamp, binary, exit code, duration, crash streak, next sleep). Short-lived exits back off (`cooldown * min(streak, 8)`). A run longer than `HOSTED_BROWSER_HEALTHY_SECONDS` (default 45) resets the streak. After `HOSTED_BROWSER_MAX_CRASH_STREAK` consecutive crashes (default 5) the supervisor **stops** and leaves Openbox; it does not loop forever. Singleton lock files are cleared only after a crash. The executable is `HOSTED_BROWSER_BINARY` if set and executable, otherwise Brave then Chromium. Google Chrome is not selected on this FractaNode.
+The browser process is supervised (`supervise-hosted-browser.sh`): each start/exit is logged to `~/.hosted-browser/supervisor.log` (UTC timestamp, binary, exit code, duration, crash streak, next sleep). Short-lived exits back off (`cooldown * min(streak, 8)`). A run longer than `HOSTED_BROWSER_HEALTHY_SECONDS` (default 45) resets the streak. After `HOSTED_BROWSER_MAX_CRASH_STREAK` consecutive crashes (default 5) the supervisor **stops** and leaves Openbox; it does not loop forever. Singleton lock files are cleared on each start by default (`HOSTED_BROWSER_CLEAR_LOCKS=always`). After a clean or requested exit the supervisor also marks the profile as a normal shutdown. The executable is `HOSTED_BROWSER_BINARY` if set and executable, otherwise Brave then Chromium. Google Chrome is not selected on this FractaNode.
 
 Read the loop: `sudo tail -f /home/<unix>/.hosted-browser/supervisor.log`.
 
-**Relancer le navigateur** must not start a second supervisor on the same profile. It asks Brave to quit via CDP `Browser.close` (normal profile exit), waits, and only then SIGTERM / SIGKILL. Locks are cleared only after a kill. SIGTERM/clean CDP exit is not a crash streak.
+**Relancer le navigateur** must not start a second supervisor on the same profile. It asks Brave to quit via CDP `Browser.close` (normal profile exit), waits until CDP is down, and only then SIGTERM / SIGKILL. After the process is gone it writes `profile.exit_type=Normal` so the next launch does not show “Something went wrong when opening your profile”. Locks are cleared only after a kill. SIGTERM/clean CDP exit is not a crash streak.
 
 Desktop workspaces may launch **Visual Studio Code Insiders** (`code-insiders`) from the Openbox menu. Install with `scripts/ops/install-vscode-insiders.sh` (Microsoft apt repo, amd64/arm64). It is not part of kiosk mode. Flags `--disable-gpu --ozone-platform=x11` match the KasmVNC X session.
 

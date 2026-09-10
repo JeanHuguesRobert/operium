@@ -66,6 +66,16 @@ clear_profile_locks() {
   cleared_locks=1
 }
 
+mark_profile_clean() {
+  if browser_alive; then
+    return 1
+  fi
+  if command -v node >/dev/null 2>&1 && [ -f "$CLOSE_JS" ]; then
+    log "action=mark_clean"
+    node "$CLOSE_JS" --mark-clean "$PROFILE" >>"$LOG" 2>&1 || log "action=mark_clean_failed"
+  fi
+}
+
 if browser_alive; then
   log "action=graceful_cdp port=${CDP_PORT}"
   if command -v node >/dev/null 2>&1 && [ -f "$CLOSE_JS" ]; then
@@ -74,6 +84,8 @@ if browser_alive; then
     log "action=graceful_cdp_skipped"
   fi
   wait_browser_gone 50 || true
+  sleep 0.4
+  mark_profile_clean || true
 fi
 
 if browser_alive; then
@@ -90,6 +102,10 @@ if browser_alive; then
   sleep 0.4
   clear_profile_locks
   log "action=clear_locks_after_kill"
+fi
+
+if ! browser_alive; then
+  mark_profile_clean || true
 fi
 
 if supervisor_alive; then

@@ -229,6 +229,27 @@ const closeRun = bash(["-c", `node "${closeJs}" 1`]);
 assert.notEqual(closeRun.status, 0);
 assert.match(`${closeRun.stderr}${closeRun.stdout}`, /cdp_unavailable/);
 
+const markDir = fs.mkdtempSync(path.join(os.tmpdir(), "hosted-browser-mark-clean-"));
+fs.mkdirSync(path.join(markDir, "Default"));
+fs.writeFileSync(path.join(markDir, "Local State"), JSON.stringify({
+  profile: { exit_type: "Crashed" },
+  user_experience_metrics: { stability: { exited_cleanly: false } },
+}));
+fs.writeFileSync(path.join(markDir, "Default", "Preferences"), JSON.stringify({
+  profile: { exit_type: "Crashed", name: "Person 1" },
+}));
+const markRun = bash(["-c", `node "${closeJs}" --mark-clean "${markDir.replaceAll("\\", "/")}"`]);
+assert.equal(markRun.status, 0, markRun.stdout + markRun.stderr);
+assert.match(`${markRun.stderr}${markRun.stdout}`, /mark_clean/);
+const markedLocal = JSON.parse(fs.readFileSync(path.join(markDir, "Local State"), "utf8"));
+const markedPrefs = JSON.parse(fs.readFileSync(path.join(markDir, "Default", "Preferences"), "utf8"));
+assert.equal(markedLocal.profile.exit_type, "Normal");
+assert.equal(markedLocal.profile.exited_cleanly, true);
+assert.equal(markedLocal.user_experience_metrics.stability.exited_cleanly, true);
+assert.equal(markedPrefs.profile.exit_type, "Normal");
+assert.equal(markedPrefs.profile.name, "Person 1");
+fs.rmSync(markDir, { recursive: true, force: true });
+
 const pipe = path.join(root, "templates/hosted-browser/openbox-health-pipemenu.sh");
 const pipeRun = bash([pipe.replaceAll("\\", "/")], { env: { ...process.env, HOME: os.homedir() } });
 assert.equal(pipeRun.status, 0, pipeRun.stderr);
@@ -249,5 +270,6 @@ console.log(JSON.stringify({
     "health-pipemenu",
     "restart-no-second-supervisor",
     "graceful-close-cdp-down",
+    "mark-profile-clean",
   ],
 }, null, 2));

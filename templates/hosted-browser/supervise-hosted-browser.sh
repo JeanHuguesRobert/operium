@@ -83,6 +83,17 @@ requested_exit() {
   esac
 }
 
+CLOSE_JS="${HOME}/.hosted-browser/graceful-close-hosted-browser.js"
+if [[ ! -f "$CLOSE_JS" ]]; then
+  CLOSE_JS="/opt/operium/bin/graceful-close-hosted-browser.js"
+fi
+
+mark_profile_clean() {
+  if command -v node >/dev/null 2>&1 && [[ -f "$CLOSE_JS" ]]; then
+    node "$CLOSE_JS" --mark-clean "$PROFILE_DIR" >>"$LOG_FILE" 2>&1 || log_event "event=mark_clean_failed"
+  fi
+}
+
 printf '%s\n' "$$" > "$PID_FILE"
 trap 'rm -f "$PID_FILE"' EXIT
 
@@ -113,6 +124,7 @@ while true; do
     clear_profile_locks
     log_event "event=clear_locks profile=${PROFILE_DIR}"
   fi
+  mark_profile_clean
 
   log_event "event=start run=${run} streak=${streak} binary=${BROWSER_BIN}"
   start_ts="$(date +%s)"
@@ -136,7 +148,8 @@ while true; do
     streak=0
     last_was_crash=0
     crash=0
-    sleep_s=1
+    sleep_s=2
+    mark_profile_clean
   elif ((duration >= HEALTHY_SECONDS)); then
     streak=0
     last_was_crash=0
