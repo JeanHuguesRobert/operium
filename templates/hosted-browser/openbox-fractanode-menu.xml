@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openbox_menu xmlns="http://openbox.org/"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://openbox.org/ file:///usr/share/openbox/menu.xsd">
+
+<menu id="root-menu" label="FractaNode">
+  <item label="💻 Terminal (Terminator)">
+    <action name="Execute"><execute>terminator</execute></action>
+  </item>
+  <item label="🚀 Terminal Multiplexeur (Zellij)">
+    <action name="Execute"><execute>terminator -T "Zellij Workspace" -e zellij</execute></action>
+  </item>
+  <item label="📟 Terminal (Tilix)">
+    <action name="Execute"><execute>tilix</execute></action>
+  </item>
+
+  <separator label="Applications" />
+
+  <item label="🦁 Navigateur hébergé">
+    <action name="Execute"><execute>sh -c '$HOME/.hosted-browser/run-chrome.sh'</execute></action>
+  </item>
+  <item label="VS Code Insiders">
+    <action name="Execute"><execute>code-insiders --disable-gpu --ozone-platform=x11</execute></action>
+  </item>
+  <item label="📁 Explorateur de fichiers (PCManFM)">
+    <action name="Execute"><execute>sh -c 'pcmanfm "$HOME"'</execute></action>
+  </item>
+
+  <separator label="Santé &amp; Fractanet" />
+
+  <menu id="health-pipe" label="Snapshot santé" execute="/opt/operium/bin/openbox-health-pipemenu.sh" />
+
+  <item label="La Nasa (ce nœud)">
+    <action name="Execute"><execute>/opt/operium/bin/open-hosted-url.sh http://127.0.0.1:8794/</execute></action>
+  </item>
+  <item label="Flotte Fractanet">
+    <action name="Execute"><execute>/opt/operium/bin/open-hosted-url.sh http://127.0.0.1:8794/nasa/fleet</execute></action>
+  </item>
+  <item label="📊 Moniteur système (htop)">
+    <action name="Execute"><execute>terminator -T "Moniteur Système (htop)" -e htop</execute></action>
+  </item>
+  <item label="Statut Tailscale">
+    <action name="Execute">
+      <execute>terminator -T "Tailscale Status" -e "bash -c 'tailscale status; echo; tailscale ip -4; echo; read -n 1 -s -r -p \"Fermer: une touche...\"'"</execute>
+    </action>
+  </item>
+  <item label="Santé ONA">
+    <action name="Execute">
+      <execute>terminator -T "ONA Status" -e "bash -c 'curl -sS --max-time 5 http://127.0.0.1:8794/health | jq . 2>/dev/null || curl -sS --max-time 5 http://127.0.0.1:8794/health; echo; read -n 1 -s -r -p \"Fermer: une touche...\"'"</execute>
+    </action>
+  </item>
+  <item label="Journal navigateur">
+    <action name="Execute">
+      <execute>terminator -T "Supervisor" -e "bash -c 'tail -n 50 $HOME/.hosted-browser/supervisor.log; echo; read -n 1 -s -r -p \"Fermer: une touche...\"'"</execute>
+    </action>
+  </item>
+
+  <separator label="Gestion de session" />
+
+  <item label="🔄 Recharger le menu">
+    <action name="Reconfigure" />
+  </item>
+  <item label="🪟 Réorganiser les fenêtres">
+    <action name="Restart" />
+  </item>
+</menu>
+</openbox_menu>

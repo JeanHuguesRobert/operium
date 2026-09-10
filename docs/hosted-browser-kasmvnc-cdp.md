@@ -82,6 +82,39 @@ Temporary lab password (issue #25, until a later auth scheme): for Gmail `uuuu@g
 
 Display `N` binds KasmVNC HTTP/WebSocket to `127.0.0.1:(8443+N)`, Chrome CDP to `127.0.0.1:(9222+N)`, optional RFB to `127.0.0.1:(5900+N)`. Display `:1` is therefore `:8444` / `:9223` / `:5901`. Only a chosen KasmVNC HTTP port may be published; RFB and CDP stay off the public Internet.
 
+### Session mode vs assurance (issue #49)
+
+The X session is a **Hosted Workspace**. Chrome is an application, not the session process.
+
+| Knob | Values | Role |
+|------|--------|------|
+| `HOSTED_SESSION` | `kiosk` (default) or `desktop` | Kiosk: Chrome only, restart on exit with cooldown. Desktop: Openbox is the session; right-click menu Chrome / terminal / restart Chrome / logout. |
+| `HOSTED_ASSURANCE` | `lab-sesame` (now), `mesh-session`, `future-idp` | How strongly we believe the person at the prompt. Future auth **opens** capacities; it does not rewrite the launcher. |
+
+Fail closed (`scripts/ops/hosted-workspace-policy.sh`):
+
+- `desktop` on `lab-sesame` + public bind is refused unless `HOSTED_ASSURANCE_WAIVER=principal-lab`.
+- Host admin / sudo on the Chrome UID is never a workspace capacity.
+- Lowering assurance must close desktop again (re-run configure).
+
+```bash
+sudo scripts/ops/configure-hosted-browser-workspace.sh \
+  --unix hosted-someone --session kiosk --dry-run
+sudo scripts/ops/configure-hosted-browser-workspace.sh \
+  --unix hosted-jeanhuguesrobert --session desktop --bind public \
+  --assurance lab-sesame --waiver principal-lab --restart
+```
+
+New workspaces provision as kiosk. Do not grant desktop to a regular user on the public sesame prompt.
+
+The browser process is supervised (`supervise-hosted-browser.sh`): each start/exit is logged to `~/.hosted-browser/supervisor.log` (UTC timestamp, binary, exit code, duration, crash streak, next sleep). Short-lived exits back off (`cooldown * min(streak, 8)`). A run longer than `HOSTED_BROWSER_HEALTHY_SECONDS` (default 45) resets the streak. After `HOSTED_BROWSER_MAX_CRASH_STREAK` consecutive crashes (default 5) the supervisor **stops** and leaves Openbox; it does not loop forever. Singleton lock files are cleared only after a crash. The executable is `HOSTED_BROWSER_BINARY` if set and executable, otherwise Brave then Chromium. Google Chrome is not selected on this FractaNode.
+
+Read the loop: `sudo tail -f /home/<unix>/.hosted-browser/supervisor.log`.
+
+Desktop workspaces may launch **Visual Studio Code Insiders** (`code-insiders`) from the Openbox menu. Install with `scripts/ops/install-vscode-insiders.sh` (Microsoft apt repo, amd64/arm64). It is not part of kiosk mode. Flags `--disable-gpu --ozone-platform=x11` match the KasmVNC X session.
+
+The desktop Openbox menu has a **Santé & Fractanet** section: live snapshot (pipe menu: load, memory, ONA, Tailscale, last supervisor event), La Nasa on this node (`http://127.0.0.1:8794/`), fleet, htop, Tailscale, ONA health, browser supervisor log. The same block is the node default in `/etc/xdg/openbox/menu.xml` (`openbox-fractanode-menu.xml`).
+
 ### Generic workspace provisioning
 
 Use `scripts/ops/provision-hosted-browser-user.sh` after the node-level
