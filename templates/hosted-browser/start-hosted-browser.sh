@@ -126,6 +126,7 @@ install_openbox_file() {
   <menu id="root-menu" label="Hosted Workspace">
     <item label="Chrome"><action name="Execute"><command>${HOME_DIR}/.hosted-browser/run-chrome.sh</command></action></item>
     <item label="Terminal"><action name="Execute"><command>${TERMINAL_BIN}</command></action></item>
+    <item label="VS Code Insiders"><action name="Execute"><command>code-insiders --disable-gpu --ozone-platform=x11</command></action></item>
     <item label="Restart Chrome"><action name="Execute"><command>${HOME_DIR}/.hosted-browser/restart-chrome.sh</command></action></item>
     <item label="Logout"><action name="Exit"/></item>
   </menu>

@@ -62,6 +62,9 @@ sudo install -m 0755 templates/hosted-browser/supervise-hosted-browser.sh \
   templates/hosted-browser/openbox-health-pipemenu.sh \
   templates/hosted-browser/open-hosted-url.sh \
   /opt/operium/bin/
+sudo install -m 0755 scripts/ops/install-vscode-insiders.sh \
+  /opt/operium/bin/install-vscode-insiders.sh
+# Desktop IDE (optional): sudo /opt/operium/bin/install-vscode-insiders.sh
 sudo cp templates/hosted-browser/supervise-hosted-browser.sh \
   /opt/operium/templates/hosted-browser/
 sudo systemctl daemon-reload

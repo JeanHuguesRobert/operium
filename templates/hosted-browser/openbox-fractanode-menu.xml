@@ -19,6 +19,9 @@
   <item label="🦁 Navigateur hébergé">
     <action name="Execute"><execute>sh -c '$HOME/.hosted-browser/run-chrome.sh'</execute></action>
   </item>
+  <item label="VS Code Insiders">
+    <action name="Execute"><execute>code-insiders --disable-gpu --ozone-platform=x11</execute></action>
+  </item>
   <item label="📁 Explorateur de fichiers (PCManFM)">
     <action name="Execute"><execute>sh -c 'pcmanfm "$HOME"'</execute></action>
   </item>

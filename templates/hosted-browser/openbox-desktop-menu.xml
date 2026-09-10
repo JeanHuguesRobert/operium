@@ -7,6 +7,9 @@
     <item label="Terminal">
       <action name="Execute"><command>TERMINAL_BIN</command></action>
     </item>
+    <item label="VS Code Insiders">
+      <action name="Execute"><command>code-insiders --disable-gpu --ozone-platform=x11</command></action>
+    </item>
     <item label="Relancer le navigateur">
       <action name="Execute"><command>HOME_DIR/.hosted-browser/restart-chrome.sh</command></action>
     </item>
