@@ -209,6 +209,12 @@ assert.match(supLogText, /event=stop reason=crash_streak streak=3 max=3/);
 assert.doesNotMatch(supLogText, /event=start run=4/);
 fs.rmSync(supDir, { recursive: true, force: true });
 
+const pipe = path.join(root, "templates/hosted-browser/openbox-health-pipemenu.sh");
+const pipeRun = bash([pipe.replaceAll("\\", "/")], { env: { ...process.env, HOME: os.homedir() } });
+assert.equal(pipeRun.status, 0, pipeRun.stderr);
+assert.match(pipeRun.stdout, /openbox_pipe_menu/);
+assert.match(pipeRun.stdout, /Santé|ONA|Tailscale|load/);
+
 console.log(JSON.stringify({
   ok: true,
   tests: [
@@ -220,5 +226,6 @@ console.log(JSON.stringify({
     "policy-gate",
     "list-env-dir",
     "supervise-loop",
+    "health-pipemenu",
   ],
 }, null, 2));

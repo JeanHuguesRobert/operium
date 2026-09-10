@@ -59,7 +59,9 @@ sudo cp templates/hosted-browser/hosted-browser@.service /etc/systemd/system/
 sudo install -m 0755 scripts/ops/hosted-workspace-policy.sh \
   scripts/ops/configure-hosted-browser-workspace.sh /opt/operium/bin/
 sudo install -m 0755 templates/hosted-browser/supervise-hosted-browser.sh \
-  /opt/operium/bin/supervise-hosted-browser.sh
+  templates/hosted-browser/openbox-health-pipemenu.sh \
+  templates/hosted-browser/open-hosted-url.sh \
+  /opt/operium/bin/
 sudo cp templates/hosted-browser/supervise-hosted-browser.sh \
   /opt/operium/templates/hosted-browser/
 sudo systemctl daemon-reload

@@ -111,6 +111,8 @@ The browser process is supervised (`supervise-hosted-browser.sh`): each start/ex
 
 Read the loop: `sudo tail -f /home/<unix>/.hosted-browser/supervisor.log`.
 
+The desktop Openbox menu has a **Santé & Fractanet** section: live snapshot (pipe menu: load, memory, ONA, Tailscale, last supervisor event), La Nasa on this node (`http://127.0.0.1:8794/`), fleet, htop, Tailscale, ONA health, browser supervisor log. The same block is the node default in `/etc/xdg/openbox/menu.xml` (`openbox-fractanode-menu.xml`).
+
 ### Generic workspace provisioning
 
 Use `scripts/ops/provision-hosted-browser-user.sh` after the node-level

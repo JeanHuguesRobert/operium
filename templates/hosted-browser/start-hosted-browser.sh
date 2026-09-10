@@ -102,6 +102,16 @@ exec "${HOME_DIR}/.hosted-browser/run-browser.sh"
 EOF
 chmod +x "${HOME_DIR}/.hosted-browser/restart-chrome.sh"
 
+for helper in open-hosted-url.sh; do
+  helper_src="${TEMPLATE_DIR}/${helper}"
+  if [[ ! -f "$helper_src" ]]; then
+    helper_src="/opt/operium/bin/${helper}"
+  fi
+  if [[ -f "$helper_src" ]]; then
+    install -m 0755 "$helper_src" "${HOME_DIR}/.hosted-browser/${helper}"
+  fi
+done
+
 install_openbox_file() {
   local src_name="$1" dest="$2"
   local src="${TEMPLATE_DIR}/${src_name}"

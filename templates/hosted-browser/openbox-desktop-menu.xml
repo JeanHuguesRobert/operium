@@ -1,15 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <openbox_menu xmlns="http://openbox.org/3.4/menu">
   <menu id="root-menu" label="Hosted Workspace">
-    <item label="Chrome">
+    <item label="Navigateur (profil hébergé)">
       <action name="Execute"><command>HOME_DIR/.hosted-browser/run-chrome.sh</command></action>
     </item>
     <item label="Terminal">
       <action name="Execute"><command>TERMINAL_BIN</command></action>
     </item>
-    <item label="Restart Chrome">
+    <item label="Relancer le navigateur">
       <action name="Execute"><command>HOME_DIR/.hosted-browser/restart-chrome.sh</command></action>
     </item>
+
+    <separator label="Santé &amp; Fractanet" />
+    <menu id="health-pipe" label="Snapshot santé" execute="/opt/operium/bin/openbox-health-pipemenu.sh" />
+    <item label="La Nasa (ce nœud)">
+      <action name="Execute"><command>HOME_DIR/.hosted-browser/open-hosted-url.sh http://127.0.0.1:8794/</command></action>
+    </item>
+    <item label="Flotte Fractanet">
+      <action name="Execute"><command>HOME_DIR/.hosted-browser/open-hosted-url.sh http://127.0.0.1:8794/nasa/fleet</command></action>
+    </item>
+    <item label="Moniteur système (htop)">
+      <action name="Execute"><command>TERMINAL_BIN -T htop -e htop</command></action>
+    </item>
+    <item label="Statut Tailscale">
+      <action name="Execute"><command>TERMINAL_BIN -T Tailscale -e bash -lc 'tailscale status; echo; tailscale ip -4; read -n 1 -s -r -p "Fermer: une touche..."'</command></action>
+    </item>
+    <item label="Santé ONA">
+      <action name="Execute"><command>TERMINAL_BIN -T ONA -e bash -lc 'curl -sS --max-time 5 http://127.0.0.1:8794/health | jq . 2>/dev/null || curl -sS --max-time 5 http://127.0.0.1:8794/health; echo; read -n 1 -s -r -p "Fermer: une touche..."'</command></action>
+    </item>
+    <item label="Journal navigateur">
+      <action name="Execute"><command>TERMINAL_BIN -T supervisor -e bash -lc 'tail -n 50 HOME_DIR/.hosted-browser/supervisor.log; echo; read -n 1 -s -r -p "Fermer: une touche..."'</command></action>
+    </item>
+
+    <separator label="Session" />
     <item label="Logout">
       <action name="Exit"/>
     </item>
