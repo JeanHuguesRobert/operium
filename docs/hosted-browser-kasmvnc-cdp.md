@@ -76,7 +76,7 @@ Default isolation is **one person / one Unix workspace / one write-capable KasmV
 
 ### What the public password prompt is
 
-Observed 2026-09-03: `https://browser.fractavolta.com/` returns **HTTP 401** `WWW-Authenticate: Basic realm="Websockify"` behind two Caddy hops. That prompt is **KasmVNC HTTP Basic** from the workspace `~/.kasmpasswd` file. It is not Unix `login(1)` and not Cogentia.
+Observed 2026-09-03: `https://browser.fractavolta.com/` returns **HTTP 401** `WWW-Authenticate: Basic realm="Websockify"` behind two Caddy hops. After the lab password moved to `sesame`, the public hop rewrites the realm to `sesame` so a normal browser window does not keep sending the old Websockify credentials. `/hint` is an unauthenticated reminder page. Close every tab to that origin, then reopen; a private window is not required. That prompt is **KasmVNC HTTP Basic** from the workspace `~/.kasmpasswd` file. It is not Unix `login(1)` and not Cogentia.
 
 Temporary lab password (issue #25, until a later auth scheme): for Gmail `uuuu@gmail.com` the Websockify username is `uuuu` and the password is `sesame-uuuu`. This is the same *family* as other Operium lab sesames. It is **not a security boundary**. Anyone who knows the Gmail local part can derive the password. Do not treat the public hostname as protected by this prompt. Google sign-in inside Chrome is a separate human step and is not this password.
 

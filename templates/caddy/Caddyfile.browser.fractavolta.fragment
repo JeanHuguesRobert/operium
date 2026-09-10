@@ -1,0 +1,14 @@
+# Public hop on fracta (TLS). KasmVNC on fracta2 still does HTTP Basic.
+# Chrome caches Basic Auth per origin+realm="Websockify". After a lab password
+# change, a normal window keeps sending the old password. A new realm forces
+# a fresh prompt; /hint is a 200 page that does not use Basic Auth.
+
+# browser.fractavolta.com {
+#     handle /hint {
+#         header Content-Type "text/html; charset=utf-8"
+#         respond `<!doctype html><meta charset="utf-8"><title>Hosted Browser</title><p>Utilisateur <code>jeanhuguesrobert</code><br>Mot de passe lab <code>sesame</code></p><p>Si ca echoue dans une fenetre normale: fermez tous les onglets vers ce site, puis rouvrez. Le navigateur gardait l ancien mot de passe.</p><p><a href="/">Ouvrir la session</a></p>` 200
+#     }
+#     reverse_proxy http://100.84.109.87:80 {
+#         header_down WWW-Authenticate "Basic realm=\"sesame\""
+#     }
+# }
