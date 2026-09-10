@@ -224,6 +224,11 @@ const restartLog = fs.readFileSync(path.join(restartDir, ".hosted-browser", "sup
 assert.match(restartLog, /action=start_supervisor/);
 fs.rmSync(restartDir, { recursive: true, force: true });
 
+const closeJs = path.join(root, "templates/hosted-browser/graceful-close-hosted-browser.js").replaceAll("\\", "/");
+const closeRun = bash(["-c", `node "${closeJs}" 1`]);
+assert.notEqual(closeRun.status, 0);
+assert.match(`${closeRun.stderr}${closeRun.stdout}`, /cdp_unavailable/);
+
 const pipe = path.join(root, "templates/hosted-browser/openbox-health-pipemenu.sh");
 const pipeRun = bash([pipe.replaceAll("\\", "/")], { env: { ...process.env, HOME: os.homedir() } });
 assert.equal(pipeRun.status, 0, pipeRun.stderr);
@@ -243,5 +248,6 @@ console.log(JSON.stringify({
     "supervise-loop",
     "health-pipemenu",
     "restart-no-second-supervisor",
+    "graceful-close-cdp-down",
   ],
 }, null, 2));

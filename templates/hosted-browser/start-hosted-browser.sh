@@ -94,7 +94,7 @@ chmod +x "${HOME_DIR}/.hosted-browser/run-browser.sh"
 # Keep the old name so the Openbox menu still works.
 ln -sfn run-browser.sh "${HOME_DIR}/.hosted-browser/run-chrome.sh"
 
-for helper in open-hosted-url.sh restart-hosted-browser.sh; do
+for helper in open-hosted-url.sh restart-hosted-browser.sh graceful-close-hosted-browser.js; do
   helper_src="${TEMPLATE_DIR}/${helper}"
   if [[ ! -f "$helper_src" ]]; then
     helper_src="/opt/operium/bin/${helper}"

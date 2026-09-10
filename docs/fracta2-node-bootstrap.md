@@ -61,6 +61,8 @@ sudo install -m 0755 scripts/ops/hosted-workspace-policy.sh \
 sudo install -m 0755 templates/hosted-browser/supervise-hosted-browser.sh \
   templates/hosted-browser/openbox-health-pipemenu.sh \
   templates/hosted-browser/open-hosted-url.sh \
+  templates/hosted-browser/restart-hosted-browser.sh \
+  templates/hosted-browser/graceful-close-hosted-browser.js \
   /opt/operium/bin/
 sudo install -m 0755 scripts/ops/install-vscode-insiders.sh \
   /opt/operium/bin/install-vscode-insiders.sh
