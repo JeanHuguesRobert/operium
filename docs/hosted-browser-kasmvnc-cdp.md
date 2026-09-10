@@ -153,7 +153,7 @@ cd ~/src/cogentia
 node scripts/ops/navigation-assistant-tui.js
 ```
 
-The assistant talks to **this machine’s** hosted Brave on loopback. Installing the unpacked extension in that Brave is a later step. The TUI must not treat “local vs hosted” as the primary object — the operator sees the current tab, not the transport.
+The assistant talks to **this machine’s** hosted Brave on loopback. Set `HOSTED_BROWSER_LOAD_EXTENSION` to `~/src/cogentia/browser-extension` so Brave loads the unpacked MV3 on every start (`--load-extension`, plus `--silent-debugger-extension-api`). The TUI then prefers the extension bridge (`NAV_ASSIST_SKIP_CDP=1`) so Node CDP and `chrome.debugger` do not attach to the same tab. The TUI shows the tab **title** and a **site label** (`chatgpt.com`), not the exact URL; `NAV_ASSIST_SHOW_LOCATION=1` restores full URLs. Openbox menu: **Assistant de navigation**.
 
 ### Generic workspace provisioning
 

@@ -94,6 +94,7 @@ start_url="$(read_env HOSTED_BROWSER_START_URL https://www.google.com/)"
 rfb_port="$(read_env HOSTED_BROWSER_RFB_PORT $((5900 + display)))"
 browser_binary="$(read_env HOSTED_BROWSER_BINARY "")"
 max_crash_streak="$(read_env HOSTED_BROWSER_MAX_CRASH_STREAK 5)"
+load_extension="$(read_env HOSTED_BROWSER_LOAD_EXTENSION "")"
 
 plan() { printf '[plan] %s\n' "$*"; }
 
@@ -125,6 +126,9 @@ trap 'rm -f "$tmp"' EXIT
     "HOSTED_BROWSER_MAX_CRASH_STREAK=${max_crash_streak}"
   if [[ -n "$browser_binary" ]]; then
     printf 'HOSTED_BROWSER_BINARY=%s\n' "$browser_binary"
+  fi
+  if [[ -n "$load_extension" ]]; then
+    printf 'HOSTED_BROWSER_LOAD_EXTENSION=%s\n' "$load_extension"
   fi
 } > "$tmp"
 install -o root -g root -m 0640 "$tmp" "$env_file"

@@ -19,6 +19,9 @@
     <item label="Navigateur (profil hébergé)">
       <action name="Execute"><command>HOME_DIR/.hosted-browser/run-chrome.sh</command></action>
     </item>
+    <item label="Assistant de navigation">
+      <action name="Execute"><command>terminator -T "Assistant de navigation" -e bash -lc 'cd "$HOME/src/cogentia" && exec node scripts/ops/navigation-assistant-tui.js'</command></action>
+    </item>
     <item label="Relancer le navigateur">
       <action name="Execute"><command>HOME_DIR/.hosted-browser/restart-chrome.sh</command></action>
     </item>

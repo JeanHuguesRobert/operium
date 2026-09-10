@@ -88,6 +88,7 @@ export HOSTED_CHROME_RESTART="${CHROME_RESTART}"
 export HOSTED_CHROME_COOLDOWN_SECONDS="${COOLDOWN}"
 export HOSTED_BROWSER_MAX_CRASH_STREAK="${HOSTED_BROWSER_MAX_CRASH_STREAK:-5}"
 export HOSTED_BROWSER_SUPERVISOR_LOG="${HOME_DIR}/.hosted-browser/supervisor.log"
+export HOSTED_BROWSER_LOAD_EXTENSION="${HOSTED_BROWSER_LOAD_EXTENSION:-}"
 exec "${HOME_DIR}/.hosted-browser/supervise-hosted-browser.sh"
 EOF
 chmod +x "${HOME_DIR}/.hosted-browser/run-browser.sh"

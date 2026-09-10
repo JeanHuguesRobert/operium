@@ -128,6 +128,15 @@ while true; do
 
   log_event "event=start run=${run} streak=${streak} binary=${BROWSER_BIN}"
   start_ts="$(date +%s)"
+  extra_args=()
+  if [[ -n "${HOSTED_BROWSER_LOAD_EXTENSION:-}" && -d "${HOSTED_BROWSER_LOAD_EXTENSION}" ]]; then
+    extra_args+=(
+      --disable-features=DisableLoadExtensionCommandLineSwitch
+      --load-extension="${HOSTED_BROWSER_LOAD_EXTENSION}"
+      --silent-debugger-extension-api
+    )
+    log_event "event=load_extension path=${HOSTED_BROWSER_LOAD_EXTENSION}"
+  fi
   "$BROWSER_BIN" \
     --user-data-dir="${PROFILE_DIR}" \
     --no-first-run \
@@ -138,6 +147,7 @@ while true; do
     --disable-gpu \
     --window-size=1920,1080 \
     --window-position=0,0 \
+    "${extra_args[@]}" \
     "${START_URL}"
   code=$?
   end_ts="$(date +%s)"

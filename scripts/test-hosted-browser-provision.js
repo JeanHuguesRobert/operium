@@ -261,6 +261,10 @@ assert.match(desktopMenu, /Terminator/);
 assert.match(desktopMenu, /pcmanfm/);
 assert.match(desktopMenu, /client-list-combined-menu/);
 assert.match(desktopMenu, /logout-hosted-session\.sh/);
+assert.match(desktopMenu, /Assistant de navigation/);
+const superviseSrc = fs.readFileSync(path.join(root, "templates/hosted-browser/supervise-hosted-browser.sh"), "utf8");
+assert.match(superviseSrc, /--load-extension=/);
+assert.match(superviseSrc, /HOSTED_BROWSER_LOAD_EXTENSION/);
 assert.match(desktopMenu, /Santé/);
 assert.doesNotMatch(desktopMenu, /action name="Exit"/);
 const desktopRc = fs.readFileSync(path.join(root, "templates/hosted-browser/openbox-desktop-rc.xml"), "utf8");
@@ -284,6 +288,7 @@ const hostedDevDry = bash([hostedDev.replaceAll("\\", "/"), "--unix", "hosted-je
 assert.equal(hostedDevDry.status, 0, hostedDevDry.stdout + hostedDevDry.stderr);
 assert.match(hostedDevDry.stdout, /git clone/);
 assert.match(hostedDevDry.stdout, /9223/);
+assert.match(fs.readFileSync(hostedDev, "utf8"), /NAV_ASSIST_SKIP_CDP=1/);
 assert.doesNotMatch(hostedDevDry.stdout, /C:\\\\tweesic/);
 
 console.log(JSON.stringify({

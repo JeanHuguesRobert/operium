@@ -91,8 +91,10 @@ fi
 
 cat > "$env_file" <<'EOF'
 # Loopback only. Hosted Brave CDP is display :1 → 9223.
+# The unpacked extension owns the current tab; skip Node CDP attach.
 CDP_ENDPOINT=http://127.0.0.1:9223
 NAV_ASSIST_PORT=8765
+NAV_ASSIST_SKIP_CDP=1
 EOF
 cat > "$profile_snip" <<EOF
 export NPM_CONFIG_PREFIX="\${HOME}/.npm-global"
