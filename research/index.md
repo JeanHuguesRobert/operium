@@ -80,6 +80,7 @@ update_policy: UP-DEFAULT-REVIEWED
 - [Operium Console](../docs/operium-console.md)
 - [Operium Node Agent — fleet install](../docs/operium-node-agent-install.md)
 - [Operium Node Agent](../docs/operium-node-agent.md)
+- [Navigation assistant local hold](../docs/navigation-assistant-local-hold.md) — ONA imports Cogentia's loopback gateway so the workstation extension stays connected while the TUI is down
 - [Operium WIP Handoff](../docs/operium-wip.md)
 - [Handoff — Fractanet embryon](handoff-fractanet-embryon-2026-07-05.md)
 - [Generic Model Selector Design](model-selector-design.md)
