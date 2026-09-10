@@ -80,7 +80,7 @@ Observed 2026-09-03: `https://browser.fractavolta.com/` returns **HTTP 401** `WW
 
 Temporary lab password (issue #25, until a later auth scheme): for Gmail `uuuu@gmail.com` the Websockify username is `uuuu` and the password is `sesame-uuuu`. This is the same *family* as other Operium lab sesames. It is **not a security boundary**. Anyone who knows the Gmail local part can derive the password. Do not treat the public hostname as protected by this prompt. Google sign-in inside Chrome is a separate human step and is not this password.
 
-Display `N` binds KasmVNC HTTP/WebSocket to `127.0.0.1:(8443+N)`, Chrome CDP to `127.0.0.1:(9222+N)`, optional RFB to `127.0.0.1:(5900+N)`. Display `:1` is therefore `:8444` / `:9223` / `:5901`. Only a chosen KasmVNC HTTP port may be published; RFB and CDP stay off the public Internet.
+Display `N` binds KasmVNC HTTP/WebSocket to `127.0.0.1:(8443+N)`, Chrome CDP to `127.0.0.1:(9222+N)`, Kasm native RFB to `127.0.0.1:(5900+N)`. Optional **x11vnc** for a classic viewer must use another port (`HOSTED_BROWSER_RFB_PORT`, default `5910+N`) and must not pass `-noxdamage`/`-noxfixes` (that freezes the Kasm view). Display `:1` is `:8444` / `:9223` / Kasm RFB `:5901` / x11vnc `:5911`. Websockify login is the lab sesame (`uuuu` / `sesame-uuuu`). Classic RFB uses `~/.vnc/passwd` (truncated, not the sesame). Only a chosen KasmVNC HTTP port may be published.
 
 ### Session mode vs assurance (issue #49)
 
