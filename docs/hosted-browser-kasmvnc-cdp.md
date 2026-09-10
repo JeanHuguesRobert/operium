@@ -132,6 +132,29 @@ Input is chosen so a Windows (or local-browser) client keeps its own keys:
 
 **Logout** must kill KasmVNC (`logout-hosted-session.sh` / `vncserver -kill`), not Openbox `Exit` — otherwise the X display stays up black and reconnect never returns to the Websockify login (`uuuu` / `sesame-uuuu`). The systemd unit is `Restart=always` so a fresh KasmVNC is listening for that login. The node default menu is `/etc/xdg/openbox/menu.xml` (`openbox-fractanode-menu.xml`).
 
+### Hosted coding workspace (same person, not a copy of `C:\tweesic`)
+
+Do not rsync the Windows tree. The Hosted Unix user (`hosted-<uuuu>`) already has Git, Node 22, and VS Code Insiders, but **no sudo**. Bootstrap a user-space checkout:
+
+```bash
+sudo scripts/ops/bootstrap-hosted-dev-workspace.sh \
+  --unix hosted-jeanhuguesrobert --repo cogentia --dry-run
+sudo scripts/ops/bootstrap-hosted-dev-workspace.sh \
+  --unix hosted-jeanhuguesrobert --repo cogentia --with-install
+```
+
+That writes `~/src/cogentia`, `~/.config/hosted-dev/env` (`CDP_ENDPOINT=http://127.0.0.1:9223`, assistant port `8765`), and a user npm prefix. Secrets stay out. The ubuntu `/srv/cogentia/repos` tree remains the ops checkout, not this person’s desktop.
+
+From a Terminator in the hosted desktop:
+
+```bash
+cd ~/src/cogentia
+. ~/.config/hosted-dev/profile.sh
+node scripts/ops/navigation-assistant-tui.js
+```
+
+The assistant talks to **this machine’s** hosted Brave on loopback. Installing the unpacked extension in that Brave is a later step. The TUI must not treat “local vs hosted” as the primary object — the operator sees the current tab, not the transport.
+
 ### Generic workspace provisioning
 
 Use `scripts/ops/provision-hosted-browser-user.sh` after the node-level

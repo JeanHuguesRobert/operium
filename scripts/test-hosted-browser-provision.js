@@ -279,6 +279,13 @@ assert.match(startScript, /ob_pid/);
 const unitFile = fs.readFileSync(path.join(root, "templates/hosted-browser/hosted-browser@.service"), "utf8");
 assert.match(unitFile, /Restart=always/);
 
+const hostedDev = path.join(root, "scripts/ops/bootstrap-hosted-dev-workspace.sh");
+const hostedDevDry = bash([hostedDev.replaceAll("\\", "/"), "--unix", "hosted-jeanhuguesrobert", "--dry-run"]);
+assert.equal(hostedDevDry.status, 0, hostedDevDry.stdout + hostedDevDry.stderr);
+assert.match(hostedDevDry.stdout, /git clone/);
+assert.match(hostedDevDry.stdout, /9223/);
+assert.doesNotMatch(hostedDevDry.stdout, /C:\\\\tweesic/);
+
 console.log(JSON.stringify({
   ok: true,
   tests: [
@@ -295,5 +302,6 @@ console.log(JSON.stringify({
     "graceful-close-cdp-down",
     "mark-profile-clean",
     "desktop-menu-windows-logout",
+    "hosted-dev-workspace-dry",
   ],
 }, null, 2));
