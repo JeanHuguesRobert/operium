@@ -15,7 +15,8 @@ HEALTHY_SECONDS="${HOSTED_BROWSER_HEALTHY_SECONDS:-45}"
 MAX_BACKOFF_MULT="${HOSTED_BROWSER_BACKOFF_CAP:-8}"
 MAX_RUNS="${HOSTED_SUPERVISE_MAX_RUNS:-0}"
 MAX_CRASH_STREAK="${HOSTED_BROWSER_MAX_CRASH_STREAK:-5}"
-CLEAR_LOCKS="${HOSTED_BROWSER_CLEAR_LOCKS:-on-crash}"
+CLEAR_LOCKS="${HOSTED_BROWSER_CLEAR_LOCKS:-always}"
+PID_FILE="${HOSTED_BROWSER_SUPERVISOR_PID:-${HOME}/.hosted-browser/supervisor.pid}"
 
 mkdir -p "$(dirname "$LOG_FILE")" "$PROFILE_DIR"
 
@@ -67,8 +68,23 @@ resolve_browser() {
 }
 
 clear_profile_locks() {
-  rm -f "${PROFILE_DIR}/SingletonLock" "${PROFILE_DIR}/SingletonSocket" "${PROFILE_DIR}/SingletonCookie" 2>/dev/null || true
+  rm -f \
+    "${PROFILE_DIR}/SingletonLock" \
+    "${PROFILE_DIR}/SingletonSocket" \
+    "${PROFILE_DIR}/SingletonCookie" \
+    "${PROFILE_DIR}/Default/lockfile" \
+    "${PROFILE_DIR}/lockfile" 2>/dev/null || true
 }
+
+requested_exit() {
+  case "$1" in
+    0|129|130|143) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+printf '%s\n' "$$" > "$PID_FILE"
+trap 'rm -f "$PID_FILE"' EXIT
 
 BROWSER_BIN="$(resolve_browser || true)"
 if [[ -z "$BROWSER_BIN" ]]; then
@@ -87,6 +103,11 @@ while true; do
   if ((MAX_RUNS > 0 && run > MAX_RUNS)); then
     log_event "event=stop reason=max_runs runs=${MAX_RUNS}"
     exit 0
+  fi
+  if pgrep -u "$(id -u)" -f -- "--user-data-dir=${PROFILE_DIR}" >/dev/null 2>&1; then
+    log_event "event=skip_start reason=profile_in_use"
+    sleep "$COOLDOWN"
+    continue
   fi
   if [[ "$CLEAR_LOCKS" == always ]] || [[ "$CLEAR_LOCKS" == on-crash && "$last_was_crash" == 1 ]]; then
     clear_profile_locks
@@ -111,22 +132,24 @@ while true; do
   duration=$((end_ts - start_ts))
   if ((duration < 0)); then duration=0; fi
 
-  if ((duration >= HEALTHY_SECONDS)); then
+  if requested_exit "$code"; then
     streak=0
     last_was_crash=0
     crash=0
+    sleep_s=1
+  elif ((duration >= HEALTHY_SECONDS)); then
+    streak=0
+    last_was_crash=0
+    crash=0
+    sleep_s=$COOLDOWN
   else
     streak=$((streak + 1))
     last_was_crash=1
     crash=1
-  fi
-  if ((code != 0)); then
-    last_was_crash=1
-    crash=1
+    sleep_s=0
   fi
 
-  sleep_s=0
-  if [[ "$RESTART" == on-exit ]]; then
+  if [[ "$RESTART" == on-exit && "$crash" == 1 ]]; then
     mult="$streak"
     if ((mult < 1)); then mult=1; fi
     if ((mult > MAX_BACKOFF_MULT)); then mult=$MAX_BACKOFF_MULT; fi

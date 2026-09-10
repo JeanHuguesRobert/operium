@@ -209,6 +209,21 @@ assert.match(supLogText, /event=stop reason=crash_streak streak=3 max=3/);
 assert.doesNotMatch(supLogText, /event=start run=4/);
 fs.rmSync(supDir, { recursive: true, force: true });
 
+const restartDir = fs.mkdtempSync(path.join(os.tmpdir(), "hosted-browser-restart-"));
+const posixRestart = restartDir.replaceAll("\\", "/");
+fs.mkdirSync(path.join(restartDir, ".hosted-browser"));
+fs.writeFileSync(path.join(restartDir, ".hosted-browser", "run-browser.sh"), "#!/bin/sh\necho started-supervisor\n");
+bash(["-c", `chmod +x "${posixRestart}/.hosted-browser/run-browser.sh"`]);
+const restartScript = path.join(root, "templates/hosted-browser/restart-hosted-browser.sh").replaceAll("\\", "/");
+const restartRun = bash([restartScript], {
+  env: { ...process.env, HOME: posixRestart },
+});
+assert.equal(restartRun.status, 0, restartRun.stdout + restartRun.stderr);
+assert.match(restartRun.stdout, /started-supervisor/);
+const restartLog = fs.readFileSync(path.join(restartDir, ".hosted-browser", "supervisor.log"), "utf8");
+assert.match(restartLog, /action=start_supervisor/);
+fs.rmSync(restartDir, { recursive: true, force: true });
+
 const pipe = path.join(root, "templates/hosted-browser/openbox-health-pipemenu.sh");
 const pipeRun = bash([pipe.replaceAll("\\", "/")], { env: { ...process.env, HOME: os.homedir() } });
 assert.equal(pipeRun.status, 0, pipeRun.stderr);
@@ -227,5 +242,6 @@ console.log(JSON.stringify({
     "list-env-dir",
     "supervise-loop",
     "health-pipemenu",
+    "restart-no-second-supervisor",
   ],
 }, null, 2));

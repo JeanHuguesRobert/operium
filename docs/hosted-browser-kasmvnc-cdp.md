@@ -111,6 +111,8 @@ The browser process is supervised (`supervise-hosted-browser.sh`): each start/ex
 
 Read the loop: `sudo tail -f /home/<unix>/.hosted-browser/supervisor.log`.
 
+**Relancer le navigateur** must not start a second supervisor on the same profile (Brave then shows “Something went wrong when opening your profile”). It SIGTERMs the browser, waits for it to exit, clears Singleton/lock files, and lets the existing supervisor relaunch. SIGTERM is not counted as a crash streak.
+
 Desktop workspaces may launch **Visual Studio Code Insiders** (`code-insiders`) from the Openbox menu. Install with `scripts/ops/install-vscode-insiders.sh` (Microsoft apt repo, amd64/arm64). It is not part of kiosk mode. Flags `--disable-gpu --ozone-platform=x11` match the KasmVNC X session.
 
 The desktop Openbox menu has a **Santé & Fractanet** section: live snapshot (pipe menu: load, memory, ONA, Tailscale, last supervisor event), La Nasa on this node (`http://127.0.0.1:8794/`), fleet, htop, Tailscale, ONA health, browser supervisor log. The same block is the node default in `/etc/xdg/openbox/menu.xml` (`openbox-fractanode-menu.xml`).

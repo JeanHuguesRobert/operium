@@ -94,15 +94,7 @@ chmod +x "${HOME_DIR}/.hosted-browser/run-browser.sh"
 # Keep the old name so the Openbox menu still works.
 ln -sfn run-browser.sh "${HOME_DIR}/.hosted-browser/run-chrome.sh"
 
-cat > "${HOME_DIR}/.hosted-browser/restart-chrome.sh" <<EOF
-#!/bin/sh
-pkill -f -- "--user-data-dir=${USER_DATA_DIR}" 2>/dev/null || true
-sleep 1
-exec "${HOME_DIR}/.hosted-browser/run-browser.sh"
-EOF
-chmod +x "${HOME_DIR}/.hosted-browser/restart-chrome.sh"
-
-for helper in open-hosted-url.sh; do
+for helper in open-hosted-url.sh restart-hosted-browser.sh; do
   helper_src="${TEMPLATE_DIR}/${helper}"
   if [[ ! -f "$helper_src" ]]; then
     helper_src="/opt/operium/bin/${helper}"
@@ -111,6 +103,7 @@ for helper in open-hosted-url.sh; do
     install -m 0755 "$helper_src" "${HOME_DIR}/.hosted-browser/${helper}"
   fi
 done
+ln -sfn restart-hosted-browser.sh "${HOME_DIR}/.hosted-browser/restart-chrome.sh"
 
 install_openbox_file() {
   local src_name="$1" dest="$2"
