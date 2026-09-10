@@ -256,6 +256,25 @@ assert.equal(pipeRun.status, 0, pipeRun.stderr);
 assert.match(pipeRun.stdout, /openbox_pipe_menu/);
 assert.match(pipeRun.stdout, /Santé|ONA|Tailscale|load/);
 
+const desktopMenu = fs.readFileSync(path.join(root, "templates/hosted-browser/openbox-desktop-menu.xml"), "utf8");
+assert.match(desktopMenu, /Terminator/);
+assert.match(desktopMenu, /pcmanfm/);
+assert.match(desktopMenu, /client-list-combined-menu/);
+assert.match(desktopMenu, /logout-hosted-session\.sh/);
+assert.match(desktopMenu, /Santé/);
+assert.doesNotMatch(desktopMenu, /action name="Exit"/);
+const desktopRc = fs.readFileSync(path.join(root, "templates/hosted-browser/openbox-desktop-rc.xml"), "utf8");
+assert.match(desktopRc, /A-Tab/);
+assert.match(desktopRc, /<iconic>yes<\/iconic>/);
+assert.match(desktopRc, /client-list-combined-menu/);
+const logoutScript = fs.readFileSync(path.join(root, "templates/hosted-browser/logout-hosted-session.sh"), "utf8");
+assert.match(logoutScript, /vncserver -kill/);
+const startScript = fs.readFileSync(path.join(root, "templates/hosted-browser/start-hosted-browser.sh"), "utf8");
+assert.match(startScript, /logout-hosted-session\.sh/);
+assert.match(startScript, /ob_pid/);
+const unitFile = fs.readFileSync(path.join(root, "templates/hosted-browser/hosted-browser@.service"), "utf8");
+assert.match(unitFile, /Restart=always/);
+
 console.log(JSON.stringify({
   ok: true,
   tests: [
@@ -271,5 +290,6 @@ console.log(JSON.stringify({
     "restart-no-second-supervisor",
     "graceful-close-cdp-down",
     "mark-profile-clean",
+    "desktop-menu-windows-logout",
   ],
 }, null, 2));

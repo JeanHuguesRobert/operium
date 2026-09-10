@@ -115,7 +115,7 @@ Read the loop: `sudo tail -f /home/<unix>/.hosted-browser/supervisor.log`.
 
 Desktop workspaces may launch **Visual Studio Code Insiders** (`code-insiders`) from the Openbox menu. Install with `scripts/ops/install-vscode-insiders.sh` (Microsoft apt repo, amd64/arm64). It is not part of kiosk mode. Flags `--disable-gpu --ozone-platform=x11` match the KasmVNC X session.
 
-The desktop Openbox menu has a **Santé & Fractanet** section: live snapshot (pipe menu: load, memory, ONA, Tailscale, last supervisor event), La Nasa on this node (`http://127.0.0.1:8794/`), fleet, htop, Tailscale, ONA health, browser supervisor log. The same block is the node default in `/etc/xdg/openbox/menu.xml` (`openbox-fractanode-menu.xml`).
+Desktop Openbox stays the window manager (no extra DE). The right-click menu is the FractaNode set: terminals (Terminator / Zellij / Tilix), hosted browser, Relancer, VS Code Insiders, PCManFM, **Fenêtres** (`client-list-combined-menu` so a minimized window can be restored), Santé & Fractanet, Logout. Alt+Tab cycles including iconified windows; middle-click on the desktop opens the same window list. **Logout** must kill KasmVNC (`logout-hosted-session.sh` / `vncserver -kill`), not Openbox `Exit` — otherwise the X display stays up black and reconnect never returns to the Websockify login (`uuuu` / `sesame-uuuu`). The systemd unit is `Restart=always` so a fresh KasmVNC is listening for that login. The node default menu is `/etc/xdg/openbox/menu.xml` (`openbox-fractanode-menu.xml`).
 
 ### Generic workspace provisioning
 

@@ -55,6 +55,9 @@
     </action>
   </item>
 
+  <separator label="Fenêtres" />
+  <menu id="client-list-combined-menu"/>
+
   <separator label="Gestion de session" />
 
   <item label="🔄 Recharger le menu">

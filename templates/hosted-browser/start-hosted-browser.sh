@@ -94,7 +94,7 @@ chmod +x "${HOME_DIR}/.hosted-browser/run-browser.sh"
 # Keep the old name so the Openbox menu still works.
 ln -sfn run-browser.sh "${HOME_DIR}/.hosted-browser/run-chrome.sh"
 
-for helper in open-hosted-url.sh restart-hosted-browser.sh graceful-close-hosted-browser.js; do
+for helper in open-hosted-url.sh restart-hosted-browser.sh graceful-close-hosted-browser.js logout-hosted-session.sh; do
   helper_src="${TEMPLATE_DIR}/${helper}"
   if [[ ! -f "$helper_src" ]]; then
     helper_src="/opt/operium/bin/${helper}"
@@ -108,24 +108,14 @@ ln -sfn restart-hosted-browser.sh "${HOME_DIR}/.hosted-browser/restart-chrome.sh
 install_openbox_file() {
   local src_name="$1" dest="$2"
   local src="${TEMPLATE_DIR}/${src_name}"
+  if [[ ! -f "$src" ]]; then
+    src="/opt/operium/templates/hosted-browser/${src_name}"
+  fi
   if [[ -f "$src" ]]; then
     sed -e "s|HOME_DIR|${HOME_DIR}|g" -e "s|TERMINAL_BIN|${TERMINAL_BIN}|g" "$src" > "$dest"
     return
   fi
-  if [[ "$src_name" == openbox-desktop-menu.xml ]]; then
-    cat > "$dest" <<MENU
-<?xml version="1.0" encoding="UTF-8"?>
-<openbox_menu>
-  <menu id="root-menu" label="Hosted Workspace">
-    <item label="Chrome"><action name="Execute"><command>${HOME_DIR}/.hosted-browser/run-chrome.sh</command></action></item>
-    <item label="Terminal"><action name="Execute"><command>${TERMINAL_BIN}</command></action></item>
-    <item label="VS Code Insiders"><action name="Execute"><command>code-insiders --disable-gpu --ozone-platform=x11</command></action></item>
-    <item label="Restart Chrome"><action name="Execute"><command>${HOME_DIR}/.hosted-browser/restart-chrome.sh</command></action></item>
-    <item label="Logout"><action name="Exit"/></item>
-  </menu>
-</openbox_menu>
-MENU
-  fi
+  echo "[hosted-browser] missing Openbox template ${src_name}" >&2
 }
 
 if [[ "${SESSION_MODE}" == desktop ]]; then
@@ -139,8 +129,10 @@ cat > "${HOME_DIR}/.vnc/xstartup" <<EOF
 #!/bin/sh
 xrdb \$HOME/.Xresources 2>/dev/null || true
 openbox &
-"${HOME_DIR}/.hosted-browser/run-browser.sh"
-wait
+ob_pid=\$!
+"${HOME_DIR}/.hosted-browser/run-browser.sh" &
+wait "\$ob_pid"
+vncserver -kill "\$DISPLAY" >/dev/null 2>&1 || true
 EOF
 chmod +x "${HOME_DIR}/.vnc/xstartup"
 
