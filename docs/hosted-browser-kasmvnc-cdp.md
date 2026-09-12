@@ -163,11 +163,12 @@ artifacts remain in English.
 - **Out-of-Trust-Perimeter Access :** No Tailscale or VPN required on the client machine. Standard VNC connects directly to public hostname `browser.fractavolta.com` on standard port 5900 (display :0 default) or 5901 (display :1).
 - **Architecture & Routing :**
   - OCI Default Security List updated with stateless=false TCP ingress rule on ports 5900-5901 from `0.0.0.0/0`.
-  - Public node `fracta` (`82.70.234.207`) runs native systemd socket proxy `vnc-proxy-fracta2.socket` + `systemd-socket-proxyd` forwarding public incoming TCP ports 5900 and 5901 across the WireGuard mesh to `100.84.109.87:5901` (`fracta2`).
+  - Public node `fracta` (`82.70.234.207`) runs native systemd socket proxy `vnc-proxy-fracta2.socket` + `systemd-socket-proxyd` forwarding public incoming TCP ports 5900 and 5901 across the WireGuard mesh to `100.84.109.87:5911` (`fracta2`).
   - Target node `fracta2` runs native RFB projection daemon `hosted-browser-rfb@hosted-jeanhuguesrobert.service` attaching `x11vnc` directly to the live X11 display `:1`.
-- **Authentication :** A separately provisioned private RFB password; no credential value belongs in this document.
+- **Authentication :** Standard RFB VncAuth password; no credential value belongs in this document.
 - **Client Artifacts :** Workstation desktop shortcuts and connection profile `Fracta2 Desktop.vnc` (associated with TightVNC Viewer) and `Fracta2 Desktop (TigerVNC).lnk`.
 - **Resource Footprint :** `x11vnc` daemon runs at ~0.0% CPU and ~30 MiB RSS when idle, introducing negligible overhead.
+- **Operator Live Verification (2026-09-12) :** Human operator testing confirmed that the out-of-trust-perimeter standard VNC path operates reasonably well ("marche raisonnablement bien"). Standard RFB viewers connect directly to `browser.fractavolta.com` (ports 5900/5901) without Tailscale, successfully authenticate via standard RFB password prompt (without requiring username fields in legacy RFB viewers), and provide a functional, lightweight browsing experience.
 
 ---
 

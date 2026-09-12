@@ -56,6 +56,7 @@
     "test:ona-probe": "node scripts/test-ona-probe-route.js",
     "test:node-cli": "node scripts/test-operium-node-cli.js",
     "test:ona-drift": "node scripts/test-ona-drift.js",
+    "test:ona-navigation-gateway": "node scripts/test-ona-navigation-gateway.js",
     "test:node-diagnose": "node scripts/test-operium-node-diagnose.js",
     "node-agent": "node bin/operium-node-agent.js",
     "ona:heartbeat": "node scripts/ona-heartbeat.js",

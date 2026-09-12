@@ -38,10 +38,10 @@ export TERMUX_WORK="${TERMUX_WORK:-$HOME/srv/cogentia/work}"
 export FRACTANET_HOME="${FRACTANET_HOME:-$HOME/srv/cogentia}"
 
 # --- Corpus registry (same authority as workstation/fracta, phone path) ---
-# Prefer full JeanHuguesRobert checkout; never invent a partial registry at $HOME.
+# Prefer the full JeanHuguesRobert registry file; never invent a partial registry at $HOME.
 _jhr="$CORPUS_REPOS/JeanHuguesRobert"
 if [ -z "${COGENTIA_REGISTRY:-}" ] && [ -f "$_jhr/.cogentia.json" ]; then
-  export COGENTIA_REGISTRY="$_jhr"
+  export COGENTIA_REGISTRY="$_jhr/.cogentia.json"
 fi
 unset _jhr
 

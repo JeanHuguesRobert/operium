@@ -35,9 +35,9 @@ Interactive login shells only — not systemd, not Agent Gateway, not ONA servic
 
 | Context | `COGENTIA_REGISTRY` |
 |---------|---------------------|
-| Windows workstation | `C:\tweesic\JeanHuguesRobert` |
-| Fracta VPS | `/srv/cogentia/repos/JeanHuguesRobert` |
-| Phone / twin (`poco-jhr`) | `$HOME/srv/cogentia/repos/JeanHuguesRobert` (override via `~/srv/cogentia/secrets/shell-profile.env`) |
+| Windows workstation | `C:\tweesic\JeanHuguesRobert\.cogentia.json` |
+| Fracta VPS | `/srv/cogentia/repos/JeanHuguesRobert/.cogentia.json` |
+| Phone / twin (`poco-jhr`) | `$HOME/srv/cogentia/repos/JeanHuguesRobert/.cogentia.json` (override via `~/srv/cogentia/secrets/shell-profile.env`) |
 
 **Do not** put an incomplete `.cogentia.json` at a parent path that shadows the full registry.
 
@@ -55,7 +55,7 @@ Verify (login shell):
 ssh fracta 'bash -lc "echo REG=\$COGENTIA_REGISTRY; type cogentia; type operium; pwd"'
 ```
 
-Expect `REG=/srv/cogentia/repos/JeanHuguesRobert` (or equivalent) and functions defined.
+Expect `REG=/srv/cogentia/repos/JeanHuguesRobert/.cogentia.json` (or equivalent) and functions defined.
 
 ## Windows install (summary)
 
@@ -88,7 +88,7 @@ Verify (interactive shell loads `.bashrc` via `.profile` on Termux login):
 ssh -t poco-jhr 'bash -ic "echo REG=\$COGENTIA_REGISTRY; type cogentia; type operium; type tweesic; pwd"'
 ```
 
-Expect `REG=.../JeanHuguesRobert` and the three functions defined.
+Expect `REG=.../JeanHuguesRobert/.cogentia.json` and the three functions defined.
 
 **Host thin layer** keeps existing Termux PATH / proot aliases / agent-gateway env; the Operium block only sources the managed profile. Do not put secret values in the profile file — use `secrets/*.env` or optional `secrets/shell-profile.env` for path overrides only.
 

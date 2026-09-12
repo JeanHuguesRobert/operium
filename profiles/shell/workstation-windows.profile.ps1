@@ -31,10 +31,10 @@ $script:WorkspaceRoot = if ($env:TWEESIC_ROOT) {
 # --- Corpus registry (single source of truth) ---
 # Prefer JeanHuguesRobert full registry; do not reintroduce a root .cogentia.json subset.
 $registryCandidate = Join-Path $script:WorkspaceRoot 'JeanHuguesRobert'
-if (Test-Path (Join-Path $registryCandidate '.cogentia.json')) {
-    $env:COGENTIA_REGISTRY = $registryCandidate
-} elseif (Test-Path (Join-Path $registryCandidate 'JeanHuguesRobert\.cogentia.json')) {
-    $env:COGENTIA_REGISTRY = Join-Path $registryCandidate 'JeanHuguesRobert'
+if (Test-Path (Join-Path $registryCandidate '.cogentia.json') -PathType Leaf) {
+    $env:COGENTIA_REGISTRY = Join-Path $registryCandidate '.cogentia.json'
+} elseif (Test-Path (Join-Path $registryCandidate 'JeanHuguesRobert\.cogentia.json') -PathType Leaf) {
+    $env:COGENTIA_REGISTRY = Join-Path $registryCandidate 'JeanHuguesRobert\.cogentia.json'
 }
 
 # --- Convenience locations ---

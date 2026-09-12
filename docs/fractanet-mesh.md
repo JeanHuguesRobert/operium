@@ -345,8 +345,8 @@ Local `~/.ssh/config` on the trusted workstation defines:
 |-------|--------|------|-----|
 | `fracta` / `fracta-ts` | Tailscale IP of fracta (`100.91.12.74`) | `ubuntu` | `fractanet-mesh` |
 | `fracta-public` | OCI public IP (break-glass: `82.70.234.207`) | `ubuntu` | `oci-fracta-instance-jh1` |
-| `fracta2` / `fracta2-ts` | Tailscale IP of fracta2 (`100.108.221.96`) | `ubuntu` | `fractanet-mesh` |
-| `fracta2-public` | OCI public IP (break-glass: `129.151.245.83`) | `ubuntu` | `oci-fracta-instance-jh1` |
+| `fracta2` / `fracta2-ts` | Tailscale IP of fracta2 (`100.84.109.87`) | `ubuntu` | `fractanet-mesh` |
+| `fracta2-public` | OCI public IP (break-glass: `130.110.241.116`) | `ubuntu` | `oci-fracta-instance-jh1` |
 | `thinkpad-ts` / `i7-thinkpad-jhr` | Tailscale IP of laptop (`100.122.121.68`) | `admin` | `fractanet-mesh` |
 | `rpi3-view` | MagicDNS hostname (`100.117.135.27`) | `jh` | `fractanet-mesh` |
 | `poco-jhr` | Tailscale IP, port **8022** (`100.97.223.45`) | `jh` | `fractanet-mesh` |

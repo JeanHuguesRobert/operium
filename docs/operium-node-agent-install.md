@@ -202,7 +202,7 @@ sudo tee /srv/cogentia/secrets/ona-heartbeat.env <<'EOF'
 COGENTIA_BLACKBOARD_UPSERT_TOKEN=<shared-token>
 COGENTIA_OPS_STATE_DIR=/var/lib/cogentia/.ops
 COGENTIA_BLACKBOARD_URL=http://100.91.12.74:8791
-ONA_ATTRACTOR_TAILSCALE_IP=100.108.221.96
+ONA_ATTRACTOR_TAILSCALE_IP=100.84.109.87
 ONA_HOSTNAME=fracta2
 EOF
 sudo chmod 600 /srv/cogentia/secrets/ona-heartbeat.env

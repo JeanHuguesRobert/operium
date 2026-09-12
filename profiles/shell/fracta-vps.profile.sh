@@ -25,10 +25,10 @@ export FRACTA_SECRETS="${FRACTA_SECRETS:-/etc/cogentia}"
 export FRACTA_WORK="${FRACTA_WORK:-/srv/cogentia/work}"
 
 # --- Corpus registry (same authority as workstation, different path) ---
-# Full registry lives in the JeanHuguesRobert checkout on the VPS.
+# Full registry file lives in the JeanHuguesRobert checkout on the VPS.
 _jhr="$CORPUS_REPOS/JeanHuguesRobert"
 if [ -f "$_jhr/.cogentia.json" ]; then
-  export COGENTIA_REGISTRY="${COGENTIA_REGISTRY:-$_jhr}"
+  export COGENTIA_REGISTRY="${COGENTIA_REGISTRY:-$_jhr/.cogentia.json}"
 fi
 unset _jhr
 
