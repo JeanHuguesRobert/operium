@@ -86,5 +86,5 @@ pwsh -File C:\tweesic\cogentia\scripts\ops\start-cogentia-daemon-windows.ps1
 node C:\tweesic\cogentia\scripts\ops\watch-cogentia-daemon-windows.js
 ```
 
-Canonical client wiring: [cogentia-mcp-clients.md](cogentia-mcp-clients.md).
+Canonical client wiring: private operator note `docs/cogentia-mcp-clients.md` (not linked from public views).
 Canonical adapter contract: Cogentia `docs/cogentia-mcp.md`.

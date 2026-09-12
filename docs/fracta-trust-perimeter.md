@@ -279,7 +279,7 @@ node scripts/ops/apply-fracta-runtime-secrets.js --human
 node scripts/ops/apply-fracta-runtime-secrets.js --apply --host fracta
 ```
 
-See [secrets-management.md](secrets-management.md) (apply-fracta-runtime-secrets).
+See private operator note `docs/secrets-management.md` (`apply-fracta-runtime-secrets`; not linked from public views).
 
 After `git pull` on `/srv/cogentia/repos/cogentia` and `/srv/cogentia/repos/Inox`:
 

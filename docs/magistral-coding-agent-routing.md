@@ -124,7 +124,7 @@ Cost optimization later: re-promote nano / coding nodes to `fast` with higher we
 ### Secret authority (copies vs overrides)
 
 **Operium owns** the operational secret registry and rotation procedures
-([secrets-management.md](secrets-management.md)). Summary for this path:
+(private operator note `docs/secrets-management.md`, not linked from public views). Summary for this path:
 
 | Location | Role |
 |----------|------|
@@ -181,7 +181,7 @@ sudo /srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stack.sh restart
 ```
 
 Helper on fracta (after pull): `operium/scripts/ops/apply-magistral-coding-map-fracta.sh`  
-Rotate system bearer: see [secrets-management.md — Rotating COGENTIA_API_KEY](secrets-management.md).
+Rotate system bearer: private operator note `docs/secrets-management.md` (section on rotating `COGENTIA_API_KEY`).
 
 ### Apply + verify (OP-FEAT-001 / issue #10)
 

@@ -50,8 +50,8 @@ second ops control plane.
    Legacy `AGENT_GATEWAY_*` names remain **code read aliases** only. Values
    never GitHub. Operium stores **names, authorities, and procedure** — not
    values. FractaVolta is the commercial deployment face of Cogentia, not a
-   separate secret namespace. Full catalog:
-   [`docs/secrets-management.md`](../docs/secrets-management.md).
+   separate secret namespace. Full catalog: private operator note
+   `docs/secrets-management.md` (not linked from public views).
 6. **Operational apply and health** use Operium (`operium up`, node diagnose,
    invoke tool) and the procedures in
    [`docs/magistral-coding-agent-routing.md`](../docs/magistral-coding-agent-routing.md).
@@ -76,7 +76,7 @@ second ops control plane.
 ## Related
 
 - [`docs/magistral-coding-agent-routing.md`](../docs/magistral-coding-agent-routing.md)
-- [`docs/secrets-management.md`](../docs/secrets-management.md) — dual authority + `COGENTIA_API_KEY` rotation
+- `docs/secrets-management.md` — dual authority + `COGENTIA_API_KEY` rotation (private; not linked)
 - [`docs/fracta-trust-perimeter.md`](../docs/fracta-trust-perimeter.md)
 - [`docs/fractanet-mesh.md`](../docs/fractanet-mesh.md)
 - [`profiles/magistral-map.coding-agents.v1.json`](../profiles/magistral-map.coding-agents.v1.json)

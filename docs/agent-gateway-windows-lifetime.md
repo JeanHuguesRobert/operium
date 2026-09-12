@@ -90,6 +90,6 @@ curl -fsS -m 120 -X POST https://cogentia.fractavolta.com/guide/chat \
 ## Related
 
 - [magistral-coding-agent-routing.md](magistral-coding-agent-routing.md) — Guide → Magistal → this gateway  
-- [secrets-management.md](secrets-management.md) — `COGENTIA_API_KEY` dual authority  
+- `COGENTIA_API_KEY` dual authority: private operator note `docs/secrets-management.md` (not linked from public views)  
 - Cogentia: `scripts/ops/install-agent-gateway-windows.ps1`, `run-agent-gateway-windows-foreground.ps1`  
 - Backlog: OP-BUG-001  

@@ -22,17 +22,13 @@ review:
 
 This directory contains Operium documentation.
 
-- [Coding Infrastructure](coding-infrastructure.md) — AI coding agents, launchers, and secret management
-- [Claude Code mode (pro ↔ z.ai)](claude-code-mode.md) — Operium-owned backend switch + mesh apply
 - [Fix Bugs First](fix-bugs-first.md) — Bug/Feature tracking + feature gate when out of control
 - [Termux tmux handoff](termux-tmux-handoff.md) — bounded human-authorized relay into a named mobile terminal session
-- [Secrets management](secrets-management.md) — dual authority (`inseme/.env` vs vault), `COGENTIA_API_KEY`, rotation
-- [Fracta coding workspace](fracta-coding-workspace.md) — isolated development clones, secure authority transfer, and allowlisted runtime secret views
 - `profiles/tools.termux-android.v1.yaml` / `scripts/ops/publish-inseme-env-to-termux.ps1` — Android coding-node state and authority refresh
 - [Magistral → coding-agent routing](magistral-coding-agent-routing.md) — Guide synthesis path + map apply
 - [Agent John WhatsApp retrieval (Fracta)](agent-john-whatsapp-retrieval.md) — guide/shadow/librarian desired state + systemd drop-in
-- [Cogentia MCP for coding agents](cogentia-mcp-clients.md) — client wiring + Fracta public MCP
 - [MCP capability surface — desired state](mcp-capability-surface.md) — 2026-07-28 catalog invariants, Inseme union, ops vs public
+- Operator-only runbooks (private; **not linked** from this public index): `docs/coding-infrastructure.md`, `docs/claude-code-mode.md`, `docs/secrets-management.md`, `docs/fracta-coding-workspace.md`, `docs/cogentia-mcp-clients.md`.
 - [Cogentia Semantic Stack](cogentia-semantic-stack.md)
 - [SOMA — Semantic Object Management Architecture](soma-semantic-object-management-architecture.md) — lightweight semantic model for managed objects, attributes, observations, actions, and projections
 - [Fracta trust perimeter and secrets](fracta-trust-perimeter.md)

@@ -25,7 +25,7 @@ Companion notes:
 
 - [Fracta trust perimeter](fracta-trust-perimeter.md)
 - [fractavolta.com DNS zone](fractavolta-dns.md)
-- [Secrets management](secrets-management.md)
+- Secrets catalog: private operator note `docs/secrets-management.md` (not linked from public views)
 - Secret-free templates: `templates/stalwart/`
 
 **Success criterion:** reliable Twin mail, reversible and documented, with private

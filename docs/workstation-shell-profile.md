@@ -59,7 +59,7 @@ Expect `REG=/srv/cogentia/repos/JeanHuguesRobert` (or equivalent) and functions 
 
 ## Windows install (summary)
 
-See also [coding-infrastructure.md](coding-infrastructure.md).
+See also private operator note `docs/coding-infrastructure.md` (not linked from public views).
 
 1. User `Documents\PowerShell\profile.ps1` → `cd C:\tweesic` + `. operium\profiles\shell\workstation-windows.profile.ps1`
 2. Host profile keeps PATH / conda only

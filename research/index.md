@@ -65,10 +65,10 @@ update_policy: UP-DEFAULT-REVIEWED
 
 ### Secrets (authority vs historical research)
 
-- **Operational authority:** [Secrets management](../docs/secrets-management.md) — dual authority, `COGENTIA_API_KEY`, `apply-system-bearer.js`
-- **Historical only (do not implement from these):**
-  - [Secrets architecture notes — 2026-07](secrets-architecture-2026-07.md) (superseded; OP-BUG-005)
-  - [Secrets sovereign architecture — 2026-07](secrets-sovereign-architecture.md) (superseded; OP-BUG-005)
+Public views do not link private operator notes. Names only:
+
+- **Operational authority:** `docs/secrets-management.md` — dual authority, `COGENTIA_API_KEY`, `apply-system-bearer.js` (private)
+- **Historical only (do not implement from these; private, superseded; OP-BUG-005):** `research/secrets-architecture-2026-07.md`, `research/secrets-sovereign-architecture.md`
 
 ---
 
