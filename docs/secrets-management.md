@@ -1,7 +1,7 @@
 ---
 document_role: "source"
 document_kind: "operational"
-visibility: "private"
+visibility: "public"
 last_updated: "2026-08-08"
 owner: Operium
 health:
@@ -17,6 +17,11 @@ health:
     - "Use apply-fracta-runtime-secrets after OPENAI_API_KEY (and related) rotation."
     - "Add rotation schedule for critical provider keys."
     - "Optional age encryption for offline backups."
+lifecycle_state: "active"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
 ---
 
 # Secrets Management

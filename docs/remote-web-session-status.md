@@ -11,6 +11,10 @@ last_modified_at: "2026-08-28"
 related:
   - "hosted-browser-kasmvnc-cdp.md"
   - "https://github.com/JeanHuguesRobert/cogentia/blob/main/research/nasa_situated_views_and_interactive_surfaces.md"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
 ---
 
 # Remote Web Session and Hosted Browser Status

@@ -12,6 +12,10 @@ last_modified_at: "2026-08-30"
 related:
   - "fractavolta-dns.md"
   - "fractanet-mesh.md"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
 ---
 
 # DNS Provider Portability and Reversible Migration

@@ -1,7 +1,7 @@
 ---
 document_role: "source"
 document_kind: "operational"
-visibility: "private"
+visibility: "public"
 last_updated: "2026-09-04"
 health:
   score: 4
@@ -15,6 +15,11 @@ related:
   - "secrets-management.md"
   - "corpus-replication-topology.md"
   - "../inseme/apps/platform/scripts/lib/config.js"
+lifecycle_state: "active"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
 ---
 
 # Coding Infrastructure - Operational Documentation

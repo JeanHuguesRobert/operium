@@ -1,7 +1,7 @@
 ---
 document_role: "source"
 document_kind: "research"
-visibility: "private"
+visibility: "public"
 created: "2026-07-19"
 status: "historical"
 lifecycle_state: historical
@@ -11,6 +11,10 @@ related:
   - "secrets-sovereign-architecture.md"
 superseded_by: "../docs/secrets-management.md"
 related_issue: "https://github.com/JeanHuguesRobert/operium/issues/15"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
 ---
 
 # Secrets Architecture - Future Directions

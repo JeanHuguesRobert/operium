@@ -1,7 +1,7 @@
 ---
 document_role: "source"
 document_kind: "operational"
-visibility: "private"
+visibility: "public"
 last_updated: "2026-07-27"
 owner: Operium
 health:
@@ -19,6 +19,11 @@ related:
   - "coding-infrastructure.md"
   - "fractanet-mesh.md"
   - "workstation-tooling-debt-and-profiles.md"
+lifecycle_state: "active"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
 ---
 
 # Claude Code mode (pro ↔ z.ai)

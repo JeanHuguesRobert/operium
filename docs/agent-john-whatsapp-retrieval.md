@@ -12,6 +12,10 @@ related:
   - "cogentia-semantic-stack.md"
   - "https://github.com/JeanHuguesRobert/cogentia/blob/main/docs/agent-john-deployment-operium.md"
   - "https://github.com/JeanHuguesRobert/cogentia/blob/main/research/corpus_librarian_decision_2026-08-12.md"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
 ---
 
 # Agent John WhatsApp — retrieval desired state (Fracta)

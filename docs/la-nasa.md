@@ -14,6 +14,10 @@ related_projects:
   - COP
   - ONA
   - SOMA
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
 ---
 
 # La Nasa — Networked Agency Situational Awareness

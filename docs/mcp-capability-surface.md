@@ -9,6 +9,10 @@ related:
   - "cogentia-mcp-clients.md"
   - "fracta-trust-perimeter.md"
   - "operium-cli.md"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
 ---
 
 # MCP capability surface — desired state

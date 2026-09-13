@@ -9,6 +9,10 @@ date: "2026-08-31"
 related:
   - "fractavolta-dns.md"
   - "dns-provider-portability.md"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
 ---
 
 # fracta Caddy vhost contract

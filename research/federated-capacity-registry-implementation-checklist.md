@@ -10,6 +10,10 @@ lifecycle_state: "active"
 related_documents:
   - "research/federated-capacity-registry.md"
   - "docs/operium-node-agent.md"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
 ---
 
 # Federated Capacity Registry — implementation checklist

@@ -6,6 +6,10 @@ document_kind: runbook
 visibility: public
 lifecycle_state: active
 update_policy: UP-DEFAULT-REVIEWED
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
 ---
 
 # Public Guide OpenRouter free fallback

@@ -2,13 +2,17 @@
 title: "Cogentia MCP for coding agents"
 document_role: source
 document_kind: operational
-visibility: private
+visibility: public
 lifecycle_state: active
 last_updated: "2026-08-22"
 related:
   - "coding-infrastructure.md"
   - "cogentia-semantic-stack.md"
   - "../decisions/views-store-caddy-service.md"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
 ---
 
 # Cogentia MCP for coding agents

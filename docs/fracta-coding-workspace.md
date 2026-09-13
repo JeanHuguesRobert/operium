@@ -3,9 +3,14 @@ title: "Fracta coding workspace bootstrap"
 description: "Reproducible Git and secret bootstrap for continuing C:\\tweesic work on the Fracta VPS."
 document_role: operational
 document_kind: runbook
-visibility: private
+visibility: public
 status: under-review
 update_policy: UP-DEFAULT-REVIEWED
+lifecycle_state: "active"
+classification_source: "cogentia.js"
+classification_version: "1"
+classification_rule: "explicit-metadata"
+classification_confidence: "medium"
 ---
 
 # Fracta coding workspace bootstrap
