@@ -13,14 +13,21 @@ provenance:
   origin_repository: JeanHuguesRobert/operium
   origin_date: '2026-07-17'
   derived_from: []
+  origin_ref: unknown
 review:
   status: reviewed
-  reviewed_by: ["Jean Hugues Robert"]
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "explicit-metadata"
-classification_confidence: "high"
+  reviewed_by:
+    - Jean Hugues Robert
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: high
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+status: working-paper
 ---
+
 
 # Corpus replication topology
 

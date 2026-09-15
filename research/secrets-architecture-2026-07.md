@@ -1,21 +1,35 @@
 ---
-document_role: "source"
-document_kind: "research"
-visibility: "public"
-created: "2026-07-19"
-status: "historical"
+document_role: source
+document_kind: research
+visibility: public
+status: historical
 lifecycle_state: historical
-last_reviewed: "2026-08-07"
+last_reviewed: '2026-08-07'
 related:
-  - "../docs/secrets-management.md"
-  - "secrets-sovereign-architecture.md"
-superseded_by: "../docs/secrets-management.md"
-related_issue: "https://github.com/JeanHuguesRobert/operium/issues/15"
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "explicit-metadata"
-classification_confidence: "medium"
+  - ../docs/secrets-management.md
+  - secrets-sovereign-architecture.md
+superseded_by: ../docs/secrets-management.md
+related_issue: https://github.com/JeanHuguesRobert/operium/issues/15
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: medium
+date: '2026-07-19'
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+update_policy: UP-DEFAULT-REVIEWED
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # Secrets Architecture - Future Directions
 

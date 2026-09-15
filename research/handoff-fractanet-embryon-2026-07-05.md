@@ -1,18 +1,32 @@
 ---
-title: "Handoff — Fractanet embryon (PC → mobile)"
-description: "Session continuity note for resuming Fractanet work on poco-jhr after leaving the ThinkPad."
-date: 2026-07-05
+title: Handoff — Fractanet embryon (PC → mobile)
+description: Session continuity note for resuming Fractanet work on poco-jhr after leaving the ThinkPad.
+date: 2026-07-05T00:00:00.000Z
 status: active
 topic: fractanet-embryon
-document_role: "source"
-document_kind: "research-paper"
-visibility: "public"
-lifecycle_state: "active"
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "research-paper"
-classification_confidence: "medium"
+document_role: source
+document_kind: research-paper
+visibility: public
+lifecycle_state: active
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: research-paper
+classification_confidence: medium
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+update_policy: UP-DEFAULT-REVIEWED
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # Handoff — Fractanet embryon (2026-07-05)
 

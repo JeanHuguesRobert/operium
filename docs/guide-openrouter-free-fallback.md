@@ -1,16 +1,30 @@
 ---
-title: "Public Guide OpenRouter free fallback"
-date: "2026-08-22"
+title: Public Guide OpenRouter free fallback
+date: '2026-08-22'
 document_role: operational
 document_kind: runbook
 visibility: public
 lifecycle_state: active
 update_policy: UP-DEFAULT-REVIEWED
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "explicit-metadata"
-classification_confidence: "medium"
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: medium
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+status: working-paper
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # Public Guide OpenRouter free fallback
 

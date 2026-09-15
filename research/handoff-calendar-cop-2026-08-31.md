@@ -1,19 +1,33 @@
 ---
-title: "Handoff — FractaCalendar COP remaining depth (2026-08-31)"
-description: "Pause/resume note after Operium #31 Event log shipped. Intent and next steps for another machine or coding agent."
-date: 2026-08-31
+title: Handoff — FractaCalendar COP remaining depth (2026-08-31)
+description: 'Pause/resume note after Operium #31 Event log shipped. Intent and next steps for another machine or coding agent.'
+date: 2026-08-31T00:00:00.000Z
 status: active
 topic: calendar-cop
-document_role: "source"
-document_kind: "research-paper"
-visibility: "public"
-lifecycle_state: "active"
+document_role: source
+document_kind: research-paper
+visibility: public
+lifecycle_state: active
 github_issue: 40
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "research-paper"
-classification_confidence: "medium"
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: research-paper
+classification_confidence: medium
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+update_policy: UP-DEFAULT-REVIEWED
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # Handoff — FractaCalendar COP remaining depth (2026-08-31)
 

@@ -1,5 +1,5 @@
 ---
-title: "Operium Environment Configuration via Views Store"
+title: Operium Environment Configuration via Views Store
 document_role: source
 document_kind: decision
 visibility: public
@@ -7,9 +7,22 @@ lifecycle_state: active
 update_policy: UP-DEFAULT-REVIEWED
 provenance:
   origin_type: repository
-  created_at: 2026-07-23
+  created_at: 2026-07-23T00:00:00.000Z
   created_by: claude
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+date: '2026-09-15'
+status: working-paper
+review:
+  status: unreviewed
+  reviewed_by: []
 ---
+
 
 # Operium Environment Configuration via Views Store
 

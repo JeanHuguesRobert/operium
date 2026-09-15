@@ -1,28 +1,44 @@
 ---
-document_role: "source"
-document_kind: "operational"
-visibility: "public"
-last_updated: "2026-08-08"
+document_role: source
+document_kind: operational
+visibility: public
 owner: Operium
 health:
   score: 5
-  status: "functional"
+  status: functional
   reasons:
-    - "Dual authority model documented (workstation FS vs edge vault)."
-    - "COGENTIA_API_KEY mapped to vault."
-    - "Single apply/verify entry point for system bearer runtime copies (OP-BUG-002)."
-    - "Fracta runtime key projection: apply-fracta-runtime-secrets (OPENAI + JHN surface)."
+    - Dual authority model documented (workstation FS vs edge vault).
+    - COGENTIA_API_KEY mapped to vault.
+    - Single apply/verify entry point for system bearer runtime copies (OP-BUG-002).
+    - 'Fracta runtime key projection: apply-fracta-runtime-secrets (OPENAI + JHN surface).'
   next_actions:
-    - "Use apply-system-bearer after every COGENTIA_API_KEY change."
-    - "Use apply-fracta-runtime-secrets after OPENAI_API_KEY (and related) rotation."
-    - "Add rotation schedule for critical provider keys."
-    - "Optional age encryption for offline backups."
-lifecycle_state: "active"
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "explicit-metadata"
-classification_confidence: "medium"
+    - Use apply-system-bearer after every COGENTIA_API_KEY change.
+    - Use apply-fracta-runtime-secrets after OPENAI_API_KEY (and related) rotation.
+    - Add rotation schedule for critical provider keys.
+    - Optional age encryption for offline backups.
+lifecycle_state: active
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: medium
+last_modified_at: '2026-08-08'
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+date: '2026-09-15'
+update_policy: UP-DEFAULT-REVIEWED
+status: working-paper
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # Secrets Management
 

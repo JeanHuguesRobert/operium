@@ -1,30 +1,46 @@
 ---
-document_role: "source"
-document_kind: "operational"
-visibility: "public"
-last_updated: "2026-07-27"
+document_role: source
+document_kind: operational
+visibility: public
 owner: Operium
 health:
   score: 4
-  status: "functional"
+  status: functional
   reasons:
-    - "claude-mode owned by Operium; pro vs zai modes implemented."
-    - "Local workstation apply path verified via scripts/ops/claude-mode.js."
-    - "Mesh apply via apply-claude-mode-nodes.ps1 (Tailscale SSH)."
+    - claude-mode owned by Operium; pro vs zai modes implemented.
+    - Local workstation apply path verified via scripts/ops/claude-mode.js.
+    - Mesh apply via apply-claude-mode-nodes.ps1 (Tailscale SSH).
   next_actions:
-    - "Run claude auth login on each interactive host after first pro switch if OAuth expired."
-    - "Recharge z.ai before using zai mode in production sessions."
+    - Run claude auth login on each interactive host after first pro switch if OAuth expired.
+    - Recharge z.ai before using zai mode in production sessions.
 related:
-  - "secrets-management.md"
-  - "coding-infrastructure.md"
-  - "fractanet-mesh.md"
-  - "workstation-tooling-debt-and-profiles.md"
-lifecycle_state: "active"
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "explicit-metadata"
-classification_confidence: "medium"
+  - secrets-management.md
+  - coding-infrastructure.md
+  - fractanet-mesh.md
+  - workstation-tooling-debt-and-profiles.md
+lifecycle_state: active
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: medium
+last_modified_at: '2026-07-27'
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+date: '2026-09-15'
+update_policy: UP-DEFAULT-REVIEWED
+status: working-paper
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # Claude Code mode (pro ↔ z.ai)
 

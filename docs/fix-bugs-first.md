@@ -1,21 +1,36 @@
 ---
-title: "Fix Bugs First — Bug/Feature tracking (Operium)"
-date: "2026-07-26"
+title: Fix Bugs First — Bug/Feature tracking (Operium)
+date: '2026-07-26'
 document_role: operational
 document_kind: doctrine
 visibility: public
 lifecycle_state: active
 owner: Operium
 related:
-  - "../doctrine.md"
-  - "operational-health.md"
-  - "operium-wip.md"
-  - "../backlog/README.md"
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "explicit-metadata"
-classification_confidence: "medium"
+  - ../doctrine.md
+  - operational-health.md
+  - operium-wip.md
+  - ../backlog/README.md
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: medium
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+update_policy: UP-DEFAULT-REVIEWED
+status: working-paper
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # Fix Bugs First
 

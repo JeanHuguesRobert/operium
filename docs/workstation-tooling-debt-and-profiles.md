@@ -1,30 +1,40 @@
 ---
-title: "Workstation tooling debt and Operium tool profiles"
-subtitle: "Admin installs, user-space policy, and multi-node reproducibility (PC + fracta + fleet)"
-author: "Jean Hugues Noël Robert"
-date: "2026-07-19"
-last_modified_at: "2026-08-07"
-license: "Apache-2.0"
-language: "fr"
-status: "working-method"
-document_role: "operational"
-document_kind: "method"
-visibility: "public"
-repository: "JeanHuguesRobert/operium"
-canonical_path: "docs/workstation-tooling-debt-and-profiles.md"
+title: Workstation tooling debt and Operium tool profiles
+subtitle: Admin installs, user-space policy, and multi-node reproducibility (PC + fracta + fleet)
+author: Jean Hugues Noël Robert
+date: '2026-07-19'
+last_modified_at: '2026-08-07'
+license: Apache-2.0
+language: fr
+status: working-method
+document_role: operational
+document_kind: method
+visibility: public
 related_documents:
-  - "doctrine.md"
-  - "docs/fracta-trust-perimeter.md"
-  - "docs/fractanet-mesh.md"
-  - "docs/operium-node-agent-install.md"
-  - "docs/public-private-split.md"
-  - "decisions/ADR-0001-operium-scope.md"
-lifecycle_state: "working"
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "explicit-metadata"
-classification_confidence: "medium"
+  - doctrine.md
+  - docs/fracta-trust-perimeter.md
+  - docs/fractanet-mesh.md
+  - docs/operium-node-agent-install.md
+  - docs/public-private-split.md
+  - decisions/ADR-0001-operium-scope.md
+lifecycle_state: working
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: medium
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+update_policy: UP-DEFAULT-REVIEWED
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # Workstation tooling debt and Operium tool profiles
 

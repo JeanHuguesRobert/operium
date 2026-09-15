@@ -1,6 +1,6 @@
 ---
-title: "Hosted Browser POC Architecture (KasmVNC + Chromium + CDP)"
-description: "Architecture, isolation model, multi-user separation, and dual human/machine operation for Hosted Browsers on FractaNodes."
+title: Hosted Browser POC Architecture (KasmVNC + Chromium + CDP)
+description: Architecture, isolation model, multi-user separation, and dual human/machine operation for Hosted Browsers on FractaNodes.
 layout: default
 nav_order: 15
 date: 2026-08-26T00:00:00.000Z
@@ -11,13 +11,26 @@ document_role: operational
 document_kind: architecture-note
 visibility: public
 lifecycle_state: active
-author: "Jean Hugues Noël Robert, baron Mariani"
+author: Jean Hugues Noël Robert, baron Mariani
 update_policy: UP-DEFAULT-REVIEWED
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "explicit-metadata"
-classification_confidence: "high"
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: high
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+status: working-paper
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # Hosted Browser POC Architecture
 

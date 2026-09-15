@@ -1,17 +1,31 @@
 ---
-title: "Fracta coding workspace bootstrap"
-description: "Reproducible Git and secret bootstrap for continuing C:\\tweesic work on the Fracta VPS."
+title: Fracta coding workspace bootstrap
+description: Reproducible Git and secret bootstrap for continuing C:\tweesic work on the Fracta VPS.
 document_role: operational
 document_kind: runbook
 visibility: public
 status: under-review
 update_policy: UP-DEFAULT-REVIEWED
-lifecycle_state: "active"
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "explicit-metadata"
-classification_confidence: "medium"
+lifecycle_state: active
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: medium
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+date: '2026-09-15'
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # Fracta coding workspace bootstrap
 

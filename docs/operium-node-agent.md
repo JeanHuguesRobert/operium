@@ -1,24 +1,37 @@
 ---
-title: "Operium Node Agent (ONA)"
-description: "Per-FractaNode control-plane daemon — SQLite hot memory, COP routing, blackboard peer discovery, CLI and React console."
-author: "Jean Hugues Noël Robert (design); Grok (draft)"
-date: 2026-07-10
+title: Operium Node Agent (ONA)
+description: Per-FractaNode control-plane daemon — SQLite hot memory, COP routing, blackboard peer discovery, CLI and React console.
+author: Jean Hugues Noël Robert (design); Grok (draft)
+date: 2026-07-10T00:00:00.000Z
 status: Draft
 layout: default
 license: Apache-2.0
-document_role: "operational"
-document_kind: "architecture"
-visibility: "public"
-lifecycle_state: "draft"
+document_role: operational
+document_kind: architecture
+visibility: public
+lifecycle_state: draft
 related_issues:
-  - "cogentia#51"
-  - "cogentia#52"
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "explicit-metadata"
-classification_confidence: "medium"
-legacy_document_role: "design"
+  - cogentia#51
+  - cogentia#52
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: medium
+legacy_document_role: design
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+update_policy: UP-DEFAULT-REVIEWED
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # Operium Node Agent (ONA)
 

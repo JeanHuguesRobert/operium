@@ -1,20 +1,34 @@
 ---
-title: "Federated Capacity Registry — implementation checklist"
-author: "Jean Hugues Noël Robert"
-date: "2026-08-16"
-status: "operational checklist"
-document_role: "operational"
-document_kind: "implementation-checklist"
-visibility: "public"
-lifecycle_state: "active"
+title: Federated Capacity Registry — implementation checklist
+author: Jean Hugues Noël Robert
+date: '2026-08-16'
+status: operational checklist
+document_role: operational
+document_kind: implementation-checklist
+visibility: public
+lifecycle_state: active
 related_documents:
-  - "research/federated-capacity-registry.md"
-  - "docs/operium-node-agent.md"
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "explicit-metadata"
-classification_confidence: "medium"
+  - research/federated-capacity-registry.md
+  - docs/operium-node-agent.md
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: medium
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+update_policy: UP-DEFAULT-REVIEWED
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # Federated Capacity Registry — implementation checklist
 

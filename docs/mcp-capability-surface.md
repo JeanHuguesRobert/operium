@@ -1,19 +1,35 @@
 ---
-title: "MCP capability surface — desired state"
+title: MCP capability surface — desired state
 document_role: operational
 document_kind: method
 visibility: public
 lifecycle_state: active
-last_updated: "2026-08-22"
 related:
-  - "cogentia-mcp-clients.md"
-  - "fracta-trust-perimeter.md"
-  - "operium-cli.md"
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "explicit-metadata"
-classification_confidence: "medium"
+  - cogentia-mcp-clients.md
+  - fracta-trust-perimeter.md
+  - operium-cli.md
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: medium
+last_modified_at: '2026-08-22'
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+date: '2026-09-15'
+update_policy: UP-DEFAULT-REVIEWED
+status: working-paper
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # MCP capability surface — desired state
 

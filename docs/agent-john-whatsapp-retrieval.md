@@ -1,22 +1,36 @@
 ---
-title: "Agent John WhatsApp — retrieval desired state (Fracta)"
+title: Agent John WhatsApp — retrieval desired state (Fracta)
 author: Grok
-date: "2026-08-13"
+date: '2026-08-13'
 document_role: operational
 document_kind: deployment-handbook
 visibility: public
 lifecycle_state: active
 update_policy: UP-DEFAULT-REVIEWED
 related:
-  - "fracta-trust-perimeter.md"
-  - "cogentia-semantic-stack.md"
-  - "https://github.com/JeanHuguesRobert/cogentia/blob/main/docs/agent-john-deployment-operium.md"
-  - "https://github.com/JeanHuguesRobert/cogentia/blob/main/research/corpus_librarian_decision_2026-08-12.md"
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "explicit-metadata"
-classification_confidence: "medium"
+  - fracta-trust-perimeter.md
+  - cogentia-semantic-stack.md
+  - https://github.com/JeanHuguesRobert/cogentia/blob/main/docs/agent-john-deployment-operium.md
+  - https://github.com/JeanHuguesRobert/cogentia/blob/main/research/corpus_librarian_decision_2026-08-12.md
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: medium
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+status: working-paper
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # Agent John WhatsApp — retrieval desired state (Fracta)
 

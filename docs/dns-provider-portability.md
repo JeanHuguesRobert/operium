@@ -1,22 +1,35 @@
 ---
-title: "DNS Provider Portability and Reversible Migration"
-description: "A provider-neutral operational model for authoritative DNS, controlled migration, and verified return paths."
+title: DNS Provider Portability and Reversible Migration
+description: A provider-neutral operational model for authoritative DNS, controlled migration, and verified return paths.
 document_role: operational
 document_kind: architecture-note
 visibility: public
 lifecycle_state: working
 update_policy: UP-INFRASTRUCTURE-HEALTH
 language: en
-date: "2026-08-29"
-last_modified_at: "2026-08-30"
+date: '2026-08-29'
+last_modified_at: '2026-08-30'
 related:
-  - "fractavolta-dns.md"
-  - "fractanet-mesh.md"
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "explicit-metadata"
-classification_confidence: "medium"
+  - fractavolta-dns.md
+  - fractanet-mesh.md
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: medium
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+status: working-paper
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # DNS Provider Portability and Reversible Migration
 

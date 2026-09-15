@@ -1,21 +1,34 @@
 ---
-title: "Incident note — fracta daemon health latency (July 2026)"
-description: "Root cause of /guide/health 500, operium up false negatives, and MCP timeout on 1 GB VPS."
+title: Incident note — fracta daemon health latency (July 2026)
+description: Root cause of /guide/health 500, operium up false negatives, and MCP timeout on 1 GB VPS.
 layout: default
-date: 2026-07-04
-last_modified_at: 2026-07-04
+date: 2026-07-04T00:00:00.000Z
+last_modified_at: 2026-07-04T00:00:00.000Z
 license: Apache-2.0
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/research/fracta-daemon-health-2026-07.md
-document_role: "operational"
-document_kind: "incident"
-visibility: "public"
-lifecycle_state: "active"
-status: "mitigated — quick health probe deployed"
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "explicit-metadata"
-classification_confidence: "medium"
+document_role: operational
+document_kind: incident
+visibility: public
+lifecycle_state: active
+status: mitigated — quick health probe deployed
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: medium
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+update_policy: UP-DEFAULT-REVIEWED
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # Incident note — fracta daemon health latency (July 2026)
 
