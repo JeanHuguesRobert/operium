@@ -78,12 +78,25 @@ back to HTTPS.
 
 For an artifact refresh:
 
-1. Render from a known source commit and preserve the generated
-   `manifest.json` with the HTML and PDF.
-2. Place the complete artifact set in a new release directory on Fracta2.
-3. Verify the landing page, edition HTML, PDF, and manifest through the mesh.
-4. Atomically promote the new release pointer only after those checks pass.
-5. Verify the public HTTPS endpoints through Fracta.
+1. Start with clean, recorded revisions of both the Corpus and renderer. From
+   the `ubikia` checkout, render a new output directory explicitly:
+
+   ```bash
+   npm run render -- --corpus ../barons-Mariani/projects/suicide-corse/corpus.yml --projection ../barons-Mariani/projects/suicide-corse/projections/book-2026-09-17-anniversaire.yml --output /path/to/new-render
+   ```
+
+   This renderer produces a draft, traceable output; it does not authorize a
+   publication.
+2. Inspect the generated `manifest.json`, HTML, and PDF. Record the Corpus
+   source commit and retain the manifest with the release.
+3. Copy the rendered book files and manifest into a *new*, dated directory in
+   the separate `JeanHuguesRobert/suicide-corse` artifact repository. Preserve
+   the landing page and do not replace a prior edition in place.
+4. Place that complete artifact set in a new release directory on Fracta2 and
+   verify it through the mesh.
+5. Atomically promote the release pointer only after those checks pass.
+6. Verify the public HTTPS endpoints through Fracta. A server promotion is a
+   separate, explicit operational authorization.
 
 Before a Caddy change, back up the affected node-local Caddyfile, validate it,
 and reload only after validation. See
@@ -96,6 +109,13 @@ curl --fail --head --max-time 15 https://suicidecorse.baronsmariani.org/
 curl --fail --head --max-time 15 https://suicidecorse.baronsmariani.org/editions/2026-09-17/index.html
 curl --fail --head --max-time 15 https://suicidecorse.baronsmariani.org/editions/2026-09-17/suicide-corse-edition-2026-09-17-anniversaire.pdf
 curl --fail --head --max-time 15 https://suicidecorse.baronsmariani.org/editions/2026-09-17/manifest.json
+```
+
+From a Windows operator workstation, the same checks plus manifest/PDF hash
+verification are available as one command:
+
+```powershell
+pwsh -NoProfile -File scripts/ops/check-suicide-corse-preview.ps1
 ```
 
 The downloaded PDF hash must match the PDF hash declared in that release's
