@@ -11,6 +11,7 @@
     ,"operium-graph-http": "./bin/operium-graph-http.js"
   },
   "scripts": {
+    "test": "node scripts/run-tests.js",
     "test:up": "node scripts/test-operium-up.js",
     "test:cli-exit": "node scripts/test-operium-cli-exit.js",
     "test:wip": "node scripts/test-operium-wip.js",
