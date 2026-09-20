@@ -115,8 +115,32 @@
   - Aliases: interaction register, registre des interactions, mail_trace, mail trace, registre d'interaction
 - **Exploration Rationnelle du Possible**: [research/potentics.md](https://github.com/JeanHuguesRobert/barons-Mariani/blob/main/research/potentics.md)
   - Aliases: exploration rationnelle du possible, erp, rational exploration of the possible
-- **Seconde Methode**: [research/corpus_navigation_audit.md](https://github.com/JeanHuguesRobert/cogentia/blob/main/research/corpus_navigation_audit.md)
-  - Aliases: seconde methode, seconde méthode, second method, conserved negative returns
+- **Seconde Methode**: [research/second_method.md](https://github.com/JeanHuguesRobert/barons-Mariani/blob/main/research/second_method.md)
+  - Aliases: seconde methode, seconde méthode, discours de la seconde méthode, discours de la seconde methode, second method
+- **Conceptual Gravity**: [research/conceptual_gravity.md](https://github.com/JeanHuguesRobert/cogentia/blob/main/research/conceptual_gravity.md)
+  - Aliases: conceptual gravity, self-orienting corpus, self-orienting reactive corpus, corpus.orient
+- **Autonomie de Capacité**: [research/campaign/fiches_maires/fiche_01_autonomie_de_capacite_finances_communales.md](https://github.com/JeanHuguesRobert/cogentia/blob/main/research/campaign/fiches_maires/fiche_01_autonomie_de_capacite_finances_communales.md)
+  - Aliases: autonomie de capacite, autonomie de capacité, finances communales, dgf, dotation globale de fonctionnement, perequation, péréquation, communes rurales, autonomie de papier, sanctuarisation dgf
+- **FractaVolta Énergie Villageoise**: [research/campaign/fiches_maires/fiche_02_fractavolta_energie_villageoise.md](https://github.com/JeanHuguesRobert/cogentia/blob/main/research/campaign/fiches_maires/fiche_02_fractavolta_energie_villageoise.md)
+  - Aliases: fractavolta, energie villageoise, énergie villageoise, batteries seconde vie, seconde vie, autoconsommation collective, boucle locale energie, agrivoltaisme, agrivoltaïsme, vignes friches
+- **Statut Résident Rural et Foncier**: [research/campaign/fiches_maires/fiche_03_statut_resident_rural_logement_foncier.md](https://github.com/JeanHuguesRobert/cogentia/blob/main/research/campaign/fiches_maires/fiche_03_statut_resident_rural_logement_foncier.md)
+  - Aliases: statut resident rural, statut résident rural, statut de resident, statut de résident, bail reel solidaire, bail réel solidaire, brs, indivision fonciere, indivision foncière, indivision, indivisions, girtec, logement communal, residence secondaire corse
+- **Eau Déchets et Services Publics**: [research/campaign/fiches_maires/fiche_04_eau_dechets_services_publics.md](https://github.com/JeanHuguesRobert/cogentia/blob/main/research/campaign/fiches_maires/fiche_04_eau_dechets_services_publics.md)
+  - Aliases: eau et dechets, eau et déchets, teom, taxe ordures menageres, taxe ordures ménagères, exportation dechets, retenues collinaires, oehc, secheresse corse, sécheresse corse, gestion de l'eau
+- **Transparence Marchés Publics et Anti-Capture**: [research/campaign/fiches_maires/fiche_05_transparence_anti_capture_marches_publics.md](https://github.com/JeanHuguesRobert/cogentia/blob/main/research/campaign/fiches_maires/fiche_05_transparence_anti_capture_marches_publics.md)
+  - Aliases: transparence marches publics, transparence marchés publics, dossier 1755, anti capture, chambre regionale des comptes, chambre régionale des comptes, subventions territoriales, marches publics corse
+- **Locality Principle**: [research/locality_principle.md](https://github.com/JeanHuguesRobert/cogentia/blob/main/research/locality_principle.md)
+  - Aliases: locality, locality principle, minimum sufficient locality, locality closure, local-first
+- **DHITL (Democratic Human In The Loop)**: [research/DHITL.md](https://github.com/JeanHuguesRobert/marenostrum/blob/main/research/DHITL.md)
+  - Aliases: dhitl, democratic human in the loop, democratic humans in the loop
+- **Control/data plane separation**: [research/concepts.md](https://github.com/JeanHuguesRobert/Inox/blob/master/research/concepts.md#control-data-plane-separation)
+  - Aliases: control/data plane separation, control data plane separation, control/data plane, data/control plane separation
+- **Agent John Compagnon Numérique**: [research/reasoning_loop.md](https://github.com/JeanHuguesRobert/cogentia/blob/main/research/reasoning_loop.md)
+  - Aliases: agent john, agent jhn, assistant numerique, assistant numérique, you draft he decides, demultiplication, démultiplication, compagnon numerique
+- **Kudocracy**: [README.md](https://github.com/JeanHuguesRobert/survey/blob/main/README.md)
+  - Aliases: kudocracy, kudocratie, democratie directe, démocratie directe, democratie liquide, démocratie liquide, vote vivant, grands electeurs vote, john vote
+- **Non-alignement et Indépendance Parlementaire**: [research/proposition_constitutionnelle_autonomie_capacite_corse.md](https://github.com/JeanHuguesRobert/barons-Mariani/blob/main/research/proposition_constitutionnelle_autonomie_capacite_corse.md)
+  - Aliases: sans groupe parlementaire, face aux appareils, parti national, majorite territoriale, majorité territoriale, isolement politique, non-aligne, non-aligné
 
 ## Navigation Contract Verbs (CPsN v0.1)
 - `resolve(name)`: Deterministic alias -> canonical file lookup
