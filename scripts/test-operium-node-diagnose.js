@@ -19,7 +19,8 @@ import {
 import { runNodeDiagnoseCommand } from "../lib/node-cli.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const staleFixturePath = path.resolve(__dirname, "../../cogentia/scripts/test/fixtures/ops-status-stale-blackboard.json");
+const fixtureRelativePath = path.join("cogentia", "scripts", "test", "fixtures", "ops-status-stale-blackboard.json");
+const staleFixturePath = findWorkspaceFixture(__dirname, fixtureRelativePath);
 const staleFixture = JSON.parse(fs.readFileSync(staleFixturePath, "utf8"));
 
 assert.deepEqual(
@@ -184,4 +185,16 @@ function listenEphemeral(server) {
     });
     server.on("error", reject);
   });
+}
+
+function findWorkspaceFixture(startDir, relativePath) {
+  let directory = startDir;
+  while (true) {
+    const candidate = path.join(directory, relativePath);
+    if (fs.existsSync(candidate)) return candidate;
+    const parent = path.dirname(directory);
+    if (parent === directory) break;
+    directory = parent;
+  }
+  throw new Error(`workspace_fixture_not_found: ${relativePath}`);
 }
