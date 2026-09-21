@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import {
@@ -11,14 +12,9 @@ import {
 } from "../lib/node-agent/attractor.js";
 import { runOnaHeartbeat } from "../lib/node-agent/heartbeat.js";
 
-const cogentiaBlackboard = path.resolve(
+const cogentiaBlackboard = findWorkspaceFile(
   path.dirname(fileURLToPath(import.meta.url)),
-  "..",
-  "..",
-  "cogentia",
-  "scripts",
-  "lib",
-  "packet-attractor-blackboard.js",
+  path.join("cogentia", "scripts", "lib", "packet-attractor-blackboard.js"),
 );
 
 let validateAttractor;
@@ -183,3 +179,15 @@ console.log(JSON.stringify({
     "heartbeat_withdraw",
   ],
 }, null, 2));
+
+function findWorkspaceFile(startDir, relativePath) {
+  let directory = startDir;
+  while (true) {
+    const candidate = path.join(directory, relativePath);
+    if (fs.existsSync(candidate)) return candidate;
+    const parent = path.dirname(directory);
+    if (parent === directory) break;
+    directory = parent;
+  }
+  throw new Error(`workspace_file_not_found: ${relativePath}`);
+}
