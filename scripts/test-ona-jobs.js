@@ -6,7 +6,7 @@ import os from "node:os";
 import path from "node:path";
 import { loadOnaConfig } from "../lib/node-agent/config.js";
 import { openNodeMemoryDb } from "../lib/node-agent/db.js";
-import { loadEnvFiles } from "../lib/node-agent/job-env.js";
+import { findDuplicateEnvKeys, loadEnvFiles } from "../lib/node-agent/job-env.js";
 import { resolveNodeJobs, resolveScriptPath } from "../lib/node-agent/job-registry.js";
 import { runScheduledJob } from "../lib/node-agent/job-runner.js";
 import {
@@ -80,6 +80,11 @@ const rotatedEnv = loadEnvFiles(
   { COGENTIA_BLACKBOARD_URL: "https://stale.example.test" },
 );
 assert.equal(rotatedEnv.COGENTIA_BLACKBOARD_URL, "https://example.test/ops/blackboard");
+assert.deepEqual(
+  findDuplicateEnvKeys("TOKEN=first\nexport TOKEN=second\nOTHER=value\n"),
+  ["TOKEN"],
+);
+assert.deepEqual(findDuplicateEnvKeys("TOKEN=single\nOTHER=value\n"), []);
 assert.equal(
   summarizeJobFailure({ error: "blackboard_upsert_failed", detail: "blackboard_http_401" }),
   "blackboard_upsert_failed: blackboard_http_401",
