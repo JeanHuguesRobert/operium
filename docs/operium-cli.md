@@ -56,6 +56,11 @@ reconciliation action.
 `--registry` projects only stable node identity, SSH target/port, and services
 explicitly declared in the private catalogue. It does not infer service names,
 copy secret references, or turn a corpus path into a repository invariant.
+The identity model is deliberately three-part: `node_id` is the canonical
+resource identity, `ssh_target` is a transport handle, and `os_hostname` is a
+read-only operating-system observation. A registry compares the latter only
+when it explicitly declares `observation.expected_os_hostname`; platform
+defaults such as Termux `localhost` are not node-identity collisions.
 An unreachable node declared `intermittent` is reported as contextual
 uncertainty, not as a service-failure divergence. Probes are bounded at three
 concurrent SSH sessions by default (`--concurrency` may set 1 through 16).

@@ -21,9 +21,9 @@ assert.match(script, /systemctl is-active 'mcp-cogentia\.service'/);
 assert.match(script, /git -C '\/srv\/cogentia\/repos\/cogentia' rev-parse HEAD/);
 assert.doesNotMatch(script, /restart|stop|reset|push|pull/);
 
-const stdout = "hostname\tfracta\nservice\tmcp-cogentia.service\tactive\nrepository\tcogentia\t0123456789abcdef\t0\n";
+const stdout = "os_hostname\tfracta\nservice\tmcp-cogentia.service\tactive\nrepository\tcogentia\t0123456789abcdef\t0\n";
 assert.deepEqual(parseReadOnlyProbe(stdout, node), {
-  hostname: "fracta",
+  os_hostname: "fracta",
   services: [{ name: "mcp-cogentia.service", state: "active" }],
   repositories: [{ id: "cogentia", revision: "0123456789abcdef", dirty_entries: 0 }],
 });
@@ -67,11 +67,11 @@ assert.equal(intermittent.divergences.length, 0);
 assert.equal(intermittent.uncertainties[0].reason, "declared_intermittent_node");
 
 const identityMismatch = buildDivergenceReport({
-  manifest: { schema: "operium.fractanet.observation-manifest.v1", nodes: [{ ...node, expected_hostname: "expected-host" }] },
+  manifest: { schema: "operium.fractanet.observation-manifest.v1", nodes: [{ ...node, expected_os_hostname: "expected-host" }] },
   observations: [observation],
   reportedAt: observedAt,
 });
-assert.equal(identityMismatch.divergences[0].invariant, "ssh_identity");
+assert.equal(identityMismatch.divergences[0].invariant, "os_hostname");
 
 let active = 0;
 let peak = 0;
