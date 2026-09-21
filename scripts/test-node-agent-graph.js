@@ -3,12 +3,15 @@ import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
+import { DatabaseSync } from "node:sqlite";
 
 const port = 8897;
 const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "operium-graph-test-"));
-const sourceDb = path.resolve(".operium/corpus-graph.sqlite");
 const testDb = path.join(tempDir, "corpus-graph.sqlite");
-fs.copyFileSync(sourceDb, testDb);
+const schemaPath = path.resolve("schemas/corpus-graph-cache.sql");
+const graphDb = new DatabaseSync(testDb);
+graphDb.exec(fs.readFileSync(schemaPath, "utf8"));
+graphDb.close();
 const env = { ...process.env, ONA_COP_DELIVERY: "0", OPERIUM_GRAPH_DB: testDb, COGENTIA_OPS_STATE_DIR: tempDir };
 const child = spawn(process.execPath, ["bin/operium-node-agent.js"], { cwd: process.cwd(), env: { ...env, ONA_BIND: "127.0.0.1", ONA_PORT: String(port) }, stdio: "ignore" });
 const base = `http://127.0.0.1:${port}`;
