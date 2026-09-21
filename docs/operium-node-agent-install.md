@@ -253,6 +253,8 @@ Mirrors fracta `operium-node-agent.service` — **node.exe via NSSM**, no PowerS
      --file $env:USERPROFILE\.cogentia\secrets\attractor-i7-thinkpad-jhr.env
    ```
 
+   The NSSM installer runs this validation before it replaces the service.
+
 2. **ONA daemon** — install Windows Service (elevated pwsh):
 
 ```powershell

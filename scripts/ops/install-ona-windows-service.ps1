@@ -144,6 +144,27 @@ if (-not (Test-Path $agentEntry)) {
     throw "operium-node-agent.js not found: $agentEntry"
 }
 
+$envValidator = Join-Path $OperiumRoot 'scripts\validate-env-keys.js'
+if (-not (Test-Path $envValidator)) {
+    throw "env key validator not found: $envValidator"
+}
+$heartbeatEnvFiles = @(
+    $EnvFile,
+    (Join-Path $secretsDir 'ona-blackboard.env'),
+    (Join-Path $secretsDir 'agent-gateway-blackboard.env')
+) + @(Get-ChildItem -Path $secretsDir -Filter 'attractor-*.env' -File -ErrorAction SilentlyContinue | ForEach-Object FullName)
+$validatorArgs = @()
+foreach ($file in ($heartbeatEnvFiles | Select-Object -Unique)) {
+    if (Test-Path $file) {
+        $validatorArgs += '--file'
+        $validatorArgs += $file
+    }
+}
+& $nodeExe $envValidator @validatorArgs
+if ($LASTEXITCODE -ne 0) {
+    throw 'ONA service preflight rejected duplicate environment key declarations.'
+}
+
 $nssm = Ensure-Nssm $BinDir
 $logDir = $varDir
 $stdoutLog = Join-Path $logDir 'operium-node-agent-service.log'
