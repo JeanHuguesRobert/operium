@@ -3,7 +3,9 @@
 import assert from "node:assert/strict";
 import {
   buildDivergenceReport,
+  buildDivergenceContinuations,
   buildReadOnlyProbeScript,
+  collectNodeObservations,
   collectNodeObservation,
   parseReadOnlyProbe,
 } from "../lib/fractanet-observation.js";
@@ -50,5 +52,42 @@ const second = buildDivergenceReport({ manifest: { schema: "operium.fractanet.ob
 assert.equal(first.ok, false);
 assert.deepEqual(first, second);
 assert.equal(first.divergences[0].invariant, "service:mcp-cogentia.service");
+const continuations = buildDivergenceContinuations(first);
+assert.equal(continuations.length, 1);
+assert.equal(continuations[0].status, "active");
+assert.equal(continuations[0].kind, "operium.fractanet.divergence");
+
+const intermittent = buildDivergenceReport({
+  manifest: { schema: "operium.fractanet.observation-manifest.v1", nodes: [{ ...node, availability: { intermittent: true } }] },
+  observations: [{ ...observation, ok: false, error: "ssh_observation_failed" }],
+  reportedAt: observedAt,
+});
+assert.equal(intermittent.ok, true);
+assert.equal(intermittent.divergences.length, 0);
+assert.equal(intermittent.uncertainties[0].reason, "declared_intermittent_node");
+
+const identityMismatch = buildDivergenceReport({
+  manifest: { schema: "operium.fractanet.observation-manifest.v1", nodes: [{ ...node, expected_hostname: "expected-host" }] },
+  observations: [observation],
+  reportedAt: observedAt,
+});
+assert.equal(identityMismatch.divergences[0].invariant, "ssh_identity");
+
+let active = 0;
+let peak = 0;
+const batch = await collectNodeObservations({
+  nodes: [node, { ...node, node_id: "resource://fixture-fracta-2", ssh_target: "fixture-fracta-2" }],
+  concurrency: 1,
+  observedAt,
+  runSsh: async () => {
+    active += 1;
+    peak = Math.max(peak, active);
+    await new Promise(resolve => setTimeout(resolve, 2));
+    active -= 1;
+    return { stdout };
+  },
+});
+assert.equal(batch.length, 2);
+assert.equal(peak, 1);
 
 console.log("fractanet observation tests passed");

@@ -37,12 +37,12 @@ Companion surfaces:
 ## Command: `operium observe nodes`
 
 ```bash
-operium observe nodes --manifest PATH [--timeout MS]
+operium observe nodes (--manifest PATH | --registry PATH) [--node RESOURCE_ID] [--timeout MS]
 ```
 
 The command emits JSON Lines: one `operium.fractanet.observation.v1` record per
 declared node, followed by an `operium.fractanet.divergence-report.v1` summary.
-It requires an explicit manifest path so that Operium's private registry remains
+It requires an explicit manifest or registry path so that Operium's private registry remains
 the configuration authority; the public repository supplies the contract, not a
 second fleet catalogue.
 
@@ -52,6 +52,16 @@ It never accepts arbitrary remote commands, and it records no secrets. Any
 unreachable node, service mismatch, revision mismatch, or unexpected dirty
 worktree is emitted as `continuation_required`; this command performs no
 reconciliation action.
+
+`--registry` projects only stable node identity, SSH target/port, and services
+explicitly declared in the private catalogue. It does not infer service names,
+copy secret references, or turn a corpus path into a repository invariant.
+An unreachable node declared `intermittent` is reported as contextual
+uncertainty, not as a service-failure divergence. Probes are bounded at three
+concurrent SSH sessions by default (`--concurrency` may set 1 through 16).
+With `--continuations-dir PATH`, each divergence becomes an idempotent private
+`cogentia.continuation.v2` record. This persistence is opt-in; creation is not
+resolution and never authorizes a reconciliation action.
 
 Minimal manifest shape:
 

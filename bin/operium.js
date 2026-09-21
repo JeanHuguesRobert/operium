@@ -29,7 +29,7 @@ import {
 import { runRatesUpdate } from "../lib/rates.js";
 import { runCalendarCommand } from "../lib/calendar-cli.js";
 import { formatCalendarHuman } from "../lib/format-calendar-human.js";
-import { buildDivergenceReport, collectNodeObservation, loadObservationManifest } from "../lib/fractanet-observation.js";
+import { buildDivergenceReport, collectNodeObservations, loadObservationSource, persistDivergenceContinuations } from "../lib/fractanet-observation.js";
 
 const HELP = `operium — versioned operational environment registry CLI
 
@@ -62,6 +62,9 @@ Options:
   --no-probe              Catalogue and docs only
   --registry <path>       Private registry YAML (default ~/.cogentia/registry/resources.yaml)
   --manifest <path>       FractaNet observation manifest (required by observe nodes)
+  --node <resource_id>    Observe only one declared node (repeatable)
+  --continuations-dir <path>  Persist divergence continuations (observe only)
+  --concurrency <n>       Concurrent read-only SSH probes (default 3; maximum 16)
   --aggregator <url>      Runtime aggregator base URL (default https://cogentia.fractavolta.com)
   --section <name>        catalogue | mesh | services | blackboard | retrieval | action | public_face
   --timeout <ms>          Per-probe timeout (default 25000)
@@ -196,6 +199,9 @@ function parseArgs(argv) {
     watchKind: null,
     file: null,
     manifestPath: null,
+    nodeIds: [],
+    continuationsDir: null,
+    concurrency: 3,
     local: false,
   };
 
@@ -264,6 +270,15 @@ function parseArgs(argv) {
         break;
       case "--manifest":
         options.manifestPath = args.shift();
+        break;
+      case "--node":
+        options.nodeIds.push(args.shift());
+        break;
+      case "--continuations-dir":
+        options.continuationsDir = args.shift();
+        break;
+      case "--concurrency":
+        options.concurrency = Number(args.shift());
         break;
       case "--repo":
         options.repoPath = args.shift();
@@ -508,16 +523,26 @@ async function main() {
   if (isObserveCommand(options)) {
     try {
       if (options.subcommand !== "nodes") throw new Error(`unknown_observe_subcommand: ${options.subcommand || "(missing)"}`);
-      const manifest = await loadObservationManifest(options.manifestPath);
+      const source = await loadObservationSource({ manifestPath: options.manifestPath, registryPath: options.registryPath });
+      const manifest = options.nodeIds.length
+        ? { ...source, nodes: source.nodes.filter(node => options.nodeIds.includes(node.node_id)) }
+        : source;
+      if (manifest.nodes.length === 0) throw new Error("observation_nodes_not_found");
       const observedAt = new Date().toISOString();
-      const observations = [];
-      for (const node of manifest.nodes) {
-        const observation = await collectNodeObservation({ node, timeoutMs: options.timeoutMs, observedAt });
-        observations.push(observation);
+      const observations = await collectNodeObservations({
+        nodes: manifest.nodes,
+        concurrency: options.concurrency,
+        timeoutMs: options.timeoutMs,
+        observedAt,
+      });
+      for (const observation of observations) {
         process.stdout.write(`${JSON.stringify(observation)}\n`);
       }
       const report = buildDivergenceReport({ manifest, observations, reportedAt: observedAt });
-      process.stdout.write(`${JSON.stringify({ type: "summary", ...report })}\n`);
+      const persistence = options.continuationsDir
+        ? persistDivergenceContinuations({ report, directory: options.continuationsDir, now: observedAt })
+        : null;
+      process.stdout.write(`${JSON.stringify({ type: "summary", ...report, continuation_persistence: persistence })}\n`);
       process.exit(report.ok ? 0 : 1);
     } catch (error) {
       process.stderr.write(`${JSON.stringify({ ok: false, error: error.message })}\n`);
