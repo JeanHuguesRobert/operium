@@ -27,9 +27,48 @@ Companion surfaces:
 | `operium up` | Observer on any trusted workstation |
 | `operium backlog list` / `operium backlog gate` | Fix Bugs First register (`backlog/items.yaml`) |
 | `operium calendar list` / `schedule` / `tick` / `ics` | FractaCalendar projection; `schedule` takes a `cop/node.wake.v1` packet ([protocol](calendar-cop-wake-protocol.md)) |
+| `operium observe nodes` | Read-only SSH observations and divergence report from a declarative private manifest |
 | `operium handoff wip` / `operium resume wip` | GitHub-backed WIP handoff between trusted nodes |
 | `GET /ops/status` | Runtime aggregator on fracta (same schema subset) |
 | `/ops/dashboard` | Human web UI |
+
+---
+
+## Command: `operium observe nodes`
+
+```bash
+operium observe nodes --manifest PATH [--timeout MS]
+```
+
+The command emits JSON Lines: one `operium.fractanet.observation.v1` record per
+declared node, followed by an `operium.fractanet.divergence-report.v1` summary.
+It requires an explicit manifest path so that Operium's private registry remains
+the configuration authority; the public repository supplies the contract, not a
+second fleet catalogue.
+
+The collector builds its remote script from a fixed, read-only command family:
+`hostname`, `systemctl is-active`, `git rev-parse`, and `git status --porcelain`.
+It never accepts arbitrary remote commands, and it records no secrets. Any
+unreachable node, service mismatch, revision mismatch, or unexpected dirty
+worktree is emitted as `continuation_required`; this command performs no
+reconciliation action.
+
+Minimal manifest shape:
+
+```yaml
+schema: operium.fractanet.observation-manifest.v1
+nodes:
+  - node_id: resource://example-node
+    ssh_target: example-node
+    services:
+      - name: example.service
+        expected_state: active
+    repositories:
+      - id: example
+        path: /srv/cogentia/repos/example
+        revision: 0123456789abcdef
+        allow_dirty: false
+```
 
 ---
 

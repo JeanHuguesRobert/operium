@@ -39,6 +39,7 @@
     "test:calendar": "node scripts/test-operium-calendar.js",
     "test:calendar-events": "node scripts/test-operium-calendar-events.js",
     "test:ona-heartbeat": "node scripts/test-ona-heartbeat.js",
+    "test:fractanet-observation": "node scripts/test-fractanet-observation.js",
     "test:ona-jobs": "node scripts/test-ona-jobs.js",
     "test:ona-peer-sync": "node scripts/test-ona-peer-sync.js",
     "test:ona-cop": "node scripts/test-ona-cop-roundtrip.js",
