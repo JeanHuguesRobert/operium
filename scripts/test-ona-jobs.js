@@ -12,6 +12,7 @@ import { runScheduledJob } from "../lib/node-agent/job-runner.js";
 import {
   createJobScheduler,
   listScheduledJobs,
+  summarizeJobFailure,
   syncScheduledJobs,
 } from "../lib/node-agent/job-scheduler.js";
 import { LATEST_SCHEMA_VERSION } from "../lib/node-agent/migrate.js";
@@ -79,6 +80,11 @@ const rotatedEnv = loadEnvFiles(
   { COGENTIA_BLACKBOARD_URL: "https://stale.example.test" },
 );
 assert.equal(rotatedEnv.COGENTIA_BLACKBOARD_URL, "https://example.test/ops/blackboard");
+assert.equal(
+  summarizeJobFailure({ error: "blackboard_upsert_failed", detail: "blackboard_http_401" }),
+  "blackboard_upsert_failed: blackboard_http_401",
+);
+assert.equal(summarizeJobFailure({ detail: "missing_blackboard_upsert_token" }), "missing_blackboard_upsert_token");
 
 const { db, migration } = openNodeMemoryDb({
   dbPath,
