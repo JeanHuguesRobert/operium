@@ -185,26 +185,25 @@ items:
     title: Public Cogentia Guide and aggregator reachability is broken
     subsystem: magistral-routing
     severity: critical
-    status: open
+    status: closed
     evidence: >
       2026-09-01 operium up --json observed the critical Cogentia path as
-      broken: https://cogentia.fractavolta.com/ops/status was unreachable and
-      the remote MCP and Guide probes failed. The local tailnet observer was
-      unavailable to the execution context, so this evidence does not yet
-      localize the fault to public ingress, the fracta Guide/MCP process, or
-      aggregator routing.
+      broken from an observer without usable tailnet or HTTPS socket access.
+      2026-09-21 direct Fracta checks observed mcp-cogentia.service active,
+      local /ops/status HTTP 200, public /ops/status HTTP 200, and public
+      /guide/health HTTP 200. The original signal therefore localized to the
+      Windows execution context, not to public ingress or the Fracta service.
     next_action: >
-      Establish the failing plane, restore the existing public baseline with
-      operation receipts and public smoke checks, then perform the separately
-      governed Agent John V2 feature-flag rollout and rollback observation.
+      Reopen only on direct Fracta or independent public smoke-check failure.
+      Agent John V2 feature-flag rollout remains separately governed.
     github_issue: 42
-    blocks_features: true
+    blocks_features: false
     opened_at: "2026-09-01"
-    closed_at: null
+    closed_at: "2026-09-21"
     notes: |
-      Blocks live activation of COGENTIA_REASONING_LOOP_V2. Related Cogentia
-      #123 / PR #143 and Inseme PR #60 establish only the tested contract and
-      reversible surface bridge; they are not live deployment evidence.
+      Related Cogentia #123 / PR #143 and Inseme PR #60 establish only the
+      tested contract and reversible surface bridge; they are not live V2
+      deployment evidence.
 
   # ── Features (blocked by subsystem bugs when severity high+) ─────
 
