@@ -238,6 +238,21 @@ Mirrors fracta `operium-node-agent.service` — **node.exe via NSSM**, no PowerS
 
 1. **Secrets** — `C:\Users\admin\.cogentia\secrets\ona.env` and `ona-blackboard.env` (see catalogue `operium_node_agent` stanza). Ensure `COGENTIA_OPS_STATE_DIR` is set in `ona.env` (required when service runs as LocalSystem).
 
+   Blackboard authority remains the Fracta runtime projection of `inseme/.env`;
+   Windows heartbeat projections are `ona-blackboard.env`,
+   `agent-gateway-blackboard.env`, and `attractor-i7-thinkpad-jhr.env`. Keep
+   exactly one `COGENTIA_BLACKBOARD_UPSERT_TOKEN` declaration in each file.
+   The job runner reloads those files for every three-minute heartbeat, so a
+   content-only correction does not require restarting NSSM. Validate their
+   structure without printing values:
+
+   ```powershell
+   node C:\tweesic\operium\scripts\validate-env-keys.js `
+     --file $env:USERPROFILE\.cogentia\secrets\ona-blackboard.env `
+     --file $env:USERPROFILE\.cogentia\secrets\agent-gateway-blackboard.env `
+     --file $env:USERPROFILE\.cogentia\secrets\attractor-i7-thinkpad-jhr.env
+   ```
+
 2. **ONA daemon** — install Windows Service (elevated pwsh):
 
 ```powershell

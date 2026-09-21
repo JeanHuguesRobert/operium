@@ -385,6 +385,7 @@ Helpers: `scripts/ops/apply-system-bearer.js` (orchestrator),
 | Date | Issue | Resolution | Postmortem |
 |------|-------|------------|------------|
 | 2026-07-28 | `GITHUB_TOKEN` in the FS authority returned HTTP 401 on Fracta | Authenticated `gh` from the workstation native credential store; `.env` refresh remains due | Verify a provider credential after propagation; do not confuse file equality with provider validity |
+| 2026-09-21 | Blackboard heartbeats from `i7-thinkpad-jhr` returned HTTP 401 | Reconciled the three Windows heartbeat projections with the Fracta authority and removed duplicate token declarations | Keep one declaration per key per env file; validate the effective runtime files after a credential change |
 | TBD | Example placeholder | N/A | N/A |
 
 ## Risks
