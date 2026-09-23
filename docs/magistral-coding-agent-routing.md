@@ -17,6 +17,17 @@ classification_confidence: "medium"
 **App code:** Cogentia Guide / MCP, Inseme Magistral, Agent CLI Gateway.  
 **Decision:** [`decisions/magistral-coding-agent-routing.md`](../decisions/magistral-coding-agent-routing.md).
 
+**Topology (since 2026-09-23):** `fracta` is the public TLS/DNS edge only
+(Caddy `cogentia.fractavolta.com` reverse-proxies `@mcp` paths to
+`http://100.84.109.87:8791`, fracta2's Tailscale IP — same pattern already
+used for `browser.fractavolta.com`). `fracta2` (11 GiB RAM / 2 OCPU,
+aarch64) runs the actual `cogentia`, `mcp-cogentia`, `magistral`,
+`agent-gateway`, and `agent-john-whatsapp` services and the Codex ACP
+session. Fracta's own copies of those services are stopped and disabled
+(no automatic failover exists; Caddy's proxy target is static). See
+[Operium issue #55](https://github.com/JeanHuguesRobert/operium/issues/55)
+for the migration record.
+
 ## Observed path (product, until ACP promotion)
 
 ```text
@@ -36,15 +47,17 @@ Server turns are **stateless**. Conversation continuity is client `history`.
 
 Keep **`COGENTIA_GUIDE_AGENT_GATEWAY=0`** so Guide does not bypass Magistral.
 
-## Fracta local Codex ACP promotion
+## Local Codex ACP promotion (now on fracta2)
 
-When the shared integration test has passed on Fracta, Magistral can directly
+When the shared integration test has passed, Magistral can directly
 mobilize the locally authenticated Codex through ACP. This replaces the
 historical remote Agent CLI Gateway hop for the `fractavolta-guide` tier while
-preserving the same loopback OpenAI-compatible boundary for Cogentia:
+preserving the same loopback OpenAI-compatible boundary for Cogentia. This
+is live on `fracta2` as of 2026-09-23 (previously on `fracta`, before the
+migration recorded in issue #55):
 
 ```text
-Guide → Cogentia daemon → Magistral :8880 → ACP stdio → Codex (Fracta)
+Guide → Cogentia daemon → Magistral :8880 → ACP stdio → Codex (fracta2)
 ```
 
 The service uses an isolated public workspace and an ACP read-only permission
@@ -62,7 +75,7 @@ while Codex is reserved for the synthesis turn. This prevents a short-lived
 planner call from racing the longer synthesis session. Re-enable LLM planning
 only once Magistral has a queue or an independent planning capacity.
 
-Apply from the Fracta checkout after pulling Operium, Inseme and Cogentia:
+Apply from the fracta2 checkout after pulling Operium, Inseme and Cogentia:
 
 ```bash
 cd /srv/cogentia/repos/operium
@@ -91,7 +104,7 @@ Canonical template (no secrets):
 | coding-codex-strong | codex | strong | 50 | Strong tier |
 | openai-* | gpt-* | **fallback** | low | Optional; 401 if key bad |
 
-Live file on fracta (not in git):
+Live file on fracta2 (not in git):
 
 ```text
 /etc/cogentia/magistral-openai-map.json
@@ -106,7 +119,7 @@ When **quality over cost** for public Guide synthesis (label remains `fractavolt
 | [`profiles/magistral-map.guide-quality-first.v1.json`](../profiles/magistral-map.guide-quality-first.v1.json) | Primary fast/strong → **`gpt-5.6-sol`**; nano demoted to fallback |
 
 ```bash
-# On fracta
+# On fracta2
 sudo cp /etc/cogentia/magistral-openai-map.json \
   /etc/cogentia/magistral-openai-map.json.bak.$(date -u +%Y%m%dT%H%M%SZ)
 sudo cp /srv/cogentia/repos/operium/profiles/magistral-map.guide-quality-first.v1.json \
@@ -163,7 +176,16 @@ see [agent-gateway-windows-lifetime.md](agent-gateway-windows-lifetime.md)
 
 ## Apply (operator — via trust perimeter)
 
-Use trusted workstation: `ssh fracta` (see [fracta-trust-perimeter](fracta-trust-perimeter.md)).
+**Since the 2026-09-23 migration ([issue #55](https://github.com/JeanHuguesRobert/operium/issues/55)),
+`magistral.service` and `mcp-cogentia.service` run on `fracta2`, not
+`fracta` — the commands and helper scripts below (still named `*-fracta.sh`,
+not yet renamed) must be run on `fracta2` via
+`ssh fracta2` (Tailscale alias) rather than `ssh fracta`.** `fracta` itself
+now only owns the public Caddy edge and its own local vhosts (Views Store,
+Rhuma, SimpliWiki, mail); see the topology note above.
+
+Use trusted workstation: `ssh fracta` (see [fracta-trust-perimeter](fracta-trust-perimeter.md)),
+then `ssh fracta2` for the actual apply.
 
 ```bash
 # After operium + cogentia repos are current on the node (or scp map from operium)

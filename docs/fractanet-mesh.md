@@ -170,8 +170,8 @@ Default permissive tailnet (solo operator). No `funnel` node attribute. Device a
 
 | Hostname | OS | Tailnet role | WAN | SSH mesh | Other services |
 |----------|-----|--------------|-----|----------|----------------|
-| `fracta` | Ubuntu VPS (OCI) | always-on public face | **own** public WAN | inbound + outbound :22 | Cogentia Guide MCP, blackboard aggregator |
-| `fracta2` | Ubuntu VPS (OCI) | hosted-browser & automation | **own** public WAN | inbound + outbound :22 | KasmVNC :8444, Chrome CDP :9223, ONA :8794, Caddy :80 |
+| `fracta` | Ubuntu VPS (OCI) | always-on public TLS/DNS edge | **own** public WAN | inbound + outbound :22 | Caddy edge only (proxies `cogentia.fractavolta.com` to fracta2); blackboard aggregator |
+| `fracta2` | Ubuntu VPS (OCI) | hosted-browser & automation + Cogentia Guide/Magistral compute (since 2026-09-23, [issue #55](https://github.com/JeanHuguesRobert/operium/issues/55)) | **own** public WAN | inbound + outbound :22 | KasmVNC :8444, Chrome CDP :9223, ONA :8794, Caddy :80; `cogentia`, `mcp-cogentia`, `magistral`, `agent-gateway`, `agent-john-whatsapp` |
 | `i7-thinkpad-jhr` | Windows 11 | intermittent capable host | **via phone** (typical) | inbound + outbound :22 | `inox-serve` :8792, attractor heartbeat |
 | `rpi3-view` | Raspberry Pi OS (Pi 3) | **site edge / kiosk** | **via phone** or Paoli LAN | inbound + outbound :22 | Local 1 cours Paoli — sole always-on node on LAN; see [Linux node roles](#linux-node-roles-corpus--paoli) |
 | `poco-jhr` | Android Termux (POCO X6 5G) | **capable-mobile + WAN hub** | **cellular 5G → shared to mesh** | inbound + outbound :8022 | Corpus mirror, coding agents; layout `~/srv/cogentia` |
@@ -249,7 +249,15 @@ When the phone is offline or Termux is killed, **ThinkPad and Pi lose WAN** unle
 | **Coding agents** | Server-side Node tooling only; not an operator dev workstation |
 | **Limits** | No `inox-serve` locally; Supabase keys may remain as transitional fallback; not a capable retrieval host |
 
-### `fracta2` — hosted-browser-automation
+### `fracta2` — hosted-browser-automation + Cogentia Guide/Magistral compute
+
+Since 2026-09-23 ([issue #55](https://github.com/JeanHuguesRobert/operium/issues/55)),
+`fracta2` also runs the production `cogentia`, `mcp-cogentia`, `magistral`,
+`agent-gateway`, and `agent-john-whatsapp` services — public traffic still
+enters through `fracta`'s Caddy edge, which reverse-proxies to
+`http://100.84.109.87:8791` (this host's Tailscale IP). See
+[Magistral coding-agent routing](magistral-coding-agent-routing.md) for the
+full request path.
 
 Hardware and service observations refreshed on 2026-09-10 over SSH through
 `fracta`; see [dated evidence and limits](hosted-browser-kasmvnc-cdp.md).
