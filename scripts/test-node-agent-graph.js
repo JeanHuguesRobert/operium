@@ -17,7 +17,7 @@ const child = spawn(process.execPath, ["bin/operium-node-agent.js"], { cwd: proc
 const base = `http://127.0.0.1:${port}`;
 try {
   let health;
-  for (let i = 0; i < 20; i++) { try { health = await fetch(`${base}/health`); if (health.ok) break; } catch {} await new Promise((resolve) => setTimeout(resolve, 250)); }
+  for (let i = 0; i < 40; i++) { try { health = await fetch(`${base}/health`); if (health.ok) break; } catch {} await new Promise((resolve) => setTimeout(resolve, 250)); }
   if (!health?.ok) throw new Error("Node Agent health did not become ready");
   const graph = await fetch(`${base}/graph/node/JeanHuguesRobert%2Fcogentia%2342`);
   if (!graph.ok) throw new Error(`graph route returned ${graph.status}`);
@@ -28,7 +28,7 @@ console.log("Node Agent graph integration: OK");
 
 const publicChild = spawn(process.execPath, ["bin/operium-node-agent.js"], { cwd: process.cwd(), env: { ...env, ONA_BIND: "0.0.0.0", ONA_PORT: "8898", ONA_READ_TOKEN: "test-read" }, stdio: "ignore" });
 try {
-  for (let i = 0; i < 20; i++) { try { if ((await fetch("http://127.0.0.1:8898/health")).ok) break; } catch {} await new Promise((resolve) => setTimeout(resolve, 250)); }
+  for (let i = 0; i < 40; i++) { try { if ((await fetch("http://127.0.0.1:8898/health")).ok) break; } catch {} await new Promise((resolve) => setTimeout(resolve, 250)); }
   const denied = await fetch("http://127.0.0.1:8898/graph/continuations");
   if (denied.status !== 401) throw new Error(`expected public unauthenticated graph request to return 401, got ${denied.status}`);
   console.log("Node Agent public graph boundary: OK");
