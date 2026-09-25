@@ -144,7 +144,7 @@ try {
     probe: false,
   });
   assert.equal(workerResult.ok, true);
-  assert.equal(workerResult.cycle.probes.filter(probe => probe.skipped).length, 4);
+  assert.equal(workerResult.cycle.probes.filter(probe => probe.skipped).length, 5);
 
   const httpServer = createOnaHttpServer({
     config,
