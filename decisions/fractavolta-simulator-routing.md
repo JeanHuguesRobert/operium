@@ -4,8 +4,8 @@ date: "2026-09-26"
 document_role: source
 document_kind: adr
 visibility: public
-lifecycle_state: proposed
-status: proposed
+lifecycle_state: active
+status: accepted
 ---
 
 # ADR — FractaVolta simulator routing
@@ -18,7 +18,7 @@ FractaVolta has a Streamlit prototype for mobile energy-buffer logistics.
 
 Creating another DNS name is unnecessary.
 
-## Proposed decision
+## Decision
 
 - Public URL: `https://fracta.fractavolta.com/simulateur/`
 - TLS / public edge: existing Caddy on `fracta`
@@ -36,7 +36,12 @@ This avoids a DNS change, keeps the weak edge host small, reuses the existing
 fracta → fracta2 application topology, and preserves a clean split between the
 static corpus site and live applications.
 
-## Non-claims
+## Observed status & evidence (2026-09-27)
 
-This decision does not claim that the service is currently deployed or healthy.
-It records desired state until an apply and public smoke test are completed.
+- Applied and verified end-to-end on 2026-09-27.
+- Systemd service `fractavolta-mobile-energy-sim.service` enabled and active on `fracta2` (`100.84.109.87:8502`).
+- Reverse proxy route `/simulateur /simulateur/*` active on `fracta` Caddy.
+- Public smoke test passed: `https://fracta.fractavolta.com/simulateur/` returns HTTP 200 and loads the interactive Streamlit app.
+- Streamlit WebSocket connection confirmed operational (`101 Switching Protocols` at `_stcore/stream`).
+- Pre-existing routes on `fracta.fractavolta.com` (root node status, `/oleole/`) verified intact.
+

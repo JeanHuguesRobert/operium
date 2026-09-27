@@ -4,7 +4,7 @@ date: "2026-09-26"
 document_role: operational
 document_kind: method
 visibility: public
-lifecycle_state: proposed
+lifecycle_state: active
 ---
 
 # FractaVolta simulator — deployment and health
@@ -32,7 +32,7 @@ Application-side deployment fragments:
 Those files are application artifacts only. Live service state, routing,
 health evidence, and apply procedure are owned by Operium.
 
-## Proposed apply sequence
+## Apply sequence
 
 1. Inspect `fracta2` resource headroom.
 2. Fast-forward the FractaVolta checkout on `fracta2`.
@@ -60,3 +60,36 @@ health evidence, and apply procedure are owned by Operium.
 - parameter change triggers recalculation;
 - unrelated `fracta.fractavolta.com` paths are unchanged;
 - `fracta` and `fracta2` remain within safe memory headroom.
+
+## Observed deployment state & evidence (2026-09-27)
+
+- **Application commit**: `JeanHuguesRobert/FractaVolta@9cfb552`
+- **Host**: `fracta2` (ARM64, Ubuntu 24.04, Tailscale `100.84.109.87`)
+- **Python venv**: `/srv/cogentia/venvs/fractavolta-sim` (Python 3.12.3)
+- **Dependencies**: `streamlit==1.64.0`, `pandas==3.0.6`, `plotly==7.1.0`
+- **Supervisor**: systemd unit `/etc/systemd/system/fractavolta-mobile-energy-sim.service`
+  - Active and enabled (`systemctl status fractavolta-mobile-energy-sim` -> `active (running)`)
+  - Bound strictly to Tailscale IP: `100.84.109.87:8502`
+- **Model test**:
+  - `python3 test_model.py` executed successfully (`OK`, `0.621` fixed vs `0.343` mobile €/kWh)
+- **Public edge router**: Caddy on `fracta` (`82.70.234.207`)
+  - Route block added within `fracta.fractavolta.com`:
+    ```caddyfile
+    @fractavolta_sim path /simulateur /simulateur/*
+    handle @fractavolta_sim {
+        reverse_proxy http://100.84.109.87:8502
+    }
+    ```
+  - Config validated (`caddy validate`) and reloaded (`systemctl reload caddy`)
+- **Public verification**:
+  - HTTP GET `https://fracta.fractavolta.com/simulateur/` -> `200 OK` (Server: uvicorn, Via: 1.1 Caddy)
+  - HTTP GET `https://fracta.fractavolta.com/simulateur` -> `307 Temporary Redirect` -> `308 Permanent Redirect` -> `200 OK`
+  - Static assets (`./static/js/index.CcFifQPt.js`) -> `200 OK` (`application/javascript`)
+  - Streamlit health probe `https://fracta.fractavolta.com/simulateur/_stcore/health` -> `200 OK`
+  - Streamlit WebSocket stream `wss://fracta.fractavolta.com/simulateur/_stcore/stream` -> `101 Switching Protocols`
+  - Dynamic page rendering tested via headless Chromium: `<title>FractaVolta — Buffers mobiles</title>`, reactive input sliders and control panels rendered into DOM
+- **Editorial page**: `https://fractavolta.com/fr/simulateur` verified HTTP 200 OK and contains direct link to the live simulator.
+- **Regression checks**:
+  - `https://fracta.fractavolta.com/` -> `200 OK` ("Fracta node online")
+  - `https://fracta.fractavolta.com/oleole/` -> `200 OK` (Olé Olé preview)
+
