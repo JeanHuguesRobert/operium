@@ -81,7 +81,7 @@ Internet
 
 `mcp-cogentia.service` and `cogentia.service` on `fracta` are disabled and inactive. Restarting those fracta units does not change `https://cogentia.fractavolta.com`. The daemon port `8790` is loopback on `fracta2`; the live fracta Caddyfile does not proxy it. Paths outside the matcher above still fall through to the Views Store (`localhost:3423`) on fracta.
 
-`docs/fractanet-mesh.md` still lists Guide MCP as a fracta service in its node table. That table was not rewritten here.
+`docs/fractanet-mesh.md` is aligned with this observed topology: `fracta` is the public Caddy edge and `fracta2` runs the live Guide/MCP hub.
 
 Magistral / model-router stays **loopback-only**. The MCP adapter is the public
 retrieval, chat, and Cognitive Packet ingestion boundary for visitors and peer nodes.
@@ -225,12 +225,12 @@ When `COGENTIA_INOX_RETRIEVAL_URL` is set, the Guide prefers **`inox-session`**
 Phase 4 weak-node pattern:
 
 ```text
-fracta Guide MCP  --HTTPS session/turn-->  inox-serve (capable host)
+fracta2 Guide MCP --HTTPS session/turn-->  inox-serve (capable host)
                                                   |
                                             Supabase + OpenAI (secrets on capable host only)
 ```
 
-fracta may keep **only** `COGENTIA_INOX_RETRIEVAL_URL` and `COGENTIA_INOX_SERVE_TOKEN`
+fracta2 may keep **only** `COGENTIA_INOX_RETRIEVAL_URL` and `COGENTIA_INOX_SERVE_TOKEN`
 in `guide.env` — no `SUPABASE_SERVICE_ROLE_KEY` on the 1 GB VPS.
 
 If `inox-serve` has no inline secrets, it emits **continuations**; fracta can fulfill
@@ -317,4 +317,4 @@ This public note only records the pattern.
 | 2026-07-04 | Cross-link to [fractanet-mesh.md](fractanet-mesh.md); `COGENTIA_INOX_RETRIEVAL_URL` live via Tailscale |
 | 2026-07-04 | Cross-link to [fractavolta-dns.md](fractavolta-dns.md); public path diagram includes OCI IP |
 | 2026-08-19 | Corrected public-role diagram: `cogentia.service` is loopback-only, never proxied by Caddy directly (verified against the live Caddyfile and `ss -tlnp`, not just assumed); added observed capacity headroom (1 OCPU/1GB, tight) and a dated note on Oracle's Ampere A1 free-tier reduction; fixed operator-checklist commands missing the `bash` prefix the non-executable script needs |
-| 2026-09-25 | Public Guide/MCP observed on `fracta2:8791`, reached by Caddy on fracta. `fracta` units for `mcp-cogentia` and `cogentia` are disabled. Live CORS authority is the fracta2 systemd drop-in, including `https://suicidecorse.baronsmariani.org` |
+| 2026-09-25 | Public Guide/MCP observed on `fracta2:8791`, reached by Caddy on fracta. `fracta` units for `mcp-cogentia` and `cogentia` are disabled. Live CORS authority is the fracta2 systemd drop-in, including `https://suicidecorse.baronsmariani.org` |\n| 2026-09-27 | Aligned the companion Fractanet topology and Phase 4 examples with the observed `fracta` edge → `fracta2` Guide/MCP hub split. |
