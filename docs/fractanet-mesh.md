@@ -293,7 +293,7 @@ within mandate, without moving the assistant session itself.
 | **Retrieval profile** | `inox.session.v1` — embeddings, Supabase RPC inline |
 | **Blackboard** | `attractor:i7-thinkpad-jhr:retrieval-inline` |
 | **Coding agents** | Full operator stack (Grok, Codex, Claude Code, etc.) on Windows |
-| **Limits** | Offline → fracta Guide needs fallback policy A/B/C; disk space tight |
+| **Limits** | Offline → the production Guide on `fracta2` needs fallback policy A/B/C; disk space tight |
 
 ### `rpi3-view` — edge-kiosk (Paoli)
 
@@ -333,7 +333,7 @@ within mandate, without moving the assistant session itself.
 | `rsync` baseline | required | required | required | required |
 | `inox-serve` / inline retrieval | — | ✓ | — | — |
 | Blackboard heartbeat | aggregate | ✓ | planned | — |
-| Public Guide / Caddy | ✓ | — | — | — |
+| Public Caddy edge (Guide proxied to `fracta2`) | ✓ | — | — | — |
 | Paoli degraded anchor | — | — | ✓ | — |
 | Coding agents (Grok/Codex/Claude) | — | ✓ | — | ✓ |
 | Domotics (local) | — | — | planned | — |
@@ -442,7 +442,7 @@ pwsh -File cogentia/scripts/ops/verify-fractanet-ssh-mesh.ps1 -SkipConnectivity
 | Mesh private key | `~/.ssh/fractanet-mesh` (outbound to other nodes) |
 | SSH client config | `~/.ssh/config` — hosts `thinkpad`, `rpi3-view`, `fracta` |
 | Tailscale | joined via bootstrap auth key (revoked 2026-07-05) |
-| Blackboard routes | Caddy + Guide MCP `/ops/blackboard` (Phase 1) |
+| Blackboard routes | Caddy edge proxies `/ops/blackboard` and related `/ops/*` routes to `mcp-cogentia.service` on `fracta2` (Phase 1 surface). |
 
 ## Linux node roles (corpus + Paoli)
 
@@ -623,13 +623,13 @@ bash ~/fractanet-sync-repos-from-fracta.sh
 
 ## Cogentia / Fractanet services wired over mesh
 
-### Phase 1 — Packet Attractor blackboard (deployed on fracta)
+### Phase 1 — Packet Attractor blackboard (public edge on fracta; live hub on fracta2)
 
 | Item | State |
 |------|-------|
 | Store | `cogentia/scripts/lib/packet-attractor-blackboard.js` |
 | Guide routes | `GET /ops/blackboard`, `POST /ops/blackboard/upsert` |
-| fracta `guide.env` | `COGENTIA_BLACKBOARD_UPSERT_TOKEN`, `COGENTIA_OPS_STATE_DIR` set on node |
+| Runtime authority | Public blackboard routes are served by `mcp-cogentia.service` on `fracta2`; secret values remain node-local and are not recorded here. |
 | Laptop heartbeat | `scripts/ops/attractor-heartbeat.js` → POST upsert every 3 min |
 | Attractor id | `attractor:i7-thinkpad-jhr:retrieval-inline` |
 
@@ -699,11 +699,11 @@ curl -fsS https://cogentia.fractavolta.com/ops/status | jq .
 # Blackboard (raw)
 curl -fsS https://cogentia.fractavolta.com/ops/blackboard | jq .
 
-# inox-serve from fracta (Tailscale IP from private registry)
-ssh fracta 'curl -fsS http://<thinkpad-ts-ip>:8792/health | jq .'
+# inox-serve reachability from the live Guide host (Tailscale IP from private registry)
+ssh fracta2 'curl -fsS http://<thinkpad-ts-ip>:8792/health | jq .'
 
-# fracta stack
-ssh fracta 'sudo /srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stack.sh healthcheck'
+# live Guide hub
+ssh fracta2 'curl -fsS http://127.0.0.1:8791/health | jq .'
 ```
 
 ---
