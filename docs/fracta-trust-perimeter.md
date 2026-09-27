@@ -211,16 +211,16 @@ Document **names** in git; set **values** on the node.
 | `COGENTIA_GUIDE_WEB_SEARCH_API_KEY` | Optional Brave/web search |
 
 When `COGENTIA_INOX_RETRIEVAL_URL` is set, the Guide prefers **`inox-session`**
-(`POST /session/turn`, `inox.session.v1`) over direct Supabase on fracta — see
+(`POST /session/turn`, `inox.session.v1`) over direct Supabase on the Guide runtime host — see
 `cogentia/scripts/lib/retrieval-inox-session.js`.
 
 ## Retrieval backends (evolution)
 
-| Phase | fracta `guide.env` | Where heavy work runs |
-|-------|-------------------|------------------------|
-| 0 | Local daemon batch only | fracta SQLite + local vectors |
-| 1 | `COGENTIA_RETRIEVAL_BACKEND=supabase` + Supabase/OpenAI keys on fracta | Supabase region + OpenAI from fracta |
-| 4 (target) | `COGENTIA_INOX_RETRIEVAL_URL` → capable host; **remove** Supabase/OpenAI from fracta | `inox-serve` on capable host (inline secrets there) |
+| Phase | Guide runtime configuration | Where heavy work runs |
+|-------|-----------------------------|------------------------|
+| 0 (historical, `fracta`) | Local daemon batch only | `fracta` SQLite + local vectors |
+| 1 (historical, `fracta`) | `COGENTIA_RETRIEVAL_BACKEND=supabase` + Supabase/OpenAI keys on `fracta` | Supabase region + OpenAI from `fracta` |
+| 4 (current target, runtime now on `fracta2`) | `COGENTIA_INOX_RETRIEVAL_URL` → capable host; remove direct Supabase/OpenAI secrets from the Guide host when no longer needed | `inox-serve` on capable host (inline secrets there) |
 
 Phase 4 weak-node pattern:
 
@@ -230,12 +230,9 @@ fracta2 Guide MCP --HTTPS session/turn-->  inox-serve (capable host)
                                             Supabase + OpenAI (secrets on capable host only)
 ```
 
-fracta2 may keep **only** `COGENTIA_INOX_RETRIEVAL_URL` and `COGENTIA_INOX_SERVE_TOKEN`
-in `guide.env` — no `SUPABASE_SERVICE_ROLE_KEY` on the 1 GB VPS.
+For the Phase 4 target, `fracta2` should keep only `COGENTIA_INOX_RETRIEVAL_URL` and `COGENTIA_INOX_SERVE_TOKEN` in the Guide runtime configuration when direct Supabase/OpenAI fallback is no longer required.
 
-If `inox-serve` has no inline secrets, it emits **continuations**; fracta can fulfill
-only if local keys exist (split-host mode). Production intent: capable host holds keys,
-fracta sends mandates only.
+If `inox-serve` has no inline secrets, it emits **continuations**; the Guide runtime host can fulfill them only if local keys exist (split-host mode). Production intent: capable host holds keys and `fracta2` sends mandates only.
 
 ## What fracta may hold vs must not
 
