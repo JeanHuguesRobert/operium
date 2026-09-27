@@ -63,7 +63,7 @@ health evidence, and apply procedure are owned by Operium.
 
 ## Observed deployment state & evidence (2026-09-27)
 
-- **Application commit**: `JeanHuguesRobert/FractaVolta@aced4a1`
+- **Application commit**: `JeanHuguesRobert/FractaVolta@84f35da`
 - **Host**: `fracta2` (ARM64, Ubuntu 24.04, Tailscale `100.84.109.87`)
 - **Python venv**: `/srv/cogentia/venvs/fractavolta-sim` (Python 3.12.3)
 - **Dependencies**: `streamlit==1.64.0`, `pandas==3.0.6`, `plotly==7.1.0`
@@ -76,6 +76,7 @@ health evidence, and apply procedure are owned by Operium.
     - Autonomy scenario: `AUTO 0.284` (reduced transport labour, handling/vehicle cost preserved)
     - Towing capacity independence: `TOWING 1800 32000` (kg separated from kWh payload)
     - Retail price & margin: `RETAIL 0.0737 0.3237 0.4116` (delivered-kWh margin increases with retail price; break-even TTC yields zero margin)
+    - User fuel savings: `USER_SAVINGS 9.75 19.5 39.0` (positive monthly savings proportional to monthly mileage for Petit, Moyen, Gros rouleur profiles)
 - **Public edge router**: Caddy on `fracta` (`82.70.234.207`)
   - Route block active within `fracta.fractavolta.com`:
     ```caddyfile
@@ -90,11 +91,12 @@ health evidence, and apply procedure are owned by Operium.
   - Static assets (`./static/js/index.CcFifQPt.js`) -> `200 OK` (`application/javascript`)
   - Streamlit health probe `https://fracta.fractavolta.com/simulateur/_stcore/health` -> `200 OK`
   - Streamlit WebSocket stream `wss://fracta.fractavolta.com/simulateur/_stcore/stream` -> `101 Switching Protocols`
-  - Dynamic page rendering tested via headless Chromium: `<title>FractaVolta — Buffers mobiles</title>`, reactive input sliders, autonomous driving parameter (0–100%), generic light/heavy tractor controls, towing capacity (kg) inputs, client retail price slider, delivered-kWh contributive margin, break-even TTC indicator, and both autonomy & retail price sensitivity curves rendered into DOM
-- **Editorial page**: `https://fractavolta.com/fr/simulateur` verified HTTP 200 OK, including sections on generic tractor classes, autonomous driving scenarios, and client retail price/margin, with direct link to live app.
+  - Dynamic page rendering tested via headless Chromium: `<title>FractaVolta — Buffers mobiles</title>`, reactive input sliders, autonomous driving parameter (0–100%), generic light/heavy tractor controls, towing capacity (kg) inputs, client retail price slider, delivered-kWh contributive margin, break-even TTC indicator, user fuel-savings panel ("Gain usager : passer du thermique à l’électrique" with Petit/Moyen/Gros rouleur profiles and energy-only disclaimer), and sensitivity curves (autonomy, retail price, and user fuel savings according to mileage) rendered into DOM
+- **Editorial page**: `https://fractavolta.com/fr/simulateur` verified HTTP 200 OK, including sections on generic tractor classes, autonomous driving scenarios, client retail price/margin, and durable Corsican structural fuel context with institutional references (Autorité de la concurrence), with direct link to live app.
 - **Regression checks**:
   - `https://fracta.fractavolta.com/` -> `200 OK` ("Fracta node online")
   - `https://fracta.fractavolta.com/oleole/` -> `200 OK` (Olé Olé preview)
+
 
 
 
