@@ -63,7 +63,7 @@ health evidence, and apply procedure are owned by Operium.
 
 ## Observed deployment state & evidence (2026-09-27)
 
-- **Application commit**: `JeanHuguesRobert/FractaVolta@9cfb552`
+- **Application commit**: `JeanHuguesRobert/FractaVolta@6e4cf45`
 - **Host**: `fracta2` (ARM64, Ubuntu 24.04, Tailscale `100.84.109.87`)
 - **Python venv**: `/srv/cogentia/venvs/fractavolta-sim` (Python 3.12.3)
 - **Dependencies**: `streamlit==1.64.0`, `pandas==3.0.6`, `plotly==7.1.0`
@@ -71,25 +71,28 @@ health evidence, and apply procedure are owned by Operium.
   - Active and enabled (`systemctl status fractavolta-mobile-energy-sim` -> `active (running)`)
   - Bound strictly to Tailscale IP: `100.84.109.87:8502`
 - **Model test**:
-  - `python3 test_model.py` executed successfully (`OK`, `0.621` fixed vs `0.343` mobile €/kWh)
+  - `python3 test_model.py` executed successfully:
+    - Baseline: `OK`, `0.621` fixed vs `0.343` mobile €/kWh
+    - Autonomy scenario: `AUTO 0.284` (reduced transport labour, handling/vehicle cost preserved)
+    - Towing capacity independence: `TOWING 1800 32000` (kg separated from kWh payload)
 - **Public edge router**: Caddy on `fracta` (`82.70.234.207`)
-  - Route block added within `fracta.fractavolta.com`:
+  - Route block active within `fracta.fractavolta.com`:
     ```caddyfile
     @fractavolta_sim path /simulateur /simulateur/*
     handle @fractavolta_sim {
         reverse_proxy http://100.84.109.87:8502
     }
     ```
-  - Config validated (`caddy validate`) and reloaded (`systemctl reload caddy`)
 - **Public verification**:
   - HTTP GET `https://fracta.fractavolta.com/simulateur/` -> `200 OK` (Server: uvicorn, Via: 1.1 Caddy)
   - HTTP GET `https://fracta.fractavolta.com/simulateur` -> `307 Temporary Redirect` -> `308 Permanent Redirect` -> `200 OK`
   - Static assets (`./static/js/index.CcFifQPt.js`) -> `200 OK` (`application/javascript`)
   - Streamlit health probe `https://fracta.fractavolta.com/simulateur/_stcore/health` -> `200 OK`
   - Streamlit WebSocket stream `wss://fracta.fractavolta.com/simulateur/_stcore/stream` -> `101 Switching Protocols`
-  - Dynamic page rendering tested via headless Chromium: `<title>FractaVolta — Buffers mobiles</title>`, reactive input sliders and control panels rendered into DOM
-- **Editorial page**: `https://fractavolta.com/fr/simulateur` verified HTTP 200 OK and contains direct link to the live simulator.
+  - Dynamic page rendering tested via headless Chromium: `<title>FractaVolta — Buffers mobiles</title>`, reactive input sliders, autonomous driving parameter (0–100%), generic light/heavy tractor controls, towing capacity (kg) inputs, and autonomy sensitivity curve rendered into DOM
+- **Editorial page**: `https://fractavolta.com/fr/simulateur` verified HTTP 200 OK, including sections on generic tractor classes and autonomous driving scenarios, with direct link to live app.
 - **Regression checks**:
   - `https://fracta.fractavolta.com/` -> `200 OK` ("Fracta node online")
   - `https://fracta.fractavolta.com/oleole/` -> `200 OK` (Olé Olé preview)
+
 
