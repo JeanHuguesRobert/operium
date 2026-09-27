@@ -3,7 +3,7 @@ title: "Fractanet mesh — Tailscale and SSH (July 2026)"
 description: "Operational record of the virteal tailnet, bidirectional SSH mesh, capable-host wiring, and Packet Attractor Phase 1 on fracta."
 layout: default
 date: 2026-07-04
-last_modified_at: 2026-07-26
+last_modified_at: 2026-09-27
 license: Apache-2.0
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/docs/fractanet-mesh.md
 document_role: "operational"
@@ -244,8 +244,8 @@ When the phone is offline or Termux is killed, **ThinkPad and Pi lose WAN** unle
 | **WAN** | Independent public IP; Caddy + `fractavolta.com` |
 | **Corpus** | Publisher: `/srv/cogentia/repos` ~3.1 G, 17 repos; build index, sync `cogentia-public` |
 | **SSH mesh** | Ubuntu `sshd` :22; `fractanet-mesh` inbound + outbound; survives reboot |
-| **Cogentia services** | Guide MCP :8791, Phase 1 blackboard (`/ops/blackboard`), ops dashboard |
-| **Retrieval** | Static `guide.env` → ThinkPad `inox-serve` over Tailscale (Phase 4 bootstrap) |
+| **Cogentia services** | Public Guide/MCP no longer runs locally: since 2026-09-23 `mcp-cogentia.service` is disabled/inactive here; `fracta` remains the public Caddy edge and proxies Guide/MCP traffic to `fracta2`:8791. |
+| **Retrieval** | No live public Guide retrieval path runs on `fracta`; the production Guide runtime and its retrieval path are on `fracta2`. |
 | **Coding agents** | Server-side Node tooling only; not an operator dev workstation |
 | **Limits** | No `inox-serve` locally; Supabase keys may remain as transitional fallback; not a capable retrieval host |
 
@@ -667,7 +667,7 @@ See [operium-cli.md](operium-cli.md) for `operium.up.v1` schema and exit codes.
 
 ## Ops dashboard
 
-Browser UI on the fracta Guide MCP (public HTTPS):
+Browser UI on the public Guide surface (HTTPS enters through `fracta` Caddy and is served by `mcp-cogentia.service` on `fracta2`):
 
 | URL | Role |
 |-----|------|
