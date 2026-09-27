@@ -635,19 +635,19 @@ bash ~/fractanet-sync-repos-from-fracta.sh
 
 Tests: `pnpm test:blackboard` in cogentia repo.
 
-### Phase 4 bootstrap — inox-serve over Tailscale (deployed)
+### Phase 4 bootstrap — inox-serve over Tailscale
 
 | Item | State |
 |------|-------|
 | Capable host | `i7-thinkpad-jhr`, `inox-serve` on `0.0.0.0:8792` |
-| fracta `guide.env` | `COGENTIA_INOX_RETRIEVAL_URL=http://<thinkpad-tailscale-ip>:8792`, `COGENTIA_INOX_SERVE_TOKEN` set |
-| Reachability | fracta → laptop health OK over tailnet |
+| Guide runtime host | Production Guide/MCP moved from `fracta` to `fracta2` on 2026-09-23; runtime retrieval configuration belongs with the live Guide host. |
+| Bootstrap evidence | `fracta` → laptop health was verified during the original bootstrap. Revalidate `fracta2` → laptop reachability before treating the old probe as current evidence. |
 
 **Not yet done:** Guide **dynamic** routing from blackboard snapshot before `session/turn` (Phase 2). Startup still uses static `resolveGuideRetrievalBackend()`.
 
 ### Fallback policy when laptop offline
 
-Still **open** — see [resumption handoff](../research/fractanet-resumption-2026-07.md). Supabase keys may still be present on fracta as transitional fallback (option A).
+Still **open** — see [resumption handoff](../research/fractanet-resumption-2026-07.md). Any transitional Supabase fallback now belongs to the live Guide host (`fracta2`), not the stopped Guide units on `fracta`; verify actual runtime secrets before relying on it.
 
 ---
 
