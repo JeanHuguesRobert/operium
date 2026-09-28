@@ -63,7 +63,7 @@ health evidence, and apply procedure are owned by Operium.
 
 ## Observed deployment state & evidence (2026-09-28)
 
-- **Application commit**: `JeanHuguesRobert/FractaVolta@f1f63c1`
+- **Application commit**: `JeanHuguesRobert/FractaVolta@9536b51`
 - **Host**: `fracta2` (ARM64, Ubuntu 24.04, Tailscale `100.84.109.87`)
 - **Python venv**: `/srv/cogentia/venvs/fractavolta-sim` (Python 3.12.3)
 - **Dependencies**: `streamlit==1.64.0`, `pandas==3.0.6`, `plotly==7.1.0`
@@ -78,12 +78,18 @@ health evidence, and apply procedure are owned by Operium.
     - Retail price & margin: `RETAIL -0.0591 0.1909 0.5709` (delivered-kWh margin increases with retail price; break-even TTC yields zero margin at 0.571 €/kWh)
     - User fuel savings: `USER_SAVINGS 9.75 19.5 39.0` (positive monthly savings proportional to monthly mileage for Petit, Moyen, Gros rouleur profiles)
     - Corsica GIS & Register: `CORSICA_GIS_OK 64.6 km 742 producers 233.1 MWc`
+    - Fleet Sizing & HTA buffering: `FLEET_SIZING_OK 2 containers 4 light 1 heavy`
+- **Register-to-Simulation Bridge (Option 1)**:
+  - Dynamic scale selector: 12 MVP pilot sites, Seconde Vie Imminente ≤ 2030 (61 sites / 24.1 MWc), Court terme 2031–2035 (145 sites / 99.9 MWc), Total Seconde Vie ≤ 2035 (206 sites / 124.1 MWc), utility-scale HTA solar farms (34 sites / 154.6 MWc), regional basins (Plaine Orientale, Ajaccio, Bastia, Corte), or custom filtered subsets.
+  - Interactive "Simuler cette sélection" action in the Register tab to inject filtered criteria directly into the simulation engine.
+  - Macro fleet dimensioning: automatic computation of required 3 MWh storage containers, heavy tractor shifts, light capillary tractor shifts, and avoided fossil CO2 emissions.
+  - Physical HTA direct buffering vs BT capillary aggregation: utility-scale solar farms host 3 MWh swap bodies on site (0 light km), while BT distributed sites use light capillary rotations.
 - **GIS & Cartography**:
   - OpenStreetMap base map (`Scattermap` with `open-street-map` style, centered on Corte).
   - 3 primary road corridors: T20 (Ajaccio–Corte–Bastia), T10 (Bastia–Aléria–Porto-Vecchio), T50 (Corte–Aléria).
   - 4 urban hubs and fast-charging stations: Bastia, Corte, Ajaccio, Porto-Vecchio.
   - 4 regional mobile buffer positions: Casamozza, Mezzavia, Corte, Cateraggio / Aléria.
-  - Multi-layer display: modelled MVP producers (12 sites), utility-scale HTA solar plants (34 parks), or complete solar registry (742 sites).
+  - Dynamic map display synced to the active simulation scope (highlighting simulated solar sites and transport corridors).
 - **Official EDF Solar Producers Register**:
   - Dataset: 742 installations (233.1 MWc) selling to EDF-SEI in Corsica from ODRÉ national open data registry.
   - Seconde Vie contract expiration horizons computed (commissioning + 20 years):
