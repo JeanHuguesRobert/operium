@@ -61,9 +61,9 @@ health evidence, and apply procedure are owned by Operium.
 - unrelated `fracta.fractavolta.com` paths are unchanged;
 - `fracta` and `fracta2` remain within safe memory headroom.
 
-## Observed deployment state & evidence (2026-09-27)
+## Observed deployment state & evidence (2026-09-28)
 
-- **Application commit**: `JeanHuguesRobert/FractaVolta@84f35da`
+- **Application commit**: `JeanHuguesRobert/FractaVolta@f1f63c1`
 - **Host**: `fracta2` (ARM64, Ubuntu 24.04, Tailscale `100.84.109.87`)
 - **Python venv**: `/srv/cogentia/venvs/fractavolta-sim` (Python 3.12.3)
 - **Dependencies**: `streamlit==1.64.0`, `pandas==3.0.6`, `plotly==7.1.0`
@@ -72,11 +72,26 @@ health evidence, and apply procedure are owned by Operium.
   - Bound strictly to Tailscale IP: `100.84.109.87:8502`
 - **Model test**:
   - `python3 test_model.py` executed successfully:
-    - Baseline: `OK`, `0.621` fixed vs `0.343` mobile €/kWh
-    - Autonomy scenario: `AUTO 0.284` (reduced transport labour, handling/vehicle cost preserved)
+    - Baseline: `OK`, `0.9428` fixed vs `0.4757` mobile €/kWh (683.7 km light tractor vs 2,293.8 km)
+    - Autonomy scenario: `AUTO 0.3249` (reduced transport labour, handling/vehicle cost preserved)
     - Towing capacity independence: `TOWING 1800 32000` (kg separated from kWh payload)
-    - Retail price & margin: `RETAIL 0.0737 0.3237 0.4116` (delivered-kWh margin increases with retail price; break-even TTC yields zero margin)
+    - Retail price & margin: `RETAIL -0.0591 0.1909 0.5709` (delivered-kWh margin increases with retail price; break-even TTC yields zero margin at 0.571 €/kWh)
     - User fuel savings: `USER_SAVINGS 9.75 19.5 39.0` (positive monthly savings proportional to monthly mileage for Petit, Moyen, Gros rouleur profiles)
+    - Corsica GIS & Register: `CORSICA_GIS_OK 64.6 km 742 producers 233.1 MWc`
+- **GIS & Cartography**:
+  - OpenStreetMap base map (`Scattermap` with `open-street-map` style, centered on Corte).
+  - 3 primary road corridors: T20 (Ajaccio–Corte–Bastia), T10 (Bastia–Aléria–Porto-Vecchio), T50 (Corte–Aléria).
+  - 4 urban hubs and fast-charging stations: Bastia, Corte, Ajaccio, Porto-Vecchio.
+  - 4 regional mobile buffer positions: Casamozza, Mezzavia, Corte, Cateraggio / Aléria.
+  - Multi-layer display: modelled MVP producers (12 sites), utility-scale HTA solar plants (34 parks), or complete solar registry (742 sites).
+- **Official EDF Solar Producers Register**:
+  - Dataset: 742 installations (233.1 MWc) selling to EDF-SEI in Corsica from ODRÉ national open data registry.
+  - Seconde Vie contract expiration horizons computed (commissioning + 20 years):
+    - ≤ 2030 (imminent): 24.1 MWc (61 sites)
+    - 2031–2035 (court terme): 99.9 MWc (145 sites)
+    - Total Seconde Vie potential by 2035: 124.1 MWc (53.2 % of Corsican solar fleet)
+  - Interactive multi-criteria filters: Bassin / Hub, Tension (HTA vs BT), Horizon Seconde Vie, and full-text commune search.
+  - One-click CSV export of filtered register (`registre_producteurs_edf_corse.csv`).
 - **Public edge router**: Caddy on `fracta` (`82.70.234.207`)
   - Route block active within `fracta.fractavolta.com`:
     ```caddyfile
@@ -90,9 +105,8 @@ health evidence, and apply procedure are owned by Operium.
   - HTTP GET `https://fracta.fractavolta.com/simulateur` -> `307 Temporary Redirect` -> `308 Permanent Redirect` -> `200 OK`
   - Static assets (`./static/js/index.CcFifQPt.js`) -> `200 OK` (`application/javascript`)
   - Streamlit health probe `https://fracta.fractavolta.com/simulateur/_stcore/health` -> `200 OK`
-  - Streamlit WebSocket stream `wss://fracta.fractavolta.com/simulateur/_stcore/stream` -> `101 Switching Protocols`
-  - Dynamic page rendering tested via headless Chromium: `<title>FractaVolta — Buffers mobiles</title>`, reactive input sliders, autonomous driving parameter (0–100%), generic light/heavy tractor controls, towing capacity (kg) inputs, client retail price slider, delivered-kWh contributive margin, break-even TTC indicator, user fuel-savings panel ("Gain usager : passer du thermique à l’électrique" with Petit/Moyen/Gros rouleur profiles and energy-only disclaimer), and sensitivity curves (autonomy, retail price, and user fuel savings according to mileage) rendered into DOM
-- **Editorial page**: `https://fractavolta.com/fr/simulateur` verified HTTP 200 OK, including sections on generic tractor classes, autonomous driving scenarios, client retail price/margin, and durable Corsican structural fuel context with institutional references (Autorité de la concurrence), with direct link to live app.
+  - Streamlit host config `https://fracta.fractavolta.com/simulateur/_stcore/host-config` -> `200 OK`
+- **Editorial page**: `https://fractavolta.com/fr/simulateur` verified HTTP 200 OK, with direct link to live app.
 - **Regression checks**:
   - `https://fracta.fractavolta.com/` -> `200 OK` ("Fracta node online")
   - `https://fracta.fractavolta.com/oleole/` -> `200 OK` (Olé Olé preview)
