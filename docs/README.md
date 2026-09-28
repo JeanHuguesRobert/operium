@@ -23,6 +23,7 @@ review:
 This directory contains Operium documentation.
 
 - [Fracta2 GitHub SSH and static release](fracta2-github-static-release.md) — account-key boundary, atomic release promotion, and COP practice gaps
+- [Suicide Corse preview gateway](suicide-corse-preview-gateway.md) — public preview topology; production render host is fracta2
 - [Fix Bugs First](fix-bugs-first.md) — Bug/Feature tracking + feature gate when out of control
 - [Termux tmux handoff](termux-tmux-handoff.md) — bounded human-authorized relay into a named mobile terminal session
 - `profiles/tools.termux-android.v1.yaml` / `scripts/ops/publish-inseme-env-to-termux.ps1` — Android coding-node state and authority refresh

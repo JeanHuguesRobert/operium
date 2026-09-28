@@ -4,7 +4,7 @@ description: Secret-safe operating procedure for Fracta2 GitHub authentication a
 layout: default
 nav_order: 17
 date: '2026-09-18'
-last_modified_at: '2026-09-18'
+last_modified_at: '2026-09-28'
 license: CC BY-SA 4.0
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/docs/fracta2-github-static-release.md
 document_role: operational
@@ -97,7 +97,11 @@ before comparing the checkout with its upstream.
 ## Atomic static-release promotion
 
 This procedure applies when a generated artifact repository is rendered on
-Fracta2 and served by a root-owned static directory.
+Fracta2 and served by a root-owned static directory. Suicide Corse preview
+production runs on Fracta2. The host rule and the 2026-09-28 toolchain
+observation are in
+[the preview gateway note](suicide-corse-preview-gateway.md). An operator
+workstation is not the production render host.
 
 1. Confirm the source commit, artifact commit, publication status, and expected
    output files. A rendered artifact must be committed and pushed before it is

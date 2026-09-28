@@ -6,6 +6,7 @@ document_kind: configuration-contract
 visibility: public
 lifecycle_state: active
 date: '2026-09-17'
+last_modified_at: '2026-09-28'
 related:
   - fractavolta-caddy-contract.md
   - fractanet-mesh.md
@@ -61,7 +62,69 @@ HTTP is confined to the mesh; TLS is terminated by Fracta. This reuses the
 existing public-gateway pattern and avoids widening Fracta2's Internet exposure.
 
 The static artifact repository is `JeanHuguesRobert/suicide-corse`. The source
-Corpus remains separate in `JeanHuguesRobert/barons-Mariani`.
+Corpus remains separate in `JeanHuguesRobert/barons-Mariani`. The renderer is
+`JeanHuguesRobert/ubikia`.
+
+## Production render host
+
+On 2026-09-28 the principal stated that Suicide Corse preview production is
+done on fracta2. This was recorded while resuming
+`JeanHuguesRobert/barons-Mariani` issue 89, whose packet otherwise reads as if
+any POSIX host with the three sibling checkouts could render. Operium is the
+operational record of the host. Do not treat an operator workstation as a
+substitute production machine.
+
+Production here means the draft render: HTML, PDF, and EPUB from a Corpus
+projection. It does not mean editorial freeze, a commit in the artifact
+repository, or promotion of the public release pointer.
+
+Run that render on fracta2 from clean sibling checkouts:
+
+```text
+/srv/cogentia/repos/ubikia
+/srv/cogentia/repos/barons-Mariani
+/srv/cogentia/repos/suicide-corse
+```
+
+The renderer contract remains Ubikia
+`docs/suicide-corse-preview-publication.md` and
+`scripts/publish-suicide-corse-preview.sh`. A dry run validates a draft and
+deletes its temporary directory. It does not pull, apply, commit, or push.
+`--apply`, `--commit`, `--push`, replacement of `editions/`, and promotion of
+the fracta2 `current` symlink each require a separate explicit authorization.
+Promotion follows
+[the Fracta2 static release procedure](fracta2-github-static-release.md).
+
+### Observed toolchain — 2026-09-28
+
+| Piece | Observation |
+|---|---|
+| Quarto | 1.10.18 at `/usr/local/bin/quarto` |
+| TeX | TinyTeX is installed. `xelatex` is at `/home/ubuntu/.TinyTeX/bin/aarch64-linux/xelatex` and was not on the default login `PATH`. |
+| Checkouts | The three paths above exist. |
+
+This confirms the production toolchain. It is not a completed n°3 render, and
+it does not authorize one.
+
+### Clean-tree constraint
+
+The preview script refuses a checkout with tracked or untracked changes. On
+2026-09-28 the long-lived fracta2 checkouts were not a clean render base, and
+they were left unchanged:
+
+- `barons-Mariani` was at `f41942c`, 49 commits behind GitHub `main`
+  `459b8007a86874a988c19cd18b847031e480d9d0`, with unrelated tracked
+  modifications. Its stored upstream ref was not fetched during this
+  inspection.
+- `ubikia` was at `411d20f`, with unrelated tracked modifications.
+- `suicide-corse` was clean at `18ebd3c`.
+
+Do not reset, stash, or discard that residue to satisfy the script. A
+verification render needs a separate clean tree. None was created in this
+inspection.
+
+The Windows workstation used for the same resume had Node, and did not have
+Quarto or TeX on `PATH`. That absence is expected.
 
 ## DNS and vhost invariant
 
@@ -78,8 +141,10 @@ back to HTTPS.
 
 For an artifact refresh:
 
-1. Start with clean, recorded revisions of both the Corpus and renderer. From
-   the `ubikia` checkout, render a new output directory explicitly:
+1. On fracta2, start from clean, recorded revisions of the Corpus and the
+   renderer. Do not reuse a long-lived checkout that still carries unrelated
+   residue. From that clean `ubikia` checkout, render a new output directory
+   explicitly:
 
    ```bash
    npm run render -- --corpus ../barons-Mariani/projects/suicide-corse/corpus.yml --projection ../barons-Mariani/projects/suicide-corse/projections/book-2026-09-17-anniversaire.yml --output /path/to/new-render
