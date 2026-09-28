@@ -63,7 +63,7 @@ health evidence, and apply procedure are owned by Operium.
 
 ## Observed deployment state & evidence (2026-09-28)
 
-- **Application commit**: `JeanHuguesRobert/FractaVolta@9536b51`
+- **Application commit**: `JeanHuguesRobert/FractaVolta@e854aa4`
 - **Host**: `fracta2` (ARM64, Ubuntu 24.04, Tailscale `100.84.109.87`)
 - **Python venv**: `/srv/cogentia/venvs/fractavolta-sim` (Python 3.12.3)
 - **Dependencies**: `streamlit==1.64.0`, `pandas==3.0.6`, `plotly==7.1.0`
@@ -79,6 +79,12 @@ health evidence, and apply procedure are owned by Operium.
     - User fuel savings: `USER_SAVINGS 9.75 19.5 39.0` (positive monthly savings proportional to monthly mileage for Petit, Moyen, Gros rouleur profiles)
     - Corsica GIS & Register: `CORSICA_GIS_OK 64.6 km 742 producers 233.1 MWc`
     - Fleet Sizing & HTA buffering: `FLEET_SIZING_OK 2 containers 4 light 1 heavy`
+- **Solar Curtailment & System Flexibility Modeling**:
+  - Quantifies fatal solar energy saved from curtailment caused by Corsica's 35% instantaneous renewable penetration cap.
+  - Thermal fossil fuel avoided at EDF-SEI power plants (Lucciana in Bastia, Vazzio in Ajaccio) at 0.18–0.35 €/kWh thermal marginal cost.
+  - Flexibility remuneration modeled (+0.04 €/kWh default tariff paid to FractaVolta for grid stabilization and peak shaving).
+  - 3-row KPI dashboard in Streamlit UI: fatal solar saved (kWh/d), thermal fuel saved (€/d & k€/yr), fuel liters avoided, and boosted contributive margin.
+  - Hourly load-shifting profile (11h–15h solar peak absorption vs 18h–23h evening fast-charging discharge).
 - **Register-to-Simulation Bridge (Option 1)**:
   - Dynamic scale selector: 12 MVP pilot sites, Seconde Vie Imminente ≤ 2030 (61 sites / 24.1 MWc), Court terme 2031–2035 (145 sites / 99.9 MWc), Total Seconde Vie ≤ 2035 (206 sites / 124.1 MWc), utility-scale HTA solar farms (34 sites / 154.6 MWc), regional basins (Plaine Orientale, Ajaccio, Bastia, Corte), or custom filtered subsets.
   - Interactive "Simuler cette sélection" action in the Register tab to inject filtered criteria directly into the simulation engine.
