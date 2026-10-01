@@ -21,6 +21,7 @@ else
 fi
 
 FRACTA="$(probe_host fracta)"
+FRACTA2="$(probe_host fracta2)"
 WORKSTATION="$(probe_host i7-thinkpad-jhr)"
 PHONE="$(probe_host poco-jhr)"
 GENERATED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -35,6 +36,7 @@ cat >"$TEMP" <<EOF
   },
   "nodes": {
     "fracta": $FRACTA,
+    "fracta2": $FRACTA2,
     "workstation": $WORKSTATION,
     "phone": $PHONE,
     "rpi3_view": true
