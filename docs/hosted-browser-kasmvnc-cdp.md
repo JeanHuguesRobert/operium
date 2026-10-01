@@ -76,11 +76,84 @@ Default isolation is **one person / one Unix workspace / one write-capable KasmV
 
 ### What the public password prompt is
 
-Observed 2026-09-03: `https://browser.fractavolta.com/` returns **HTTP 401** `WWW-Authenticate: Basic realm="Websockify"` behind two Caddy hops. That prompt is **KasmVNC HTTP Basic** from the workspace `~/.kasmpasswd` file. It is not Unix `login(1)` and not Cogentia.
+Observed 2026-09-03: `https://browser.fractavolta.com/` returns **HTTP 401** `WWW-Authenticate: Basic realm="Websockify"` behind two Caddy hops. After the lab password moved to `sesame`, the public hop rewrites the realm to `sesame` so a normal browser window does not keep sending the old Websockify credentials. `/hint` is an unauthenticated reminder page. Close every tab to that origin, then reopen; a private window is not required. That prompt is **KasmVNC HTTP Basic** from the workspace `~/.kasmpasswd` file. It is not Unix `login(1)` and not Cogentia.
 
 Temporary lab password (issue #25, until a later auth scheme): for Gmail `uuuu@gmail.com` the Websockify username is `uuuu` and the password is `sesame-uuuu`. This is the same *family* as other Operium lab sesames. It is **not a security boundary**. Anyone who knows the Gmail local part can derive the password. Do not treat the public hostname as protected by this prompt. Google sign-in inside Chrome is a separate human step and is not this password.
 
-Display `N` binds KasmVNC HTTP/WebSocket to `127.0.0.1:(8443+N)`, Chrome CDP to `127.0.0.1:(9222+N)`, optional RFB to `127.0.0.1:(5900+N)`. Display `:1` is therefore `:8444` / `:9223` / `:5901`. Only a chosen KasmVNC HTTP port may be published; RFB and CDP stay off the public Internet.
+Display `N` binds KasmVNC HTTP/WebSocket to `127.0.0.1:(8443+N)`, Chrome CDP to `127.0.0.1:(9222+N)`, Kasm native RFB to `127.0.0.1:(5900+N)`. Optional **x11vnc** for a classic viewer must use another port (`HOSTED_BROWSER_RFB_PORT`, default `5910+N`) and must not pass `-noxdamage`/`-noxfixes` (that freezes the Kasm view). Display `:1` is `:8444` / `:9223` / Kasm RFB `:5901` / x11vnc `:5911`. Websockify login is the lab sesame (`uuuu` / `sesame-uuuu`). After HTTP Basic succeeds, the Kasm **websocket still does VNC `VncAuth` against `~/.vnc/passwd`**. That file is DES-truncated to 8 characters; it must match the sesame (`sesame-jeanhuguesrobert` → `sesame-j`) or the UI shows a blue screen: « La connexion a été rejetée … Authentication failure ». A dedicated classic-VNC password that overwrites `~/.vnc/passwd` breaks the web client. x11vnc on `5910+N` can use the same file, or a separate `passwd.classic`, but Kasm’s `rfbauth` must stay sesame-compatible. Only a chosen KasmVNC HTTP port may be published.
+
+### Session mode vs assurance (issue #49)
+
+The X session is a **Hosted Workspace**. Chrome is an application, not the session process.
+
+| Knob | Values | Role |
+|------|--------|------|
+| `HOSTED_SESSION` | `kiosk` (default) or `desktop` | Kiosk: Chrome only, restart on exit with cooldown. Desktop: Openbox is the session; right-click menu Chrome / terminal / restart Chrome / logout. |
+| `HOSTED_ASSURANCE` | `lab-sesame` (now), `mesh-session`, `future-idp` | How strongly we believe the person at the prompt. Future auth **opens** capacities; it does not rewrite the launcher. |
+
+Fail closed (`scripts/ops/hosted-workspace-policy.sh`):
+
+- `desktop` on `lab-sesame` + public bind is refused unless `HOSTED_ASSURANCE_WAIVER=principal-lab`.
+- Host admin / sudo on the Chrome UID is never a workspace capacity.
+- Lowering assurance must close desktop again (re-run configure).
+
+```bash
+sudo scripts/ops/configure-hosted-browser-workspace.sh \
+  --unix hosted-someone --session kiosk --dry-run
+sudo scripts/ops/configure-hosted-browser-workspace.sh \
+  --unix hosted-jeanhuguesrobert --session desktop --bind public \
+  --assurance lab-sesame --waiver principal-lab --restart
+```
+
+New workspaces provision as kiosk. Do not grant desktop to a regular user on the public sesame prompt.
+
+The browser process is supervised (`supervise-hosted-browser.sh`): each start/exit is logged to `~/.hosted-browser/supervisor.log` (UTC timestamp, binary, exit code, duration, crash streak, next sleep). Short-lived exits back off (`cooldown * min(streak, 8)`). A run longer than `HOSTED_BROWSER_HEALTHY_SECONDS` (default 45) resets the streak. After `HOSTED_BROWSER_MAX_CRASH_STREAK` consecutive crashes (default 5) the supervisor **stops** and leaves Openbox; it does not loop forever. Singleton lock files are cleared on each start by default (`HOSTED_BROWSER_CLEAR_LOCKS=always`). After a clean or requested exit the supervisor also marks the profile as a normal shutdown. The executable is `HOSTED_BROWSER_BINARY` if set and executable, otherwise Brave then Chromium. Google Chrome is not selected on this FractaNode.
+
+Read the loop: `sudo tail -f /home/<unix>/.hosted-browser/supervisor.log`.
+
+**Relancer le navigateur** must not start a second supervisor on the same profile. It asks Brave to quit via CDP `Browser.close` (normal profile exit), waits until CDP is down, and only then SIGTERM / SIGKILL. After the process is gone it writes `profile.exit_type=Normal` so the next launch does not show “Something went wrong when opening your profile”. Locks are cleared only after a kill. SIGTERM/clean CDP exit is not a crash streak.
+
+Desktop workspaces may launch **Visual Studio Code Insiders** (`code-insiders`) from the Openbox menu. Install with `scripts/ops/install-vscode-insiders.sh` (Microsoft apt repo, amd64/arm64). It is not part of kiosk mode. Flags `--disable-gpu --ozone-platform=x11` match the KasmVNC X session.
+
+Desktop Openbox stays the window manager (no extra DE). The workspace menu is the FractaNode set: terminals (Terminator / Zellij / Tilix), hosted browser, Relancer, VS Code Insiders, PCManFM, **Fenêtres** (`client-list-combined-menu` so a minimized window can be restored), Santé & Fractanet, Logout.
+
+Input is chosen so a Windows (or local-browser) client keeps its own keys:
+
+| Gesture | Hosted session |
+| --- | --- |
+| **Alt+Tab** | Left to the local OS (Windows). Not bound as the hosted switcher. |
+| **Ctrl+Alt+Up / Down** | Next / previous remote window (including iconified). |
+| **Ctrl+Alt+Space** | Remote window list. |
+| **Ctrl+Alt+M** (or the Menu key) | Workspace menu even when Brave covers the desktop. |
+| **Left click** on a window | Focus / raise; drag the titlebar; iconify / maximize / close buttons. |
+| **Left click** on empty desktop | Click away (focus the root). **Double left-click** opens the workspace menu. |
+| **Right click** on empty desktop | Workspace menu (same as Ctrl+Alt+M). Inside an app it stays that app’s menu — that is the collision. |
+| **Middle click** on empty desktop | Window list. |
+
+**Logout** must kill KasmVNC (`logout-hosted-session.sh` / `vncserver -kill`), not Openbox `Exit` — otherwise the X display stays up black and reconnect never returns to the Websockify login (`uuuu` / `sesame-uuuu`). The systemd unit is `Restart=always` so a fresh KasmVNC is listening for that login. The node default menu is `/etc/xdg/openbox/menu.xml` (`openbox-fractanode-menu.xml`).
+
+### Hosted coding workspace (same person, not a copy of `C:\tweesic`)
+
+Do not rsync the Windows tree. The Hosted Unix user (`hosted-<uuuu>`) already has Git, Node 22, and VS Code Insiders, but **no sudo**. Bootstrap a user-space checkout:
+
+```bash
+sudo scripts/ops/bootstrap-hosted-dev-workspace.sh \
+  --unix hosted-jeanhuguesrobert --repo cogentia --dry-run
+sudo scripts/ops/bootstrap-hosted-dev-workspace.sh \
+  --unix hosted-jeanhuguesrobert --repo cogentia --with-install
+```
+
+That writes `~/src/cogentia`, `~/.config/hosted-dev/env` (`CDP_ENDPOINT=http://127.0.0.1:9223`, assistant port `8765`), and a user npm prefix. Secrets stay out. The ubuntu `/srv/cogentia/repos` tree remains the ops checkout, not this person’s desktop.
+
+From a Terminator in the hosted desktop:
+
+```bash
+cd ~/src/cogentia
+. ~/.config/hosted-dev/profile.sh
+node scripts/ops/navigation-assistant-tui.js
+```
+
+Hosted Brave loads `~/src/cogentia/browser-extension` (`HOSTED_BROWSER_LOAD_EXTENSION`). That extension initiates a WebSocket to a **gateway** on fracta2 (`127.0.0.1:8776/extension` plus the Tailscale address). The operator TUI on the workstation still serves the **local** extension on `:8765` and, with `NAV_ASSIST_GATEWAY`, also talks to the hosted extension through the gateway. Bind is loopback + Tailscale only. `[l]` / `[h]` select local vs hosted. Tab URLs stay redacted unless `NAV_ASSIST_SHOW_LOCATION=1`.
 
 ### Generic workspace provisioning
 

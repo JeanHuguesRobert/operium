@@ -176,8 +176,16 @@ fi
 
 tmp_env="$(mktemp)"
 trap 'rm -f "$tmp_env"' EXIT
-printf 'HOSTED_BROWSER_DISPLAY=%s\nHOSTED_BROWSER_START_URL=%s\nHOSTED_BROWSER_RFB_PORT=%s\n' \
-  "$display" "$start_url" "$rfb_port" > "$tmp_env"
+printf '%s\n' \
+  "HOSTED_BROWSER_DISPLAY=${display}" \
+  "HOSTED_BROWSER_START_URL=${start_url}" \
+  "HOSTED_BROWSER_RFB_PORT=${rfb_port}" \
+  "HOSTED_SESSION=kiosk" \
+  "HOSTED_ASSURANCE=lab-sesame" \
+  "HOSTED_BIND=public" \
+  "HOSTED_ASSURANCE_WAIVER=none" \
+  "HOSTED_CHROME_RESTART=on-exit" \
+  "HOSTED_CHROME_COOLDOWN_SECONDS=5" > "$tmp_env"
 install -o root -g root -m 0640 "$tmp_env" "$env_file"
 
 systemctl daemon-reload
