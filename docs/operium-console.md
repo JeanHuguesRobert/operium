@@ -87,13 +87,19 @@ node scripts/cogentia.js dashboard refresh --json
 
 The command reads current public GitHub issues and Operium's `main` backlog.
 It leaves the snapshot timestamp and files unchanged when the source content
-has not changed. `--dry-run` reports files that would change. Commit and push
-the generated files separately, then publish the three views:
+has not changed. By default, the command also publishes changed Markdown, JSON,
+and HTML views to Fracta. A local ignored receipt records source and per-view
+artifact fingerprints after successful transfers, so an unchanged run transfers
+nothing and a partial change transfers only affected views. If publication
+partially fails, the command returns a failure and the next run retries views
+whose fingerprints were not recorded. Use `--dry-run` to preview file changes
+and publication, `--local-only` to refresh without publishing, or
+`--force-publish` to repair or repeat publication of all three views. Commit
+and push the generated tracked snapshot to retain its source history.
 
 ```text
-node scripts/cogentia.js publish push fix-bugs-first-dashboard
-node scripts/cogentia.js publish push fix-bugs-first-dashboard-html
-node scripts/cogentia.js publish push fix-bugs-first-dashboard-json
+node scripts/cogentia.js dashboard refresh --dry-run
+node scripts/cogentia.js dashboard refresh
 ```
 
 ## Private work boundary
