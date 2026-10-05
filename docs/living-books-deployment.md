@@ -55,7 +55,7 @@ In accordance with Cogentia/Operium doctrine:
 | 4 | `commons` | `commons.acorsica.org` | `acorsica.org` | `CNAME commons -> fracta.fractavolta.com` | `fracta2:/srv/www/commons/current` | **LIVE (Active)** |
 | 5 | `privai` | `privai.acorsica.org` | `acorsica.org` | `CNAME privai -> fracta.fractavolta.com` | `fracta2:/srv/www/privai/current` | **LIVE (Active)** |
 | 6 | `1755` | `1755.acorsica.org` | `acorsica.org` | `CNAME 1755 -> fracta.fractavolta.com` | `fracta2:/srv/www/1755/current` | **LIVE (Active)** |
-| 7 | `capable` | `capable.acorsica.org` | `acorsica.org` | `CNAME capable -> fracta.fractavolta.com` | `fracta2:/srv/www/capable/current` | **LIVE (Active)** |
+| 7 | `capable` | `capable.lepp.fr` *(alias `capable.acorsica.org`)* | `lepp.fr` *(and `acorsica.org`)* | `CNAME capable -> fracta.fractavolta.com` | `fracta2:/srv/www/capable/current` | **LIVE (Active)** |
 | 8 | `napoleon` | `napoleon.acorsica.org` | `acorsica.org` | `CNAME napoleon -> fracta.fractavolta.com` | `fracta2:/srv/www/napoleon/current` | **LIVE (Active)** |
 | 9 | `diaspora` | `diaspora.acorsica.org` | `acorsica.org` | `CNAME diaspora -> fracta.fractavolta.com` | `fracta2:/srv/www/diaspora/current` | **LIVE (Active)** |
 | 10 | `suicide-corse` | `suicidecorse.baronsmariani.org` | `baronsmariani.org` | `CNAME suicidecorse -> fracta.fractavolta.com` | `fracta2:/srv/www/suicidecorse/current` | **LIVE (Active)** |
@@ -63,10 +63,17 @@ In accordance with Cogentia/Operium doctrine:
 
 ---
 
-## 3. Required DNS Changes (Cloudflare Zone `acorsica.org`)
+## 3. Authoritative DNS Records (Cloudflare)
 
-The authoritative DNS zone for `acorsica.org` is hosted on Cloudflare. The following DNS records must be added with proxy mode disabled (DNS-only / grey cloud) to allow direct ACME challenge resolution by `fracta`:
+The authoritative DNS records are hosted on Cloudflare with proxy mode disabled (DNS-only / grey cloud) to allow direct ACME challenge resolution by `fracta`:
 
+### Zone `lepp.fr`
+```text
+Type   Name       Target                    Proxy Status   TTL
+CNAME  capable    fracta.fractavolta.com    DNS only       Auto
+```
+
+### Zone `acorsica.org`
 ```text
 Type   Name       Target                    Proxy Status   TTL
 CNAME  village    fracta.fractavolta.com    DNS only       Auto
@@ -75,7 +82,7 @@ CNAME  institut   fracta.fractavolta.com    DNS only       Auto
 CNAME  commons    fracta.fractavolta.com    DNS only       Auto
 CNAME  privai     fracta.fractavolta.com    DNS only       Auto
 CNAME  1755       fracta.fractavolta.com    DNS only       Auto
-CNAME  capable    fracta.fractavolta.com    DNS only       Auto
+CNAME  capable    fracta.fractavolta.com    DNS only       Auto (redirects 301 to capable.lepp.fr)
 CNAME  napoleon   fracta.fractavolta.com    DNS only       Auto
 ```
 
