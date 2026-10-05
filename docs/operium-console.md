@@ -60,6 +60,14 @@ npm run build
 
 Deploy `dist/` to fracta static path (e.g. `/ops/console/`). Same-origin `fetch('/ops/status')` needs no CORS entry.
 
+### Fracta deployment evidence — 2026-10-05
+
+- Source: Operium commit [`5a88a4a`](https://github.com/JeanHuguesRobert/operium/commit/5a88a4ac5a6aebf7e02985f7e1d2428fa041ba88).
+- Caddy serves `/ops/console/` from `/srv/ops-console` on `fracta`.
+- The production build used `VITE_COGENTIA_OPS_BASE_URL=https://cogentia.fractavolta.com` and `VITE_CONSOLE_BASE=/ops/console/`.
+- Post-deploy checks returned HTTP 200 for `/ops/console/`, its JavaScript bundle, and `/ops/status`. The served bundle contains the public HTML dashboard link and retains the in-console work panel.
+- The previous static bundle is retained on Fracta at `/srv/ops-console.rollback-20261005-5a88a4a` for rollback.
+
 ## Views (v1)
 
 | View | Endpoints | Auth |
