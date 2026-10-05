@@ -4,6 +4,7 @@ import { FixBugsFirstView } from "./components/FixBugsFirstView.jsx";
 import {
   fetchFleetBlackboard,
   fetchFleetStatus,
+  fixBugsFirstHtmlUrl,
   listOnaAttractors,
 } from "./lib/ops-api.js";
 
@@ -76,7 +77,8 @@ export default function App() {
         </div>
         <div className="mx-auto mt-4 flex max-w-6xl gap-2">
           <button className={`rounded border px-3 py-1.5 text-xs ${view === "fleet" ? "border-ops-accent text-ops-accent" : "border-ops-border text-ops-muted"}`} onClick={() => setView("fleet")}>Fleet</button>
-          <button className={`rounded border px-3 py-1.5 text-xs ${view === "fix-bugs-first" ? "border-ops-accent text-ops-accent" : "border-ops-border text-ops-muted"}`} onClick={() => setView("fix-bugs-first")}>Work / Fix Bugs First</button>
+          <a className="rounded border border-ops-border px-3 py-1.5 text-xs text-ops-accent hover:underline" href={fixBugsFirstHtmlUrl()}>Work / Fix Bugs First ↗</a>
+          <button className={`rounded border px-3 py-1.5 text-xs ${view === "fix-bugs-first" ? "border-ops-accent text-ops-accent" : "border-ops-border text-ops-muted"}`} onClick={() => setView("fix-bugs-first")}>Work panel</button>
         </div>
       </header>
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchFixBugsFirstDashboard } from "../lib/ops-api.js";
+import { fetchFixBugsFirstDashboard, fixBugsFirstHtmlUrl } from "../lib/ops-api.js";
 
 export function FixBugsFirstView({ onBack }) {
   const [result, setResult] = useState(null);
@@ -26,7 +26,10 @@ export function FixBugsFirstView({ onBack }) {
         <h2 className="text-xl font-semibold">Fix Bugs First</h2>
         <p className="text-sm text-ops-muted">Public read-only work view derived from the Operium backlog and native GitHub references.</p>
       </div>
-      <button className="rounded border border-ops-border px-3 py-1.5 text-xs text-ops-muted" onClick={onBack}>Back to Fleet</button>
+      <div className="flex gap-2">
+        <a className="rounded border border-ops-border px-3 py-1.5 text-xs text-ops-accent hover:underline" href={fixBugsFirstHtmlUrl()}>Open HTML report ↗</a>
+        <button className="rounded border border-ops-border px-3 py-1.5 text-xs text-ops-muted" onClick={onBack}>Back to Fleet</button>
+      </div>
     </div>
 
     {error ? <Panel title="View unavailable"><p className="text-sm text-ops-bad">{error}</p><p className="mt-2 text-xs text-ops-muted">Generate and publish the Fix Bugs First view from Cogentia, then refresh this panel.</p></Panel> : null}

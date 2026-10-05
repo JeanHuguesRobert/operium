@@ -11,6 +11,7 @@ const opsApiUrl = pathToFileURL(
 const {
   buildNodeOpsPath,
   encodeNodeId,
+  fixBugsFirstHtmlUrl,
   healthTone,
   listOnaAttractors,
   setOpsToken,
@@ -33,6 +34,7 @@ assert.equal(healthTone(4), "ok");
 assert.equal(healthTone(2), "bad");
 assert.equal(setOpsToken("test-token"), true);
 assert.equal(setOpsToken(""), false);
+assert.equal(fixBugsFirstHtmlUrl(), "/views/fix-bugs-first-dashboard.html?raw");
 
 const nodes = listOnaAttractors({
   attractors: [
@@ -58,6 +60,7 @@ console.log(JSON.stringify({
   ok: true,
   tests: [
     "encodeNodeId",
+    "fixBugsFirstHtmlUrl",
     "buildNodeOpsPath",
     "healthTone",
     "listOnaAttractors",

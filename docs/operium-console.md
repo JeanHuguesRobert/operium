@@ -1,8 +1,27 @@
 ---
+title: Operium Console
+author: unknown
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+date: null
+last_modified_at: '2026-10-05'
+license: CC BY-SA 4.0
+language: en
 document_role: "operational"
 document_kind: "documentation"
 visibility: "public"
 lifecycle_state: "active"
+canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/docs/operium-console.md
+status: working-paper
+update_policy: UP-DEFAULT-REVIEWED
+provenance:
+  origin_type: repository
+  origin_repository: JeanHuguesRobert/operium
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
+review:
+  status: unreviewed
+  reviewed_by: []
 classification_source: "cogentia.js"
 classification_version: "1"
 classification_rule: "documentation"
@@ -46,16 +65,26 @@ Deploy `dist/` to fracta static path (e.g. `/ops/console/`). Same-origin `fetch(
 | View | Endpoints | Auth |
 |------|-----------|------|
 | Fleet overview | `GET /ops/status`, `GET /ops/blackboard?capability=operium.node.v1` | none |
-| Work / Fix Bugs First | `GET /views/fix-bugs-first-dashboard.json?raw` | none (public derived view) |
+| Work / Fix Bugs First | `GET /views/fix-bugs-first-dashboard.html?raw` (human), `GET /views/fix-bugs-first-dashboard.json?raw` (panel data) | none (public derived view) |
 
-The Work / Fix Bugs First panel is public and read-only. It displays the public Cogentia
-projection, preserves each item's native GitHub link, and never edits the
-Operium backlog or GitHub from the browser. Generate and publish it with:
+The Work / Fix Bugs First link opens a standalone, readable HTML report. The
+in-console panel remains available and consumes JSON as its data format. Both
+views are public and read-only, preserve native GitHub links, and never edit the
+Operium backlog or GitHub from the browser. Refresh locally with:
 
 ```text
 cd ../cogentia
-node scripts/generate-fix-bugs-first-dashboard.js
+node scripts/cogentia.js dashboard refresh --json
+```
+
+The command reads current public GitHub issues and Operium's `main` backlog.
+It leaves the snapshot timestamp and files unchanged when the source content
+has not changed. `--dry-run` reports files that would change. Commit and push
+the generated files separately, then publish the three views:
+
+```text
 node scripts/cogentia.js publish push fix-bugs-first-dashboard
+node scripts/cogentia.js publish push fix-bugs-first-dashboard-html
 node scripts/cogentia.js publish push fix-bugs-first-dashboard-json
 ```
 
