@@ -1,9 +1,9 @@
 {
   "schema": "operium.dns.reconciliation.v1",
-  "observed_at": "2026-08-31T16:19:36Z",
+  "observed_at": "2026-10-06",
   "source": {
-    "kind": "operator-handoff",
-    "reference": "Operium issue #37, Handoff de pause, 2026-08-31"
+    "kind": "incremental-reconciliation",
+    "reference": "Operium issue #37; baronsmariani.org registrar/mail migration completed 2026-10-06"
   },
   "domains": [
     {
@@ -13,18 +13,31 @@
       "expected_nameserver_suffix": "cloudflare.com",
       "migration_state": "active",
       "dnssec_state": "not_observed",
-      "mail": { "mode": "gandi-forwarding", "forwarding_address_count": 8 },
-      "https_hosts": ["acorsica.org"]
+      "mail": {
+        "mode": "gandi-forwarding",
+        "forwarding_address_count": 8
+      },
+      "https_hosts": [
+        "acorsica.org"
+      ]
     },
     {
       "domain": "baronsmariani.org",
-      "registrar": "Gandi",
+      "registrar": "Cloudflare",
       "expected_authoritative_dns": "Cloudflare",
       "expected_nameserver_suffix": "cloudflare.com",
-      "migration_state": "active",
+      "migration_state": "complete",
       "dnssec_state": "not_observed",
-      "mail": { "mode": "gandi-forwarding", "forwarding_address_count": 16 },
-      "https_hosts": ["baronsmariani.org"]
+      "mail": {
+        "mode": "cloudflare-email-routing",
+        "forwarding_address_count": 16
+      },
+      "https_hosts": [
+        "baronsmariani.org"
+      ],
+      "observed_at": "2026-10-06",
+      "registrar_expiry": "2027-10-28T10:27:21Z",
+      "notes": "Registrar transfer Gandi -> Cloudflare completed 2026-10-06. Cloudflare Email Routing active with 16 forwarding rules; external Yahoo -> jhr@baronsmariani.org delivery test succeeded. Authoritative nameservers remain Cloudflare."
     },
     {
       "domain": "lepp.fr",
@@ -33,8 +46,13 @@
       "expected_nameserver_suffix": "cloudflare.com",
       "migration_state": "active",
       "dnssec_state": "not_observed",
-      "mail": { "mode": "gandi-forwarding", "forwarding_address_count": 12 },
-      "https_hosts": ["lepp.fr"]
+      "mail": {
+        "mode": "gandi-forwarding",
+        "forwarding_address_count": 12
+      },
+      "https_hosts": [
+        "lepp.fr"
+      ]
     },
     {
       "domain": "fractavolta.com",
@@ -43,8 +61,14 @@
       "expected_nameserver_suffix": "gandi.net",
       "migration_state": "pending",
       "dnssec_state": "not_observed",
-      "mail": { "mode": "gandi-forwarding", "forwarding_address_count": 10 },
-      "https_hosts": ["fractavolta.com", "www.fractavolta.com"],
+      "mail": {
+        "mode": "gandi-forwarding",
+        "forwarding_address_count": 10
+      },
+      "https_hosts": [
+        "fractavolta.com",
+        "www.fractavolta.com"
+      ],
       "notes": "Cloudflare zone and Email Routing are prepared but are not public until an explicitly authorized nameserver change."
     }
   ]
