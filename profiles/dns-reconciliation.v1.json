@@ -54,7 +54,9 @@
         "lepp.fr"
       ],
       "observed_at": "2026-10-07",
-      "notes": "Cloudflare Email Routing cutover completed 2026-10-07: 25 explicit role aliases provisioned, catch-all disabled, routing enabled/ready, three Cloudflare MX active, zero Gandi MX remaining. External Yahoo -> jhr@lepp.fr delivery test succeeded and was observed in Gmail on 2026-10-07. Registrar transfer remains pending."
+      "notes": "DNS authoritative on Cloudflare and Cloudflare Email Routing fully validated (25 explicit aliases, catch-all disabled, external Yahoo -> jhr@lepp.fr delivery confirmed). Registrar remains Gandi because Cloudflare Registrar transfer-check returned transferable=false with reason extension_not_supported for .fr on 2026-10-07.",
+      "registrar_transfer_state": "blocked-provider-tld",
+      "registrar_transfer_reason": "extension_not_supported"
     },
     {
       "domain": "fractavolta.com",
