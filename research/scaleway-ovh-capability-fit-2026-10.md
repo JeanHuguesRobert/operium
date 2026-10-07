@@ -122,3 +122,17 @@ The best next experiment is Scaleway registrar only. Do not bundle DNS, inbound 
 - OVHcloud domain transfer API guide: https://docs.ovhcloud.com/fr/guides/web-cloud/domains/api-domain-transfer
 - OVHcloud Public Cloud pricing: https://www.ovhcloud.com/fr/public-cloud/prices/
 - OVHcloud Cold Archive: https://www.ovhcloud.com/fr/public-cloud/cold-archive/
+
+
+## CLI validation — 2026-10-07
+
+Scaleway CLI 2.63.0 exposes the Registrar API natively under `domain`.
+
+Observed command surface:
+- `domain domain search` — exact/strict domain search;
+- `domain tld list` — TLD offers;
+- `domain order transfer` — inbound registrar transfer;
+- `domain task list-inbound-transfers` — transfer tracking;
+- transfer accepts existing owner/administrative/technical contact IDs, avoiding duplication of personal data in shell commands.
+
+Operium policy for Scaleway is therefore **official CLI first**, direct REST only when a required capability is missing from the CLI. Secrets remain local/out-of-band and must never be committed or printed.
