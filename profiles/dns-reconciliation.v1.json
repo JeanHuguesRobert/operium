@@ -1,9 +1,9 @@
 {
   "schema": "operium.dns.reconciliation.v1",
-  "observed_at": "2026-10-06",
+  "observed_at": "2026-10-07",
   "source": {
     "kind": "incremental-reconciliation",
-    "reference": "Operium issue #37; baronsmariani.org registrar/mail migration completed 2026-10-06"
+    "reference": "Operium issue #37; lepp.fr Cloudflare Email Routing cutover completed 2026-10-07"
   },
   "domains": [
     {
@@ -47,12 +47,14 @@
       "migration_state": "active",
       "dnssec_state": "not_observed",
       "mail": {
-        "mode": "gandi-forwarding",
-        "forwarding_address_count": 12
+        "mode": "cloudflare-email-routing",
+        "forwarding_address_count": 25
       },
       "https_hosts": [
         "lepp.fr"
-      ]
+      ],
+      "observed_at": "2026-10-07",
+      "notes": "Cloudflare Email Routing cutover completed 2026-10-07: 25 explicit role aliases provisioned, catch-all disabled, routing enabled/ready, three Cloudflare MX active, zero Gandi MX remaining. External delivery test pending before registrar transfer."
     },
     {
       "domain": "fractavolta.com",
