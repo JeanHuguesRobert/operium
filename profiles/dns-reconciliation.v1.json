@@ -54,7 +54,7 @@
         "lepp.fr"
       ],
       "observed_at": "2026-10-07",
-      "notes": "Cloudflare Email Routing cutover completed 2026-10-07: 25 explicit role aliases provisioned, catch-all disabled, routing enabled/ready, three Cloudflare MX active, zero Gandi MX remaining. External delivery test pending before registrar transfer."
+      "notes": "Cloudflare Email Routing cutover completed 2026-10-07: 25 explicit role aliases provisioned, catch-all disabled, routing enabled/ready, three Cloudflare MX active, zero Gandi MX remaining. External Yahoo -> jhr@lepp.fr delivery test succeeded and was observed in Gmail on 2026-10-07. Registrar transfer remains pending."
     },
     {
       "domain": "fractavolta.com",
