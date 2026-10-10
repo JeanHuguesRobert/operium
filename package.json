@@ -50,7 +50,8 @@
     "node-agent": "node bin/operium-node-agent.js",
     "ona:heartbeat": "node scripts/ona-heartbeat.js",
     "invoke:tool": "node bin/operium.js invoke tool",
-    "test:mobile-diagnostic": "node --test scripts/test-mobile-termux-diagnostic.js"
+    "test:mobile-diagnostic": "node --test scripts/test-mobile-termux-diagnostic.js",
+    "test:ona-mobile": "node --test scripts/test-ona-mobile-diagnostic.js"
   },
   "dependencies": {
     "yaml": "^2.8.0"

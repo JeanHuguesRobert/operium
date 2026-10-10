@@ -110,3 +110,51 @@ identifies the baseline; file hashes identify the then-uncommitted implementatio
 A fresh CLI process returned the same receipt with `replayed: true` and no
 new SSH call. Eight handler tests and the existing ONA job suite passed on
 Node 22.23.1. Resident consumption and automated GitHub delivery remain unproven.
+
+
+## Authorized resident deployment — 2026-10-10
+
+The Principal subsequently authorized deployment. This supersedes the earlier
+preparation-only gate for this bounded activation; it does not merge the branch.
+Authorization trace: https://github.com/JeanHuguesRobert/inseme/issues/141#issuecomment-6096337789
+
+The adapter `scripts/ona-mobile-diagnostic.js` exports ONA's existing
+`runScheduledHeartbeat` script hook. This keeps the live ONA checkout and
+its unrelated edits intact. Deploy pinned detached sibling checkouts under
+`/srv/cogentia/deployments/mobile-141/repos/{operium,inseme}`.
+The dependency is Inseme commit
+`b8f04a00f5f23bb9e00923188b5aaca6bf0d85a9`. Run both mobile test suites
+there before activation. The existing Operium node_modules may be linked for
+tests; the resident adapter itself uses built-in Node modules.
+
+Activation uses a dedicated policy and retained SQLite store under
+`/srv/cogentia/var/mobile-141/`. The policy requires schema
+`operium.mobile-diagnostic-policy/v1`, enabled/execution/publish_receipt
+true, the fixed issue/operation/Principal, an authorization comment reference,
+the exact request SHA-256, the deployed implementation SHA-256, an absolute
+database path and an expiry. This integration grant lasts one hour.
+Expired/disabled policies perform no network or SSH work. A modified issue
+cannot consume the pinned grant. The new Fracta execution is explicitly a
+separate integration run, not a replay of the Termux execution.
+
+Register one existing `script` job using `ONA_EXTRA_JOBS_JSON`,
+job ID `mobile:inseme-141`, 60-second interval, with the absolute adapter
+path. Set `ONA_MOBILE_141_POLICY` to the policy file. Append the non-secret
+activation EnvironmentFile through
+`/etc/systemd/system/operium-node-agent.service.d/141-mobile-diagnostic.conf`.
+Preserve existing extras; abort if concurrent configuration differs from the
+inspected state. Restart only ONA, then observe its scheduler and COP evidence.
+
+The callback uses Fracta's existing gh authentication. It finds an exact prior
+receipt body across paginated comments, otherwise posts JSON through stdin, and
+independently reads it back before recording a durable delivery event.
+A callback failure retries delivery from the receipt, never SSH.
+After delivery, ticks return the delivery record without more GitHub reads.
+The dedicated database serializes delivery attempts. Neither this profile nor
+GitHub's API promises globally exactly-once publication during arbitrary failures.
+
+Rollback: disable the policy, remove only the 141 drop-in, daemon-reload and
+restart operium-node-agent. Retain the SQLite store and pinned checkouts for
+evidence. The original service definition, live checkouts, SSH trust and nightly
+scheduler are unchanged. Activation evidence must be recorded separately after
+observing the resident job; local tests alone are not deployment evidence.
