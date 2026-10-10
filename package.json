@@ -6,9 +6,9 @@
   "license": "Apache-2.0",
   "bin": {
     "operium": "./bin/operium.js",
-    "operium-node-agent": "./bin/operium-node-agent.js"
-    ,"operium-graph": "./bin/operium-graph.js"
-    ,"operium-graph-http": "./bin/operium-graph-http.js"
+    "operium-node-agent": "./bin/operium-node-agent.js",
+    "operium-graph": "./bin/operium-graph.js",
+    "operium-graph-http": "./bin/operium-graph-http.js"
   },
   "scripts": {
     "test": "node scripts/run-tests.js",
@@ -49,7 +49,8 @@
     "test:node-diagnose": "node scripts/test-operium-node-diagnose.js",
     "node-agent": "node bin/operium-node-agent.js",
     "ona:heartbeat": "node scripts/ona-heartbeat.js",
-    "invoke:tool": "node bin/operium.js invoke tool"
+    "invoke:tool": "node bin/operium.js invoke tool",
+    "test:mobile-diagnostic": "node --test scripts/test-mobile-termux-diagnostic.js"
   },
   "dependencies": {
     "yaml": "^2.8.0"
