@@ -46,8 +46,9 @@ export function publishResidentReceipt(result, run = spawnSync) {
   const actor = gh(["user", "--jq", ".login"]).trim();
   if (actor !== "JeanHuguesRobert") throw new Error("github_receipt_actor_mismatch");
   const body = receiptComment(result);
-  const pages = JSON.parse(gh([`${ENDPOINT}?per_page=100`, "--paginate", "--slurp"]));
-  const prior = pages.flat().find(comment => comment.user?.login === actor && comment.body === body);
+  const lines = gh([`${ENDPOINT}?per_page=100`, "--paginate", "--jq", ".[] | @json"]).trim();
+  const comments = lines ? lines.split(/\r?\n/).map(line => JSON.parse(line)) : [];
+  const prior = comments.find(comment => comment.user?.login === actor && comment.body === body);
   const candidate = prior || JSON.parse(gh([ENDPOINT, "--method", "POST", "--input", "-"], JSON.stringify({ body })));
   if (!Number.isSafeInteger(candidate.id)) throw new Error("github_receipt_identity_missing");
   const confirmed = JSON.parse(gh([`repos/JeanHuguesRobert/inseme/issues/comments/${candidate.id}`]));

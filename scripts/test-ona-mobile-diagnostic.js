@@ -68,8 +68,8 @@ test("GitHub delivery recovers an exact existing comment and verifies read-back"
   const run = (command, args, options) => {
     assert.equal(command, "gh"); assert.equal(options.shell, false);
     if (args.includes("POST")) posts++;
-    const stdout = args[1] === "user" ? "JeanHuguesRobert\n" : args.includes("--slurp")
-      ? JSON.stringify([[comment]]) : JSON.stringify(comment);
+    const stdout = args[1] === "user" ? "JeanHuguesRobert\n" : args.includes("--paginate")
+      ? JSON.stringify(comment) : JSON.stringify(comment);
     return { status: 0, stdout };
   };
   const delivery = publishResidentReceipt(result, run);
@@ -81,7 +81,7 @@ test("new GitHub callback is structured JSON and mismatched read-back fails", ()
   const body = receiptComment(result); let posts = 0;
   const run = (_command, args, options) => {
     if (args[1] === "user") return { status: 0, stdout: "JeanHuguesRobert\n" };
-    if (args.includes("--slurp")) return { status: 0, stdout: "[[]]" };
+    if (args.includes("--paginate")) return { status: 0, stdout: "" };
     if (args.includes("POST")) { posts++; assert.equal(JSON.parse(options.input).body, body); }
     return { status: 0, stdout: JSON.stringify({ id: 123, html_url: `${MOBILE_ISSUE}#issuecomment-123`,
       user: { login: "JeanHuguesRobert" }, body: args.includes("POST") ? body : "wrong" }) };

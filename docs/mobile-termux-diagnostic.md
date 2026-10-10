@@ -158,3 +158,7 @@ restart operium-node-agent. Retain the SQLite store and pinned checkouts for
 evidence. The original service definition, live checkouts, SSH trust and nightly
 scheduler are unchanged. Activation evidence must be recorded separately after
 observing the resident job; local tests alone are not deployment evidence.
+
+Deployment preflight found Fracta uses gh 2.45.0, which lacks `--slurp`.
+The adapter uses `--paginate --jq ".[] | @json"` and parses JSON lines,
+so it requires no CLI upgrade. This was detected before service activation.
