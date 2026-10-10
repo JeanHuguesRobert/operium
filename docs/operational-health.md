@@ -63,3 +63,15 @@ An Operium registry may track health for:
 A low health score is not a failure.
 
 It is a visible operational fact that can be stabilized.
+
+## Fracta mobile diagnostic — observed 2026-10-10
+
+The existing ONA service successfully ran the bounded #141 mobile diagnostic
+and automatically delivered its receipt to GitHub. Status: operational for the
+single admitted packet. ONA active; no automatic restarts observed after the
+planned activation restart. Live repository edits and SSH trust were preserved.
+
+Deployment: Operium `e1d26b4a29d2aa3c88628f9fb3ab3fc4383a6590` in an isolated
+checkout; one script-job opt-in. The one-hour grant expires at 11:06:25.899 UTC
+on 2026-10-10. Expiry prevents further work while retaining claims and receipts.
+[Runbook, evidence and rollback](mobile-termux-diagnostic.md).

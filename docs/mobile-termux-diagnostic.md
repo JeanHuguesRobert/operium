@@ -162,3 +162,35 @@ observing the resident job; local tests alone are not deployment evidence.
 Deployment preflight found Fracta uses gh 2.45.0, which lacks `--slurp`.
 The adapter uses `--paginate --jq ".[] | @json"` and parses JSON lines,
 so it requires no CLI upgrade. This was detected before service activation.
+
+## Resident deployment observed — 2026-10-10
+
+Fracta ONA was activated at 10:07:01 UTC with one existing script job,
+`mobile:inseme-141`, on a 60-second interval. Deployed Operium revision:
+`e1d26b4a29d2aa3c88628f9fb3ab3fc4383a6590`; pinned Inseme revision:
+`b8f04a00f5f23bb9e00923188b5aaca6bf0d85a9`.
+
+The resident scheduler consumed #141 at 10:07:32.472 UTC and completed SSH at
+10:07:34.728 UTC: `u0_a393`, `git version 2.56.0`, exit 0. It independently
+posted and read back [the GitHub receipt](https://github.com/JeanHuguesRobert/inseme/issues/141#issuecomment-6096412473).
+Run UUID: `5c6a4afb-8b95-4770-b72f-d2c2b8f65edc`. See
+[the versioned resident receipt](evidence/mobile-141-resident-receipt.json).
+The execution-time `delivery: pending` is superseded by a separate durable
+`cop/execution.delivery.v1` event in the resident store.
+
+This demonstrates resident ONA execution and automatic GitHub delivery,
+independent of a continuously running ThinkPad or local Codex process after
+activation. It uses API reconciliation, not a signed webhook. The grant is
+limited to the pinned #141 packet and expires at **11:06:25.899 UTC**. The job
+then becomes a no-op; its code, configuration and evidence remain installed.
+No general arbitrary-issue consumer or unlimited recurring execution is enabled.
+
+Thirteen tests passed locally and on Fracta; after the gh compatibility fix,
+the five affected resident tests passed again on both. Live ONA remained
+active with no automatic restarts. Original dirty worktrees were preserved.
+Operational rollback and state paths are described in the preceding section.
+
+Resident replay verification at 10:08:47.132 UTC: scheduler run_count = 2,
+last_ok = true; the retained store still contains exactly one ingress, one
+execution claim, one receipt and one delivery event. No second SSH act or
+GitHub comment was produced by the second tick.

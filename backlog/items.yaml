@@ -387,9 +387,9 @@ items:
     title: Typed mobile diagnostic through existing ONA and Fracta SSH
     subsystem: ona
     priority: p2
-    status: open
+    status: done
     evidence: "https://github.com/JeanHuguesRobert/inseme/issues/141"
-    next_action: "One-shot and cold replay passed; request source publication and resident activation approval."
+    next_action: "Resident execution and automatic GitHub receipt verified. Future requests require a separate pinned grant."
     opened_at: "2026-10-10"
-    closed_at: null
-    notes: "Feature-branch preparation only. No permanent consumer, service restart, or SSH trust changes."
+    closed_at: "2026-10-10"
+    notes: "Authorized isolated Fracta deployment; ONA restarted once. Receipt issuecomment-6096412473. No SSH trust changes. One-hour grant."
