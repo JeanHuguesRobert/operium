@@ -24,6 +24,8 @@ repos alone.
 
 Companion notes:
 
+- [FractaTrust v0 — binary Trust Perimeter](../research/fractatrust-v0-binary-perimeter.md) — FractaX conceptual anchor, observed v0 versus future research
+
 - [Cogentia Semantic Stack](cogentia-semantic-stack.md) — retrieval components and health checks
 - [Public / private split](public-private-split.md) — what must never appear in git
 - Cogentia deploy runbook: `cogentia/deploy/fracta/README.md` (procedures on the node)
