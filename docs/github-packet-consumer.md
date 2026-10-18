@@ -304,6 +304,15 @@ check. Reusing an ID replays its receipt; editing its contents conflicts. This
 is a typed request interface, not a natural-language interpreter. No per-request
 local signature/configuration edit is needed within the standing scope.
 
+Use `scripts/ona-service-checks.js` as the ONA script-job entrypoint for service
+checks. It launches the existing consumer tick asynchronously in a bounded child
+process. Do not use the synchronous in-process consumer for a probe of the parent
+ONA server: that blocks its HTTP event loop and causes a false timeout. The first
+live #172 ONA check exposed this on 2026-10-19 (local time); its timeout receipt
+and spent budget are retained. The isolated-process regression checks that a
+parent HTTP server remains responsive while its child probes it. This adds no
+daemon or scheduler and does not permit an Issue-selected executable.
+
 The consumer first retries any completed, undelivered receipt for that Issue,
 then observes the current request on a later tick. Thus an edited Issue cannot
 erase a pending callback. Callback failure/backoff remains bounded; exhaustion

@@ -10,7 +10,7 @@ import { appendCopEvent, getCopEvent } from "../lib/node-agent/cop-events.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 export function consumerSource(root = ROOT) {
-  const files = ["scripts/ona-packet-consumer.js", "scripts/service-check-worker.js", "lib/node-agent/packet-consumer.js", "lib/node-agent/mobile-diagnostic.js",
+  const files = ["scripts/ona-packet-consumer.js", "scripts/ona-service-checks.js", "scripts/service-check-worker.js", "lib/node-agent/packet-consumer.js", "lib/node-agent/mobile-diagnostic.js",
     "lib/node-agent/cop-events.js", "lib/node-agent/migrations/005_cop_events.sql",
     "../inseme/packages/cop-core/src/github-ingress.js", "../inseme/packages/cop-core/src/continuation-result.js",
     "../inseme/packages/magistral/src/execution.js"];

@@ -2,11 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import http from 'node:http';
+import { spawn } from 'node:child_process';
 import { DatabaseSync } from 'node:sqlite';
 import { runMigrations } from '../lib/node-agent/migrate.js';
 import { canonical, hash, consumePacket, defaultProviders, validatePacket } from '../lib/node-agent/packet-consumer.js';
 import { runConsumerTick } from './ona-packet-consumer.js';
 import { checkService } from './service-check-worker.js';
+import { runConsumerProcess } from './ona-service-checks.js';
 
 function fixture(t) {
   const db = new DatabaseSync(':memory:'); runMigrations(db, { seedLocalState: false }); t.after(() => db.close());
@@ -126,4 +128,17 @@ test('real loopback HTTP probe refuses redirects and bounds body and deadline', 
   assert.equal((await probe('/redirect')).error, 'probe_unavailable');
   assert.equal((await probe('/large')).error, 'response_limit');
   assert.equal((await probe('/slow')).error, 'timeout');
+});
+
+test('isolated consumer leaves parent ONA event loop able to answer its own health probe', async t => {
+  const server = http.createServer((req, res) => { res.end('{"ok":true}'); });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  t.after(() => { server.closeAllConnections(); server.close(); });
+  const target = `http://127.0.0.1:${server.address().port}/health`;
+  const code = `const r = await fetch(${JSON.stringify(target)}, {signal:AbortSignal.timeout(3000)}); console.log(JSON.stringify(await r.json()));`;
+  const result = await runConsumerProcess({ timeoutMs: 10000, spawnImpl: (command, args, options) => {
+    assert.equal(options.shell, false); assert.equal(args.at(-1), 'tick');
+    return spawn(command, ['--input-type=module', '-e', code], options);
+  } });
+  assert.deepEqual(result, { ok: true });
 });

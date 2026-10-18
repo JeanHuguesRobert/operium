@@ -7,6 +7,24 @@ updated_at: "2026-10-18"
 owner: Operium
 
 items:
+  - id: OP-BUG-SERVICE-SELF-PROBE-172
+    kind: bug
+    title: In-process service consumer blocks the parent ONA health endpoint
+    subsystem: ona
+    severity: high
+    status: in_progress
+    evidence: >
+      First live service172-ona-1 receipt reports timeout while the parent ONA
+      remains active. Synchronous provider execution blocks the parent's HTTP
+      loop. The new policy was suspended; the timeout and budget spent are retained.
+    next_action: >
+      Validate the isolated asynchronous script-job wrapper and repeat the health
+      check under a replacement grant bounded by the original remaining budget
+      and expiration. Preserve the store and prior receipt.
+    opened_at: "2026-10-19"
+    closed_at: null
+    notes: |
+      Issue: https://github.com/JeanHuguesRobert/inseme/issues/172
   - id: OP-FEAT-SERVICE-CHECK-172
     kind: feature
     title: Check named services on demand under reusable bounded grants
