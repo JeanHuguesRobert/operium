@@ -15,7 +15,7 @@ await withServer(socket=>socket.end('RFB 003.008\n'),async port=>{
 });
 await withServer(socket=>{
  socket.write('RFB 003.');
- setImmediate(()=>socket.end('008\\n'));
+ setImmediate(()=>socket.end('008\n'));
 },async port=>{
  assert.equal((await probeRfb({port})).status,'responsive');
 });
