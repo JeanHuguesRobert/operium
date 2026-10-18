@@ -229,3 +229,19 @@ checkouts, policy evidence and both stores.
 
 The demonstrated ingress is GitHub API reconciliation. Signed webhook wake-up
 linkage and general recurrent execution are not claimed by this test.
+
+## Acceptance resolution
+
+The 2026-10-18 acceptance audit maps all seven criteria in Inseme #165 to the
+published source, two-provider/multi-packet tests, durable recovery tests, fixed
+operation allowlist, main CI, independently authorized resident test and this
+resumable operator record. The bounded API consumer contract is complete.
+
+The issue's preference for push wake-up is tracked as [Inseme #166](https://github.com/JeanHuguesRobert/inseme/issues/166).
+It is not represented as deployed or as a prerequisite in #165's explicit
+acceptance list. Existing COP wake creates calendar obligations rather than
+advancing script jobs; the follow-up must establish the actual authenticated
+relay, preserve wakes during execution, and keep independent execution grants.
+This supersedes the earlier checkpoint's interpretation that #165 must stay open
+solely for webhook linkage. Completion does not promote this experimental profile
+to doctrine or authorize another live execution.

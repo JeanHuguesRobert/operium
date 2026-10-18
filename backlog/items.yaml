@@ -12,7 +12,7 @@ items:
     title: Consume multiple typed GitHub packets through independent signed grants
     subsystem: ona
     priority: p2
-    status: in_progress
+    status: done
     evidence: >
       Experimental branch adds an opt-in script adapter to the existing ONA
       scheduler and COP event store. Local tests cover two provider types,
@@ -21,15 +21,34 @@ items:
       invalid signature, executed once, verified its GitHub callback and cold
       replayed without another effect. The test policy is now disabled.
     next_action: >
-      Reconcile the demonstrated API consumer with the remaining webhook wake
-      linkage scope in #165. General recurrent execution needs a separate mandate.
-      Preserve the retained store and disabled policy; see docs/github-packet-consumer.md.
+      Acceptance criteria are evidenced; preserve the retained store and disabled
+      policy. Optional authenticated push wake is tracked separately in Inseme #166.
     opened_at: "2026-10-18"
-    closed_at: null
+    closed_at: "2026-10-18"
     notes: |
       Parent packet: https://github.com/JeanHuguesRobert/inseme/issues/165
       Principal authorized redeployment and main convergence on 2026-10-18.
       The inherited #141 grant remains expired and was not reused.
+      Acceptance audit: https://github.com/JeanHuguesRobert/inseme/issues/165
+  - id: OP-FEAT-PACKET-WAKE-166
+    kind: feature
+    title: Connect authenticated GitHub ingress to the existing packet job
+    subsystem: ona
+    priority: p2
+    status: open
+    evidence: >
+      The #165 API consumer passed its bounded live acceptance. The existing
+      signed ingress is not connected to scheduled_jobs. COP wake currently
+      creates calendar obligations, not an existing script-job wake.
+    next_action: >
+      Inspect authenticated ingress-to-ONA reachability, then implement durable
+      deduplication and scheduling hints without losing wakes during execution.
+      Preserve independent grants and polling repair; obtain scoped live authority.
+    opened_at: "2026-10-18"
+    closed_at: null
+    notes: |
+      Resume: https://github.com/JeanHuguesRobert/inseme/issues/166
+      Preferred push optimization, not an unfulfilled #165 acceptance criterion.
   - id: OP-BUG-010
     kind: bug
     title: Hosted Browser listener health does not establish functional HTTPS or RFB recovery
