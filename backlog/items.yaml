@@ -3,10 +3,31 @@
 # Do not store secret values here.
 
 schema: operium.backlog.v1
-updated_at: "2026-09-01"
+updated_at: "2026-10-18"
 owner: Operium
 
 items:
+  - id: OP-FEAT-PACKET-165
+    kind: feature
+    title: Consume multiple typed GitHub packets through independent signed grants
+    subsystem: ona
+    priority: p2
+    status: in_progress
+    evidence: >
+      Experimental branch adds an opt-in script adapter to the existing ONA
+      scheduler and COP event store. Local tests cover two provider types,
+      signed admission, concurrent claims, cold recovery and verified callback
+      semantics. No production activation or real grant has occurred.
+    next_action: >
+      Review docs/github-packet-consumer.md and the #165 feature PR; obtain
+      separate deployment/activation and fresh Principal execution authority
+      before a production-like Reality Test. Do not merge main under this mandate.
+    opened_at: "2026-10-18"
+    closed_at: null
+    notes: |
+      Parent packet: https://github.com/JeanHuguesRobert/inseme/issues/165
+      Stacked on feat/mobile-termux-diagnostic-141; inherited #141 grant is expired.
+
   # ── Bugs (fix first) ─────────────────────────────────────────────
 
   - id: OP-BUG-001

@@ -1,0 +1,33 @@
+name: Packet consumer conformance
+on:
+  pull_request:
+    paths:
+      - 'lib/node-agent/packet-consumer.js'
+      - 'scripts/*packet-consumer.js'
+      - '.github/workflows/packet-consumer.yml'
+  push:
+    branches: ['feat/issue-165-generic-consumer']
+  workflow_dispatch: {}
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: operium
+      - uses: actions/checkout@v4
+        with:
+          repository: JeanHuguesRobert/inseme
+          ref: 71b9e7e6b5c8c9cbf0cd03973a77c346e85d65f6
+          path: inseme
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci --ignore-scripts
+        working-directory: operium
+      - run: node --test scripts/test-packet-consumer.js scripts/test-mobile-termux-diagnostic.js scripts/test-ona-mobile-diagnostic.js
+        working-directory: operium
+      - run: node scripts/test-ona-jobs.js
+        working-directory: operium
