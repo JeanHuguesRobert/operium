@@ -101,6 +101,9 @@ effects. Revoked grant IDs persist as COP events and cannot be un-revoked merely
 by removing them from the policy list. A local policy/key-store writer is
 inside the trust boundary; protect these files like other operational authority
 material. Signatures do not protect against a compromised trusted host.
+Deploy only immutable source checkouts. The cached ONA module captures its
+source digest at import and refuses a later tick if disk sources changed;
+a fresh grant must not relabel already-loaded old code as a new implementation.
 
 Issue authorship and signed webhook delivery establish provider observations,
 not Principal authorization. Existing Inseme webhook ingress remains separate:

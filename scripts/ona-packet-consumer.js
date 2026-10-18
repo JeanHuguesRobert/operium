@@ -23,6 +23,8 @@ export function consumerSource(root = ROOT) {
   return { operium_commit: revision(root), inseme_commit: revision(path.resolve(root, "../inseme")),
     implementation_sha256: hash(hashes), files: hashes };
 }
+// ONA caches imported job modules. Never label old loaded code with new disk hashes.
+const loadedSource = consumerSource();
 
 export async function runConsumerTick({ db, policy, source, fetchImpl = globalThis.fetch,
   providers = defaultProviders(), publish, now = Date.now } = {}) {
@@ -95,10 +97,12 @@ export async function runScheduledHeartbeat({ env = process.env, fetch: fetchImp
     if (!path.isAbsolute(config.db_path || "") || config.db_path === ":memory:") throw new Error("durable_store_required");
     // Creating a different store must be an explicit operator act, never silent recovery.
     if (!fs.existsSync(config.db_path)) throw new Error("retained_store_missing");
+    const source = consumerSource();
+    if (source.implementation_sha256 !== loadedSource.implementation_sha256) throw new Error("loaded_source_changed");
     db = new DatabaseSync(config.db_path);
     db.exec("PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=1000;");
     db.exec(fs.readFileSync(new URL("../lib/node-agent/migrations/005_cop_events.sql", import.meta.url), "utf8"));
-    return await runConsumerTick({ db, policy, source: consumerSource(), fetchImpl });
+    return await runConsumerTick({ db, policy, source, fetchImpl });
   } catch { return { ok: false, error: "packet_consumer_unavailable" }; }
   finally { db?.close(); }
 }
