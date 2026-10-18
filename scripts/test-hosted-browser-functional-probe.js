@@ -13,6 +13,12 @@ await withServer(socket=>socket.end('RFB 003.008\n'),async port=>{
  const result=await probeRfb({port});
  assert.equal(result.status,'responsive');assert.equal(result.verified,'protocol-only');
 });
+await withServer(socket=>{
+ socket.write('RFB 003.');
+ setImmediate(()=>socket.end('008\n'));
+},async port=>{
+ assert.equal((await probeRfb({port})).status,'responsive');
+});
 await withServer(socket=>socket.end('HELLO WORLD!'),async port=>{
  assert.equal((await probeRfb({port})).reason,'invalid_banner');
 });
