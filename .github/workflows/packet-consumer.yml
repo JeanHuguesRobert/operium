@@ -6,7 +6,7 @@ on:
       - 'scripts/*packet-consumer.js'
       - '.github/workflows/packet-consumer.yml'
   push:
-    branches: ['feat/issue-165-generic-consumer']
+    branches: ['main', 'feat/issue-165-generic-consumer']
   workflow_dispatch: {}
 permissions:
   contents: read

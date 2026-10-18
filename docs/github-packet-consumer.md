@@ -11,7 +11,7 @@ document_kind: implementation-guide
 visibility: public
 lifecycle_state: working
 update_policy: UP-DEFAULT-REVIEWED
-canonical_url: https://github.com/JeanHuguesRobert/operium/blob/feat/issue-165-generic-consumer/docs/github-packet-consumer.md
+canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/docs/github-packet-consumer.md
 generated_by: Codex
 provenance:
   origin_type: repository
@@ -31,10 +31,10 @@ Resume https://github.com/JeanHuguesRobert/inseme/issues/165.
 This experimental Operium implementation generalizes the
 [#141 adapter](mobile-termux-diagnostic.md) through the existing ONA script-job
 hook and COP event store. It adds no daemon, scheduler or default job. It has
-not been deployed, activated or granted production execution authority.
-The feature branch is stacked on `feat/mobile-termux-diagnostic-141`; its PR
-targets that branch so the #165 delta can be reviewed separately. Neither
-branch is authorized to merge into main by #165.
+completed a bounded resident Reality Test on 2026-10-18 under fresh Principal
+authorization. The policy is now disabled. The original feature branch was
+stacked on `feat/mobile-termux-diagnostic-141`; the Principal subsequently
+authorized redeployment and convergence toward main. See the evidence below.
 
 ## Contract and authority
 
@@ -186,5 +186,46 @@ behavior. The dedicated CI workflow pins the sibling Inseme dependency.
 Before a live Reality Test, obtain a fresh scoped Principal grant, reviewed
 source revision, deployment/activation authority and callback scope. Then show
 one accepted request, one unauthorized rejection, exact GitHub readback, cold
-replay without duplicate execution, and retained receipts. Until then #165 is
-an open continuation; no production integration success is implied.
+replay without duplicate execution, and retained receipts. The bounded test below
+satisfies those live checks; further activation remains separately governed.
+
+## Verified resident Reality Test — 2026-10-18
+
+The Principal explicitly authorized the bounded deployment, fresh grant and
+callback, then confirmed redeployment and convergence toward main. This is an
+operational observation, not promotion of this experimental profile to doctrine.
+
+- Deployed Operium `ecd235b613c3aa644257c8e7a91633679418465b`, reconciled with
+  main at that time, and Inseme `71b9e7e6b5c8c9cbf0cd03973a77c346e85d65f6`
+  in isolated sibling checkouts under `/srv/cogentia/deployments/packet-165/repos`.
+- Added the `packet:inseme-165` script job to the existing ONA scheduler through
+  an additive systemd environment drop-in, preserving #141. ONA was restarted
+  once at 07:56:13 UTC; no other service or SSH trust was changed.
+- Invalid signature rejected at 07:56:45 UTC, with no claim or provider effect.
+  The interrupted session outlasted the first grant; it was never executed.
+  After resumption, a fresh one-hour grant was signed with an ephemeral key
+  held only in memory, under the independently given Principal mandate.
+- The resident job completed the fixed mobile diagnostic at 16:05:20 UTC:
+  exit 0, `u0_a393`, Git `2.56.0`, simulation false. Execution identity:
+  `3b4f2e63-2b27-4a09-b253-75d7cba2be57`.
+- [Automatic receipt and verified return](https://github.com/JeanHuguesRobert/inseme/issues/165#issuecomment-6252058909).
+  [Retained sanitized evidence](evidence/packet-165-reality.json) includes cold
+  replay, scheduler observation and disabled-policy verification. One binding,
+  spent grant, receipt and delivery remain; cold replay made zero API reads.
+  The first evidence assertion incorrectly required observation counts to stay
+  fixed; replay may append an observation. The corrected check compares effects,
+  and confirms no duplicate execution or delivery.
+- All 27 focused tests passed on Windows and Fracta; all 32 test scripts at the
+  deployed revision passed on Linux. The broader Windows run encountered Bash
+  access denial, not a consumer failure.
+
+The retained store is `/srv/cogentia/var/packet-165/resident.sqlite`; never replace
+it to retry work. `policy.json` there now has `enabled: false`. The additive job
+remains inert and returns `policy_disabled`; future execution requires a new
+explicitly bounded mandate. Keep the #141 store untouched. Recovery is to disable
+this policy first; removing only `165-packet-consumer.conf` and restarting ONA
+restores the previous job set when such housekeeping is authorized. Retain source
+checkouts, policy evidence and both stores.
+
+The demonstrated ingress is GitHub API reconciliation. Signed webhook wake-up
+linkage and general recurrent execution are not claimed by this test.

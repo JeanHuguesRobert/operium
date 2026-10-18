@@ -17,16 +17,19 @@ items:
       Experimental branch adds an opt-in script adapter to the existing ONA
       scheduler and COP event store. Local tests cover two provider types,
       signed admission, concurrent claims, cold recovery and verified callback
-      semantics. No production activation or real grant has occurred.
+      semantics. The authorized 2026-10-18 resident Reality Test rejected an
+      invalid signature, executed once, verified its GitHub callback and cold
+      replayed without another effect. The test policy is now disabled.
     next_action: >
-      Review docs/github-packet-consumer.md and the #165 feature PR; obtain
-      separate deployment/activation and fresh Principal execution authority
-      before a production-like Reality Test. Do not merge main under this mandate.
+      Reconcile the demonstrated API consumer with the remaining webhook wake
+      linkage scope in #165. General recurrent execution needs a separate mandate.
+      Preserve the retained store and disabled policy; see docs/github-packet-consumer.md.
     opened_at: "2026-10-18"
     closed_at: null
     notes: |
       Parent packet: https://github.com/JeanHuguesRobert/inseme/issues/165
-      Stacked on feat/mobile-termux-diagnostic-141; inherited #141 grant is expired.
+      Principal authorized redeployment and main convergence on 2026-10-18.
+      The inherited #141 grant remains expired and was not reused.
   - id: OP-BUG-010
     kind: bug
     title: Hosted Browser listener health does not establish functional HTTPS or RFB recovery

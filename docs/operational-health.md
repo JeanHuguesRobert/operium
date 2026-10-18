@@ -13,6 +13,15 @@ classification_confidence: "medium"
 
 Operium tracks operational health before it tries to automate monitoring.
 
+### 2026-10-18 — bounded multi-packet consumer test
+
+The Fracta resident ONA test for [Inseme #165](https://github.com/JeanHuguesRobert/inseme/issues/165)
+rejected an invalid grant, executed one authorized fixed mobile diagnostic,
+verified its GitHub receipt and cold-replayed without duplicate execution or
+delivery. The test policy is disabled; ONA remains active after one authorized
+restart. Existing #141 state and unrelated working changes were preserved.
+See the [operator record and recovery](github-packet-consumer.md#verified-resident-reality-test--2026-10-18).
+
 The goal is to make fragility visible, discussable and actionable.
 
 ## Minimal health scale
