@@ -129,6 +129,12 @@ a 5-second deadline; each callback subprocess has a 10-second deadline and
 bounded output. A worst-case eight-entry tick can approach eight minutes;
 use one existing serial scheduler job with a suitable interval, never overlapping
 parallel databases. No unlimited discovery or recursive polling is performed.
+Failed observations, unavailable providers and failed callbacks leave durable
+per-request repair events. Subsequent ticks defer that request for 30 seconds,
+then exponentially up to 15 minutes. Other requests continue independently.
+The tick reports API-read attempts and provider quota as `not_estimated`.
+This is bounded repair inside the existing scheduler, not the full shared
+quota/reserve allocator discussed in Inseme #89.
 
 The store must already exist; missing stores fail closed instead of silently
 creating a new execution universe. Initial provisioning, persistent activation,

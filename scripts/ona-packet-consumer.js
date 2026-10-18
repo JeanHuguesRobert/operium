@@ -4,8 +4,9 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { DatabaseSync } from "node:sqlite";
 import { spawnSync } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import { hash, parseIssue, packetKey, consumePacket, defaultProviders, publishPacketReceipt } from "../lib/node-agent/packet-consumer.js";
-import { getCopEvent } from "../lib/node-agent/cop-events.js";
+import { appendCopEvent, getCopEvent } from "../lib/node-agent/cop-events.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 export function consumerSource(root = ROOT) {
@@ -32,7 +33,21 @@ export async function runConsumerTick({ db, policy, source, fetchImpl = globalTh
       config.requests.length > 8 || !Array.isArray(config.repositories) || !config.issuers ||
       !Array.isArray(config.revoked_grants)) throw new Error("invalid_consumer_policy");
   const results = [];
+  let apiReads = 0;
   for (const item of config.requests) {
+    const repairKey = `packet-repair:${hash([item.repository, item.issue, item.id, item.signed_grant || null])}`;
+    const repairRow = db.prepare("SELECT envelope_json FROM cop_events WHERE kind = 'cop/packet.repair.v1' AND obligation_id = ? ORDER BY seq DESC LIMIT 1").get(repairKey);
+    const repair = repairRow ? JSON.parse(repairRow.envelope_json).payload : null;
+    if (repair?.retry_at > now()) {
+      results.push({ id: item.id, ok: false, status: "deferred", error: "repair_backoff", retry_at: repair.retry_at });
+      continue;
+    }
+    const defer = reason => {
+      const attempt = Math.min((repair?.attempt || 0) + 1, 6);
+      const retry_at = now() + Math.min(30000 * 2 ** (attempt - 1), 900000);
+      appendCopEvent(db, { id: `${repairKey}:${randomUUID()}`, kind: "cop/packet.repair.v1",
+        payload: { attempt, retry_at, reason } }, { obligation_id: repairKey });
+    };
     try {
       // Trusted local configuration scopes API reads, never Issue-provided URLs.
       if (!config.repositories.includes(item.repository) || !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(item.repository || "") ||
@@ -44,6 +59,7 @@ export async function runConsumerTick({ db, policy, source, fetchImpl = globalTh
       let packet;
       if (queued && getCopEvent(db, `${key}:result`)) packet = { request: queued.request };
       else {
+        apiReads++;
         const response = await fetchImpl(`https://api.github.com/repos/${item.repository}/issues/${item.issue}`, {
           headers: { Accept: "application/vnd.github+json", "User-Agent": "operium-packet-consumer" },
           signal: AbortSignal.timeout(5000), redirect: "error" });
@@ -57,13 +73,16 @@ export async function runConsumerTick({ db, policy, source, fetchImpl = globalTh
         publish: publish || (receipt => publishPacketReceipt(receipt, { actor: current().callback_actor })) });
       results.push({ id: item.id, ok: result.ok, status: result.execution_receipt?.status || result.status,
         error: result.error || null, delivery: result.delivery || null });
+      if (!result.ok) defer(result.error || result.execution_receipt?.status || "pending");
     } catch (error) {
       // Never return raw provider/authentication/JSON errors to operational logs.
       const known = /^(grant_|invalid_grant_signature|untrusted_principal|packet_identity_conflict|claimed_execution_outcome_unknown|claim_contended|callback_|delivery_|provider_unavailable)/.test(error.message);
       results.push({ id: item.id, ok: false, error: known ? error.message : "packet_tick_failed" });
+      defer(known ? error.message : "packet_tick_failed");
     }
   }
-  return { ok: results.every(result => result.ok), results };
+  return { ok: results.every(result => result.ok), results,
+    control: { api_read_attempts: apiReads, provider_quota_remaining: "not_estimated" } };
 }
 
 export async function runScheduledHeartbeat({ env = process.env, fetch: fetchImpl } = {}) {

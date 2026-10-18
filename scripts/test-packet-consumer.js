@@ -262,9 +262,13 @@ test("bounded multi-issue API tick survives unauthorized and failed callbacks, t
   const initial = await runConsumerTick(options);
   assert.equal(initial.ok, false); assert.equal(initial.results.length, 3);
   assert.equal(callbacks, 2); assert.equal(f.calls.length, 1);
+  const deferred = await runConsumerTick(options);
+  assert.equal(deferred.control.api_read_attempts, 0);
+  assert.equal(deferred.control.provider_quota_remaining, "not_estimated");
+  assert.ok(deferred.results.every(result => result.error === "repair_backoff"));
   f.reopen();
   f.policy.requests.shift();
-  const repaired = await runConsumerTick({ ...options, db: f.db, publish: delivered,
+  const repaired = await runConsumerTick({ ...options, db: f.db, publish: delivered, now: () => instant + 31000,
     fetchImpl: () => assert.fail("durable outbox should not refetch") });
   assert.equal(repaired.ok, true); assert.equal(f.calls.length, 1); assert.equal(fetches, 3);
   assert.equal((await runConsumerTick({ ...options, db: f.db, policy: { enabled: false } })).skipped, "policy_disabled");
