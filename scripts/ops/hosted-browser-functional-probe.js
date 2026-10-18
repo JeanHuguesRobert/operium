@@ -19,10 +19,13 @@ export function probeRfb({host='127.0.0.1', port=5911, timeoutMs=3000}={}) {
     socket.setTimeout(timeoutMs);
     socket.once('error',e=>finish('failed',e.code||'connect_error'));
     socket.once('timeout',()=>finish('failed','timeout'));
-    socket.once('data',data=>{
-      const banner=data.subarray(0,12).toString('ascii');
-      finish(/^RFB 00[3-9]\.00[0-9]\n$/.test(banner) ? 'responsive':'failed',
-        /^RFB 00[3-9]\.00[0-9]\n$/.test(banner) ? 'rfb_banner':'invalid_banner');
+    // TCP can split the 12-byte RFB banner across multiple frames.
+    let banner=Buffer.alloc(0);
+    socket.on('data',data=>{
+      banner=Buffer.concat([banner,data]);
+      if(banner.length<12)return;
+      const valid=/^RFB 00[3-9]\\.00[0-9]\\n$/.test(banner.subarray(0,12).toString('ascii'));
+      finish(valid?'responsive':'failed',valid?'rfb_banner':'invalid_banner');
     });
     socket.once('end',()=>finish('failed','closed_before_banner'));
   });
