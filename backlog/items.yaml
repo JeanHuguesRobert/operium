@@ -27,6 +27,29 @@ items:
     notes: |
       Parent packet: https://github.com/JeanHuguesRobert/inseme/issues/165
       Stacked on feat/mobile-termux-diagnostic-141; inherited #141 grant is expired.
+  - id: OP-BUG-010
+    kind: bug
+    title: Hosted Browser listener health does not establish functional HTTPS or RFB recovery
+    subsystem: hosted-browser
+    severity: high
+    status: open
+    evidence: >
+      Cogentia issue 263 reports an RFB connect failure despite a listening
+      x11vnc process on 2026-10-18; live state has not been revalidated.
+      Source inspection of Operium commit 6076f0b confirms that the local
+      health script checks only HTTP status and restarts without a functional
+      postcondition. That script is absent from main at 6441326.
+    next_action: >
+      Follow docs/hosted-browser-recovery-contract.md: reconcile the deployed
+      baseline through Operium, implement separate bounded functional probes,
+      and obtain operational authority plus client-session impact evidence
+      before any production recovery.
+    blocks_features: true
+    opened_at: "2026-10-18"
+    closed_at: null
+    notes: |
+      Parent packet: https://github.com/JeanHuguesRobert/cogentia/issues/263
+      Prepared correction packet only; no deployment or restart performed.
 
   # ── Bugs (fix first) ─────────────────────────────────────────────
 
