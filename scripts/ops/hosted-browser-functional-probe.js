@@ -24,7 +24,7 @@ export function probeRfb({host='127.0.0.1', port=5911, timeoutMs=3000}={}) {
     socket.on('data',data=>{
       banner=Buffer.concat([banner,data]);
       if(banner.length<12)return;
-      const valid=/^RFB 00[3-9]\\.00[0-9]\\n$/.test(banner.subarray(0,12).toString('ascii'));
+      const valid=/^RFB 00[3-9]\.00[0-9]\n$/.test(banner.subarray(0,12).toString('ascii'));
       finish(valid?'responsive':'failed',valid?'rfb_banner':'invalid_banner');
     });
     socket.once('end',()=>finish('failed','closed_before_banner'));
