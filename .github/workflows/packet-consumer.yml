@@ -22,6 +22,11 @@ jobs:
           repository: JeanHuguesRobert/inseme
           ref: 71b9e7e6b5c8c9cbf0cd03973a77c346e85d65f6
           path: inseme
+      - uses: actions/checkout@v4
+        with:
+          repository: JeanHuguesRobert/cogentia
+          ref: 00b3431b79f218be253bccf9f3ec1bdce733a2c3
+          path: cogentia
       - uses: actions/setup-node@v4
         with:
           node-version: 24
