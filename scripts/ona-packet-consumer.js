@@ -10,7 +10,7 @@ import { appendCopEvent, getCopEvent } from "../lib/node-agent/cop-events.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 export function consumerSource(root = ROOT) {
-  const files = ["scripts/ona-packet-consumer.js", "lib/node-agent/packet-consumer.js", "lib/node-agent/mobile-diagnostic.js",
+  const files = ["scripts/ona-packet-consumer.js", "scripts/service-check-worker.js", "lib/node-agent/packet-consumer.js", "lib/node-agent/mobile-diagnostic.js",
     "lib/node-agent/cop-events.js", "lib/node-agent/migrations/005_cop_events.sql",
     "../inseme/packages/cop-core/src/github-ingress.js", "../inseme/packages/cop-core/src/continuation-result.js",
     "../inseme/packages/magistral/src/execution.js"];
@@ -53,11 +53,27 @@ export async function runConsumerTick({ db, policy, source, fetchImpl = globalTh
     try {
       // Trusted local configuration scopes API reads, never Issue-provided URLs.
       if (!config.repositories.includes(item.repository) || !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(item.repository || "") ||
-          !Number.isSafeInteger(item.issue) || item.issue < 1 || typeof item.id !== "string") throw new Error("invalid_discovery_target");
+          !Number.isSafeInteger(item.issue) || item.issue < 1 ||
+          (typeof item.id !== "string" && item.follow_issue !== true)) throw new Error("invalid_discovery_target");
+      if (item.follow_issue === true && item.signed_grant?.grant?.schema !== "operium.service-check-grant/v1")
+        throw new Error("grant_follow_issue_not_admitted");
       // Persisted receipts can be delivered without fetching GitHub work again.
       // consumePacket still rechecks signed authority, source and complete identity.
-      const key = packetKey(item);
-      const queued = getCopEvent(db, `${key}:queued`)?.envelope.payload;
+      let key = packetKey(item);
+      let queued = getCopEvent(db, `${key}:queued`)?.envelope.payload;
+      if (item.follow_issue === true) {
+        // Finish an already executed callback before observing the next request.
+        // A changed Issue must not abandon an immutable pending receipt.
+        const pending = db.prepare(`SELECT q.envelope_json FROM cop_events q
+          JOIN cop_events r ON r.id = substr(q.id, 1, length(q.id)-7) || ':result'
+          LEFT JOIN cop_events d ON d.id = substr(q.id, 1, length(q.id)-7) || ':delivery'
+          WHERE q.kind = 'cop/packet.queued.v1' AND d.id IS NULL
+          AND json_extract(q.envelope_json, '$.payload.request.repository') = ?
+          AND json_extract(q.envelope_json, '$.payload.request.issue') = ?
+          ORDER BY q.seq LIMIT 1`).get(item.repository, item.issue);
+        queued = pending ? JSON.parse(pending.envelope_json).payload : null;
+        if (queued) key = packetKey(queued.request);
+      }
       let packet;
       if (queued && getCopEvent(db, `${key}:result`)) packet = { request: queued.request };
       else {
@@ -67,18 +83,19 @@ export async function runConsumerTick({ db, policy, source, fetchImpl = globalTh
           signal: AbortSignal.timeout(5000), redirect: "error" });
         if (!response.ok) throw new Error("github_read_failed");
         packet = parseIssue(await response.json(), item.repository);
-        if (packet.request.id !== item.id || packet.request.issue !== item.issue) throw new Error("discovery_identity_mismatch");
+        if ((item.follow_issue !== true && packet.request.id !== item.id) || packet.request.issue !== item.issue) throw new Error("discovery_identity_mismatch");
       }
       // Refresh the grant and revocation source after the network wait.
-      const freshItem = current().requests?.find(value => value.repository === item.repository && value.issue === item.issue && value.id === item.id);
+      const freshItem = current().requests?.find(value => value.repository === item.repository && value.issue === item.issue &&
+        value.id === item.id && value.follow_issue === item.follow_issue);
       const result = consumePacket({ db, packet, signedGrant: freshItem?.signed_grant, policy, source, providers, now,
         publish: publish || (receipt => publishPacketReceipt(receipt, { actor: current().callback_actor })) });
-      results.push({ id: item.id, ok: result.ok, status: result.execution_receipt?.status || result.status,
+      results.push({ id: packet.request.id, ok: result.ok, status: result.execution_receipt?.status || result.status,
         error: result.error || null, delivery: result.delivery || null });
       if (!result.ok) defer(result.error || result.execution_receipt?.status || "pending");
     } catch (error) {
       // Never return raw provider/authentication/JSON errors to operational logs.
-      const known = /^(grant_|invalid_grant_signature|untrusted_principal|packet_identity_conflict|claimed_execution_outcome_unknown|claim_contended|callback_|delivery_|provider_unavailable)/.test(error.message);
+      const known = /^(grant_|service_catalogue_changed|service_runtime_mismatch|invalid_grant_signature|untrusted_principal|packet_identity_conflict|claimed_execution_outcome_unknown|claim_contended|callback_|delivery_|provider_unavailable)/.test(error.message);
       results.push({ id: item.id, ok: false, error: known ? error.message : "packet_tick_failed" });
       defer(known ? error.message : "packet_tick_failed");
     }
@@ -102,7 +119,8 @@ export async function runScheduledHeartbeat({ env = process.env, fetch: fetchImp
     db = new DatabaseSync(config.db_path);
     db.exec("PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=1000;");
     db.exec(fs.readFileSync(new URL("../lib/node-agent/migrations/005_cop_events.sql", import.meta.url), "utf8"));
-    return await runConsumerTick({ db, policy, source, fetchImpl });
+    return await runConsumerTick({ db, policy, source, fetchImpl,
+      providers: defaultProviders({ serviceChecks: config.service_checks || {} }) });
   } catch { return { ok: false, error: "packet_consumer_unavailable" }; }
   finally { db?.close(); }
 }

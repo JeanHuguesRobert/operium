@@ -60,12 +60,13 @@ new work needs a new ID and a separately authorized grant.
 }
 ```
 
-Only two source-defined providers exist:
+Three source-defined providers exist:
 
 | Operation | Scope | Control reference |
 | --- | --- | --- |
 | `local.sha256/v1` | Hash at most 4096 UTF-8 bytes supplied as text; no file access | `operium:local-sha256:v1` |
 | `mobile.termux.diagnostic/v1` | Fixed `whoami && git --version` on `poco-jhr`, through the #141 strict SSH invocation on host `fracta` | `operium:mobile-termux:v1` |
+| `service.health.check/v1` | One bounded GET of a named service health endpoint from the protected local catalogue | `operium:service-health:v1` |
 
 Mobile output is filtered; stderr is withheld. Timeout is 100–15000 ms, output
 is bounded, and no Issue string becomes a shell command, host or executable.
@@ -245,3 +246,72 @@ relay, preserve wakes during execution, and keep independent execution grants.
 This supersedes the earlier checkpoint's interpretation that #165 must stay open
 solely for webhook linkage. Completion does not promote this experimental profile
 to doctrine or authorize another live execution.
+
+## On-demand service checks and reusable bounded grants
+
+Resume [Inseme #172](https://github.com/JeanHuguesRobert/inseme/issues/172).
+
+The service-check extension supports repeated requests within a signed scope.
+It is implementation, not evidence of activation. The previous #165 deployment
+remains pinned; changing source invalidates its implementation digest.
+
+A request retains the existing envelope and uses
+`operation: {"kind":"service.health.check/v1","service":"ona-fracta"}`.
+The local policy maps that name through
+`service_checks: {"ona-fracta":{"url":"http://127.0.0.1:8794/health","hostname":"fracta"}}`.
+The provider checks the actual runtime hostname before spending a grant; a
+loopback URL cannot silently refer to a different machine's service.
+The Issue cannot supply a URL, port, command, credentials or script. Deployment
+operators must select endpoints safe for read-only GET and disclosure of the
+sanitized health result. Redirects and URL credentials are refused; response
+reading is limited to 16 KiB and the request's deadline. Bodies and network
+errors are not published. No credentials or authentication headers are supplied.
+
+The observation reports reachability, HTTP status, declared health, a sanitized
+reported version/commit when present, and time. `reported_healthy` means the
+endpoint returned HTTP success and `ok: true`. It does not establish an actual
+deployed revision or a working user journey: `deployed_revision_verified: false`
+and `functional_check: not_performed` remain explicit. A completed observation
+can describe a degraded service; receipt completion is not service success.
+
+The Ed25519 `operium.service-check-grant/v1` keeps the existing issuer, Principal,
+source digest, provider/control references, read-only ceiling, simulation,
+timeout, callback permission and validity fields. Instead of a single request
+digest it signs:
+
+```json
+{
+  "requests": [{"repository":"owner/repository","issue":1}],
+  "services": ["ona-fracta"],
+  "catalogue_sha256": "SHA-256 of canonical policy.service_checks",
+  "max_executions": 20,
+  "min_interval_ms": 60000
+}
+```
+
+Validity is at most 31 days; the lifetime budget is 1–1000 executions and the
+minimum interval is at least one minute, shared across the entire grant. There
+is no silent renewal. The signature authorizes only service checks on the named
+issues/services, not mobile commands or other operation kinds. Local policy
+revocation is durable. Changing a used grant's contents under its ID fails
+closed. Claims atomically consume budget in the same retained event store;
+failed attempts spend budget too. Receipt replay does not spend it again.
+
+For a dedicated request Issue, configure one `requests` entry with repository,
+issue, `follow_issue: true`, and the signed reusable grant, omitting `id`. The
+operator replaces the typed descriptor with a new unique request ID for each
+check. Reusing an ID replays its receipt; editing its contents conflicts. This
+is a typed request interface, not a natural-language interpreter. No per-request
+local signature/configuration edit is needed within the standing scope.
+
+The consumer first retries any completed, undelivered receipt for that Issue,
+then observes the current request on a later tick. Thus an edited Issue cannot
+erase a pending callback. Callback failure/backoff remains bounded; exhaustion
+or revocation is explicit and does not authorize a new store. Grants scope which
+Issue may request work; Issue authorship alone remains insufficient authority.
+
+Suggested first activation envelope, subject to Principal selection: one named
+ONA endpoint on Fracta, one dedicated public Issue, seven days, twenty checks,
+one per minute at most. Keep service results suitable for that public return
+channel. Broader functional checks, authenticated services, repair/restart and
+deployment operations require their own capabilities and mandates.

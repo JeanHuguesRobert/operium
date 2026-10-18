@@ -11,6 +11,7 @@
     "operium-graph-http": "./bin/operium-graph-http.js"
   },
   "scripts": {
+    "test:service-checks": "node --test scripts/test-service-checks.js",
     "test:packet-consumer": "node --test scripts/test-packet-consumer.js",
     "test": "node scripts/run-tests.js",
     "test:cli-exit": "node scripts/test-operium-cli-exit.js",

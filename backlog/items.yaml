@@ -7,6 +7,26 @@ updated_at: "2026-10-18"
 owner: Operium
 
 items:
+  - id: OP-FEAT-SERVICE-CHECK-172
+    kind: feature
+    title: Check named services on demand under reusable bounded grants
+    subsystem: ona
+    priority: p2
+    status: in_progress
+    evidence: >
+      Typed health checks and reusable service-only grants are implemented with
+      catalogue/source pinning, expiry, durable shared budgets and rate limits.
+      Tests cover scoped rejection, replay, pending receipt recovery and actual
+      loopback HTTP bounds. No new resident activation or real grant was issued.
+    next_action: >
+      Confirm the Principal's activation selection, then pin and deploy the
+      tested revision with a dedicated request Issue and retained store.
+      Proposed first scope: Fracta ONA, seven days, twenty checks, one per minute.
+    opened_at: "2026-10-18"
+    closed_at: null
+    notes: |
+      Resume: https://github.com/JeanHuguesRobert/inseme/issues/172
+      Health declarations are not functional or deployed-revision proof.
   - id: OP-FEAT-PACKET-165
     kind: feature
     title: Consume multiple typed GitHub packets through independent signed grants
