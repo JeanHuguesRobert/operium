@@ -14,6 +14,12 @@ const blocked = (change,reason) =>
 blocked({mandate:{}},'restart_not_authorized');
 blocked({current:{...current,revision:'changed'}},'baseline_drift_or_unknown');
 blocked({sessions:{impact_known:false}},'client_impact_unknown');
+for (const active_clients of [undefined, null, -1, 0.5, '0', NaN, Infinity]) {
+ blocked({sessions:{impact_known:true,active_clients}},'client_impact_unknown');
+}
+for (const local_https of [undefined, null, 'unknown']) {
+ blocked({probes:{local_rfb:'failed',local_https}},'parent_https_unverified');
+}
 blocked({sessions:{impact_known:true,active_clients:1}},'active_rfb_clients');
 blocked({attempts:1},'recovery_budget_exhausted');
 blocked({probes:{...probes,local_rfb:'responsive'}},'no_confirmed_local_rfb_failure');

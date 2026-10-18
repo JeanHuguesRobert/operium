@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import net from 'node:net';
-import http from 'node:http';
 import {probeRfb,probeHttps} from './ops/hosted-browser-functional-probe.js';
 
 async function withServer(handler,task){
@@ -27,6 +26,19 @@ await withServer(()=>{},async port=>{
  assert.equal(result.reason,'timeout');
 });
 const closed=await withServer(()=>{},async port=>port);
+// A peer sending partial data must not extend the total probe deadline.
+await withServer(socket=>{
+ const timer=setInterval(()=>socket.write('R'),30);
+ socket.on('error',()=>{});
+ socket.on('close',()=>clearInterval(timer));
+},async port=>{
+ const result=await probeRfb({port,timeoutMs:100});
+ assert.equal(result.reason,'timeout');
+});
+// TLS handshake silence must also be bounded.
+await withServer(socket=>socket.resume(),async port=>{
+ assert.equal((await probeHttps({port,timeoutMs:100})).reason,'timeout');
+});
 assert.equal((await probeRfb({port:closed,timeoutMs:100})).status,'failed');
 assert.equal((await probeHttps({port:closed,timeoutMs:100})).status,'failed');
 console.log('Hosted Browser read-only protocol probes: passed');
