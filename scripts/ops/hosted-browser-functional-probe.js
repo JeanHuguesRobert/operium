@@ -6,6 +6,8 @@
  */
 import net from 'node:net';
 import https from 'node:https';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
 
 export function probeRfb({host='127.0.0.1', port=5911, timeoutMs=3000}={}) {
   return new Promise(resolve => {
@@ -68,7 +70,7 @@ function options(argv){
   result.port??=(result.kind==='rfb'?5911:8444);
   return result;
 }
-if(process.argv[1]&&import.meta.url===new URL('file://'+process.argv[1].replace(/\\/g,'/')).href){
+if(process.argv[1]&&path.resolve(process.argv[1])===path.resolve(fileURLToPath(import.meta.url))){
   try {
     const o=options(process.argv.slice(2));
     const output=await(o.kind==='rfb'?probeRfb(o):probeHttps(o));
