@@ -119,9 +119,9 @@ Cogentia doctrine; the shared instruction also passed. Both scoped Git diff
 checks passed. The corpus instruction audit found two unrelated existing gaps:
 `barons-Mariani/projects/capable/AGENTS.md` lacks the explicit shared reference,
 and `suicide-corse/AGENTS.md` is missing. They were not changed in this task.
-No live probe, production mutation, commit, push or issue update was performed
-as part of this preparation. Publication is still required before the new
-canonical packet URL can serve a cold remote handler.
+No live probe or production mutation was performed as part of that initial
+preparation. The packet was subsequently published in `4d4d703`; the dated
+receipt below supersedes the initial observation limitations.
 
 The implementer must exercise refused connect, silent/stalled listener, malformed
 RFB banner, successful local protocol but broken proxy, successful restart with
@@ -135,3 +135,61 @@ prepare the smallest patch. Only after the separate authority and impact gates
 may the handler execute recovery. Return exact commits, checks, attempted effects,
 functional evidence and residual uncertainty. Keep OP-BUG-010 open until the
 functional acceptance contract is evidenced; do not close it on documentation.
+
+## Resumption receipt — 2026-10-18, 16:17 UTC onward
+
+Source baseline: `22695ffa54d31b440c3e433c3d075617b88a8aa5` on Operium main.
+The existing main checkout was refreshed with `rebase --autostash`; the unrelated
+simulator document edit and primary WIP branch were preserved. The FBF list
+reported OP-BUG-010 open/high and the feature gate remained blocked.
+
+`npm run test:hosted-browser-health` passed on that baseline with Node `v24.5.0`
+and again after the scoped corrections below (exit 0, all three suites reported
+passed). `git diff --check` passed. The added regression cases cover missing or
+invalid client counts, unknown HTTPS evidence, slow partial RFB traffic and a
+silent TLS handshake. This is an actual repository execution receipt, not an
+inference from reviewing tests.
+
+Corrections: a missing/invalid client count formerly passed the recovery guard
+when `impact_known` was true; unknown HTTPS evidence also passed. Both now refuse
+eligibility. Socket inactivity timeouts could renew under partial traffic; probes
+now enforce an absolute deadline and cap the RFB banner buffer at 12 bytes.
+Prevention: test incomplete evidence and traffic that progresses without completing
+the protocol. The recovery helper remains pure; no executor or restart was added.
+
+Native SSH read-only inspection and in-memory execution of the repository probe
+functions produced the following bounded observations. No remote file was written,
+no credentials used, and no service configuration changed:
+
+| Surface | Actual observation | Limit |
+| --- | --- | --- |
+| fracta2 units | Parent browser and RFB units active | Activity is not usability |
+| fracta2 RFB :5911 | Accept queue 33/32; 14 established TCP connections; local banner probe timed out at 3000 ms | TCP connections do not establish authenticated clients or accepted interruption |
+| fracta RFB proxy | Socket ports 5900/5901; service active; probe through local :5900 timed out at 3000 ms | Public remote-client path and :5901 not tested |
+| fracta2 HTTPS :8444 | HTTP 401, local self-signed certificate allowed explicitly | Listener only; no authenticated session |
+| Public HTTPS | `https://browser.fractavolta.com` returned 401 with TLS validation enabled | Listener only; original transient HTTPS cause still unknown |
+
+Deployed identity evidence (SHA-256):
+
+| Artifact | Deployed digest | Reconciliation |
+| --- | --- | --- |
+| RFB unit | `32f191cc689892ca52d6347b5ed64d89a3747699490fbe0e4a6abaa39ee7f8ef` | Matches main template |
+| Parent unit | `fe720858839802b387558d929d4f686d70cf3f46b20182983432f5c5b0d067f8` | Differs from main template |
+| RFB startup script | `02956cb057cf35948327746cc6150a8f56259f87d3033303fae16581fdfdd860` | Differs from main template |
+| Parent startup script | `75f6e4d28c0806b753ba64d3c05652d38d4e3e55d17ef17c6d979ed2b58a02c1` | Differs from main template |
+| Listener health script | `2ec852a15ca0cf8062c72f37ed78553346f239ae2779727399df62e660b52a9a` | Exact match to `6076f0b:templates/hosted-browser/check-hosted-browser-health.sh` |
+
+The deployed health script accepts HTTP 200/401/403; otherwise it restarts the
+parent browser unit without a functional postcondition. It was read, never run.
+RFB unit activation was dated 2026-10-16 03:47:36 UTC. File hashes establish
+current on-disk identity, not that a running process loaded those exact bytes.
+
+Remaining gates: `BLOCKED_ON_AUTHORITY` for any production restart/deployment;
+client-session impact remains unverified. Local RFB fails before authentication,
+so authenticated framebuffer usability cannot be established on that path now.
+Do not request or disclose credentials to bypass this failure. Refresh live state
+and impact immediately before any separately authorized action. Reconcile the
+three differing deployed artifacts before selecting a deployment patch; retain
+the parent browser/session, perform at most one RFB-only recovery, and verify
+all contractual postconditions. No recovery, deployment or end-to-end success is
+claimed. OP-BUG-010 and Cogentia #263 remain open.

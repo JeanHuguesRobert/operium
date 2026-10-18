@@ -15,16 +15,17 @@ export function probeRfb({host='127.0.0.1', port=5911, timeoutMs=3000}={}) {
     const socket=net.connect({host,port});
     const finish=(status,reason) => {
       if(done) return;
-      done=true; socket.destroy();
+      done=true; clearTimeout(deadline); socket.destroy();
       resolve({surface:'rfb',status,reason,verified:'protocol-only'});
     };
-    socket.setTimeout(timeoutMs);
+    // Absolute deadline: partial traffic must not renew the observation budget.
+    const deadline=setTimeout(()=>finish('failed','timeout'),timeoutMs);
     socket.once('error',e=>finish('failed',e.code||'connect_error'));
     socket.once('timeout',()=>finish('failed','timeout'));
     // TCP can split the 12-byte RFB banner across multiple frames.
     let banner=Buffer.alloc(0);
     socket.on('data',data=>{
-      banner=Buffer.concat([banner,data]);
+      banner=Buffer.concat([banner,data.subarray(0,12-banner.length)]);
       if(banner.length<12)return;
       const valid=/^RFB 00[3-9]\.00[0-9]\n$/.test(banner.subarray(0,12).toString('ascii'));
       finish(valid?'responsive':'failed',valid?'rfb_banner':'invalid_banner');
@@ -39,6 +40,7 @@ export function probeHttps({host='127.0.0.1',port=8444,timeoutMs=3000,allowSelfS
     const finish=(status,reason)=>{
       if(done)return;
       done=true;
+      clearTimeout(deadline);
       resolve({surface:'https',status,reason,verified:'listener-only'});
     };
     const req=https.request({hostname:host,port,path:'/',method:'HEAD',
@@ -47,6 +49,7 @@ export function probeHttps({host='127.0.0.1',port=8444,timeoutMs=3000,allowSelfS
         const code=res.statusCode;
         finish([200,401,403].includes(code)?'responsive':'failed', 'http_'+code);
     });
+    const deadline=setTimeout(()=>req.destroy(Object.assign(new Error('timeout'),{code:'timeout'})),timeoutMs);
     req.once('timeout',()=>req.destroy(Object.assign(new Error('timeout'),{code:'timeout'})));
     req.once('error',e=>finish('failed',e.code||'request_error'));
     req.end();

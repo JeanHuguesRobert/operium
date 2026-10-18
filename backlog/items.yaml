@@ -57,21 +57,28 @@ items:
     status: open
     evidence: >
       Cogentia issue 263 reports an RFB connect failure despite a listening
-      x11vnc process on 2026-10-18; live state has not been revalidated.
+      x11vnc process on 2026-10-18. Read-only revalidation at 16:17 UTC
+      found active units, RFB accept queue 33/32 and 14 established TCP
+      connections. Subsequent local and forwarded RFB probes timed out;
+      local and public HTTPS returned 401. Authenticated usability is unverified.
       Source inspection of Operium commit 6076f0b confirms that the local
       health script checks only HTTP status and restarts without a functional
-      postcondition. That script is absent from main at 6441326.
+      postcondition. Its SHA-256 matches the deployed script exactly;
+      it remains absent from main at 22695ff. See the recovery contract receipt.
     next_action: >
       Follow docs/hosted-browser-recovery-contract.md: reconcile the deployed
-      baseline through Operium, implement separate bounded functional probes,
-      and obtain operational authority plus client-session impact evidence
-      before any production recovery.
+      source reconciliation and obtain explicit RFB-only recovery authority
+      plus fresh client-session impact evidence before any production recovery.
+      Current tests pass; do not equate 14 TCP connections with usable clients.
+      After authorized recovery, verify local/forwarded RFB and authenticated
+      framebuffer usability; otherwise keep this bug open.
     blocks_features: true
     opened_at: "2026-10-18"
     closed_at: null
     notes: |
       Parent packet: https://github.com/JeanHuguesRobert/cogentia/issues/263
-      Prepared correction packet only; no deployment or restart performed.
+      Read-only live diagnosis and tested probe/eligibility corrections delivered;
+      no deployment or restart performed. Existing observe nodes remains service-only.
 
   # ── Bugs (fix first) ─────────────────────────────────────────────
 
