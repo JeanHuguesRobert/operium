@@ -95,28 +95,30 @@ items:
     status: open
     evidence: >
       Cogentia issue 263 reports an RFB connect failure despite a listening
-      x11vnc process on 2026-10-18. Read-only revalidation at 16:17 UTC
-      found active units, RFB accept queue 33/32 and 14 established TCP
-      connections. Subsequent local and forwarded RFB probes timed out;
-      local and public HTTPS returned 401. Authenticated usability is unverified.
+      x11vnc process on 2026-10-18. At 16:17 UTC, RFB accept queue was 33/32
+      and 14 TCP connections were established; local and forwarded RFB probes
+      timed out. One authorized RFB-only restart at 21:20 UTC restored local
+      and forwarded protocol banners and emptied the accept queue. HTTPS local
+      and public returned 401. Authenticated VNC handshake was rejected;
+      framebuffer usability remains unverified.
       Source inspection of Operium commit 6076f0b confirms that the local
       health script checks only HTTP status and restarts without a functional
       postcondition. Its SHA-256 matches the deployed script exactly;
       it remains absent from main at 22695ff. See the recovery contract receipt.
     next_action: >
-      Follow docs/hosted-browser-recovery-contract.md: reconcile the deployed
-      source reconciliation and obtain explicit RFB-only recovery authority
-      plus fresh client-session impact evidence before any production recovery.
-      Current tests pass; do not equate 14 TCP connections with usable clients.
-      After authorized recovery, verify local/forwarded RFB and authenticated
-      framebuffer usability; otherwise keep this bug open.
+      Follow docs/hosted-browser-recovery-contract.md: inspect authorized
+      credential provisioning and deployed RFB process arguments; prepare a
+      minimal correction and obtain fresh authority before another production
+      mutation. One restart was used. Require authenticated framebuffer and
+      parent-session postconditions before closing this bug.
     blocks_features: true
     opened_at: "2026-10-18"
     closed_at: null
     notes: |
       Parent packet: https://github.com/JeanHuguesRobert/cogentia/issues/263
-      Read-only live diagnosis and tested probe/eligibility corrections delivered;
-      no deployment or restart performed. Existing observe nodes remains service-only.
+      Probe/eligibility corrections delivered. One authorized RFB-only restart
+      restored protocol responsiveness; authenticated VNC validation failed.
+      No deployment was performed. Existing observe nodes remains service-only.
 
   # ── Bugs (fix first) ─────────────────────────────────────────────
 

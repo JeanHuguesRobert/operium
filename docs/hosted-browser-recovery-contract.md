@@ -193,3 +193,40 @@ three differing deployed artifacts before selecting a deployment patch; retain
 the parent browser/session, perform at most one RFB-only recovery, and verify
 all contractual postconditions. No recovery, deployment or end-to-end success is
 claimed. OP-BUG-010 and Cogentia #263 remain open.
+
+## Authorized recovery follow-up — 2026-10-18, 21:20 UTC
+
+The Principal authorized the necessary recovery in the resumed session. Before
+acting, the handler refreshed the target state: RFB PID `531135`, parent browser
+PID `531041`, both active; the RFB accept queue remained `33/32` with 14
+established TCP connections. RFB unit and startup script hashes still matched
+the previously recorded values. The parent browser PID remained stable. The
+local RFB banner timed out while local HTTPS returned `401`. Impact was treated
+as an accepted RFB client disconnect within the Principal's explicit mandate;
+those TCP connections alone did not establish authenticated user sessions.
+
+The direct gateway attempt first failed because `ssh` was absent from its shell.
+The subsequent execution used the existing Operium route through the workstation
+gateway and native SSH to fracta2, then used `sudo -n` for exactly one restart of
+`hosted-browser-rfb@hosted-jeanhuguesrobert.service`. The gateway request timed
+out without returning a receipt, so the effect was verified independently:
+systemd's journal records the exact sudo command at `2026-10-18 21:20:47 UTC`,
+the unit's main PID changed to `753710`, and `ActiveEnterTimestamp` advanced to
+that time. The parent browser PID stayed `531041` and its activation time did
+not change. `NRestarts=0`; this was one explicit restart, not an automatic retry.
+
+After the restart, the RFB listener had an empty accept queue. The protocol-only
+banner probes returned `responsive` for fracta2 `127.0.0.1:5911` and the fracta
+loopback relay `127.0.0.1:5900`. Local HTTPS on `8444` and public HTTPS at
+`browser.fractavolta.com:443` both returned `401` (the public probe validated
+TLS). Thus the protocol and listener postconditions passed, and the parent
+browser process remained active.
+
+Authenticated VNC validation did not pass: the server rejected the bounded
+authentication handshake. No framebuffer pixels were retained or emitted.
+Authenticated framebuffer usability is **UNVERIFIED**, so no end-to-end
+recovery or bug closure is claimed. The single-restart budget is spent. Do not
+retry or change credentials in this continuation. The next action is to inspect
+the authorized credential provisioning path and deployed RFB process arguments,
+prepare a minimal credential correction, and obtain a fresh explicit mandate
+before any further production mutation. OP-BUG-010 and Cogentia #263 stay open.
