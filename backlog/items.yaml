@@ -3,7 +3,7 @@
 # Do not store secret values here.
 
 schema: operium.backlog.v1
-updated_at: "2026-10-18"
+updated_at: "2026-10-19"
 owner: Operium
 
 items:
@@ -12,17 +12,15 @@ items:
     title: In-process service consumer blocks the parent ONA health endpoint
     subsystem: ona
     severity: high
-    status: in_progress
+    status: done
     evidence: >
-      First live service172-ona-1 receipt reports timeout while the parent ONA
-      remains active. Synchronous provider execution blocks the parent's HTTP
-      loop. The new policy was suspended; the timeout and budget spent are retained.
-    next_action: >
-      Validate the isolated asynchronous script-job wrapper and repeat the health
-      check under a replacement grant bounded by the original remaining budget
-      and expiration. Preserve the store and prior receipt.
+      The first live service172-ona-1 receipt exposed event-loop blocking and
+      remains retained as a spent timeout. Commit 6a4660e isolates the probe in
+      a bounded child process; subsequent ONA and Guide checks returned verified
+      HTTP 200 health receipts. ONA remained active; no further fix is pending.
+    next_action: Preserve the failed receipt and regression test.
     opened_at: "2026-10-19"
-    closed_at: null
+    closed_at: "2026-10-19"
     notes: |
       Issue: https://github.com/JeanHuguesRobert/inseme/issues/172
   - id: OP-FEAT-SERVICE-CHECK-172
@@ -30,21 +28,23 @@ items:
     title: Check named services on demand under reusable bounded grants
     subsystem: ona
     priority: p2
-    status: in_progress
+    status: done
     evidence: >
       Typed health checks and reusable service-only grants are implemented with
       catalogue/source pinning, expiry, durable shared budgets and rate limits.
-      Tests cover scoped rejection, replay, pending receipt recovery and actual
-      loopback HTTP bounds. No new resident activation or real grant was issued.
-    next_action: >
-      Confirm the Principal's activation selection, then pin and deploy the
-      tested revision with a dedicated request Issue and retained store.
-      Proposed first scope: Fracta ONA, seven days, twenty checks, one per minute.
+      The selected seven-day scope checks ONA on Fracta and the public Guide on
+      Fracta2, with twenty total checks and a sixty-second minimum interval.
+      One timeout and two healthy results are retained; 17 checks remain.
+      Cold replay recovered the Guide receipt without a new provider execution.
+      Grant expires 2026-10-25T22:02:04.136Z.
+    next_action: Keep the grant and request issue available through expiry; request a new mandate for any extension.
     opened_at: "2026-10-18"
-    closed_at: null
+    closed_at: "2026-10-19"
     notes: |
       Resume: https://github.com/JeanHuguesRobert/inseme/issues/172
       Health declarations are not functional or deployed-revision proof.
+      Requests and verified receipts: https://github.com/JeanHuguesRobert/inseme/issues/173
+      Live evidence: docs/evidence/service-check-172.md
   - id: OP-FEAT-PACKET-165
     kind: feature
     title: Consume multiple typed GitHub packets through independent signed grants
