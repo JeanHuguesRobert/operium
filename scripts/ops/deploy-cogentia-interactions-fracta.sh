@@ -61,7 +61,7 @@ sudo systemd-analyze verify "$release/systemd/cogentia-sleep-cycle.service" "$re
 account=$(sudo python3 -c 'import pathlib,re; s=pathlib.Path("/srv/cogentia/secrets/stalwart-gmail-relay.env").read_text(); m=re.search(r"^GMAIL_SMTP_USER=(.+)$",s,re.M); print(m.group(1).strip().strip(chr(34)).strip(chr(39)) if m else "")')
 [[ "$account" =~ ^[a-zA-Z0-9._+%-]+@[a-zA-Z0-9.-]+$ ]] || { echo 'Managed Gmail account reference unavailable' >&2; exit 4; }
 cat > "$record/config.json" <<JSON
-{"authorized":true,"stateRoot":"$state","refreshRepositories":true,"maxCases":20,"readTimeoutMs":80000,"repositories":[{"name":"cogentia","root":"/srv/cogentia/repos/cogentia"},{"name":"JeanHuguesRobert","root":"/srv/cogentia/repos/JeanHuguesRobert"},{"name":"registre-mariani","root":"/srv/cogentia/repos/registre-mariani"}]}
+{"authorized":true,"stateRoot":"$state","refreshRepositories":true,"maxCases":3,"maxMessages":20,"readTimeoutMs":80000,"repositories":[{"name":"cogentia","root":"/srv/cogentia/repos/cogentia"},{"name":"JeanHuguesRobert","root":"/srv/cogentia/repos/JeanHuguesRobert"},{"name":"registre-mariani","root":"/srv/cogentia/repos/registre-mariani"}]}
 JSON
 cat > "$record/interactions.conf" <<UNIT
 [Service]
@@ -109,7 +109,7 @@ sudo install -m 600 -o ubuntu -g ubuntu "$record/config.json" "$config"
 sudo install -m 644 "$record/interactions.conf" "$override"
 # One explicitly budgeted initial functional probe; recurring runs retain the
 # qualification gate. This override is removed before the timer is enabled.
-printf '[Service]\nExecStart=\nExecStart=/usr/bin/node %s/scripts/run-corpus-sleep-cycle.js --force --max-pairs 5 --budget-ms 180000 --skip-repo-sync --skip-consolidation --no-cop-evidence --json\n' "$release" > "$record/probe.conf"
+printf '[Service]\nCPUSchedulingPolicy=other\nNice=10\nExecStart=\nExecStart=/usr/bin/node %s/scripts/run-corpus-sleep-cycle.js --force --interactions-only --budget-ms 180000 --skip-repo-sync --skip-consolidation --no-cop-evidence --json\n' "$release" > "$record/probe.conf"
 sudo install -m 644 "$record/probe.conf" "$probe"
 sudo systemctl daemon-reload
 sudo systemctl start cogentia-sleep-cycle.service
