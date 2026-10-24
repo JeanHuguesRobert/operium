@@ -56,20 +56,30 @@ last or next trigger. The COP wake descriptor remains `authorized: false` and
 is not active. The Cogentia checkout there was 180 commits behind `origin/main`
 with 14 pre-existing dirty source files. These facts establish that no systemd
 weekly schedule was active on that host, but do not explain why earlier weekly
-reports stopped. No service had been installed at the time of this inspection.
+reports stopped. The checkout remains at its original HEAD with those 14 files
+preserved; deployment uses an isolated release directory.
 
-## Next operational step
+## Installation and verification
 
-Use Fracta's versioned systemd timer and leave the COP wake path disabled.
-Install the exact pushed Cogentia release in an isolated directory, run the
-service once, validate the current-week completion packet and both privacy
-digests, then enable the timer and record its next trigger. The deployment
-script refuses to replace existing units or overwrite a dirty weekly output
-and captures the pre-existing checkout diff for recovery.
+Fracta's systemd route is now installed for the exact Cogentia commit
+`e86547c881919210f809baa143d7f8e1515a1d21`. The one-shot service completed
+successfully, and its functional check found the completed W43 packet plus
+both privacy digests. The timer is enabled and active; its next trigger is
+2026-10-25 04:00 UTC. The COP wake path remains disabled. Durable receipt:
+`/srv/operium/deployments/cogentia-weekly/20261024T072618Z-e86547c881919210f809baa143d7f8e1515a1d21`.
 
-For recovery, restore the previous installed unit from an inspected backup and
-restore its previous enabled/disabled state; do not guess that state from the
-source template. Preserve the attempted run's logs and typed outcome.
+The deployment script refuses to replace existing units or overwrite a dirty
+weekly output and captures the pre-existing checkout diff for recovery. Its
+first attempt stopped before installing units because the shared checkout
+lacked `js-yaml`; the release now installs frozen production dependencies in
+its isolated directory. The initial-install rollback removed the transient
+units, and the successful retry left the timer active.
+
+The pre-install baseline had no unit files or timer state to restore. To undo
+this initial installation, use the recorded rollback script; it disables the
+timer, stops the service, removes only these two units and the release
+override, then reloads systemd. Keep the release and deployment receipt for
+inspection. The first failed attempt and its rollback are recorded separately.
 
 Related: [Cogentia implementation boundary](https://github.com/JeanHuguesRobert/cogentia/blob/main/docs/sunday-consolidation-master-plan.md)
 and [Operium calendar](fracta-calendar.md).
