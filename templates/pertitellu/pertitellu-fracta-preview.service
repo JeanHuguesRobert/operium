@@ -1,0 +1,22 @@
+[Unit]
+Description=Pertitellu Corte Fracta preview API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/srv/cogentia/repos/inseme/apps/platform/fracta
+EnvironmentFile=/srv/cogentia/repos/inseme/.env
+Environment=PATH=/usr/local/node-v26.5.0/bin:/usr/bin:/bin
+Environment=PERTITELLU_HOST=127.0.0.1
+Environment=PERTITELLU_PORT=8893
+ExecStart=/usr/local/node-v26.5.0/bin/deno serve --config deno.json --allow-env=SUPABASE_URL,VITE_SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY,PERTITELLU_HOST,PERTITELLU_PORT,PERTITELLU_IGNORE_PROXY --allow-net --allow-read=/srv/cogentia/repos/inseme /srv/cogentia/repos/inseme/apps/platform/fracta/pertitellu-server.ts
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

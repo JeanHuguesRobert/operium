@@ -17,6 +17,7 @@ import {
 } from "../lib/node-cli.js";
 import { buildWipStatus, handoffWip, resumeWip } from "../lib/git-wip.js";
 import { invokeTool } from "../lib/invoke-tool.js";
+import { finishCli } from "../lib/cli-exit.js";
 import { buildOperiumUp, exitCodeForUp } from "../lib/operium-up.js";
 import {
   defaultBacklogPath,
@@ -30,11 +31,23 @@ import { runRatesUpdate } from "../lib/rates.js";
 import { runCalendarCommand } from "../lib/calendar-cli.js";
 import { formatCalendarHuman } from "../lib/format-calendar-human.js";
 import { buildDivergenceReport, collectNodeObservations, loadObservationSource, persistDivergenceContinuations } from "../lib/fractanet-observation.js";
+import { reconcileDns } from "../lib/dns-reconcile.js";
+import { reconSession, formatResumeHuman } from "../lib/resume-session.js";
+import { pauseSession, formatPauseHuman } from "../lib/pause-session.js";
+import { checkpointSession, formatCheckpointHuman } from "../lib/checkpoint-session.js";
+import { statusSession, formatStatusHuman } from "../lib/status-session.js";
+import { planNextSteps, executeNextStep, formatNextHuman } from "../lib/next-session.js";
 
 const HELP = `operium — versioned operational environment registry CLI
 
 Usage:
   operium up [options]             Check what is up (Fractanet observer)
+  operium status [options]         Situational report (sitrep: anchor, git, mesh, FBF)
+  operium next? [options]          Deliberate next logical steps (plan & ranking)
+  operium next [options]           Execute the top recommended next step
+  operium checkpoint [options]     Consolidate session in-flight (seal, scan leaks, probe FBF)
+  operium pause [options]          Safe session suspension (catalog WIP, update anchor, push)
+  operium resume [options]         Re-entry reconnaissance (session anchor, delta, FBF gate)
   operium backlog list [options]   List Bug/Feature register (Fix Bugs First)
   operium backlog gate --subsystem <slug>   Feature gate for a subsystem
   operium invoke tool [options]    Route a tool invocation via blackboard → agent-gateway
@@ -47,6 +60,7 @@ Usage:
   operium node snapshot [options]  Full ONA projection (GET /node/snapshot)
   operium node drift [options]     Node-local catalogue drift (GET /node/drift)
   operium node diagnose [options]  Merge operium up + ONA status/drift (#51)
+  operium node recover-ona --host <node>  Bounded SSH recovery of a registered ONA
   operium rates update [options]   Fetch live model rate cards from providers
   operium calendar list [options]  FractaCalendar projection via ONA HTTP
   operium calendar schedule        POST a cop/node.wake.v1 packet (--file)
@@ -54,6 +68,7 @@ Usage:
   operium calendar tick            POST /node/calendar/tick (deliver due wakes)
   operium calendar ics             ICS view of the same HTTP projection
   operium observe nodes            Read-only FractaNet SSH observations as JSONL
+  operium dns reconcile [options]  Read-only public DNS and HTTPS reconciliation (#37)
 
 Options:
   --json                  Machine-readable operium.up.v1 output (default)
@@ -79,6 +94,7 @@ Node options:
   --kind <name>           Logs: filter by event kind
   --limit <n>             Logs: max rows (default 20)
   --since <iso>           Logs: logged_at >= since
+  --recover-ona           Diagnose only: attempt registered ONA recovery for --host
 
 Invoke tool options:
   --capability <cap>      blackboard capability (e.g. dev.tools.shell)
@@ -106,6 +122,9 @@ Calendar options (issue #29; protocol: docs/calendar-cop-wake-protocol.md):
   --service <slug>        Filter projection by service
   --project <slug>        Filter projection by project
   --format ics            Alias of calendar ics
+
+DNS reconciliation options (issue #37; never writes provider state):
+  --manifest <path>       Public domain control manifest (required)
 
 Backlog options (Fix Bugs First — docs/fix-bugs-first.md):
   --kind <bug|feature|incident|debt>
@@ -203,6 +222,7 @@ function parseArgs(argv) {
     continuationsDir: null,
     concurrency: 3,
     local: false,
+    recoverOna: false,
   };
 
   const args = [...argv];
@@ -212,6 +232,22 @@ function parseArgs(argv) {
   }
 
   options.command = args.shift();
+  if (options.command === "-h" || options.command === "--help") {
+    options.help = true;
+    return options;
+  }
+  if (options.command === "st" || options.command === "sitrep") {
+    options.command = "status";
+  } else if (
+    options.command === "next?" ||
+    options.command === "plan" ||
+    (options.command === "next" && (args[0] === "?" || args.includes("--plan") || args.includes("-?")))
+  ) {
+    options.command = "next?";
+    if (args[0] === "?") args.shift();
+  } else if (options.command === "continue") {
+    options.command = "next";
+  }
   if (options.command === "invoke" && args[0] === "tool") {
     options.subcommand = args.shift();
   } else if (
@@ -243,6 +279,8 @@ function parseArgs(argv) {
   }
   else if (options.command === "observe") {
     options.subcommand = args.shift() || null;
+  } else if (options.command === "dns") {
+    options.subcommand = args.shift() || "reconcile";
   }
 
   while (args.length) {
@@ -281,10 +319,32 @@ function parseArgs(argv) {
         options.concurrency = Number(args.shift());
         break;
       case "--repo":
-        options.repoPath = args.shift();
+        {
+          const repo = args.shift();
+          options.repoPath = repo;
+          if (!options.repos) options.repos = [];
+          options.repos.push(repo);
+        }
         break;
       case "--topic":
         options.topic = args.shift();
+        break;
+      case "--issue":
+        options.issue = args.shift();
+        break;
+      case "--resume-continuation":
+      case "--continuation":
+        options.resumeContinuation = args.shift();
+        break;
+      case "--require-choice":
+      case "--force-choice":
+      case "--choose":
+        options.requireChoice = true;
+        break;
+      case "--choice":
+      case "--decision":
+        options.choice = args.shift();
+        if (!options.issue) options.issue = options.choice;
         break;
       case "--branch":
         options.branch = args.shift();
@@ -321,6 +381,10 @@ function parseArgs(argv) {
         break;
       case "--no-push":
         options.noPush = true;
+        options.push = false;
+        break;
+      case "--no-fetch-remotes":
+        options.fetchRemotes = false;
         break;
       case "--allow-dirty":
         options.allowDirty = true;
@@ -438,6 +502,12 @@ function parseArgs(argv) {
       case "--local":
         options.local = true;
         break;
+      case "--manifest":
+        options.manifestPath = args.shift();
+        break;
+      case "--recover-ona":
+        options.recoverOna = true;
+        break;
       case "-h":
       case "--help":
         options.help = true;
@@ -460,12 +530,14 @@ async function main() {
   } catch (error) {
     console.error(error.message);
     console.error("Run operium --help");
-    process.exit(2);
+    finishCli(2);
+    return;
   }
 
   if (options.help || options.command === "help" || !options.command) {
     process.stdout.write(HELP);
-    process.exit(0);
+    finishCli(0);
+    return;
   }
 
   if (isWipCommand(options)) {
@@ -475,7 +547,75 @@ async function main() {
     } else {
       console.log(JSON.stringify(result, null, 2));
     }
-    process.exit(result.ok ? 0 : 2);
+    finishCli(result.ok ? 0 : 2);
+    return;
+  }
+
+  if (options.command === "resume" && options.subcommand !== "wip") {
+    const result = await reconSession({ ...options, cli: true });
+    if (options.human || (!options.json && process.stdout.isTTY)) {
+      console.log(formatResumeHuman(result));
+    } else {
+      console.log(JSON.stringify(result, null, 2));
+    }
+    finishCli(result.fbf_gate?.blocked ? 1 : 0);
+    return;
+  }
+
+  if (options.command === "pause") {
+    const result = await pauseSession({ ...options, cli: true });
+    if (options.human || (!options.json && process.stdout.isTTY)) {
+      console.log(formatPauseHuman(result));
+    } else {
+      console.log(JSON.stringify(result, null, 2));
+    }
+    const exitCode = result.ok ? 0 : (result.status === "pending_continuation" ? 3 : 2);
+    finishCli(exitCode);
+    return;
+  }
+
+  if (options.command === "checkpoint" || options.command === "cp") {
+    const result = await checkpointSession({ ...options, cli: true });
+    if (options.human || (!options.json && process.stdout.isTTY)) {
+      console.log(formatCheckpointHuman(result));
+    } else {
+      console.log(JSON.stringify(result, null, 2));
+    }
+    finishCli(result.ok ? 0 : 1);
+    return;
+  }
+
+  if (options.command === "status") {
+    const result = await statusSession({ ...options, cli: true });
+    if (options.human || (!options.json && process.stdout.isTTY)) {
+      console.log(formatStatusHuman(result));
+    } else {
+      console.log(JSON.stringify(result, null, 2));
+    }
+    finishCli(result.ok ? 0 : 1);
+    return;
+  }
+
+  if (options.command === "next?") {
+    const result = await planNextSteps({ ...options, cli: true });
+    if (options.human || (!options.json && process.stdout.isTTY)) {
+      console.log(formatNextHuman(result, "plan"));
+    } else {
+      console.log(JSON.stringify(result, null, 2));
+    }
+    finishCli(result.ok ? 0 : 1);
+    return;
+  }
+
+  if (options.command === "next") {
+    const result = await executeNextStep({ ...options, cli: true });
+    if (options.human || (!options.json && process.stdout.isTTY)) {
+      console.log(formatNextHuman(result, "exec"));
+    } else {
+      console.log(JSON.stringify(result, null, 2));
+    }
+    finishCli(result.ok ? 0 : 1);
+    return;
   }
 
   if (isBacklogCommand(options)) {
@@ -506,17 +646,38 @@ async function main() {
       });
       if (result.ics) {
         process.stdout.write(result.ics);
-        process.exit(0);
+        finishCli(0);
+        return;
       }
       if (options.human) {
         console.log(formatCalendarHuman(result.body.projection || result.body));
       } else {
         console.log(JSON.stringify(result.body, null, 2));
       }
-      process.exit(result.ok ? 0 : 1);
+      finishCli(result.ok ? 0 : 1);
+      return;
     } catch (error) {
       console.error(JSON.stringify({ ok: false, error: error.message }, null, 2));
-      process.exit(2);
+      finishCli(2);
+      return;
+    }
+  }
+
+  if (isDnsCommand(options)) {
+    if (options.subcommand !== "reconcile") {
+      console.error(`unknown_dns_subcommand: ${options.subcommand}`);
+      finishCli(2);
+      return;
+    }
+    try {
+      const result = await reconcileDns({ manifestPath: options.manifestPath, timeoutMs: options.timeoutMs });
+      console.log(JSON.stringify(result, null, 2));
+      finishCli(result.ok ? 0 : 1);
+      return;
+    } catch (error) {
+      console.error(JSON.stringify({ ok: false, error: error.message }, null, 2));
+      finishCli(2);
+      return;
     }
   }
 
@@ -557,13 +718,15 @@ async function main() {
     } else {
       console.log(JSON.stringify(result, null, 2));
     }
-    process.exit(result.ok ? 0 : 1);
+    finishCli(result.ok ? 0 : 1);
+    return;
   }
 
   if (options.command === "node" && !isNodeCommand(options)) {
     console.error(`unknown_node_subcommand: ${options.subcommand || "(missing)"}`);
     console.error("Run operium --help");
-    process.exit(2);
+    finishCli(2);
+    return;
   }
 
   if (isNodeCommand(options)) {
@@ -576,6 +739,8 @@ async function main() {
       logKind: options.logKind,
       logLimit: options.logLimit,
       logSince: options.logSince,
+      invokeHost: options.invokeHost,
+      recoverOna: options.recoverOna,
       timeoutMs: options.timeoutMs,
       probe: options.probe,
       registryPath: options.registryPath,
@@ -590,7 +755,8 @@ async function main() {
         url: result.url,
         message: result.message,
       }, null, 2));
-      process.exit(2);
+      finishCli(2);
+      return;
     }
 
     if (options.human) {
@@ -615,7 +781,7 @@ async function main() {
       console.log(JSON.stringify(result.body, null, 2));
     }
 
-    process.exitCode = exitCodeForNodeResult(result, options.subcommand);
+    finishCli(exitCodeForNodeResult(result, options.subcommand));
     return;
   }
 
@@ -623,7 +789,8 @@ async function main() {
     if (options.via && options.via !== "guide") {
       console.error(`unknown_via: ${options.via}`);
       console.error("Run operium --help");
-      process.exit(2);
+      finishCli(2);
+      return;
     }
 
     const result = await invokeTool({
@@ -648,20 +815,23 @@ async function main() {
     if (options.contentOnly && result.ok) {
       process.stdout.write(`${result.content || ""}`);
       if (result.content && !String(result.content).endsWith("\n")) process.stdout.write("\n");
-      process.exit(0);
+      finishCli(0);
+      return;
     }
     if (options.human) {
       console.log(formatInvokeHuman(result));
     } else {
       console.log(JSON.stringify(result, null, 2));
     }
-    process.exit(result.ok ? 0 : 1);
+    finishCli(result.ok ? 0 : 1);
+    return;
   }
 
   if (options.command !== "up") {
     console.error(`unknown_command: ${options.command}`);
     console.error("Run operium --help");
-    process.exit(2);
+    finishCli(2);
+    return;
   }
 
   const result = await buildOperiumUp({
@@ -681,7 +851,7 @@ async function main() {
     console.log(JSON.stringify(result, null, 2));
   }
 
-  process.exitCode = exitCodeForUp(result);
+  finishCli(exitCodeForUp(result));
 }
 
 function isWipCommand(options) {
@@ -701,7 +871,8 @@ function runBacklogCommand(options) {
   if (!["list", "gate"].includes(sub)) {
     console.error(`unknown_backlog_subcommand: ${sub}`);
     console.error("Use: operium backlog list|gate");
-    process.exit(2);
+    finishCli(2);
+    return;
   }
 
   let backlog;
@@ -715,13 +886,15 @@ function runBacklogCommand(options) {
         2
       )
     );
-    process.exit(2);
+    finishCli(2);
+    return;
   }
 
   if (sub === "gate") {
     if (!options.subsystem) {
       console.error("gate requires --subsystem <slug>");
-      process.exit(2);
+      finishCli(2);
+      return;
     }
     const gate = evaluateGate(backlog, options.subsystem);
     if (options.human) {
@@ -729,7 +902,8 @@ function runBacklogCommand(options) {
     } else {
       console.log(JSON.stringify({ ok: !gate.blocked, ...gate }, null, 2));
     }
-    process.exit(gate.blocked ? 1 : 0);
+    finishCli(gate.blocked ? 1 : 0);
+    return;
   }
 
   const filtered = filterItems(backlog.items, {
@@ -756,7 +930,7 @@ function runBacklogCommand(options) {
   } else {
     console.log(JSON.stringify(payload, null, 2));
   }
-  process.exit(0);
+  finishCli(0);
 }
 
 function isInvokeCommand(options) {
@@ -771,8 +945,12 @@ function isObserveCommand(options) {
   return options.command === "observe";
 }
 
+function isDnsCommand(options) {
+  return options.command === "dns";
+}
+
 function isNodeCommand(options) {
-  return options.command === "node" && ["status", "peers", "logs", "snapshot", "drift", "diagnose", "calendar"].includes(options.subcommand);
+  return options.command === "node" && ["status", "peers", "logs", "snapshot", "drift", "diagnose", "calendar", "recover-ona"].includes(options.subcommand);
 }
 
 async function runWipCommand(options) {
@@ -798,5 +976,5 @@ async function runWipCommand(options) {
 
 main().catch(error => {
   console.error(JSON.stringify({ ok: false, error: error.message }, null, 2));
-  process.exit(2);
+  finishCli(2);
 });

@@ -1,21 +1,35 @@
 ---
-title: "Cogentia Agent Indexing Roadmap"
-description: "Living agile plan for stable corpus indexes, branch overlays and agent-facing retrieval."
+title: Cogentia Agent Indexing Roadmap
+description: Living agile plan for stable corpus indexes, branch overlays and agent-facing retrieval.
 layout: default
 nav_order: 6
-date: 2026-06-29
-last_modified_at: 2026-06-29
+date: 2026-06-29T00:00:00.000Z
+last_modified_at: 2026-06-29T00:00:00.000Z
 license: Apache-2.0
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/docs/cogentia-agent-indexing-roadmap.md
-document_role: "operational"
-document_kind: "roadmap"
-visibility: "public"
-lifecycle_state: "active"
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "explicit-metadata"
-classification_confidence: "medium"
+document_role: operational
+document_kind: roadmap
+visibility: public
+lifecycle_state: active
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: medium
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+update_policy: UP-DEFAULT-REVIEWED
+status: working-paper
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 # Cogentia Agent Indexing Roadmap
 
 This is a living operating plan, not a waterfall specification.

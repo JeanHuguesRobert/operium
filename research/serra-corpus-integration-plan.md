@@ -1,21 +1,34 @@
 ---
-title: "Serra corpus integration plan"
-description: "Operational plan for integrating the Serra repository into the Cogentia corpus without exposing unstable WIP or sensitive local material."
+title: Serra corpus integration plan
+description: Operational plan for integrating the Serra repository into the Cogentia corpus without exposing unstable WIP or sensitive local material.
 layout: default
-date: 2026-07-07
-last_modified_at: 2026-07-07
+date: 2026-07-07T00:00:00.000Z
+last_modified_at: 2026-07-07T00:00:00.000Z
 license: Apache-2.0
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/research/serra-corpus-integration-plan.md
-document_role: "operational"
-document_kind: "integration-plan"
-visibility: "public"
-lifecycle_state: "active"
-status: "planning"
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "explicit-metadata"
-classification_confidence: "medium"
+document_role: operational
+document_kind: integration-plan
+visibility: public
+lifecycle_state: active
+status: planning
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: medium
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+update_policy: UP-DEFAULT-REVIEWED
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # Serra corpus integration plan
 

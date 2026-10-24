@@ -1,0 +1,13 @@
+# Fracta Pertitellu Corte preview. Insert before the final catch-all handle in the
+# fracta.fractavolta.com site block.
+
+@pertitellu_api path /api/pertitellu /api/pertitellu/* /api/health /api/instance
+handle @pertitellu_api {
+	reverse_proxy 127.0.0.1:8893
+}
+
+handle_path /pertitellu/* {
+	root * /srv/pertitellu/fracta-preview/current
+	try_files {path} /index.html
+	file_server
+}

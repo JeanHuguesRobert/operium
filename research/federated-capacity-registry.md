@@ -1,27 +1,39 @@
 ---
-title: "Operium Federated Capacity Registry"
-subtitle: "Local authority, federated projections, qualified capacity and analytical imputation"
-author: "Jean Hugues Noël Robert"
-repository: "operium"
-status: "working source — architecture direction"
-version: "0.1"
-date: "2026-08-16"
-last_modified_at: "2026-08-16"
-language: "en"
-document_role: "source"
-document_kind: "architecture"
-visibility: "public"
-lifecycle_state: "working"
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "explicit-metadata"
-classification_confidence: "medium"
+title: Operium Federated Capacity Registry
+subtitle: Local authority, federated projections, qualified capacity and analytical imputation
+author: Jean Hugues Noël Robert
+status: working source — architecture direction
+version: '0.1'
+date: '2026-08-16'
+last_modified_at: '2026-08-16'
+language: en
+document_role: source
+document_kind: architecture
+visibility: public
+lifecycle_state: working
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: medium
 related_documents:
-  - "docs/operium-node-agent.md"
-  - "https://github.com/JeanHuguesRobert/inseme/blob/main/research/cogentia_accounting_architecture.md"
-  - "https://github.com/JeanHuguesRobert/inseme/blob/main/packages/cop-kernel/docs/packet-strict-accounting-cascade.md"
-  - "https://github.com/JeanHuguesRobert/cogentia/blob/main/research/propagation_register.md"
+  - docs/operium-node-agent.md
+  - https://github.com/JeanHuguesRobert/inseme/blob/main/research/cogentia_accounting_architecture.md
+  - https://github.com/JeanHuguesRobert/inseme/blob/main/packages/cop-kernel/docs/packet-strict-accounting-cascade.md
+  - https://github.com/JeanHuguesRobert/cogentia/blob/main/research/propagation_register.md
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+update_policy: UP-DEFAULT-REVIEWED
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # Operium Federated Capacity Registry
 

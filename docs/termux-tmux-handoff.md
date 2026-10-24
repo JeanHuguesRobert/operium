@@ -1,19 +1,32 @@
 ---
-title: "Termux tmux handoff"
-description: "Bounded remote relay into a named Termux tmux session."
-date: "2026-08-06"
+title: Termux tmux handoff
+description: Bounded remote relay into a named Termux tmux session.
+date: '2026-08-06'
 language: en
 document_role: operational
 document_kind: method
 visibility: public
 lifecycle_state: active
 update_policy: UP-DEFAULT-REVIEWED
-related_issue: "https://github.com/JeanHuguesRobert/operium/issues/19"
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "explicit-metadata"
-classification_confidence: "medium"
+related_issue: https://github.com/JeanHuguesRobert/operium/issues/19
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: medium
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+status: working-paper
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # Termux tmux handoff
 

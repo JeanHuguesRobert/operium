@@ -11,7 +11,7 @@ import { computeHealthScore, applyProbeCycle } from "../lib/node-agent/local-sta
 import { createProbeWorker } from "../lib/node-agent/probe-worker.js";
 import { buildNodeStatus } from "../lib/node-agent/status.js";
 import { createOnaHttpServer, startOnaHttpServer } from "../lib/node-agent/http-server.js";
-import { probeOnaServices } from "../lib/probes.js";
+import { gatewayProbeUrl, probeOnaServices } from "../lib/probes.js";
 
 const servers = [];
 const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "operium-ona-status-"));
@@ -63,6 +63,11 @@ try {
 
   assert.equal(cycle.catalogue_node, "test-thinkpad");
   assert.equal(cycle.resource_id, "resource://test-thinkpad");
+  assert.equal(gatewayProbeUrl(catalogue.nodes[0]), `http://127.0.0.1:${gatewayPort}/health?quick=1`);
+  assert.equal(gatewayProbeUrl({
+    agent_gateway: { bind: "tailscale", port: 8793 },
+    transport: { tailscale_ip: "100.122.121.68" },
+  }), "http://100.122.121.68:8793/health?quick=1");
 
   const kinds = cycle.probes.map(probe => probe.probe_kind);
   assert.deepEqual(kinds, ["ona", "gateway", "inox", "guide_semantic", "aggregator"]);

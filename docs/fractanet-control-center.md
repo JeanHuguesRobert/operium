@@ -1,20 +1,19 @@
 ---
-title: "FractaNet Control Center — La Nasa, a Control Station for Mandated Agency"
-short_title: "FractaNet Control Center"
-version: "0.1"
-status: "working-draft"
-date: 2026-07-11
-author: "Jean Hugues Noël Robert, baron Mariani"
-affiliation: "Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica"
-license: "Apache-2.0"
-language: "en"
-document_role: "operational"
-document_kind: "implementation-specification"
-visibility: "public"
-lifecycle_state: "working"
+title: FractaNet Control Center — La Nasa, a Control Station for Mandated Agency
+short_title: FractaNet Control Center
+version: '0.1'
+status: working-draft
+date: 2026-07-11T00:00:00.000Z
+author: Jean Hugues Noël Robert, baron Mariani
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+license: Apache-2.0
+language: en
+document_role: operational
+document_kind: implementation-specification
+visibility: public
+lifecycle_state: working
 human_validation_required: true
-intended_repository: "JeanHuguesRobert/operium"
-intended_path: "docs/fractanet-control-center.md"
+intended_repository: JeanHuguesRobert/operium
 canonical_untranslated_terms:
   - Casa
   - La Nasa
@@ -27,19 +26,30 @@ related_projects:
   - Inox
   - FractaVolta
 source_refs:
-  - "operium/doctrine.md"
-  - "operium/decisions/ADR-0001-operium-scope.md"
-  - "operium/docs/fractanet-mesh.md"
-  - "operium/research/fractanet-resumption-2026-07.md"
-  - "inseme/packages/cop-core/Architecture.md"
-  - "inseme/packages/cop-core/schemas/identity.mandate.schema.json"
-  - "inseme/research/packet_attractor_fractanet.md"
-  - "gabriel/README.md"
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "explicit-metadata"
-classification_confidence: "medium"
+  - operium/doctrine.md
+  - operium/decisions/ADR-0001-operium-scope.md
+  - operium/docs/fractanet-mesh.md
+  - operium/research/fractanet-resumption-2026-07.md
+  - inseme/packages/cop-core/Architecture.md
+  - inseme/packages/cop-core/schemas/identity.mandate.schema.json
+  - inseme/research/packet_attractor_fractanet.md
+  - gabriel/README.md
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: medium
+update_policy: UP-DEFAULT-REVIEWED
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # FractaNet Control Center
 

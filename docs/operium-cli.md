@@ -1,20 +1,34 @@
 ---
-title: "Operium CLI"
-description: "operium up — Fractanet observer for humans and agents; operium.up.v1 JSON schema."
+title: Operium CLI
+description: operium up — Fractanet observer for humans and agents; operium.up.v1 JSON schema.
 layout: default
-date: 2026-07-04
-last_modified_at: 2026-07-04
+date: 2026-07-04T00:00:00.000Z
+last_modified_at: 2026-07-04T00:00:00.000Z
 license: Apache-2.0
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/docs/operium-cli.md
-document_role: "operational"
-document_kind: "method"
-visibility: "public"
-lifecycle_state: "active"
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "explicit-metadata"
-classification_confidence: "medium"
+document_role: operational
+document_kind: method
+visibility: public
+lifecycle_state: active
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: medium
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+update_policy: UP-DEFAULT-REVIEWED
+status: working-paper
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # Operium CLI
 
@@ -25,6 +39,12 @@ Companion surfaces:
 | Surface | Role |
 |---------|------|
 | `operium up` | Observer on any trusted workstation |
+| `operium status` / `st` / `sitrep` | Situational report: read-only view of anchor, git, mesh, and FBF gate |
+| `operium next?` / `plan` | Deliberation: prioritized list of next logical steps |
+| `operium next` / `continue` | Execution: executes top recommended next step |
+| `operium checkpoint` / `cp` | In-flight consolidation: seal anchor, leak scan, probe mesh & FBF gate |
+| `operium pause` | Safe session suspension: pre-flight leak check, updates anchor, notifies mesh |
+| `operium resume` | Re-entry reconnaissance: session anchor, operational delta, FBF gate |
 | `operium backlog list` / `operium backlog gate` | Fix Bugs First register (`backlog/items.yaml`) |
 | `operium calendar list` / `schedule` / `tick` / `ics` | FractaCalendar projection; `schedule` takes a `cop/node.wake.v1` packet ([protocol](calendar-cop-wake-protocol.md)) |
 | `operium observe nodes` | Read-only SSH observations and divergence report from a declarative private manifest |
@@ -137,12 +157,119 @@ operium up --aggregator https://cogentia.fractavolta.com --json
 | `2` | Broken critical path |
 | `3` | Incomplete (probes skipped or unknown section) |
 
+On Windows + Node 24, the CLI **must not** call `process.exit()` after live
+probes (`fetch`, Tailscale `execFile`). That short-circuit races libuv and
+aborts with `UV_HANDLE_CLOSING` in `src/win/async.c` ([nodejs/node#56645](https://github.com/nodejs/node/issues/56645)).
+Commands set `process.exitCode` via `lib/cli-exit.js` (`finishCli`) and let
+handles drain. Same workaround as `operium node diagnose`.
+
 ### Environment
 
 | Variable | Default |
 |----------|---------|
 | `OPERIUM_REGISTRY` | `~/.cogentia/registry/resources.yaml` (canonical copy: `registre-mariani/operium/registry/resources.yaml` in private git) |
 | `OPERIUM_AGGREGATOR_URL` | `https://cogentia.fractavolta.com` |
+
+---
+
+## Re-entry Reconnaissance: `operium resume`
+
+```bash
+operium resume            # Human summary on TTY, JSON on pipe
+operium resume --human    # Force human format
+operium resume --json     # Force JSON (operium.resume_recon.v1)
+```
+
+Provides a unified, automated re-entry context for returning operators and coding agents:
+
+1. **Session Anchor:** Reads the last declared intention in `JeanHuguesRobert/RESUME-SESSION.md` (`packet_id`, `topic_id`, active issue handle).
+2. **Operational Delta:** Probes live Fractanet mesh (`fracta`, `fracta2`, `poco-jhr`, `rpi3-view`), Guide aggregator, and runtime services.
+3. **Fix Bugs First Gate:** Evaluates whether open critical/high bugs in the active subsystem block feature progress (`evaluateGate`).
+4. **Git Workspace Divergence:** Inspects branch status and dirty worktrees across primary repositories (`operium`, `cogentia`, `JeanHuguesRobert`).
+5. **Actionable Direction:** Outputs the immediate next step or highlights blocking issues.
+
+---
+
+## Safe Session Suspension: `operium pause`
+
+```bash
+operium pause                  # Suspend session, update anchor, notify remotes
+operium pause --dry-run        # Preview suspension without modifying files
+operium pause --human          # Force human format
+operium pause --json           # Machine-readable JSON (operium.pause_state.v1)
+```
+
+Provides a symmetrical counterpart to `operium resume`:
+
+1. **Pre-flight Safety Check:** Scans workspaces and aborts immediately if secret-like files (`.env`, private keys) are found.
+2. **Catalogues Workspaces:** Inspects dirty worktrees and commit SHAs across primary repositories (`operium`, `cogentia`, `JeanHuguesRobert`).
+3. **Sovereign Anchor Update:** Generates a new continuation packet (`cop.continuation_packet/v1`) and updates `JeanHuguesRobert/RESUME-SESSION.md` on `main`.
+4. **Mesh Alignment:** Dispatches background `git fetch` to reachable Fractanet nodes (`fracta`, `rpi3-view`) to prevent branch drift.
+5. **Confirmation:** Emits a clean suspension confirmation with the exact `resume` command.
+
+---
+
+## In-Flight Consolidation: `operium checkpoint` (alias `cp`)
+
+```bash
+operium checkpoint             # Immediate pause + resume consolidation
+operium cp                     # Shorthand alias
+operium checkpoint --dry-run   # Preview consolidation without writing anchor
+operium checkpoint --human     # Force human format
+operium checkpoint --json      # Machine-readable JSON (operium.checkpoint_state.v1)
+```
+
+Provides in-flight consolidation without interrupting active work:
+
+1. **Pre-flight Safety Scan:** Ensures no naked credentials (`.env`, private keys) exist.
+2. **Seals Sovereign Anchor:** Writes and pushes a `cop-pkt-...-checkpoint` continuation packet in `JeanHuguesRobert/RESUME-SESSION.md`.
+3. **Dispatches Mesh Notification:** Triggers background `git fetch` to reachable remote nodes (`fracta`, `rpi3-view`).
+4. **Probes Real-time Health & Gate:** Checks Tailscale mesh health and evaluates the *FixBugsFirst* gate on the active subsystem.
+5. **Fresh Cognitive Horizon:** Emits a concise confirmation that state is safe and ready to proceed.
+
+---
+
+## Situational Report: `operium status` (aliases `st`, `sitrep`)
+
+```bash
+operium status                 # Machine-readable JSON (or human if TTY)
+operium status --human         # Force human format
+operium st                     # Short alias
+operium sitrep                 # Operational situation report alias
+```
+
+Pure read-only inspection answering *"Where are we right now?"*:
+1. **Intention:** Reads session anchor from `JeanHuguesRobert/RESUME-SESSION.md` (active issue, packet ID, status).
+2. **Material:** Inspects Git workspaces (`operium`, `cogentia`, `JeanHuguesRobert`) for dirty files, branches, and commits ahead/behind.
+3. **Environment:** Checks Tailscale peers and live health score of the Fractanet cluster.
+4. **Compass:** Checks the *FixBugsFirst* gate on the active subsystem.
+
+---
+
+## Deliberation: `operium next?` (alias `plan`)
+
+```bash
+operium "next?"                # Output prioritized list of next logical actions
+operium "next?" --human        # Force human format
+operium plan                   # Alias without special characters
+```
+
+Derives a ranked, justified list of logical next steps:
+1. **P0 (FixBugsFirst):** If blocking bugs exist in the active subsystem, resolution is strictly recommended before features.
+2. **P1 (Replication / Test):** Sync unpushed commits or run verification tests on modified components.
+3. **P2 (Consolidation / Features):** Consolidate progress with `checkpoint` or continue active issue checklist items.
+
+---
+
+## Action Execution: `operium next` (alias `continue`)
+
+```bash
+operium next                   # Execute top-priority recommended action
+operium continue               # Natural language alias
+operium next --dry-run         # Preview what would be executed
+```
+
+Automatically executes the #1 recommended step determined by `next?` (running test suites, executing checkpoints, pushing commits, or surfacing agent prompts).
 
 ---
 

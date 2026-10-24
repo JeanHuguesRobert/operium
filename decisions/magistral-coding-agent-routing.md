@@ -1,17 +1,31 @@
 ---
-title: "ADR — Magistral routes Guide synthesis via coding-agent gateways"
-date: "2026-07-26"
-document_role: "source"
+title: ADR — Magistral routes Guide synthesis via coding-agent gateways
+date: '2026-07-26'
+document_role: source
 document_kind: adr
 visibility: public
 lifecycle_state: accepted
 status: accepted
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "explicit-metadata"
-classification_confidence: "strong"
-legacy_document_role: "decision"
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: strong
+legacy_document_role: decision
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+update_policy: UP-DEFAULT-REVIEWED
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # ADR — Magistral routes Guide synthesis via coding-agent gateways
 

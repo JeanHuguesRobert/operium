@@ -1,15 +1,30 @@
 ---
-title: "FractaNet Observed-State Reconciliation"
-description: "Read-only SSH observation and controlled reconciliation between declared node configuration and live FractaNet state."
-author: "Jean Hugues Noël Robert, with Codex"
-created_at: 2026-07-17
-last_modified_at: 2026-07-17
+title: FractaNet Observed-State Reconciliation
+description: Read-only SSH observation and controlled reconciliation between declared node configuration and live FractaNet state.
+author: Jean Hugues Noël Robert, with Codex
+created_at: 2026-07-17T00:00:00.000Z
+last_modified_at: 2026-07-17T00:00:00.000Z
 document_role: source
 update_policy: human-guided
 visibility: internal
 trace_level: detailed
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/master/research/fractanet-observed-state-reconciliation.md
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+date: '2026-09-15'
+status: working-paper
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # FractaNet Observed-State Reconciliation
 

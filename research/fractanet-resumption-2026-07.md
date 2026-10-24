@@ -1,21 +1,34 @@
 ---
-title: "Fractanet resumption handoff — July 2026 pause"
-description: "Cross-project memory for resuming Fractanet retrieval, Packet Attractor, and intermittent capable-node work."
+title: Fractanet resumption handoff — July 2026 pause
+description: Cross-project memory for resuming Fractanet retrieval, Packet Attractor, and intermittent capable-node work.
 layout: default
-date: 2026-07-03
-last_modified_at: 2026-07-05
+date: 2026-07-03T00:00:00.000Z
+last_modified_at: 2026-07-05T00:00:00.000Z
 license: Apache-2.0
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/research/fractanet-resumption-2026-07.md
-document_role: "operational"
-document_kind: "handoff"
-visibility: "public"
-lifecycle_state: "active"
-status: "resumed — 4-node embryon live; Phase 2 routing pending"
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "explicit-metadata"
-classification_confidence: "medium"
+document_role: operational
+document_kind: handoff
+visibility: public
+lifecycle_state: active
+status: resumed — 4-node embryon live; Phase 2 routing pending
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: medium
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+update_policy: UP-DEFAULT-REVIEWED
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # Fractanet resumption handoff — July 2026 pause
 

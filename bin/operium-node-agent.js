@@ -9,6 +9,7 @@ import { createProbeWorker } from "../lib/node-agent/probe-worker.js";
 import { resolveNodeMemoryPath, resolveOnaLogPath } from "../lib/node-agent/paths.js";
 import { DatabaseSync } from "node:sqlite";
 import { completePendingRestartActions } from "../lib/node-agent/management-actions.js";
+import { attachNavigationAssistantGateway } from "../lib/node-agent/navigation-gateway.js";
 
 const startedAt = new Date().toISOString();
 
@@ -42,6 +43,9 @@ Environment:
   ONA_LOG_PATH          structured log file path
   ONA_HEALTH_PUBLIC     allow unauthenticated /health when bind != loopback
   OPERIUM_GRAPH_DB      optional SQLite Corpus graph cache path
+  ONA_NAV_ASSIST_GATEWAY  hold local navigation-assistant extension (default 1)
+  ONA_NAV_ASSIST_GATEWAY_PORT  loopback port (default 8765)
+  OPERIUM_COGENTIA_ROOT sibling Cogentia checkout for the gateway module
 
 Endpoints:
   GET /health
@@ -126,6 +130,19 @@ async function main() {
   const listen = await startOnaHttpServer(server, config);
   worker.start();
 
+  const navigationGateway = await attachNavigationAssistantGateway({
+    env: config.env,
+    instance: config.hostname,
+  });
+  appendEventLog(db, "ona.navigation_gateway", {
+    skipped: navigationGateway.skipped,
+    listening: navigationGateway.listening,
+    deferred: navigationGateway.deferred,
+    reason: navigationGateway.reason || null,
+    port: navigationGateway.port || null,
+    instance: navigationGateway.instance || null,
+  });
+
   let jobScheduler = null;
   if (config.jobsEnabled) {
     jobScheduler = createJobScheduler({ db, config });
@@ -152,11 +169,19 @@ async function main() {
     scheduled_jobs: jobScheduler?.listJobs().length ?? 0,
     incarnation,
     completed_restart_actions: completedRestarts.length,
+    navigation_assistant_gateway: {
+      skipped: navigationGateway.skipped,
+      listening: navigationGateway.listening,
+      deferred: navigationGateway.deferred,
+      reason: navigationGateway.reason || null,
+      port: navigationGateway.port || null,
+    },
   }, null, 2));
 
   const shutdown = (signal) => {
     jobScheduler?.stop();
     worker.stop();
+    navigationGateway.stop();
     appendEventLog(db, "ona.stopping", { signal });
     server.close(() => {
       db.close();
