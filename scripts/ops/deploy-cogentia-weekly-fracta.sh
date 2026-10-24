@@ -56,8 +56,12 @@ mkdir -p "$release"
 if [[ ! -e "$release/.release-complete" ]]; then
   git -C "$repo" archive "$commit" | tar -x -C "$release"
   test -d "$repo/node_modules"
-  [[ -e "$release/node_modules" ]] || ln -s "$repo/node_modules" "$release/node_modules"
-  (cd "$repo" && /usr/bin/node "$release/scripts/cogentia.js" help) > "$record/cli-smoke.txt" 2>&1
+  if [[ -L "$release/node_modules" ]]; then
+    test "$(readlink -f "$release/node_modules")" = "$(readlink -f "$repo/node_modules")"
+    rm "$release/node_modules"
+  fi
+  (cd "$release" && corepack pnpm install --prod --frozen-lockfile --ignore-scripts --filter cogentia) > "$record/dependency-install.txt" 2>&1
+  (cd "$release" && /usr/bin/node scripts/cogentia.js help) > "$record/cli-smoke.txt" 2>&1
   printf '%s\n' "$commit" > "$release/.release-complete"
 fi
 sudo systemd-analyze verify "$release/systemd/cogentia-consolidation.service" "$release/systemd/cogentia-consolidation.timer" > "$record/unit-validation.txt" 2>&1
