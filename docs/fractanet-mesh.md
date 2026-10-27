@@ -442,6 +442,15 @@ firewall scope were not re-tested. Account names, key placement and ACLs,
 fingerprints, and local aliases remain in private operational records. This
 observation was not independently re-run during the present cleanup.
 
+### Fleet SSH alias convergence (operator-reported, 2026-10-27)
+
+An operator-reported audit confirmed the canonical SSH alias configuration on
+three inspected FractaNodes. The remaining nodes could not be inspected during
+that audit, so fleet-wide convergence is not established. Node-specific
+reachability and alias details remain in private operational records; repeat a
+read-only verification when those nodes are available. This audit was not
+independently re-run during the present cleanup.
+
 ---
 
 ## Node setup procedures (implemented scripts)
