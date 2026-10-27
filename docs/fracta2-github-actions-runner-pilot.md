@@ -57,7 +57,7 @@ Stop without installing if host capacity is unknown, ONA gate is blocked, runtim
 
 ## Related references
 
-- https://github.com/JeanHuguesRobert/operium/docs/operium-node-agent-install.md
+- https://github.com/JeanHuguesRobert/operium/blob/main/docs/operium-node-agent-install.md
 - https://github.com/JeanHuguesRobert/operium/blob/main/docs/fracta-trust-perimeter.md
 - https://github.com/JeanHuguesRobert/inseme/blob/main/docs/github-webhook-ingress.md
 - https://github.com/JeanHuguesRobert/inseme/blob/main/docs/github-actions-generic-program-compute.md
