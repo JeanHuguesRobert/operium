@@ -4,101 +4,93 @@
 
 ## Repositories & Canonical Entry Points
 
-- **[cogentia]**: C:\tweesic\cogentia
+- **[cogentia]**: https://github.com/JeanHuguesRobert/cogentia
   - Role: primary
   - Visibility: public
-  - Index: C:\tweesic\cogentia\research\index.md
-  - Concepts: C:\tweesic\cogentia\research\concepts.md
-- **[FractaVolta]**: C:\tweesic\FractaVolta
+  - Index: [research/index.md](https://github.com/JeanHuguesRobert/cogentia/blob/main/research/index.md)
+  - Concepts: [research/concepts.md](https://github.com/JeanHuguesRobert/cogentia/blob/main/research/concepts.md)
+- **[FractaVolta]**: https://github.com/JeanHuguesRobert/FractaVolta
   - Role: primary
   - Visibility: public
-  - Index: C:\tweesic\FractaVolta\research\index.md
-  - Concepts: C:\tweesic\FractaVolta\research\concepts.md
-- **[marenostrum]**: C:\tweesic\marenostrum
+  - Index: [research/index.md](https://github.com/JeanHuguesRobert/FractaVolta/blob/main/research/index.md)
+  - Concepts: [research/concepts.md](https://github.com/JeanHuguesRobert/FractaVolta/blob/main/research/concepts.md)
+- **[marenostrum]**: https://github.com/JeanHuguesRobert/marenostrum
   - Role: primary
   - Visibility: public
-  - Index: C:\tweesic\marenostrum\research\index.md
-  - Concepts: C:\tweesic\marenostrum\research\concepts.md
-- **[barons-Mariani]**: C:\tweesic\barons-Mariani
+  - Index: [research/index.md](https://github.com/JeanHuguesRobert/marenostrum/blob/main/research/index.md)
+  - Concepts: [research/concepts.md](https://github.com/JeanHuguesRobert/marenostrum/blob/main/research/concepts.md)
+- **[barons-Mariani]**: https://github.com/JeanHuguesRobert/barons-Mariani
   - Role: primary
   - Visibility: public
-  - Index: C:\tweesic\barons-Mariani\research\index.md
-  - Concepts: C:\tweesic\barons-Mariani\research\concepts.md
-- **[inseme]**: C:\tweesic\inseme
+  - Index: [research/index.md](https://github.com/JeanHuguesRobert/barons-Mariani/blob/main/research/index.md)
+  - Concepts: [research/concepts.md](https://github.com/JeanHuguesRobert/barons-Mariani/blob/main/research/concepts.md)
+- **[suicide-corse]**: https://github.com/JeanHuguesRobert/suicide-corse
   - Role: primary
   - Visibility: public
-  - Index: C:\tweesic\inseme\research\index.md
-  - Concepts: C:\tweesic\inseme\research\concepts.md
-- **[survey]**: C:\tweesic\survey
+- **[inseme]**: https://github.com/JeanHuguesRobert/inseme
   - Role: primary
   - Visibility: public
-  - Index: C:\tweesic\survey\research\index.md
-  - Concepts: C:\tweesic\survey\research\concepts.md
-- **[Inox]**: C:\tweesic\Inox
+  - Index: [research/index.md](https://github.com/JeanHuguesRobert/inseme/blob/main/research/index.md)
+  - Concepts: [research/concepts.md](https://github.com/JeanHuguesRobert/inseme/blob/main/research/concepts.md)
+- **[survey]**: https://github.com/JeanHuguesRobert/survey
   - Role: primary
   - Visibility: public
-  - Index: C:\tweesic\Inox\research\index.md
-  - Concepts: C:\tweesic\Inox\research\concepts.md
-- **[ubikia]**: C:\tweesic\ubikia
+  - Index: [research/index.md](https://github.com/JeanHuguesRobert/survey/blob/main/research/index.md)
+- **[Inox]**: https://github.com/JeanHuguesRobert/Inox
   - Role: primary
   - Visibility: public
-  - Index: C:\tweesic\ubikia\research\index.md
-  - Concepts: C:\tweesic\ubikia\research\concepts.md
-- **[operium]**: C:\tweesic\operium
+  - Index: [research/index.md](https://github.com/JeanHuguesRobert/Inox/blob/master/research/index.md)
+  - Concepts: [research/concepts.md](https://github.com/JeanHuguesRobert/Inox/blob/master/research/concepts.md)
+- **[ubikia]**: https://github.com/JeanHuguesRobert/ubikia
   - Role: primary
   - Visibility: public
-  - Index: C:\tweesic\operium\research\index.md
-  - Concepts: C:\tweesic\operium\research\concepts.md
-- **[serra]**: C:\tweesic\serra
+  - Index: [research/index.md](https://github.com/JeanHuguesRobert/ubikia/blob/main/research/index.md)
+- **[operium]**: https://github.com/JeanHuguesRobert/operium
   - Role: primary
   - Visibility: public
-  - Index: C:\tweesic\serra\research\index.md
-  - Concepts: C:\tweesic\serra\research\concepts.md
-- **[JeanHuguesRobert]**: C:\tweesic\JeanHuguesRobert
+  - Index: [research/index.md](https://github.com/JeanHuguesRobert/operium/blob/main/research/index.md)
+- **[serra]**: https://github.com/JeanHuguesRobert/serra
   - Role: primary
   - Visibility: public
-  - Index: C:\tweesic\JeanHuguesRobert\research\index.md
-  - Concepts: C:\tweesic\JeanHuguesRobert\research\concepts.md
-- **[privai]**: C:\tweesic\privai
+  - Index: [research/index.md](https://github.com/JeanHuguesRobert/serra/blob/main/research/index.md)
+- **[JeanHuguesRobert]**: https://github.com/JeanHuguesRobert/JeanHuguesRobert
   - Role: primary
   - Visibility: public
-  - Index: C:\tweesic\privai\research\index.md
-  - Concepts: C:\tweesic\privai\research\concepts.md
-- **[gouvernance]**: C:\tweesic\gouvernance
+  - Index: [research/index.md](https://github.com/JeanHuguesRobert/JeanHuguesRobert/blob/main/research/index.md)
+  - Concepts: [research/concepts.md](https://github.com/JeanHuguesRobert/JeanHuguesRobert/blob/main/research/concepts.md)
+- **[privai]**: https://github.com/acorsica/privai
   - Role: primary
   - Visibility: public
-  - Index: C:\tweesic\gouvernance\research\index.md
-  - Concepts: C:\tweesic\gouvernance\research\concepts.md
-- **[marianivillage]**: C:\tweesic\marianivillage
+  - Index: [research/index.md](https://github.com/acorsica/privai/blob/main/research/index.md)
+- **[gouvernance]**: https://github.com/acorsica/gouvernance
   - Role: primary
   - Visibility: public
-  - Index: C:\tweesic\marianivillage\research\index.md
-  - Concepts: C:\tweesic\marianivillage\research\concepts.md
-- **[institut-mariani]**: C:\tweesic\institut-mariani
+  - Index: [research/index.md](https://github.com/acorsica/gouvernance/blob/main/research/index.md)
+- **[marianivillage]**: https://github.com/acorsica/marianivillage
   - Role: primary
   - Visibility: public
-  - Index: C:\tweesic\institut-mariani\research\index.md
-  - Concepts: C:\tweesic\institut-mariani\research\concepts.md
-- **[Kudos]**: C:\tweesic\Kudos
+  - Index: [research/index.md](https://github.com/acorsica/marianivillage/blob/main/research/index.md)
+- **[institut-mariani]**: https://github.com/acorsica/institut-mariani
   - Role: primary
   - Visibility: public
-  - Index: C:\tweesic\Kudos\research\index.md
-  - Concepts: C:\tweesic\Kudos\research\concepts.md
-- **[.github]**: C:\tweesic\.github
+  - Index: [research/index.md](https://github.com/acorsica/institut-mariani/blob/main/research/index.md)
+- **[Kudos]**: https://github.com/acorsica/Kudos
   - Role: primary
   - Visibility: public
-  - Index: C:\tweesic\.github\research\index.md
-  - Concepts: C:\tweesic\.github\research\concepts.md
-- **[acorsica.org]**: C:\tweesic\acorsica.org
+  - Index: [research/index.md](https://github.com/acorsica/Kudos/blob/main/research/index.md)
+- **[.github]**: https://github.com/acorsica/.github
   - Role: primary
   - Visibility: public
-  - Index: C:\tweesic\acorsica.org\research\index.md
-  - Concepts: C:\tweesic\acorsica.org\research\concepts.md
-- **[StructEnv]**: C:\tweesic\StructEnv
+  - Index: [research/index.md](https://github.com/acorsica/.github/blob/main/research/index.md)
+- **[acorsica.org]**: https://github.com/acorsica/acorsica.org
   - Role: primary
   - Visibility: public
-  - Index: C:\tweesic\StructEnv\research\index.md
-  - Concepts: C:\tweesic\StructEnv\research\concepts.md
+  - Index: [research/index.md](https://github.com/acorsica/acorsica.org/blob/main/research/index.md)
+- **[StructEnv]**: https://github.com/JeanHuguesRobert/StructEnv
+  - Role: primary
+  - Visibility: public
+  - Index: [research/index.md](https://github.com/JeanHuguesRobert/StructEnv/blob/main/research/index.md)
+  - Concepts: [research/concepts.md](https://github.com/JeanHuguesRobert/StructEnv/blob/main/research/concepts.md)
 
 ## Privacy Note
 
