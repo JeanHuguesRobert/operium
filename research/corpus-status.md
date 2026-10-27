@@ -15,6 +15,8 @@ provenance:
   origin_ref: unknown
   origin_date: unknown
   derived_from: []
+last_modified_at: 2026-10-27
+last_stamped_at: 2026-10-27
 ---
 
 
@@ -73,57 +75,64 @@ graph LR
   r_github[".github"]
   r_acorsica_org["acorsica.org"]
   r_structenv["StructEnv"]
-  r_cogentia -->|122| r_barons_mariani
-  r_barons_mariani -->|95| r_cogentia
-  r_jeanhuguesrobert -->|68| r_barons_mariani
+  r_cogentia -->|150| r_barons_mariani
+  r_barons_mariani -->|115| r_cogentia
+  r_jeanhuguesrobert -->|96| r_barons_mariani
+  r_inseme -->|67| r_cogentia
   r_fractavolta -->|54| r_cogentia
-  r_inseme -->|45| r_cogentia
+  r_barons_mariani -->|42| r_jeanhuguesrobert
+  r_cogentia -->|42| r_inseme
+  r_jeanhuguesrobert -->|39| r_cogentia
   r_fractavolta -->|37| r_marenostrum
-  r_jeanhuguesrobert -->|36| r_cogentia
-  r_cogentia -->|30| r_inseme
   r_barons_mariani -->|24| r_marenostrum
-  r_barons_mariani -->|22| r_fractavolta
   r_fractavolta -->|22| r_inseme
   r_fractavolta -->|21| r_barons_mariani
+  r_barons_mariani -->|20| r_fractavolta
   r_inseme -->|20| r_barons_mariani
-  r_barons_mariani -->|19| r_inseme
   r_cogentia -->|19| r_marenostrum
+  r_inox -->|19| r_cogentia
   r_marenostrum -->|19| r_cogentia
-  r_barons_mariani -->|16| r_jeanhuguesrobert
-  r_inox -->|16| r_cogentia
+  r_barons_mariani -->|18| r_inseme
+  r_operium -->|18| r_cogentia
   r_jeanhuguesrobert -->|16| r_marenostrum
-  r_operium -->|13| r_cogentia
   r_inseme -->|12| r_fractavolta
   r_inseme -->|12| r_inox
   r_marenostrum -->|12| r_fractavolta
+  r_cogentia -->|11| r_jeanhuguesrobert
   r_inox -->|11| r_barons_mariani
   r_marenostrum -->|11| r_barons_mariani
+  r_cogentia -->|10| r_fractavolta
+  r_inox -->|10| r_inseme
   r_inox -->|10| r_fractavolta
-  r_inox -->|9| r_inseme
   r_jeanhuguesrobert -->|9| r_fractavolta
+  r_barons_mariani -->|8| r_ubikia
   r_fractavolta -->|8| r_inox
   r_inox -->|8| r_marenostrum
-  r_ubikia -->|8| r_cogentia
   r_barons_mariani -->|7| r_inox
-  r_cogentia -->|7| r_jeanhuguesrobert
   r_inseme -->|7| r_jeanhuguesrobert
   r_jeanhuguesrobert -->|7| r_inseme
+  r_cogentia -->|6| r_operium
   r_inseme -->|6| r_kudos
   r_jeanhuguesrobert -->|6| r_inox
-  r_cogentia -->|5| r_fractavolta
-  r_ubikia -->|5| r_barons_mariani
-  r_barons_mariani -->|4| r_ubikia
+  r_ubikia -->|6| r_cogentia
+  r_ubikia -->|6| r_barons_mariani
+  r_cogentia -->|5| r_privai
+  r_inseme -->|5| r_operium
+  r_barons_mariani -->|4| r_operium
+  r_cogentia -->|4| r_inox
   r_fractavolta -->|4| r_jeanhuguesrobert
   r_marianivillage -->|4| r_fractavolta
-  r_operium -->|4| r_inseme
   r_operium -->|4| r_marenostrum
   r_ubikia -->|4| r_jeanhuguesrobert
   r_github -->|3| r_gouvernance
-  r_cogentia -->|3| r_inox
   r_jeanhuguesrobert -->|3| r_ubikia
   r_kudos -->|3| r_barons_mariani
   r_operium -->|3| r_barons_mariani
+  r_operium -->|3| r_inseme
+  r_ubikia -->|3| r_suicide_corse
+  r_ubikia -->|3| r_operium
   r_barons_mariani -->|2| r_privai
+  r_gouvernance -->|2| r_inseme
   r_gouvernance -->|2| r_barons_mariani
   r_gouvernance -->|2| r_fractavolta
   r_inox -->|2| r_jeanhuguesrobert
@@ -135,16 +144,13 @@ graph LR
   r_marenostrum -->|2| r_inox
   r_github -->|1| r_institut_mariani
   r_barons_mariani -->|1| r_institut_mariani
-  r_cogentia -->|1| r_operium
   r_cogentia -->|1| r_kudos
   r_gouvernance -->|1| r_jeanhuguesrobert
   r_gouvernance -->|1| r_cogentia
-  r_gouvernance -->|1| r_inseme
   r_gouvernance -->|1| r_marenostrum
   r_gouvernance -->|1| r_inox
   r_gouvernance -->|1| r_kudos
   r_gouvernance -->|1| r_marianivillage
-  r_inseme -->|1| r_operium
   r_inseme -->|1| r_privai
   r_inseme -->|1| r_ubikia
   r_institut_mariani -->|1| r_privai
@@ -157,8 +163,11 @@ graph LR
   r_jeanhuguesrobert -->|1| r_operium
   r_kudos -->|1| r_institut_mariani
   r_marianivillage -->|1| r_institut_mariani
+  r_operium -->|1| r_ubikia
+  r_operium -->|1| r_suicide_corse
   r_privai -->|1| r_barons_mariani
   r_privai -->|1| r_institut_mariani
+  r_suicide_corse -->|1| r_operium
 ```
 <!-- END_AUTO: graph -->
 ---
@@ -255,6 +264,7 @@ graph LR
   c_the_second_method["The Second Method"]
   c_projet_minesteggio["Projet Minesteggio"]
   c_discret_holography["Discret Holography"]
+  c_surface_de_chance["Surface de Chance"]
   c_cogentia["Cogentia"]
   c_cogentigram["Cogentigram"]
   c_cop_continuous_operation_protocol["COP (Continuous Operation Protocol)"]
@@ -642,6 +652,7 @@ graph LR
   click c_the_second_method "https://github.com/JeanHuguesRobert/barons-Mariani/blob/main/research/concepts.md#the-second-method" "Open The Second Method"
   click c_projet_minesteggio "https://github.com/JeanHuguesRobert/barons-Mariani/blob/main/research/concepts.md#projet-minesteggio" "Open Projet Minesteggio"
   click c_discret_holography "https://github.com/JeanHuguesRobert/barons-Mariani/blob/main/research/concepts.md#discret-holography" "Open Discret Holography"
+  click c_surface_de_chance "https://github.com/JeanHuguesRobert/barons-Mariani/blob/main/research/concepts.md#surface-de-chance" "Open Surface de Chance"
   click c_cogentia "https://github.com/JeanHuguesRobert/inseme/blob/main/research/concepts.md#cogentia" "Open Cogentia"
   click c_cogentigram "https://github.com/JeanHuguesRobert/inseme/blob/main/research/concepts.md#cogentigram" "Open Cogentigram"
   click c_cop_continuous_operation_protocol "https://github.com/JeanHuguesRobert/inseme/blob/main/research/concepts.md#cop-continuous-operation-protocol" "Open COP (Continuous Operation Protocol)"
@@ -668,7 +679,7 @@ graph LR
   click c_cogentigram "https://github.com/JeanHuguesRobert/JeanHuguesRobert/blob/main/research/concepts.md#cogentigram" "Open Cogentigram"
 ```
 
-*Orphan concepts: `Civilizational Stakes` (cogentia), `Cogentia` (cogentia), `Cogentia Commons` (cogentia), `Sovereign Digital Twin` (cogentia), `Agent-Resumable CLI` (cogentia), `Kernel Extractor` (cogentia), `KYS (Know Your Self) / Psychocognitive Analysis` (cogentia), `Cogentia Workflows` (cogentia), `Packet Capsule` (cogentia), `Human-Routed Handoff` (cogentia), `Recursive Reality Test` (cogentia), `Eventual Reconciliation` (cogentia), `IPN (Inference Packet Network)` (FractaVolta), `EPN (Energy Packet Network)` (FractaVolta), `PGN (Power Generation Node)` (FractaVolta), `Packet Attractors (Fractanet routing)` (FractaVolta), `Packet as evolutionary attractor` (FractaVolta), `The Unconscious Grid` (FractaVolta), `Mariani Village` (FractaVolta), `Value-Shaped Solar` (FractaVolta), `Containerized Compute (Tera)` (FractaVolta), `Traceable Governance` (FractaVolta), `DHITL (Democratic Human In The Loop)` (marenostrum), `CXU (Compute and Exergy Unit)` (marenostrum), `Safe Compute Exergy` (marenostrum), `Constellia` (marenostrum), `Corsica Forest Synergies` (marenostrum), `Sun to Sovereignty` (marenostrum), `Civilizational Stakes` (barons-Mariani), `Cogentia` (barons-Mariani), `Presencology` (barons-Mariani), `Presence` (barons-Mariani), `Projection of The Possible` (barons-Mariani), `Cognitive Waves` (barons-Mariani), `Mimetic Desynchronization` (barons-Mariani), `Invidia` (barons-Mariani), `Transition Markets` (barons-Mariani), `The Uchronian Museum` (barons-Mariani), `Possibilism` (barons-Mariani), `Territoires Possibilistes` (barons-Mariani), `The Second Method` (barons-Mariani), `Discret Holography` (barons-Mariani), `COP (Continuous Operation Protocol)` (inseme), `Briques` (inseme), `Kudocracy` (inseme), `Agora` (inseme), `Ophélia` (inseme), `COP (Cognitive Orchestration Protocol)` (inseme), `Brique Spec / Multi-Instance` (inseme), `Modular System` (inseme), `Reactive sets` (Inox), `Actors` (Inox), `Dialects` (Inox).*
+*Orphan concepts: `Civilizational Stakes` (cogentia), `Cogentia` (cogentia), `Cogentia Commons` (cogentia), `Sovereign Digital Twin` (cogentia), `Agent-Resumable CLI` (cogentia), `Kernel Extractor` (cogentia), `KYS (Know Your Self) / Psychocognitive Analysis` (cogentia), `Cogentia Workflows` (cogentia), `Packet Capsule` (cogentia), `Human-Routed Handoff` (cogentia), `Recursive Reality Test` (cogentia), `Eventual Reconciliation` (cogentia), `IPN (Inference Packet Network)` (FractaVolta), `EPN (Energy Packet Network)` (FractaVolta), `PGN (Power Generation Node)` (FractaVolta), `Packet Attractors (Fractanet routing)` (FractaVolta), `Packet as evolutionary attractor` (FractaVolta), `The Unconscious Grid` (FractaVolta), `Mariani Village` (FractaVolta), `Value-Shaped Solar` (FractaVolta), `Containerized Compute (Tera)` (FractaVolta), `Traceable Governance` (FractaVolta), `DHITL (Democratic Human In The Loop)` (marenostrum), `CXU (Compute and Exergy Unit)` (marenostrum), `Safe Compute Exergy` (marenostrum), `Constellia` (marenostrum), `Corsica Forest Synergies` (marenostrum), `Sun to Sovereignty` (marenostrum), `Civilizational Stakes` (barons-Mariani), `Cogentia` (barons-Mariani), `Presencology` (barons-Mariani), `Presence` (barons-Mariani), `Projection of The Possible` (barons-Mariani), `Cognitive Waves` (barons-Mariani), `Mimetic Desynchronization` (barons-Mariani), `Invidia` (barons-Mariani), `Transition Markets` (barons-Mariani), `The Uchronian Museum` (barons-Mariani), `Possibilism` (barons-Mariani), `Territoires Possibilistes` (barons-Mariani), `The Second Method` (barons-Mariani), `Discret Holography` (barons-Mariani), `Surface de Chance` (barons-Mariani), `COP (Continuous Operation Protocol)` (inseme), `Briques` (inseme), `Kudocracy` (inseme), `Agora` (inseme), `Ophélia` (inseme), `COP (Cognitive Orchestration Protocol)` (inseme), `Brique Spec / Multi-Instance` (inseme), `Modular System` (inseme), `Reactive sets` (Inox), `Actors` (Inox), `Dialects` (Inox).*
 
 *Referenced but undefined: `Democratic AI Safety`, `Cogentia Commons (déclinaison manuelle)`, `Fractanet / COP (déclinaison automatisée)`, `Stabilisateurs (anti-Ubik)`, `DHITL (couches 4/5)`, `Effet Ubik (opposé)`, `Machine à explorer (opposé symétrique)`, `FM-11 (outer optimizer capture)`, `Concentration de compute (85% frontier)`, `Invidia (densité sociale destructrice)`, `DHITL (Compute Exergy comme unité traçable)`, `Map vs territory`, `Operational memory`, `Traceable agency`, `Non-deterministic Cognitive Step`, `Causal Trace Replay`, `COP/HITL Profile`, `Rule 0 (seconde méthode)`, `DHITL Layer 5`, `Engagement levels (E3/E4)`, `Envelope (kind-agnostic metadata layer)`, `Payload (kind-specific content layer)`, `Continuation payload`, `Objection payload`, `Hypothesis payload`, `Decision payload`, `Failure payload`, `Routing payload`, `Source Document`, `DHITL`, `Machine à explorer (contrepartie exploratoire)`, `Machine à Rendre Capable (symétrique constructif)`, `Machine à empêcher (symétrique critique)`, `Machine à explorer (complément exploratoire)`, `Écart capacitaire`, `Situation de handicap comme écart capacitaire situé`, `Capabilities approach / facteurs de conversion`, `Écart d’effectivité`, `Booster Principle`, `Démocratie capable`, `Potentique territoriale`, `Méthode des terrains féconds`, `corrigibilité`, `non-abandon capacitaire`, `assistance non directive`, `contrôle-capacité`, `facteurs de conversion`, `écart d’égalité effective`, `asymétrie capacitaire`, `Potentique`, `liberté de non-usage`, `bifurcation`, `réversibilité`, `sortie`, `Agent Mandaté`, `non-auto-élévation`, `Effectivité`, `Rational Odyssey`, `Rational Exploration of The Possible`, `Potentiality Map`, `Explicit Supermap`, `Rich Stigmergy`, `Flotilla Architecture`, `Cartographer`, `Possibilism (academic framework)`, `COP (stigmergic orchestration)`, `DHITL (democratic human-in-the-loop)`, `Digital twins as cognitive liberation`, `Attractor-based exploration`, `Stateless agents for scalable exploration`, `Joy as method (against grim optimization)`, `Musée Mariani des Possibles (muséological application)`, `Applied Possibilism in agile style`, `Continuations as resumable exploration`, `Capabilities approach (Sen, Nussbaum)`, `Spécificité de phase`, `Flexibilité d'usage (redistributive vs. predatory)`, `Auto-institution démocratique (Castoriadis)`, `Communs (Ostrom)`, `Mauss — gift / counter-gift`, `Democratic AI Safety (thesis kernel)`, `DHITL — Democratic Humans in the Loop`, `Cogentia Commons (auditable knowledge)`, `Traçabilité civique anti-mafieuse`, `Muséologie capacitaire`, `Indice de friction administrative`, `Indice de capacité retrouvée`, `Grille de remise en service`, `Deterministic Replay (protocol layer only)`, `Energy Packet Network (FractaVolta)`, `Cognitive Packet envelope/payload (Cogentia)`, `Auxilia (Inseme brique — human-scale Fractanet exchange)`.*
 <!-- END_AUTO: concept_graph -->
