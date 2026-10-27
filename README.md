@@ -83,6 +83,20 @@ decisions/    Architecture Decision Records
 - [`docs/operia.md`](docs/operia.md) defines the future AI-assisted layer.
 - [`decisions/ADR-0001-operium-scope.md`](decisions/ADR-0001-operium-scope.md) records the initial scope decision.
 
+## Run the CLI locally
+
+After a fresh checkout, install the locked root dependencies once before
+running the CLI directly with Node:
+
+```bash
+npm ci
+node bin/operium.js backlog gate --subsystem ona
+```
+
+The dependency directory is intentionally ignored by Git. If a direct Node
+command reports `ERR_MODULE_NOT_FOUND` for a package such as `yaml`, rerun
+`npm ci` from the repository root; do not install the dependency globally.
+
 ## Operia
 
 **Operia** is the future AI-assisted layer of Operium.

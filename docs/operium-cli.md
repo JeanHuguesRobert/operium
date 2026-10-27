@@ -111,7 +111,7 @@ nodes:
 
 ```bash
 cd operium
-npm install
+npm ci
 npm link   # optional: global operium command
 ```
 
