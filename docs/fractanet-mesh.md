@@ -442,14 +442,19 @@ firewall scope were not re-tested. Account names, key placement and ACLs,
 fingerprints, and local aliases remain in private operational records. This
 observation was not independently re-run during the present cleanup.
 
-### Fleet SSH alias convergence (operator-reported, 2026-10-27)
+### Fleet SSH alias convergence (observed, 2026-10-28)
 
-An operator-reported audit confirmed the canonical SSH alias configuration on
-three inspected FractaNodes. The remaining nodes could not be inspected during
-that audit, so fleet-wide convergence is not established. Node-specific
-reachability and alias details remain in private operational records; repeat a
-read-only verification when those nodes are available. This audit was not
-independently re-run during the present cleanup.
+The workstation's effective SSH configuration resolves all five canonical
+FractaNode names to their intended accounts and ports, using the existing mesh
+identity. The operator-reported checks on `fracta2` and `poco-jhr` also found
+the five aliases configured. Fleet-wide convergence is still unconfirmed:
+`fracta` was active in Tailscale but its SSH connection was refused, and
+`rpi3-view` could not be reached for a configuration readback. The operator
+reports that the Pi is running; its absence from the current tailnet connection
+state is not evidence that the device itself is powered off. Node-specific
+addresses, identity placement, and ACL details remain in private operational
+records. No remote configuration change is claimed for either inaccessible
+node.
 
 ---
 
@@ -795,3 +800,4 @@ ssh fracta2 'curl -fsS http://127.0.0.1:8791/health | jq .'
 | 2026-07-05 | `poco-jhr` corpus mirror ~3.1 G (17 repos); sync script `fractanet-sync-repos-from-fracta.sh` |
 | 2026-07-05 | `poco-jhr` mobile dev: Grok native, Codex + Claude in Ubuntu proot; `bootstrap-poco-jhr-dev.ps1` |
 | 2026-07-26 | Troubleshooting: `ssh fracta` / proot HOME split; proot agents script installs mesh SSH into `/root/.ssh` |
+| 2026-10-28 | Rechecked SSH alias convergence: workstation verified; Fracta SSH refused and Pi readback unavailable |
