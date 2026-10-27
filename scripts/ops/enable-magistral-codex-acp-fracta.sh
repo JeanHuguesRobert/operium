@@ -35,6 +35,7 @@ for path in \
   "$INSEME_ROOT/packages/magistral/registry/maps/local-codex-acp.js" \
   "$NODE_BIN" \
   "$CODEX_ACP_BIN" \
+  "$CODEX_BIN_DIR/codex" \
   "$DENO_BIN_DIR/deno"
 do
   test -e "$path" || { echo "MISSING=$path" >&2; exit 2; }
@@ -111,6 +112,7 @@ Environment=PATH=$CODEX_BIN_DIR:$DENO_BIN_DIR:/usr/bin:/bin
 Environment=HOST=127.0.0.1
 Environment=PORT=8880
 Environment=CODEX_ACP_COMMAND=$CODEX_ACP_BIN
+Environment=CODEX_PATH=$CODEX_BIN_DIR/codex
 Environment=MAGISTRAL_CODEX_ACP_WORKSPACE=$WORK_ROOT/public-guide
 Environment=MAGISTRAL_CODEX_ACP_TIER=fractavolta-guide
 Environment=MAGISTRAL_CODEX_ACP_MODEL=codex-local

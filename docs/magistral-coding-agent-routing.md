@@ -99,11 +99,13 @@ with `model_not_found`, while the host Codex 0.164.0 catalog included it. The
 Guide was returning a success-shaped response despite that provider failure.
 
 The verified repair installed `@agentclientprotocol/codex-acp` 2.3.0 at the
-helper's pinned path `/usr/local/node-v26.5.0/bin/codex-acp`; it bundles Codex
-0.164.0. Keep these two versions aligned during upgrades. The promotion helper
-checks only changes to Inseme's Magistral runtime files, so unrelated local
-research edits do not block deployment. It also locates Deno under
-`/home/ubuntu/.local/bin` on the verified Fracta2 host.
+helper's pinned path `/usr/local/node-v26.5.0/bin/codex-acp`; its declared
+fallback dependency is Codex 0.164.0. The service explicitly sets
+`CODEX_PATH=/home/ubuntu/.local/bin/codex`, so ACP runs the same Codex 0.164.0
+binary as the host CLI rather than its bundled copy. Keep the active CLI current
+during upgrades. The promotion helper checks only changes to Inseme's Magistral
+runtime files, so unrelated local research edits do not block deployment. It
+also locates Deno under `/home/ubuntu/.local/bin` on the verified Fracta2 host.
 
 After promotion, verify `/service-info` advertises `acp_stdio`, both systemd
 units are active, and a unique Guide SSE turn emits

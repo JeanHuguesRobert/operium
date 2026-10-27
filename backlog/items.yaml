@@ -129,12 +129,12 @@ items:
     evidence: >
       On 2026-10-27, Guide synthesis reached local ACP but codex-acp 1.6.2
       (bundled Codex 0.148.0) rejected gpt-6-luna with model_not_found although
-      the host Codex 0.164.0 catalog included it. Installed codex-acp 2.3.0
-      (bundled Codex 0.164.0), corrected the deployment helper's Deno path and
-      narrowed its dirty-check to runtime files. Magistral and mcp-cogentia are
-      active; a unique public Guide SSE turn emitted provider.acp.session_update
-      and synthesis.completed with model=codex-local.
-    next_action: Keep codex-acp's bundled Codex catalog aligned with the host CLI and verify with an uncached Guide SSE turn after upgrades.
+      the host Codex 0.164.0 catalog included it. Installed codex-acp 2.3.0,
+      set CODEX_PATH to the sole active host CLI (0.164.0), corrected the helper's
+      Deno path and narrowed its dirty-check to runtime files. Magistral and
+      mcp-cogentia are active; a unique public Guide SSE turn emitted
+      provider.acp.session_update and synthesis.completed with model=codex-local.
+    next_action: Keep the active host Codex CLI current and verify an uncached Guide SSE turn after upgrades.
     blocks_features: false
     opened_at: "2026-10-27"
     closed_at: "2026-10-27"
