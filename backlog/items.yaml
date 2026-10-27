@@ -139,8 +139,30 @@ items:
     opened_at: "2026-10-27"
     closed_at: "2026-10-27"
     notes: |
-      This closes the provider/model mismatch only. The separate Guide response
-      contract issue on provider failure remains to be corrected.
+      The independent Guide response-contract correction is tracked as OP-BUG-012.
+
+  - id: OP-BUG-012
+    kind: bug
+    title: Guide presents provider diagnostic content as a successful synthesis
+    subsystem: magistral
+    severity: high
+    status: done
+    evidence: >
+      Cogentia commit 2cdde83 validates successful HTTP completions, rejects
+      empty/error-bearing responses and the observed Codex model_not_found
+      diagnostic, suppresses that diagnostic from streamed deltas, and aligns
+      the SSE terminal event with the actual fallback result. The focused
+      check-guide-http.js regression check passed for JSON and SSE paths. The
+      updated mcp-cogentia service is active and local /guide/health returned
+      HTTP 200 with chat available on 2026-10-27.
+    next_action: Keep the JSON/SSE provider-diagnostic regression case in the focused Guide check.
+    blocks_features: false
+    opened_at: "2026-10-27"
+    closed_at: "2026-10-27"
+    notes: |
+      Invalid provider output now enters the existing explicit fallback path;
+      a fallback answer is tagged as such and does not masquerade as a normal
+      conversational synthesis.
 
   # ── Bugs (fix first) ─────────────────────────────────────────────
 
