@@ -228,18 +228,18 @@ Document **names** in git; set **values** on the host running the relevant servi
 
 As of 2026-10-27, `operium up --human` reports the Guide MCP backend as
 `supabase`. This is the backend selected by the observed live Guide runtime.
-The live Guide health endpoint reports `inox_configured=false`. The current
-Cogentia source removes the optional Inox retrieval client; this local change
-has not been deployed. The blackboard still advertises the ThinkPad
-`retrieval.inline` capability for `web-guide` and `owner-cli` as of this audit,
-but that advertisement does not establish actual Guide requests. The deployed
-Guide currently reports Supabase. Earlier wording here incorrectly presented
-Inox as the current Guide retrieval target.
+Commit `122d0ba` is deployed on `fracta2`: `mcp-cogentia.service` is active,
+and `/guide/health` reports `retrieval_backend=supabase` without the legacy
+`inox_retrieval` field. The ThinkPad retrieval-attractor heartbeat was refreshed
+on 2026-10-27; the live blackboard now advertises `owner-cli` only for
+`retrieval.inline` (snapshot observed at 21:22:50 UTC). The advertisement
+describes eligibility, not actual invocation. Earlier wording here incorrectly
+presented Inox as the current Guide retrieval target.
 
 | State | Guide retrieval | Where work runs |
 |-------|-----------------|-----------------|
 | Historical (Phase 0, `fracta`) | Local daemon batch | `fracta` SQLite + local vectors |
-| Current observed (2026-10-27, runtime on `fracta2`) | Live service reports `backend=supabase` and `inox_configured=false`; local source removes the Inox client | Supabase regional backend |
+| Current observed (2026-10-27, runtime on `fracta2`) | Commit `122d0ba` deployed; live service reports `backend=supabase` with no legacy Inox field | Supabase regional backend |
 
 ## What fracta may hold vs must not
 

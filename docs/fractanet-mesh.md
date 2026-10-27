@@ -655,7 +655,7 @@ Tests: `pnpm test:blackboard` in cogentia repo.
 | Capable host | `i7-thinkpad-jhr`, `inox-serve` on `0.0.0.0:8792` |
 | Service role | Remote Inox execution (`/run`), stateful session and continuation routes, and an optional retrieval batch endpoint. |
 | Guide status | Live Guide reports `backend=supabase` and `inox_configured=false` (2026-10-27). It does not select this runtime. |
-| Blackboard | The live advertisement still includes `web-guide` and `owner-cli`; the local Cogentia heartbeat source now advertises `owner-cli` only. Refresh the deployed heartbeat before treating the live advertisement as reconciled. |
+| Blackboard | Refreshed 2026-10-27. The live advertisement now lists `owner-cli` only for `retrieval.inline` (snapshot observed at 21:22:50 UTC). |
 | Health evidence | The ThinkPad `/health` endpoint returned healthy during the 2026-10-27 audit; this proves route availability, not client invocation. |
 
 Guide retrieval remains on its Supabase backend when the ThinkPad is offline; the Inox runtime is not a Guide dependency.
