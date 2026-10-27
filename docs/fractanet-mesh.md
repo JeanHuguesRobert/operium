@@ -432,6 +432,25 @@ Post-reboot local-only (sshd + firewall, no remote hops):
 pwsh -File cogentia/scripts/ops/verify-fractanet-ssh-mesh.ps1 -SkipConnectivity
 ```
 
+### Additional SSH observation (operator-reported, 2026-10-27)
+
+The operator reports successful SSH authentication from `fracta2` to
+`i7-thinkpad-jhr` over Tailscale with strict host-key checking after an
+authorized configuration update. This establishes connectivity and
+authentication at that observation only; reboot persistence and inbound
+firewall scope were not re-tested. Account names, key placement and ACLs,
+fingerprints, and local aliases remain in private operational records. This
+observation was not independently re-run during the present cleanup.
+
+### Fleet SSH alias convergence (operator-reported, 2026-10-27)
+
+An operator-reported audit confirmed the canonical SSH alias configuration on
+three inspected FractaNodes. The remaining nodes could not be inspected during
+that audit, so fleet-wide convergence is not established. Node-specific
+reachability and alias details remain in private operational records; repeat a
+read-only verification when those nodes are available. This audit was not
+independently re-run during the present cleanup.
+
 ---
 
 ## Node setup procedures (implemented scripts)
