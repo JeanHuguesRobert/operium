@@ -90,6 +90,26 @@ while Codex is reserved for the synthesis turn. This prevents a short-lived
 planner call from racing the longer synthesis session. Re-enable LLM planning
 only once Magistral has a queue or an independent planning capacity.
 
+### Keep the ACP model catalog aligned
+
+`codex-acp` bundles its own Codex CLI and model catalog. Updating the separate
+`codex` executable does not update that bundle. On 2026-10-27, the installed
+ACP 1.6.2 bundled Codex 0.148.0 and rejected the configured `gpt-6-luna` model
+with `model_not_found`, while the host Codex 0.164.0 catalog included it. The
+Guide was returning a success-shaped response despite that provider failure.
+
+The verified repair installed `@agentclientprotocol/codex-acp` 2.3.0 at the
+helper's pinned path `/usr/local/node-v26.5.0/bin/codex-acp`; it bundles Codex
+0.164.0. Keep these two versions aligned during upgrades. The promotion helper
+checks only changes to Inseme's Magistral runtime files, so unrelated local
+research edits do not block deployment. It also locates Deno under
+`/home/ubuntu/.local/bin` on the verified Fracta2 host.
+
+After promotion, verify `/service-info` advertises `acp_stdio`, both systemd
+units are active, and a unique Guide SSE turn emits
+`provider.acp.session_update` followed by `synthesis.completed` with
+`model=codex-local`. A cached answer does not verify the provider path.
+
 Apply from the fracta2 checkout after pulling Operium, Inseme and Cogentia:
 
 ```bash

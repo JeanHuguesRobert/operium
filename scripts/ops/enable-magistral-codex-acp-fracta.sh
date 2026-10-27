@@ -11,7 +11,7 @@ DROPIN="/etc/systemd/system/magistral.service.d/zzzz-codex-acp.conf"
 GUIDE_DROPIN="/etc/systemd/system/mcp-cogentia.service.d/zzzz-magistral-acp.conf"
 NODE_BIN="/usr/local/node-v26.5.0/bin/node"
 CODEX_ACP_BIN="/usr/local/node-v26.5.0/bin/codex-acp"
-DENO_BIN_DIR="/usr/local/node-v26.5.0/bin"
+DENO_BIN_DIR="/home/ubuntu/.local/bin"
 CODEX_BIN_DIR="/home/ubuntu/.local/bin"
 DRY_RUN=0
 
@@ -40,8 +40,10 @@ do
   test -e "$path" || { echo "MISSING=$path" >&2; exit 2; }
 done
 
-if [[ -n "$(git -C "$INSEME_ROOT" status --porcelain --untracked-files=no)" ]]; then
-  echo "REFUSE_TRACKED_INSEME_CHECKOUT" >&2
+# Only block changes to the code and manifests this deployment executes.
+# Unrelated local research/docs edits must not prevent a bounded runtime update.
+if [[ -n "$(git -C "$INSEME_ROOT" status --porcelain --un packages/magistral package.json package-lock.json pnpm-lock.yaml yarn.lock)" ]]; then
+  echo "REFUSE_DIRTY_MAGISTRAL_RUNTIME" >&2
   exit 2
 fi
 
