@@ -432,6 +432,16 @@ Post-reboot local-only (sshd + firewall, no remote hops):
 pwsh -File cogentia/scripts/ops/verify-fractanet-ssh-mesh.ps1 -SkipConnectivity
 ```
 
+### Additional SSH observation (operator-reported, 2026-10-27)
+
+The operator reports successful SSH authentication from `fracta2` to
+`i7-thinkpad-jhr` over Tailscale with strict host-key checking after an
+authorized configuration update. This establishes connectivity and
+authentication at that observation only; reboot persistence and inbound
+firewall scope were not re-tested. Account names, key placement and ACLs,
+fingerprints, and local aliases remain in private operational records. This
+observation was not independently re-run during the present cleanup.
+
 ---
 
 ## Node setup procedures (implemented scripts)
