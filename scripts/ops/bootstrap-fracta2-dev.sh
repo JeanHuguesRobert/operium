@@ -27,6 +27,14 @@ for repo in cogentia inseme Inox; do
     GIT_TERMINAL_PROMPT=0 git clone "https://github.com/JeanHuguesRobert/$repo.git" "$repos_root/$repo"
   fi
 done
+# Install Operium's managed interactive shell profile when its existing
+# checkout is present. This only updates the current user's ~/.bashrc.
+shell_profile_installer="$repos_root/operium/profiles/shell/install-fracta-vps-shell-profile.sh"
+if [[ -f "$shell_profile_installer" ]]; then
+  bash "$shell_profile_installer"
+else
+  echo "Operium shell profile installer not found; skipped: $shell_profile_installer" >&2
+fi
 for tool in gcc g++ make cmake python3 rg jq gh node npm deno pnpm codex claude; do
   command -v "$tool"
 done

@@ -1,5 +1,6 @@
 # shellcheck shell=bash
-# Operium-managed interactive bash profile for the Fracta public VPS.
+# Operium-managed interactive bash profile for Ubuntu Fracta nodes.
+# Shared by the `fracta-vps` and `fracta2` node classes.
 #
 # profile_id: shell.fracta-vps.v1
 # Owner: Operium — see docs/workstation-shell-profile.md (multi-node shell entry)
@@ -16,7 +17,7 @@ if [ "${FRACTA_WORKSPACE_PROFILE_LOADED:-}" = "1" ]; then
 fi
 export FRACTA_WORKSPACE_PROFILE_LOADED=1
 
-# --- Roots observed on fracta (2026-07) ---
+# --- Roots observed on Fracta and Fracta2 ---
 export CORPUS_REPOS="${CORPUS_REPOS:-/srv/cogentia/repos}"
 export COGENTIA_ROOT="${COGENTIA_ROOT:-$CORPUS_REPOS/cogentia}"
 export OPERIUM_ROOT="${OPERIUM_ROOT:-$CORPUS_REPOS/operium}"
@@ -98,9 +99,11 @@ fi
 # Lightweight prompt mark
 if [ -n "${PS1:-}" ] && [ "${FRACTA_PROMPT_HOOKED:-}" != "1" ]; then
   export FRACTA_PROMPT_HOOKED=1
+  _fracta_node_label="${HOSTNAME:-fracta}"
   _fracta_old_ps1="${PS1:-}"
   # shellcheck disable=SC2016
-  PS1='\[\e[0;36m\][fracta|reg]\[\e[0m\] '"${PS1:-\\u@\\h:\\w\\$ }"
+  PS1='\[\e[0;36m\]['"${_fracta_node_label}"'|reg]\[\e[0m\] '"${PS1:-\\u@\\h:\\w\\$ }"
+  unset _fracta_node_label
 fi
 
 if [ -n "${PS1:-}" ]; then

@@ -1,6 +1,7 @@
 ---
 title: Shell profiles (Fractanet nodes)
 date: '2026-07-29'
+last_modified_at: '2026-10-27'
 document_role: operational
 document_kind: method
 visibility: public
@@ -44,6 +45,7 @@ Interactive login shells only — not systemd, not Agent Gateway, not ONA servic
 |------------|---------|---------|
 | **workstation-windows** | [`shell/workstation-windows.profile.ps1`](../profiles/shell/workstation-windows.profile.ps1) | User `$PROFILE` dotsources after `cd C:\tweesic` |
 | **fracta-vps** | [`shell/fracta-vps.profile.sh`](../profiles/shell/fracta-vps.profile.sh) | [`install-fracta-vps-shell-profile.sh`](../profiles/shell/install-fracta-vps-shell-profile.sh) on ubuntu |
+| **fracta2** (`ubuntu-arm64-development`) | Shared Ubuntu Fracta profile above | Same installer on `fracta2` as `ubuntu` |
 | **termux-android** | [`shell/termux-android.profile.sh`](../profiles/shell/termux-android.profile.sh) | [`install-termux-shell-profile.sh`](../profiles/shell/install-termux-shell-profile.sh) on `poco-jhr` (Agent JHN / twin class) |
 
 ## Registry
@@ -52,11 +54,12 @@ Interactive login shells only — not systemd, not Agent Gateway, not ONA servic
 |---------|---------------------|
 | Windows workstation | `C:\tweesic\JeanHuguesRobert\.cogentia.json` |
 | Fracta VPS | `/srv/cogentia/repos/JeanHuguesRobert/.cogentia.json` |
+| Fracta2 | `/srv/cogentia/repos/JeanHuguesRobert/.cogentia.json` |
 | Phone / twin (`poco-jhr`) | `$HOME/srv/cogentia/repos/JeanHuguesRobert/.cogentia.json` (override via `~/srv/cogentia/secrets/shell-profile.env`) |
 
 **Do not** put an incomplete `.cogentia.json` at a parent path that shadows the full registry.
 
-## Fracta install / refresh
+## Fracta and Fracta2 install / refresh
 
 On a trusted workstation (after `operium` is pulled on fracta):
 
@@ -64,11 +67,20 @@ On a trusted workstation (after `operium` is pulled on fracta):
 ssh fracta 'cd /srv/cogentia/repos/operium && git pull --ff-only && bash profiles/shell/install-fracta-vps-shell-profile.sh'
 ```
 
+Fracta2 uses the same workspace roots and registry, with a prompt label derived
+from the host name. Install or refresh it on Fracta2 with:
+
+```bash
+ssh fracta2 'bash /srv/cogentia/repos/operium/profiles/shell/install-fracta-vps-shell-profile.sh'
+```
+
 Verify (login shell):
 
 ```bash
-ssh fracta 'bash -lc "echo REG=\$COGENTIA_REGISTRY; type cogentia; type operium; pwd"'
+ssh -t fracta 'bash -lic "echo REG=\$COGENTIA_REGISTRY; type cogentia; type operium; pwd"'
 ```
+
+Use the same check with `fracta2` to verify its login profile.
 
 Expect `REG=/srv/cogentia/repos/JeanHuguesRobert/.cogentia.json` (or equivalent) and functions defined.
 

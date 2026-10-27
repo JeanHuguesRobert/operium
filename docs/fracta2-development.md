@@ -6,7 +6,7 @@ visibility: public
 lifecycle_state: active
 language: en
 date: "2026-09-10"
-last_modified_at: "2026-09-10"
+last_modified_at: "2026-10-27"
 update_policy: UP-INFRASTRUCTURE-HEALTH
 ---
 
@@ -58,6 +58,13 @@ clones still need their project-specific dependency setup before building.
 Read each repository's AGENTS.md before working there.
 
 ## Use from the phone or another mesh node
+
+The `fracta2-dev` tool profile also uses Operium's managed Ubuntu interactive
+shell profile. It sets `CORPUS_REPOS=/srv/cogentia/repos`, resolves the full
+registry at `/srv/cogentia/repos/JeanHuguesRobert/.cogentia.json`, defines the
+`cogentia` and `operium` helpers, and starts interactive logins in the Corpus
+root. The Fracta2 bootstrap installs or refreshes this profile when the existing
+Operium checkout is available.
 
 From a machine with the `fracta2` SSH alias configured:
 
