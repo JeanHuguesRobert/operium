@@ -229,6 +229,8 @@ Preference order:
 2. deploy a narrowly scoped Watchers service on fracta2;
 3. only if justified, introduce a new minimal service.
 
+Do not move unrelated application surfaces.
+
 The service must:
 - accept the three routes above;
 - hash the opaque token before datastore lookup;
@@ -267,6 +269,8 @@ sha256 = <exact 64-hex digest>
 ```
 
 The service should identify the document as **FROZEN** rather than REVIEW.
+
+The button label MUST NOT say “Open REVIEW document” once frozen.
 
 ## F4 — Reality Test
 
