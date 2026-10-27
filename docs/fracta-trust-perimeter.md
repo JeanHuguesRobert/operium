@@ -1,15 +1,29 @@
 ---
 title: "Fracta trust perimeter and secrets"
-description: "How the fracta VPS fits the trusted operational boundary; where secrets live; retrieval backends including Inox session."
+description: "How the fracta VPS fits the trusted operational boundary; where secrets live; and the Guide's currently observed retrieval backend."
+author: unknown
+affiliation: unknown
 layout: default
 date: 2026-07-03
-last_modified_at: 2026-09-25
+last_modified_at: 2026-10-27
 license: Apache-2.0
+language: en
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/docs/fracta-trust-perimeter.md
+status: working-paper
 document_role: "operational"
 document_kind: "method"
 visibility: "public"
 lifecycle_state: "active"
+update_policy: UP-DEFAULT-REVIEWED
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
+review:
+  status: unreviewed
+  reviewed_by: []
 classification_source: "cogentia.js"
 classification_version: "1"
 classification_rule: "explicit-metadata"
@@ -196,45 +210,36 @@ dropping privileges. Verify the chosen model on the actual service manager.
 If a value is printed into a controlled transcript, record that precise fact;
 do not claim compromise without evidence of unauthorized observation or use.
 
-### Variable names (values only on fracta)
+### Variable names (values only on the authorized runtime host)
 
-Document **names** in git; set **values** on the node.
+Document **names** in git; set **values** on the host running the relevant service.
 
 | Variable | Role |
 |----------|------|
 | `COGENTIA_GUIDE_BATCH` | `1` = batch retrieval per Guide turn |
-| `COGENTIA_RETRIEVAL_BACKEND` | `supabase` = direct regional retrieval (Phase 1) |
+| `COGENTIA_RETRIEVAL_BACKEND` | `supabase` = direct regional retrieval (current observed Guide backend) |
 | `SUPABASE_URL` | Supabase project URL (when backend=supabase) |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role (when backend=supabase) |
-| `OPENAI_API_KEY` | Query embeddings for hybrid/semantic (when on fracta) |
+| `OPENAI_API_KEY` | Query embeddings for hybrid/semantic (when configured for the Guide runtime) |
 | `COGENTIA_RETRIEVAL_CORPUS_KEY` | e.g. `cogentia-public` |
-| `COGENTIA_INOX_RETRIEVAL_URL` | Base URL of remote `inox-serve` (Phase 4) |
-| `COGENTIA_INOX_SERVE_TOKEN` | Bearer token for `inox-serve` (if required) |
 | `COGENTIA_GUIDE_WEB_SEARCH_API_KEY` | Optional Brave/web search |
 
-When `COGENTIA_INOX_RETRIEVAL_URL` is set, the Guide prefers **`inox-session`**
-(`POST /session/turn`, `inox.session.v1`) over direct Supabase on the Guide runtime host — see
-`cogentia/scripts/lib/retrieval-inox-session.js`.
+## Guide retrieval backend
 
-## Retrieval backends (evolution)
+As of 2026-10-27, `operium up --human` reports the Guide MCP backend as
+`supabase`. This is the backend selected by the observed live Guide runtime.
+The live Guide health endpoint reports `inox_configured=false`. The current
+Cogentia source removes the optional Inox retrieval client; this local change
+has not been deployed. The blackboard still advertises the ThinkPad
+`retrieval.inline` capability for `web-guide` and `owner-cli` as of this audit,
+but that advertisement does not establish actual Guide requests. The deployed
+Guide currently reports Supabase. Earlier wording here incorrectly presented
+Inox as the current Guide retrieval target.
 
-| Phase | Guide runtime configuration | Where heavy work runs |
-|-------|-----------------------------|------------------------|
-| 0 (historical, `fracta`) | Local daemon batch only | `fracta` SQLite + local vectors |
-| 1 (historical, `fracta`) | `COGENTIA_RETRIEVAL_BACKEND=supabase` + Supabase/OpenAI keys on `fracta` | Supabase region + OpenAI from `fracta` |
-| 4 (current target, runtime now on `fracta2`) | `COGENTIA_INOX_RETRIEVAL_URL` → capable host; remove direct Supabase/OpenAI secrets from the Guide host when no longer needed | `inox-serve` on capable host (inline secrets there) |
-
-Phase 4 weak-node pattern:
-
-```text
-fracta2 Guide MCP --HTTPS session/turn-->  inox-serve (capable host)
-                                                  |
-                                            Supabase + OpenAI (secrets on capable host only)
-```
-
-For the Phase 4 target, `fracta2` should keep only `COGENTIA_INOX_RETRIEVAL_URL` and `COGENTIA_INOX_SERVE_TOKEN` in the Guide runtime configuration when direct Supabase/OpenAI fallback is no longer required.
-
-If `inox-serve` has no inline secrets, it emits **continuations**; the Guide runtime host can fulfill them only if local keys exist (split-host mode). Production intent: capable host holds keys and `fracta2` sends mandates only.
+| State | Guide retrieval | Where work runs |
+|-------|-----------------|-----------------|
+| Historical (Phase 0, `fracta`) | Local daemon batch | `fracta` SQLite + local vectors |
+| Current observed (2026-10-27, runtime on `fracta2`) | Live service reports `backend=supabase` and `inox_configured=false`; local source removes the Inox client | Supabase regional backend |
 
 ## What fracta may hold vs must not
 
@@ -245,9 +250,9 @@ If `inox-serve` has no inline secrets, it emits **continuations**; the Guide run
 - Git mirrors under `/srv/cogentia/repos/`
 - Loopback service configuration (systemd units referencing env files, never embedding literal secrets)
 
-**Must not hold (prefer capable host or remove after Phase 4):**
+**Must not hold:**
 
-- Long-term copy of Supabase service role on a small public VPS once Inox path is live
+- Secrets not required by the active runtime; remove copies only after a verified migration
 - Private registry exports, incident dumps with credentials
 - Any secret committed to git
 
@@ -286,7 +291,7 @@ node scripts/ops/apply-fracta-runtime-secrets.js --apply --host fracta
 
 See private operator note `docs/secrets-management.md` (`apply-fracta-runtime-secrets`; not linked from public views).
 
-After `git pull` on the fracta checkouts of `/srv/cogentia/repos/cogentia` and `/srv/cogentia/repos/Inox`, the historical stack script was:
+The historical Guide stack restart command was:
 
 ```bash
 ssh fracta 'sudo bash /srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stack.sh restart'
@@ -294,26 +299,30 @@ ssh fracta 'sudo bash /srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stac
 
 That command does not restart the live hub. The public Guide process is `mcp-cogentia.service` on `fracta2`.
 
-## Inox on a capable host (reference)
+## Inox on a capable host (separate system)
 
-`inox-serve` is deployed **outside** fracta when fracta must stay weak. Its secrets
-(Supabase, OpenAI) live in **that** host's environment — same trust rules: on-disk
-env, not GitHub.
+The live ThinkPad service exposes remote `.nox` execution (`/run`), stateful
+`inox.session.v1` turns (`/session/turn`), continuation fulfillment, and a
+retrieval batch endpoint. Its health response confirms those routes are up; it
+does not prove which clients invoke them. Inox's remote-serving documentation
+is a separate system reference. Any Inox secrets live in that system's
+environment — same trust rules: on-disk env, not GitHub.
 
 Document the capable host in the **private** Operium registry (host id, URL, rotation).
 This public note only records the pattern.
 
 ## Related GitHub issues
 
-- [cogentia#42](https://github.com/JeanHuguesRobert/cogentia/issues/42) — Phase 4 Inox mandat
 - [Inox#23](https://github.com/JeanHuguesRobert/Inox/issues/23) — runtime VM reset (worker reuse)
 
 ## Changelog
 
 | Date | Change |
 |------|--------|
-| 2026-07-03 | Initial note: trust perimeter, `guide.env`, Phase 4 `inox.session.v1` |
-| 2026-07-04 | Cross-link to [fractanet-mesh.md](fractanet-mesh.md); `COGENTIA_INOX_RETRIEVAL_URL` live via Tailscale |
+| 2026-07-03 | Initial note: trust perimeter, `guide.env`, and Guide retrieval history |
+| 2026-07-04 | Cross-link to [fractanet-mesh.md](fractanet-mesh.md); earlier Inox-to-Guide wording was later corrected as unsupported |
 | 2026-07-04 | Cross-link to [fractavolta-dns.md](fractavolta-dns.md); public path diagram includes OCI IP |
 | 2026-08-19 | Corrected public-role diagram: `cogentia.service` is loopback-only, never proxied by Caddy directly (verified against the live Caddyfile and `ss -tlnp`, not just assumed); added observed capacity headroom (1 OCPU/1GB, tight) and a dated note on Oracle's Ampere A1 free-tier reduction; fixed operator-checklist commands missing the `bash` prefix the non-executable script needs |
-| 2026-09-25 | Public Guide/MCP observed on `fracta2:8791`, reached by Caddy on fracta. `fracta` units for `mcp-cogentia` and `cogentia` are disabled. Live CORS authority is the fracta2 systemd drop-in, including `https://suicidecorse.baronsmariani.org` |\n| 2026-09-27 | Aligned the companion Fractanet topology and Phase 4 examples with the observed `fracta` edge → `fracta2` Guide/MCP hub split. |
+| 2026-09-25 | Public Guide/MCP observed on `fracta2:8791`, reached by Caddy on fracta. `fracta` units for `mcp-cogentia` and `cogentia` are disabled. Live CORS authority is the fracta2 systemd drop-in, including `https://suicidecorse.baronsmariani.org` |
+| 2026-09-27 | Aligned the companion Fractanet topology with the observed `fracta` edge → `fracta2` Guide/MCP hub split. |
+| 2026-10-27 | Clarified the Guide's observed Supabase backend and recorded removal of the local Guide/Inox client plus the still-live blackboard advertisement. |

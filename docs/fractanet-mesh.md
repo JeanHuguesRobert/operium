@@ -1,16 +1,29 @@
 ---
 title: "Fractanet mesh — Tailscale and SSH (July 2026)"
 description: "Operational record of the virteal tailnet, bidirectional SSH mesh, capable-host wiring, and Packet Attractor Phase 1 on fracta."
+author: unknown
+affiliation: unknown
 layout: default
 date: 2026-07-04
-last_modified_at: 2026-09-27
+last_modified_at: 2026-10-27
 license: Apache-2.0
+language: en
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/docs/fractanet-mesh.md
+status: working-paper
 document_role: "operational"
 document_kind: "method"
 visibility: "public"
 lifecycle_state: "active"
-status: "mesh live (4 nodes)"
+update_policy: UP-DEFAULT-REVIEWED
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
+review:
+  status: unreviewed
+  reviewed_by: []
 classification_source: "cogentia.js"
 classification_version: "1"
 classification_rule: "explicit-metadata"
@@ -23,7 +36,7 @@ This note records **observed operational state** after resuming [Fractanet resum
 
 Companion notes:
 
-- [Fracta trust perimeter and secrets](fracta-trust-perimeter.md) — `guide.env`, Phase 4 retrieval
+- [Fracta trust perimeter and secrets](fracta-trust-perimeter.md) — current Guide backend and secret boundaries
 - [Fractanet resumption handoff](../research/fractanet-resumption-2026-07.md) — north star and open decisions
 - [Public / private split](public-private-split.md) — secret references, not values
 - Cogentia scripts: `cogentia/scripts/ops/` (bootstrap, heartbeat, Windows SSH install)
@@ -281,7 +294,7 @@ Those session tools are not established Fracta2 host capabilities. The observed
 SSH route allows a phone-side agent to use Fracta2's server/browser facilities
 within mandate, without moving the assistant session itself.
 
-### `i7-thinkpad-jhr` — capable-retrieval-host
+### `i7-thinkpad-jhr` — capable-runtime-host
 
 | Dimension | Observed capability |
 |-----------|---------------------|
@@ -290,10 +303,10 @@ within mandate, without moving the assistant session itself.
 | **Corpus** | Dev working copies; not a full fracta mirror |
 | **SSH mesh** | Windows OpenSSH `sshd` :22; `fractanet-mesh`; firewall `OpenSSH-Server-In-TCP` |
 | **Cogentia services** | `inox-serve` :8792 (`InoxServeCapableHost` task); attractor heartbeat every 3 min |
-| **Retrieval profile** | `inox.session.v1` — embeddings, Supabase RPC inline |
+| **Service roles** | Remote `.nox` execution, stateful sessions and continuations; optional `/retrieval/batch` route |
 | **Blackboard** | `attractor:i7-thinkpad-jhr:retrieval-inline` |
 | **Coding agents** | Full operator stack (Grok, Codex, Claude Code, etc.) on Windows |
-| **Limits** | Offline → the production Guide on `fracta2` needs fallback policy A/B/C; disk space tight |
+| **Limits** | Offline → remote Inox execution and session calls are unavailable; the Guide remains on Supabase; disk space tight |
 
 ### `rpi3-view` — edge-kiosk (Paoli)
 
@@ -456,7 +469,7 @@ Symmetric **layout**, asymmetric **capabilities**. Script: `cogentia/scripts/ops
 | Role | Node | Corpus | When Internet down |
 |------|------|--------|-------------------|
 | **publisher** | `fracta` | build index, sync `cogentia-public`, public Guide | N/A (remote VPS) |
-| **capable host** | `i7-thinkpad-jhr` | `inox-serve` inline retrieval | intermittent — not site anchor |
+| **capable host** | `i7-thinkpad-jhr` | remote Inox runtime; optional retrieval endpoint | intermittent — not site anchor |
 | **edge-kiosk** | `rpi3-view` | **consumer** + local cache | **anchor** for Local 1 cours Paoli |
 
 ### Local 1 cours Paoli (`rpi3-view`)
@@ -635,19 +648,17 @@ bash ~/fractanet-sync-repos-from-fracta.sh
 
 Tests: `pnpm test:blackboard` in cogentia repo.
 
-### Phase 4 bootstrap — inox-serve over Tailscale
+### ThinkPad Inox runtime — separate from the Guide
 
 | Item | State |
 |------|-------|
 | Capable host | `i7-thinkpad-jhr`, `inox-serve` on `0.0.0.0:8792` |
-| Guide runtime host | Production Guide/MCP moved from `fracta` to `fracta2` on 2026-09-23; runtime retrieval configuration belongs with the live Guide host. |
-| Bootstrap evidence | `fracta` → laptop health was verified during the original bootstrap. Revalidate `fracta2` → laptop reachability before treating the old probe as current evidence. |
+| Service role | Remote Inox execution (`/run`), stateful session and continuation routes, and an optional retrieval batch endpoint. |
+| Guide status | Live Guide reports `backend=supabase` and `inox_configured=false` (2026-10-27). It does not select this runtime. |
+| Blackboard | The live advertisement still includes `web-guide` and `owner-cli`; the local Cogentia heartbeat source now advertises `owner-cli` only. Refresh the deployed heartbeat before treating the live advertisement as reconciled. |
+| Health evidence | The ThinkPad `/health` endpoint returned healthy during the 2026-10-27 audit; this proves route availability, not client invocation. |
 
-**Not yet done:** Guide **dynamic** routing from blackboard snapshot before `session/turn` (Phase 2). Startup still uses static `resolveGuideRetrievalBackend()`.
-
-### Fallback policy when laptop offline
-
-Still **open** — see [resumption handoff](../research/fractanet-resumption-2026-07.md). Any transitional Supabase fallback now belongs to the live Guide host (`fracta2`), not the stopped Guide units on `fracta`; verify actual runtime secrets before relying on it.
+Guide retrieval remains on its Supabase backend when the ThinkPad is offline; the Inox runtime is not a Guide dependency.
 
 ---
 
@@ -699,7 +710,7 @@ curl -fsS https://cogentia.fractavolta.com/ops/status | jq .
 # Blackboard (raw)
 curl -fsS https://cogentia.fractavolta.com/ops/blackboard | jq .
 
-# inox-serve reachability from the live Guide host (Tailscale IP from private registry)
+# Inox runtime reachability from a trusted Fractanet node (Tailscale IP from private registry)
 ssh fracta2 'curl -fsS http://<thinkpad-ts-ip>:8792/health | jq .'
 
 # live Guide hub

@@ -1,10 +1,11 @@
 ---
 title: Cogentia Semantic Stack
 description: Operational profile for running Cogentia retrieval with Magistral embeddings locally and on the Fracta public node.
+author: unknown
 layout: default
 nav_order: 5
 date: 2026-06-29T00:00:00.000Z
-last_modified_at: 2026-06-29T00:00:00.000Z
+last_modified_at: 2026-10-27T00:00:00.000Z
 license: Apache-2.0
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/docs/cogentia-semantic-stack.md
 document_role: operational
@@ -163,8 +164,8 @@ Observed public shape on 2026-06-29:
   context retrieval is available;
 - regional Supabase retrieval (`COGENTIA_RETRIEVAL_BACKEND=supabase`) was enabled
   on the Guide MCP in 2026-07 (Phase 1); see `cogentia/docs/retrieval-roadmap.md`;
-- Phase 4 target: `COGENTIA_INOX_RETRIEVAL_URL` on a capable host so fracta drops
-  Supabase/OpenAI keys from `guide.env` — see [Fracta trust perimeter](fracta-trust-perimeter.md).
+- The earlier Inox Phase 4 Guide path is parked. The live Guide reports Supabase
+  retrieval and Inox unconfigured; see [Fracta trust perimeter](fracta-trust-perimeter.md).
 
 This is an operational observation, not a guarantee of future state.
 
