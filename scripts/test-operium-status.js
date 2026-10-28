@@ -3,7 +3,11 @@ import assert from "node:assert/strict";
 import { statusSession, formatStatusHuman } from "../lib/status-session.js";
 
 async function main() {
-  const result = await statusSession({ timeoutMs: 1500, probe: false });
+  const result = await statusSession({
+    timeoutMs: 1500,
+    probe: false,
+    repos: ["operium", "cogentia", "inseme"],
+  });
 
   assert.equal(result.schema, "operium.session_status.v1");
   assert.ok(result.ok, "status ok");
