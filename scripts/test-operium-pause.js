@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { pauseSession, formatPauseHuman } from "../lib/pause-session.js";
 
 async function main() {
-  const result = await pauseSession({ dryRun: true, fetchRemotes: false });
+  const result = await pauseSession({ dryRun: true, fetchRemotes: false, issue: "operium/0" });
 
   assert.equal(result.schema, "operium.pause_state.v1");
   assert.ok(result.ok, "pause ok");
