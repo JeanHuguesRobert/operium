@@ -6,7 +6,7 @@ visibility: public
 lifecycle_state: active
 language: en
 date: "2026-09-10"
-last_modified_at: "2026-09-10"
+last_modified_at: "2026-10-28"
 update_policy: UP-INFRASTRUCTURE-HEALTH
 ---
 
@@ -72,6 +72,25 @@ For unattended SSH commands, use a login shell or an explicit user-tool path:
 
 ```bash
 ssh fracta2 'bash -lc "codex --version && deno --version && pnpm --version"'
+```
+
+## Manual remote validation
+
+`scripts/ops/validate-remote.py` is a manually invoked developer helper. It
+archives a selected clean Inox or Inseme commit and runs that commit's build
+and test commands on Fracta2 over SSH. Those commands run with the same
+permissions as the SSH account, including its filesystem and network access.
+Use it only for commits whose code you trust at that privilege level. It is
+not a sandbox and is not triggered automatically by GitHub pushes or pull
+requests. Keep remote validation logs and temporary artifacts within the
+documented `/srv/cogentia/work/validation` working area and review their disk
+usage during maintenance.
+
+From the shared repository root, invoke it explicitly for a committed
+revision:
+
+```bash
+python3 operium/scripts/ops/validate-remote.py Inox --revision <commit>
 ```
 
 The verified route from this phone session was SSH through `fracta` to

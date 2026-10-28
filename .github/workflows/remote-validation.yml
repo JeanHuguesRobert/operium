@@ -1,0 +1,93 @@
+name: Remote validation worker conformance
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/ops/remote-validation-worker.py'
+      - 'scripts/ops/validate-remote.py'
+      - 'scripts/ops/supervise_task.py'
+      - 'scripts/test-remote-validation.py'
+      - '.github/workflows/remote-validation.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/ops/remote-validation-worker.py'
+      - 'scripts/ops/validate-remote.py'
+      - 'scripts/ops/supervise_task.py'
+      - 'scripts/test-remote-validation.py'
+      - '.github/workflows/remote-validation.yml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  conformance:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout Operium
+        id: checkout
+        uses: actions/checkout@v4
+        continue-on-error: true
+
+      - name: Run supervised remote-validation tests
+        id: tests
+        if: steps.checkout.outcome == 'success'
+        continue-on-error: true
+        run: >-
+          python3 scripts/ops/supervise_task.py
+          --out "$RUNNER_TEMP/operium-remote-validation"
+          --phase remote-validation-tests
+          --timeout 240
+          -- python3 scripts/test-remote-validation.py
+
+      - name: Finalize typed result
+        if: always()
+        continue-on-error: true
+        env:
+          CHECKOUT_OUTCOME: ${{ steps.checkout.outcome }}
+          TEST_STEP_OUTCOME: ${{ steps.tests.outcome }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/operium-remote-validation"
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          output = Path(os.environ["RUNNER_TEMP"]) / "operium-remote-validation"
+          result_path = output / "result.json"
+          try:
+              result = json.loads(result_path.read_text(encoding="utf-8"))
+          except Exception as error:
+              phase = "checkout" if os.environ.get("CHECKOUT_OUTCOME") != "success" else "test-supervisor"
+              code = "SOURCE_CHECKOUT_FAILED" if phase == "checkout" else "SUPERVISOR_RESULT_MISSING"
+              result = {
+                  "schema": "operium.ci.task-result.v1",
+                  "phase": phase,
+                  "outcome": "failure",
+                  "exit_code": None,
+                  "error": {"code": code, "message": str(error)},
+                  "log_file": "workflow-step-logs",
+              }
+              result_path.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+              (output / "test.log").write_text(str(error) + "\n", encoding="utf-8")
+          result["workflow"] = {
+              "checkout": os.environ.get("CHECKOUT_OUTCOME", "unknown"),
+              "test_supervisor": os.environ.get("TEST_STEP_OUTCOME", "skipped"),
+              "run_url": os.environ.get("RUN_URL"),
+          }
+          result_path.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+          print(json.dumps(result))
+          PY
+
+      - name: Upload result and test log
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: remote-validation-worker-result
+          path: ${{ runner.temp }}/operium-remote-validation/
+          if-no-files-found: warn
+          retention-days: 14
