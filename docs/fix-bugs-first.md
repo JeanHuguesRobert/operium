@@ -40,6 +40,19 @@ features and **restore control through a Bug/Feature tracking system**.
 This is an old operator doctrine, restated for Operium and interactive
 multi-agent development.
 
+## Attention reminder and engagement gate
+
+Fix Bugs First can remind the Principal once about relevant pending priority
+work; after that, the agent follows the Principal's present request. The
+subsystem `gate` is self-discipline for agent-initiated feature work. The
+Principal retains authority to direct or override priorities without incident
+or waiver rituals.
+
+This attention reminder is separate from the Engagement Gatekeeper, which
+governs human approval for acts that engage others. The backlog is an
+operational memory and prioritization aid; it is not a measure of the
+Principal.
+
 ## One-line rule
 
 > **Known bugs block new features in the same subsystem**, unless an explicit
@@ -250,6 +263,8 @@ When an agent or human starts work in Operium (or ops-touching corpus work):
 - Renaming bugs to “debt” or “enhancement” to skip the gate
 - Feature PRs that “include a small fix later”
 - GitHub Issues with no kind / no subsystem / no next_action
+- Using the backlog or dashboard to score or surveil the Principal
+- Treating a Principal direction as an incident or missing-waiver case
 - Parallel freestyle ops scripts that bypass the register
 - Waivers without `reason`, `owner`, and `expires_at`
 

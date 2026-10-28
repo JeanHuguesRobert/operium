@@ -104,15 +104,21 @@ scope:
 - Prefer terminology that remains meaningful outside the current deployment,
   while keeping concrete Fracta/Fractanet evidence in examples and runbooks.
 
-## Fix Bugs First (mandatory for interactive work)
+## Fix Bugs First (attention reminder and agent self-discipline)
 
 When Operium (or an ops-touching session) feels **out of control**, apply
 [`docs/fix-bugs-first.md`](docs/fix-bugs-first.md):
 
 1. `operium backlog list --kind bug --status openish --human`
-2. `operium backlog gate --subsystem <slug>` before feature work in that slug
-3. Prefer fixing or waiving **bugs** over opening new features
+2. `operium backlog gate --subsystem <slug>` before agent-initiated feature
+   work in that slug
+3. Prefer fixing or waiving **bugs** over inventing new features
 4. Update `backlog/items.yaml` (authority); GitHub Issues are the discussion mirror
+
+Mention relevant pending priority work to the Principal once, then follow the
+Principal's present request. The subsystem gate is agent self-discipline for
+agent-initiated feature work; it does not constrain the Principal. A Principal
+override is neither an incident nor a missing-waiver case.
 
 Do not invent a parallel ops path that bypasses the backlog.
 

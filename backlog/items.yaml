@@ -3,7 +3,7 @@
 # Do not store secret values here.
 
 schema: operium.backlog.v1
-updated_at: "2026-10-27"
+updated_at: "2026-10-28"
 owner: Operium
 
 items:
@@ -163,6 +163,27 @@ items:
       Invalid provider output now enters the existing explicit fallback path;
       a fallback answer is tagged as such and does not masquerade as a normal
       conversational synthesis.
+
+  - id: OP-DEBT-001
+    kind: debt
+    title: Cogentia R1 Level-2 evidence residue awaits integration
+    subsystem: docs
+    status: open
+    evidence: >
+      Cogentia PR #149 remains open with the R1 Level-2 residue note. That note
+      records the 2026-09-02 re-run at commit 6a3cc79: the resumption test passed
+      while orientation ran a second time, and step_budget was classified as
+      exhausted. Cogentia issue #150 remains open and bounds this work to
+      integrating the evidence note, not reopening the scheduler project.
+    next_action: >
+      Review and integrate Cogentia PR #149; then reassess this item against
+      the integrated note and current source evidence.
+    opened_at: "2026-10-28"
+    closed_at: null
+    notes: |
+      Cogentia follow-up: https://github.com/JeanHuguesRobert/cogentia/pull/149
+      Resume handle: https://github.com/JeanHuguesRobert/cogentia/issues/150
+      Do not treat this historical re-run as a current runtime observation.
 
   # ── Bugs (fix first) ─────────────────────────────────────────────
 
