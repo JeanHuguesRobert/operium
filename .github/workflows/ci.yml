@@ -22,6 +22,13 @@ jobs:
           repository: JeanHuguesRobert/cogentia
           path: cogentia
 
+      - name: Checkout inseme (workspace sibling)
+        uses: actions/checkout@v4
+        with:
+          repository: JeanHuguesRobert/inseme
+          ref: 71b9e7e6b5c8c9cbf0cd03973a77c346e85d65f6
+          path: inseme
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
