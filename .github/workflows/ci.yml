@@ -47,8 +47,8 @@ jobs:
         continue-on-error: true
         working-directory: operium
         run: |
-          node ../inseme/scripts/ops/supervise-result.js --out ../ci-evidence/operium-install --phase install -- npm ci
-          node -e 'const r=require("../ci-evidence/operium-install/result.json");process.exit(r.passed?0:1)'
+          node ../inseme/scripts/ops/supervise-result.js --out ci-evidence/operium-install --phase install -- npm ci
+          node -e 'const r=require("./ci-evidence/operium-install/result.json");process.exit(r.passed?0:1)'
 
       - name: Install Cogentia runtime dependencies (supervised)
         id: cogentia-install
@@ -56,8 +56,8 @@ jobs:
         working-directory: operium
         if: steps.operium-install.outcome == 'success'
         run: |
-          node ../inseme/scripts/ops/supervise-result.js --out ../ci-evidence/cogentia-install --phase install -- pnpm --dir ../cogentia install --prod --frozen-lockfile --ignore-scripts
-          node -e 'const r=require("../ci-evidence/cogentia-install/result.json");process.exit(r.passed?0:1)'
+          node ../inseme/scripts/ops/supervise-result.js --out ci-evidence/cogentia-install --phase install -- pnpm --dir ../cogentia install --prod --frozen-lockfile --ignore-scripts
+          node -e 'const r=require("./ci-evidence/cogentia-install/result.json");process.exit(r.passed?0:1)'
 
       - name: Run tests (supervised)
         continue-on-error: true
@@ -65,8 +65,8 @@ jobs:
         if: steps.operium-install.outcome == 'success' && steps.cogentia-install.outcome == 'success'
         id: tests
         run: |
-          node ../inseme/scripts/ops/supervise-result.js --out ../ci-evidence/tests --phase test -- npm test
-          node -e 'const r=require("../ci-evidence/tests/result.json");process.exit(r.passed?0:1)'
+          node ../inseme/scripts/ops/supervise-result.js --out ci-evidence/tests --phase test -- npm test
+          node -e 'const r=require("./ci-evidence/tests/result.json");process.exit(r.passed?0:1)'
 
       - name: Preserve install and test outcomes
         if: always()
@@ -74,19 +74,20 @@ jobs:
         run: |
           set -e
           for phase in operium-install cogentia-install tests; do
-            result="ci-evidence/$phase/result.json"
+            result="operium/ci-evidence/$phase/result.json"
             if [ -f "$result" ] && node -e 'const r=require("./"+process.argv[1]);process.exit(r.passed?0:1)' "$result"; then
               continue
             elif [ -f "$result" ]; then
-              cp "$result" "ci-evidence/result.json"
-              cp "ci-evidence/$phase/test.log" "ci-evidence/test.log" 2>/dev/null || true
+              cp "$result" "operium/ci-evidence/result.json"
+              cp "operium/ci-evidence/$phase/test.log" "operium/ci-evidence/test.log" 2>/dev/null || true
               exit 0
             else
-              printf '{"schema":"fbf.supervised-result/v1","phase":"%s","passed":false,"status":"not_run"}\n' "$phase" > ci-evidence/result.json
+              mkdir -p operium/ci-evidence
+              printf '{"schema":"fbf.supervised-result/v1","phase":"%s","passed":false,"status":"not_run"}\n' "$phase" > operium/ci-evidence/result.json
               exit 0
             fi
           done
-          printf '{"schema":"fbf.supervised-result/v1","phase":"complete","passed":true,"status":"completed"}\n' > ci-evidence/result.json
+          printf '{"schema":"fbf.supervised-result/v1","phase":"complete","passed":true,"status":"completed"}\n' > operium/ci-evidence/result.json
 
       - name: Upload CI task result
         if: always()
@@ -94,6 +95,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: operium-ci-result
-          path: ci-evidence/
+          path: operium/ci-evidence/
           if-no-files-found: warn
           retention-days: 14
