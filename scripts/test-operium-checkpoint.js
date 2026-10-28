@@ -3,7 +3,13 @@ import assert from "node:assert/strict";
 import { checkpointSession, formatCheckpointHuman } from "../lib/checkpoint-session.js";
 
 async function main() {
-  const result = await checkpointSession({ dryRun: true, fetchRemotes: false, timeoutMs: 1500 });
+  // CI has no session anchor or issue-named branch; provide explicit dry-run context.
+  const result = await checkpointSession({
+    dryRun: true,
+    fetchRemotes: false,
+    timeoutMs: 1500,
+    issue: "operium/0",
+  });
 
   assert.equal(result.schema, "operium.checkpoint_state.v1");
   assert.ok(result.ok, "checkpoint ok");

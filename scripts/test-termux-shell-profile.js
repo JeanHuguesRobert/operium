@@ -30,7 +30,10 @@ try {
     }
   ).trim().split("\n");
 
-  assert.deepEqual(output, [path.join(registryRoot, ".cogentia.json"), path.join(repos, "cogentia")]);
+  assert.deepEqual(
+    output.map(value => path.normalize(value)),
+    [path.join(registryRoot, ".cogentia.json"), path.join(repos, "cogentia")],
+  );
   console.log(JSON.stringify({ ok: true, repaired_stale_sentinel: true }, null, 2));
 } finally {
   fs.rmSync(fixture, { recursive: true, force: true });

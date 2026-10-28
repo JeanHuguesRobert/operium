@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { pauseSession, formatPauseHuman } from "../lib/pause-session.js";
 import {
   emitChoicePointContinuation,
@@ -11,6 +13,9 @@ import {
 
 async function main() {
   console.log("▶ Testing Choice Point Continuation Protocol in Operium...");
+  const testContinuationsDir = fs.mkdtempSync(path.join(os.tmpdir(), "operium-pause-continuation-test-"));
+  process.env.COGENTIA_CONTINUATIONS_DIR = testContinuationsDir;
+  assert.equal(resolveContinuationsDir(), testContinuationsDir);
 
   // 1. Direct emission test
   const testId = `ctn_pause_test_${Date.now().toString(36)}`;
@@ -64,6 +69,7 @@ async function main() {
   } catch {
     // ignore
   }
+  fs.rmSync(testContinuationsDir, { recursive: true, force: true });
 
   // 5. Test formatPauseHuman with pending_continuation
   const mockPending = {

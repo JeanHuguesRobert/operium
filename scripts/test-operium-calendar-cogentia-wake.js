@@ -23,7 +23,7 @@ async function main() {
   const dbPath = path.join(tmpDir, "node_memory.sqlite");
   const now = new Date().toISOString();
 
-  const { db } = openNodeMemoryDb(dbPath);
+  const { db } = openNodeMemoryDb({ dbPath });
 
   // 1. Create a wake packet for a Cogentia job
   const wakePacket = {
