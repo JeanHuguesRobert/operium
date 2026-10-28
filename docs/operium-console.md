@@ -1,8 +1,27 @@
 ---
+title: Operium Console
+author: unknown
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+date: null
+last_modified_at: '2026-10-05'
+license: CC BY-SA 4.0
+language: en
 document_role: "operational"
 document_kind: "documentation"
 visibility: "public"
 lifecycle_state: "active"
+canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/docs/operium-console.md
+status: working-paper
+update_policy: UP-DEFAULT-REVIEWED
+provenance:
+  origin_type: repository
+  origin_repository: JeanHuguesRobert/operium
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
+review:
+  status: unreviewed
+  reviewed_by: []
 classification_source: "cogentia.js"
 classification_version: "1"
 classification_rule: "documentation"
@@ -41,22 +60,46 @@ npm run build
 
 Deploy `dist/` to fracta static path (e.g. `/ops/console/`). Same-origin `fetch('/ops/status')` needs no CORS entry.
 
+### Fracta deployment evidence — 2026-10-05
+
+- Source: Operium commit [`5a88a4a`](https://github.com/JeanHuguesRobert/operium/commit/5a88a4ac5a6aebf7e02985f7e1d2428fa041ba88).
+- Caddy serves `/ops/console/` from `/srv/ops-console` on `fracta`.
+- The production build used `VITE_COGENTIA_OPS_BASE_URL=https://cogentia.fractavolta.com` and `VITE_CONSOLE_BASE=/ops/console/`.
+- Post-deploy checks returned HTTP 200 for `/ops/console/`, its JavaScript bundle, and `/ops/status`. The served bundle contains the public HTML dashboard link and retains the in-console work panel.
+- The previous static bundle is retained on Fracta at `/srv/ops-console.rollback-20261005-5a88a4a` for rollback.
+
 ## Views (v1)
 
 | View | Endpoints | Auth |
 |------|-----------|------|
 | Fleet overview | `GET /ops/status`, `GET /ops/blackboard?capability=operium.node.v1` | none |
-| Work / Fix Bugs First | `GET /views/fix-bugs-first-dashboard.json?raw` | none (public derived view) |
+| Work / Fix Bugs First | `GET /views/fix-bugs-first-dashboard.html?raw` (human), `GET /views/fix-bugs-first-dashboard.json?raw` (panel data) | none (public derived view) |
 
-The Work / Fix Bugs First panel is public and read-only. It displays the public Cogentia
-projection, preserves each item's native GitHub link, and never edits the
-Operium backlog or GitHub from the browser. Generate and publish it with:
+The Work / Fix Bugs First link opens a standalone, readable HTML report. The
+in-console panel remains available and consumes JSON as its data format. Both
+views are public and read-only, preserve native GitHub links, and never edit the
+Operium backlog or GitHub from the browser. Refresh locally with:
 
 ```text
 cd ../cogentia
-node scripts/generate-fix-bugs-first-dashboard.js
-node scripts/cogentia.js publish push fix-bugs-first-dashboard
-node scripts/cogentia.js publish push fix-bugs-first-dashboard-json
+node scripts/cogentia.js dashboard refresh --json
+```
+
+The command reads current public GitHub issues and Operium's `main` backlog.
+It leaves the snapshot timestamp and files unchanged when the source content
+has not changed. By default, the command also publishes changed Markdown, JSON,
+and HTML views to Fracta. A local ignored receipt records source and per-view
+artifact fingerprints after successful transfers, so an unchanged run transfers
+nothing and a partial change transfers only affected views. If publication
+partially fails, the command returns a failure and the next run retries views
+whose fingerprints were not recorded. Use `--dry-run` to preview file changes
+and publication, `--local-only` to refresh without publishing, or
+`--force-publish` to repair or repeat publication of all three views. Commit
+and push the generated tracked snapshot to retain its source history.
+
+```text
+node scripts/cogentia.js dashboard refresh --dry-run
+node scripts/cogentia.js dashboard refresh
 ```
 
 ## Private work boundary

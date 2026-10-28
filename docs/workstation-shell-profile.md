@@ -1,15 +1,31 @@
 ---
-title: "Shell profiles (Fractanet nodes)"
-date: "2026-07-29"
+title: Shell profiles (Fractanet nodes)
+date: '2026-07-29'
+last_modified_at: '2026-10-27'
 document_role: operational
 document_kind: method
 visibility: public
 lifecycle_state: active
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "explicit-metadata"
-classification_confidence: "medium"
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: medium
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+update_policy: UP-DEFAULT-REVIEWED
+status: working-paper
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # Shell profiles (Fractanet nodes)
 
@@ -29,19 +45,21 @@ Interactive login shells only — not systemd, not Agent Gateway, not ONA servic
 |------------|---------|---------|
 | **workstation-windows** | [`shell/workstation-windows.profile.ps1`](../profiles/shell/workstation-windows.profile.ps1) | User `$PROFILE` dotsources after `cd C:\tweesic` |
 | **fracta-vps** | [`shell/fracta-vps.profile.sh`](../profiles/shell/fracta-vps.profile.sh) | [`install-fracta-vps-shell-profile.sh`](../profiles/shell/install-fracta-vps-shell-profile.sh) on ubuntu |
+| **fracta2** (`ubuntu-arm64-development`) | Shared Ubuntu Fracta profile above | Same installer on `fracta2` as `ubuntu` |
 | **termux-android** | [`shell/termux-android.profile.sh`](../profiles/shell/termux-android.profile.sh) | [`install-termux-shell-profile.sh`](../profiles/shell/install-termux-shell-profile.sh) on `poco-jhr` (Agent JHN / twin class) |
 
 ## Registry
 
 | Context | `COGENTIA_REGISTRY` |
 |---------|---------------------|
-| Windows workstation | `C:\tweesic\JeanHuguesRobert` |
-| Fracta VPS | `/srv/cogentia/repos/JeanHuguesRobert` |
-| Phone / twin (`poco-jhr`) | `$HOME/srv/cogentia/repos/JeanHuguesRobert` (override via `~/srv/cogentia/secrets/shell-profile.env`) |
+| Windows workstation | `C:\tweesic\JeanHuguesRobert\.cogentia.json` |
+| Fracta VPS | `/srv/cogentia/repos/JeanHuguesRobert/.cogentia.json` |
+| Fracta2 | `/srv/cogentia/repos/JeanHuguesRobert/.cogentia.json` |
+| Phone / twin (`poco-jhr`) | `$HOME/srv/cogentia/repos/JeanHuguesRobert/.cogentia.json` (override via `~/srv/cogentia/secrets/shell-profile.env`) |
 
 **Do not** put an incomplete `.cogentia.json` at a parent path that shadows the full registry.
 
-## Fracta install / refresh
+## Fracta and Fracta2 install / refresh
 
 On a trusted workstation (after `operium` is pulled on fracta):
 
@@ -49,17 +67,26 @@ On a trusted workstation (after `operium` is pulled on fracta):
 ssh fracta 'cd /srv/cogentia/repos/operium && git pull --ff-only && bash profiles/shell/install-fracta-vps-shell-profile.sh'
 ```
 
+Fracta2 uses the same workspace roots and registry, with a prompt label derived
+from the host name. Install or refresh it on Fracta2 with:
+
+```bash
+ssh fracta2 'bash /srv/cogentia/repos/operium/profiles/shell/install-fracta-vps-shell-profile.sh'
+```
+
 Verify (login shell):
 
 ```bash
-ssh fracta 'bash -lc "echo REG=\$COGENTIA_REGISTRY; type cogentia; type operium; pwd"'
+ssh -t fracta 'bash -lic "echo REG=\$COGENTIA_REGISTRY; type cogentia; type operium; pwd"'
 ```
 
-Expect `REG=/srv/cogentia/repos/JeanHuguesRobert` (or equivalent) and functions defined.
+Use the same check with `fracta2` to verify its login profile.
+
+Expect `REG=/srv/cogentia/repos/JeanHuguesRobert/.cogentia.json` (or equivalent) and functions defined.
 
 ## Windows install (summary)
 
-See also [coding-infrastructure.md](coding-infrastructure.md).
+See also private operator note `docs/coding-infrastructure.md` (not linked from public views).
 
 1. User `Documents\PowerShell\profile.ps1` → `cd C:\tweesic` + `. operium\profiles\shell\workstation-windows.profile.ps1`
 2. Host profile keeps PATH / conda only
@@ -88,7 +115,7 @@ Verify (interactive shell loads `.bashrc` via `.profile` on Termux login):
 ssh -t poco-jhr 'bash -ic "echo REG=\$COGENTIA_REGISTRY; type cogentia; type operium; type tweesic; pwd"'
 ```
 
-Expect `REG=.../JeanHuguesRobert` and the three functions defined.
+Expect `REG=.../JeanHuguesRobert/.cogentia.json` and the three functions defined.
 
 **Host thin layer** keeps existing Termux PATH / proot aliases / agent-gateway env; the Operium block only sources the managed profile. Do not put secret values in the profile file — use `secrets/*.env` or optional `secrets/shell-profile.env` for path overrides only.
 

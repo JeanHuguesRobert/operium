@@ -1,0 +1,351 @@
+{
+  "observed_at": "2026-10-18T16:07:01.087Z",
+  "counts_before": [
+    {
+      "kind": "cop/execution.bound.v1",
+      "count": 1
+    },
+    {
+      "kind": "cop/execution.delivery.v1",
+      "count": 1
+    },
+    {
+      "kind": "cop/execution.receipt.v1",
+      "count": 1
+    },
+    {
+      "kind": "cop/github.observed.v1",
+      "count": 2
+    },
+    {
+      "kind": "cop/packet.decision.v1",
+      "count": 1
+    },
+    {
+      "kind": "cop/packet.grant-spent.v1",
+      "count": 1
+    },
+    {
+      "kind": "cop/packet.queued.v1",
+      "count": 1
+    },
+    {
+      "kind": "cop/packet.repair.v1",
+      "count": 36
+    }
+  ],
+  "counts_after": [
+    {
+      "kind": "cop/execution.bound.v1",
+      "count": 1
+    },
+    {
+      "kind": "cop/execution.delivery.v1",
+      "count": 1
+    },
+    {
+      "kind": "cop/execution.receipt.v1",
+      "count": 1
+    },
+    {
+      "kind": "cop/github.observed.v1",
+      "count": 2
+    },
+    {
+      "kind": "cop/packet.decision.v1",
+      "count": 1
+    },
+    {
+      "kind": "cop/packet.grant-spent.v1",
+      "count": 1
+    },
+    {
+      "kind": "cop/packet.queued.v1",
+      "count": 1
+    },
+    {
+      "kind": "cop/packet.repair.v1",
+      "count": 36
+    }
+  ],
+  "cold_replay": {
+    "ok": true,
+    "results": [
+      {
+        "id": "inseme-165-reality-20261018-1",
+        "ok": true,
+        "status": "completed",
+        "error": null,
+        "delivery": {
+          "verified": true,
+          "url": "https://github.com/JeanHuguesRobert/inseme/issues/165#issuecomment-6252058909",
+          "comment_id": 6252058909,
+          "recovered": false,
+          "identity": {
+            "request_sha256": "5b5c79968748f4ac1dac706c20a6d2e855fc16d06dd948287ebab3ca355ed175",
+            "implementation_sha256": "e8f6644b26d29ccd8e3a34e7eb2f7f249baf621387ed04749b73b2d52bbe7df6",
+            "provider_ref": "provider:ssh:fracta",
+            "control_ref": "operium:mobile-termux:v1",
+            "simulation": false
+          },
+          "provider_execution_id": "3b4f2e63-2b27-4a09-b253-75d7cba2be57"
+        }
+      }
+    ],
+    "control": {
+      "api_read_attempts": 0,
+      "provider_quota_remaining": "not_estimated"
+    }
+  },
+  "disabled": {
+    "ok": true,
+    "skipped": "policy_disabled"
+  },
+  "job": {
+    "job_id": "packet:inseme-165",
+    "last_run_at": "2026-10-18T16:06:33.808Z",
+    "last_ok": 1,
+    "run_count": 454
+  },
+  "evidence": [
+    {
+      "id": "packet:6eed96e8fbdafaacfb6f452339618e6e764187136209f3876ea8adf5eb95dfef:observation:413e5796333f5d5a562fba668cf3b47bf5dbdf731cb48f91f3a720b9789b3a21",
+      "packet_type": "cop/github.observed.v1",
+      "artifact_type": "cop/event",
+      "sender": {},
+      "recipient": {},
+      "trace": {},
+      "created_at": "2026-10-18T07:56:45.106Z",
+      "payload": {
+        "request_sha256": "5b5c79968748f4ac1dac706c20a6d2e855fc16d06dd948287ebab3ca355ed175",
+        "provenance": {
+          "issue": "https://github.com/JeanHuguesRobert/inseme/issues/165",
+          "body_sha256": "c85c77126d1708654bc304505711c8b70ebdc924a72b7309dab0939e07e5eac9",
+          "author": "JeanHuguesRobert",
+          "transport": "github-api-reconciliation",
+          "webhook_verified": false
+        }
+      }
+    },
+    {
+      "id": "packet:6eed96e8fbdafaacfb6f452339618e6e764187136209f3876ea8adf5eb95dfef:rejection:13f46c8d1c81d668d3a3feb85854fbc13bd1d893396c362d0b0b7b82f5f9c201",
+      "packet_type": "cop/packet.decision.v1",
+      "artifact_type": "cop/event",
+      "sender": {},
+      "recipient": {},
+      "trace": {},
+      "created_at": "2026-10-18T07:56:45.110Z",
+      "payload": {
+        "status": "rejected",
+        "request_sha256": "5b5c79968748f4ac1dac706c20a6d2e855fc16d06dd948287ebab3ca355ed175",
+        "reason": "invalid_grant_signature"
+      }
+    },
+    {
+      "id": "packet:6eed96e8fbdafaacfb6f452339618e6e764187136209f3876ea8adf5eb95dfef:queued",
+      "packet_type": "cop/packet.queued.v1",
+      "artifact_type": "cop/event",
+      "sender": {},
+      "recipient": {},
+      "trace": {},
+      "created_at": "2026-10-18T16:05:19.109Z",
+      "payload": {
+        "request": {
+          "schema": "operium.packet-request/v1",
+          "id": "inseme-165-reality-20261018-1",
+          "repository": "JeanHuguesRobert/inseme",
+          "issue": 165,
+          "operation": {
+            "kind": "mobile.termux.diagnostic/v1",
+            "target": "poco-jhr"
+          },
+          "timeout_ms": 15000,
+          "return": {
+            "github_issue": 165
+          }
+        },
+        "identity": {
+          "request_sha256": "5b5c79968748f4ac1dac706c20a6d2e855fc16d06dd948287ebab3ca355ed175",
+          "implementation_sha256": "e8f6644b26d29ccd8e3a34e7eb2f7f249baf621387ed04749b73b2d52bbe7df6",
+          "provider_ref": "provider:ssh:fracta",
+          "control_ref": "operium:mobile-termux:v1",
+          "simulation": false
+        },
+        "source": {
+          "operium_commit": "ecd235b613c3aa644257c8e7a91633679418465b",
+          "inseme_commit": "71b9e7e6b5c8c9cbf0cd03973a77c346e85d65f6",
+          "implementation_sha256": "e8f6644b26d29ccd8e3a34e7eb2f7f249baf621387ed04749b73b2d52bbe7df6",
+          "files": {
+            "scripts/ona-packet-consumer.js": "85ee91bf7a82f4dd619acbf36649a9809082a18033335384e0bb88214d2c7c07",
+            "lib/node-agent/packet-consumer.js": "ce26372b9e2a1ab825748139c7df9199599ecd3d4c9416ded550801ecb9cfaee",
+            "lib/node-agent/mobile-diagnostic.js": "fa7e2a595ac7cdbf9c2f896ec6dc26b1ad1e63c0530f29ce755b3371367af101",
+            "lib/node-agent/cop-events.js": "0b5da51064fbf47e94994f98b5aedf4cb6cc421ba2f96c1130051bdd6f2ec245",
+            "lib/node-agent/migrations/005_cop_events.sql": "7b567591358b4d035018c6aeb21806236a0273dc85d6d86eed879fdcd11b4e3c",
+            "../inseme/packages/cop-core/src/github-ingress.js": "c316370c65605cd9cfafc1f50f5c84ed60272ce27f1f49fd12f37f0e17b83853",
+            "../inseme/packages/cop-core/src/continuation-result.js": "086ed92bf45bcdde69d543ebb721718aa79b718748b21b3ecc2f4d43f4a68155",
+            "../inseme/packages/magistral/src/execution.js": "6f2b0c14fe6883b1a972a4ef0107ada8e4df629108468a950a5113f00b143a35"
+          }
+        }
+      }
+    },
+    {
+      "id": "packet:grant-spent:grant-inseme165-1792339512437",
+      "packet_type": "cop/packet.grant-spent.v1",
+      "artifact_type": "cop/event",
+      "sender": {},
+      "recipient": {},
+      "trace": {},
+      "created_at": "2026-10-18T16:05:19.111Z",
+      "payload": {
+        "key": "packet:6eed96e8fbdafaacfb6f452339618e6e764187136209f3876ea8adf5eb95dfef",
+        "request_sha256": "5b5c79968748f4ac1dac706c20a6d2e855fc16d06dd948287ebab3ca355ed175"
+      }
+    },
+    {
+      "id": "packet:6eed96e8fbdafaacfb6f452339618e6e764187136209f3876ea8adf5eb95dfef:claim",
+      "packet_type": "cop/execution.bound.v1",
+      "artifact_type": "cop/event",
+      "sender": {},
+      "recipient": {},
+      "trace": {},
+      "created_at": "2026-10-18T16:05:19.111Z",
+      "payload": {
+        "identity": {
+          "request_sha256": "5b5c79968748f4ac1dac706c20a6d2e855fc16d06dd948287ebab3ca355ed175",
+          "implementation_sha256": "e8f6644b26d29ccd8e3a34e7eb2f7f249baf621387ed04749b73b2d52bbe7df6",
+          "provider_ref": "provider:ssh:fracta",
+          "control_ref": "operium:mobile-termux:v1",
+          "simulation": false
+        },
+        "binding": {
+          "schema": "magistral.execution-binding/v1",
+          "requirement_ref": "requirement:packet:6eed96e8fbdafaacfb6f452339618e6e764187136209f3876ea8adf5eb95dfef",
+          "offer_id": "provider:ssh:fracta",
+          "runtime_id": "runtime:ona:fracta",
+          "handler_instance_ref": "handler:ona:3b4f2e63-2b27-4a09-b253-75d7cba2be57",
+          "execution_surface": "batch",
+          "provider_ref": "provider:ssh:fracta",
+          "provider_execution_id": "3b4f2e63-2b27-4a09-b253-75d7cba2be57"
+        },
+        "grant_id": "grant-inseme165-1792339512437",
+        "grant_sha256": "4e0cef4411be3ded51822617d4ccda7767871a276e3d0597e094d760a05f76c5",
+        "principal": "JeanHuguesRobert",
+        "started_at": "2026-10-18T16:05:19.111Z"
+      }
+    },
+    {
+      "id": "packet:6eed96e8fbdafaacfb6f452339618e6e764187136209f3876ea8adf5eb95dfef:result",
+      "packet_type": "cop/execution.receipt.v1",
+      "artifact_type": "cop/event",
+      "sender": {},
+      "recipient": {},
+      "trace": {},
+      "created_at": "2026-10-18T16:05:20.691Z",
+      "payload": {
+        "schema": "cop.compute-result/v1",
+        "computation_id": "inseme-165-reality-20261018-1",
+        "identity": {
+          "request_sha256": "5b5c79968748f4ac1dac706c20a6d2e855fc16d06dd948287ebab3ca355ed175",
+          "implementation_sha256": "e8f6644b26d29ccd8e3a34e7eb2f7f249baf621387ed04749b73b2d52bbe7df6",
+          "provider_ref": "provider:ssh:fracta",
+          "control_ref": "operium:mobile-termux:v1",
+          "simulation": false
+        },
+        "repository": "JeanHuguesRobert/inseme",
+        "issue": 165,
+        "source": {
+          "operium_commit": "ecd235b613c3aa644257c8e7a91633679418465b",
+          "inseme_commit": "71b9e7e6b5c8c9cbf0cd03973a77c346e85d65f6",
+          "implementation_sha256": "e8f6644b26d29ccd8e3a34e7eb2f7f249baf621387ed04749b73b2d52bbe7df6",
+          "files": {
+            "scripts/ona-packet-consumer.js": "85ee91bf7a82f4dd619acbf36649a9809082a18033335384e0bb88214d2c7c07",
+            "lib/node-agent/packet-consumer.js": "ce26372b9e2a1ab825748139c7df9199599ecd3d4c9416ded550801ecb9cfaee",
+            "lib/node-agent/mobile-diagnostic.js": "fa7e2a595ac7cdbf9c2f896ec6dc26b1ad1e63c0530f29ce755b3371367af101",
+            "lib/node-agent/cop-events.js": "0b5da51064fbf47e94994f98b5aedf4cb6cc421ba2f96c1130051bdd6f2ec245",
+            "lib/node-agent/migrations/005_cop_events.sql": "7b567591358b4d035018c6aeb21806236a0273dc85d6d86eed879fdcd11b4e3c",
+            "../inseme/packages/cop-core/src/github-ingress.js": "c316370c65605cd9cfafc1f50f5c84ed60272ce27f1f49fd12f37f0e17b83853",
+            "../inseme/packages/cop-core/src/continuation-result.js": "086ed92bf45bcdde69d543ebb721718aa79b718748b21b3ecc2f4d43f4a68155",
+            "../inseme/packages/magistral/src/execution.js": "6f2b0c14fe6883b1a972a4ef0107ada8e4df629108468a950a5113f00b143a35"
+          }
+        },
+        "simulation": false,
+        "ok": true,
+        "attempted": true,
+        "execution_binding": {
+          "schema": "magistral.execution-binding/v1",
+          "requirement_ref": "requirement:packet:6eed96e8fbdafaacfb6f452339618e6e764187136209f3876ea8adf5eb95dfef",
+          "offer_id": "provider:ssh:fracta",
+          "runtime_id": "runtime:ona:fracta",
+          "handler_instance_ref": "handler:ona:3b4f2e63-2b27-4a09-b253-75d7cba2be57",
+          "execution_surface": "batch",
+          "provider_ref": "provider:ssh:fracta",
+          "provider_execution_id": "3b4f2e63-2b27-4a09-b253-75d7cba2be57"
+        },
+        "execution_receipt": {
+          "schema": "magistral.execution-receipt/v1",
+          "binding": {
+            "schema": "magistral.execution-binding/v1",
+            "requirement_ref": "requirement:packet:6eed96e8fbdafaacfb6f452339618e6e764187136209f3876ea8adf5eb95dfef",
+            "offer_id": "provider:ssh:fracta",
+            "runtime_id": "runtime:ona:fracta",
+            "handler_instance_ref": "handler:ona:3b4f2e63-2b27-4a09-b253-75d7cba2be57",
+            "execution_surface": "batch",
+            "provider_ref": "provider:ssh:fracta",
+            "provider_execution_id": "3b4f2e63-2b27-4a09-b253-75d7cba2be57"
+          },
+          "status": "completed",
+          "terminal": true,
+          "artifact_refs": [],
+          "result_refs": [
+            "cop-event:packet:6eed96e8fbdafaacfb6f452339618e6e764187136209f3876ea8adf5eb95dfef:result"
+          ],
+          "log_refs": [],
+          "error": null
+        },
+        "output": {
+          "valid": true,
+          "stdout": "u0_a393\ngit version 2.56.0\n",
+          "stderr": "",
+          "exit_code": 0
+        },
+        "finished_at": "2026-10-18T16:05:20.690Z"
+      }
+    },
+    {
+      "id": "packet:6eed96e8fbdafaacfb6f452339618e6e764187136209f3876ea8adf5eb95dfef:delivery",
+      "packet_type": "cop/execution.delivery.v1",
+      "artifact_type": "cop/event",
+      "sender": {},
+      "recipient": {},
+      "trace": {},
+      "created_at": "2026-10-18T16:05:23.330Z",
+      "payload": {
+        "verified": true,
+        "url": "https://github.com/JeanHuguesRobert/inseme/issues/165#issuecomment-6252058909",
+        "comment_id": 6252058909,
+        "recovered": false,
+        "identity": {
+          "request_sha256": "5b5c79968748f4ac1dac706c20a6d2e855fc16d06dd948287ebab3ca355ed175",
+          "implementation_sha256": "e8f6644b26d29ccd8e3a34e7eb2f7f249baf621387ed04749b73b2d52bbe7df6",
+          "provider_ref": "provider:ssh:fracta",
+          "control_ref": "operium:mobile-termux:v1",
+          "simulation": false
+        },
+        "provider_execution_id": "3b4f2e63-2b27-4a09-b253-75d7cba2be57"
+      }
+    },
+    {
+      "id": "packet:6eed96e8fbdafaacfb6f452339618e6e764187136209f3876ea8adf5eb95dfef:observation:915e5e4883a9552e1b77a391c7165768cc1bfa68126e24bad3436a545a3d5a7b",
+      "packet_type": "cop/github.observed.v1",
+      "artifact_type": "cop/event",
+      "sender": {},
+      "recipient": {},
+      "trace": {},
+      "created_at": "2026-10-18T16:06:32.641Z",
+      "payload": {
+        "request_sha256": "5b5c79968748f4ac1dac706c20a6d2e855fc16d06dd948287ebab3ca355ed175",
+        "provenance": null
+      }
+    }
+  ]
+}

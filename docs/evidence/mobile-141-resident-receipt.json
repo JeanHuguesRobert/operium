@@ -1,0 +1,80 @@
+{
+  "schema": "cop.compute-result/v1",
+  "computation_id": "inseme-141-mobile-diagnostic-v1",
+  "ok": true,
+  "simulation": false,
+  "attempted": true,
+  "route": "fracta-local",
+  "source": {
+    "operium_commit": "e1d26b4a29d2aa3c88628f9fb3ab3fc4383a6590",
+    "inseme_commit": "b8f04a00f5f23bb9e00923188b5aaca6bf0d85a9",
+    "implementation_sha256": "c827e69073c00b65d009b5c4d8b65934060534b433f3c6777faf2d3343c09752",
+    "files": {
+      "scripts/ona-mobile-diagnostic.js": "12804290c585d12328317578ae2c085d63a08bef0f5805fbb3cf2a0a120149ad",
+      "lib/node-agent/mobile-diagnostic.js": "fa7e2a595ac7cdbf9c2f896ec6dc26b1ad1e63c0530f29ce755b3371367af101",
+      "lib/node-agent/cop-events.js": "0b5da51064fbf47e94994f98b5aedf4cb6cc421ba2f96c1130051bdd6f2ec245",
+      "lib/node-agent/migrations/005_cop_events.sql": "7b567591358b4d035018c6aeb21806236a0273dc85d6d86eed879fdcd11b4e3c",
+      "../inseme/packages/cop-core/src/github-ingress.js": "c316370c65605cd9cfafc1f50f5c84ed60272ce27f1f49fd12f37f0e17b83853",
+      "../inseme/packages/magistral/src/execution.js": "6f2b0c14fe6883b1a972a4ef0107ada8e4df629108468a950a5113f00b143a35"
+    }
+  },
+  "provenance": {
+    "issue": "https://github.com/JeanHuguesRobert/inseme/issues/141",
+    "issue_updated_at": "2026-10-10T09:57:27Z",
+    "body_sha256": "e67e5a612a2faef68dce12f53d24b264c5af6c5c3af55344b41db4534cb62759",
+    "transport": "github-api-reconciliation"
+  },
+  "authorization": {
+    "issue": "https://github.com/JeanHuguesRobert/inseme/issues/141",
+    "operation": "mobile.termux.diagnostic/v1",
+    "principal": "JeanHuguesRobert",
+    "execution": true,
+    "request_sha256": "b066d444df01852b7eac9cbb9f748aeb73b5a905fac2adf3f38e4037382bd84c",
+    "basis": "https://github.com/JeanHuguesRobert/inseme/issues/141#issuecomment-6096337789"
+  },
+  "started_at": "2026-10-10T10:07:32.472Z",
+  "finished_at": "2026-10-10T10:07:34.728Z",
+  "result": {
+    "operation": "mobile.termux.diagnostic/v1",
+    "target": "poco-jhr",
+    "exit_code": 0,
+    "signal": null,
+    "valid": true,
+    "stdout": "u0_a393\ngit version 2.56.0\n",
+    "stderr": ""
+  },
+  "execution_binding": {
+    "schema": "magistral.execution-binding/v1",
+    "requirement_ref": "requirement:compute-request:inseme-141-mobile-diagnostic-v1",
+    "offer_id": "offer:ona:mobile-termux-diagnostic-v1",
+    "runtime_id": "runtime:ona:fracta",
+    "handler_instance_ref": "handler:ona:5c6a4afb-8b95-4770-b72f-d2c2b8f65edc",
+    "execution_surface": "batch",
+    "provider_ref": "provider:ssh:fracta",
+    "provider_execution_id": "5c6a4afb-8b95-4770-b72f-d2c2b8f65edc"
+  },
+  "execution_receipt": {
+    "schema": "magistral.execution-receipt/v1",
+    "binding": {
+      "schema": "magistral.execution-binding/v1",
+      "requirement_ref": "requirement:compute-request:inseme-141-mobile-diagnostic-v1",
+      "offer_id": "offer:ona:mobile-termux-diagnostic-v1",
+      "runtime_id": "runtime:ona:fracta",
+      "handler_instance_ref": "handler:ona:5c6a4afb-8b95-4770-b72f-d2c2b8f65edc",
+      "execution_surface": "batch",
+      "provider_ref": "provider:ssh:fracta",
+      "provider_execution_id": "5c6a4afb-8b95-4770-b72f-d2c2b8f65edc"
+    },
+    "status": "completed",
+    "terminal": true,
+    "artifact_refs": [],
+    "result_refs": [
+      "cop-event:mobile:inseme-141-mobile-diagnostic-v1:result"
+    ],
+    "log_refs": [
+      "cop-event:mobile:inseme-141-mobile-diagnostic-v1:result"
+    ],
+    "error": null
+  },
+  "delivery": "pending"
+}

@@ -1,23 +1,44 @@
 ---
-document_role: "source"
-document_kind: "operational"
-visibility: "private"
-last_updated: "2026-08-08"
+document_role: source
+document_kind: operational
+visibility: public
 owner: Operium
 health:
   score: 5
-  status: "functional"
+  status: functional
   reasons:
-    - "Dual authority model documented (workstation FS vs edge vault)."
-    - "COGENTIA_API_KEY mapped to vault."
-    - "Single apply/verify entry point for system bearer runtime copies (OP-BUG-002)."
-    - "Fracta runtime key projection: apply-fracta-runtime-secrets (OPENAI + JHN surface)."
+    - Dual authority model documented (workstation FS vs edge vault).
+    - COGENTIA_API_KEY mapped to vault.
+    - Single apply/verify entry point for system bearer runtime copies (OP-BUG-002).
+    - 'Fracta runtime key projection: apply-fracta-runtime-secrets (OPENAI + JHN surface).'
   next_actions:
-    - "Use apply-system-bearer after every COGENTIA_API_KEY change."
-    - "Use apply-fracta-runtime-secrets after OPENAI_API_KEY (and related) rotation."
-    - "Add rotation schedule for critical provider keys."
-    - "Optional age encryption for offline backups."
+    - Use apply-system-bearer after every COGENTIA_API_KEY change.
+    - Use apply-fracta-runtime-secrets after OPENAI_API_KEY (and related) rotation.
+    - Add rotation schedule for critical provider keys.
+    - Optional age encryption for offline backups.
+lifecycle_state: active
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: medium
+last_modified_at: '2026-08-08'
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+date: '2026-09-15'
+update_policy: UP-DEFAULT-REVIEWED
+status: working-paper
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # Secrets Management
 
@@ -99,7 +120,8 @@ tailscale-rsync-secrets.js  →  Rossignol · ThinkPad · Cloud backup
 | `openai_admin_key` | `OPENAI_ADMIN_KEY` | Org Admin API — usage/costs only (not chat) | OpenAI Admin keys | On compromise | JHN vault; create at platform.openai.com/settings/organization/admin-keys |
 | *(runtime only)* | `COGENTIA_JHN_OWNER_API_KEY` | Jean Hugues owner tier for `/guide/v1` OpenAI surface | Operium / JHN | On compromise | SoT `.env` optional; projected to `guide.env` + `jhn-mcp.env` |
 | `gemini_api_key` | `GEMINI_API_KEY` | Google AI | Google | As needed | .env (current) |
-| `github_token` | `GITHUB_TOKEN` | GitHub operations | GitHub | As needed | .env (current) |
+| `github_token` | `GITHUB_TOKEN` | GitHub operations | GitHub | As needed | .env (current) — **note (2026-09-27):** this token is present in `mcp-cogentia.service`'s process env and is prioritized by the `gh` CLI over any interactive `gh auth login` session; any new feature shelling out to `gh` on that service must explicitly clear `GITHUB_TOKEN`/`GH_TOKEN` for its own subprocess call, or it will silently fail with `HTTP 401` against whatever this token currently authorizes (found and fixed for the Guide's issue-lookup feature, `cogentia` commit `5b3c38d`) |
+| `brave_search_api_key` | `BRAVE_SEARCH_API_KEY` | Public Guide web search fallback (Brave Search API) | Brave | On compromise | Recovered 2026-09-27 from `survey/.env` (legacy repo) — was previously configured for the Guide but missing from this vault; imported into `instance_config` (JHN Supabase project) and deployed as a `mcp-cogentia.service` drop-in (`guide-web-search.conf`, not in git). Verified live against `api.search.brave.com` before import and again after deployment (real GitHub-issue and repo results returned for a current-info question) |
 | `supabase_service_role_key` | `SUPABASE_SERVICE_ROLE_KEY` | Inseme backend / vault writes | Supabase | Annually | Never auto-push casually |
 | `cloudflare_tunnel_token` | `CLOUDFLARE_TUNNEL_TOKEN` | Tunnel access | Cloudflare | Annually | .env (current) |
 
@@ -364,6 +386,7 @@ Helpers: `scripts/ops/apply-system-bearer.js` (orchestrator),
 | Date | Issue | Resolution | Postmortem |
 |------|-------|------------|------------|
 | 2026-07-28 | `GITHUB_TOKEN` in the FS authority returned HTTP 401 on Fracta | Authenticated `gh` from the workstation native credential store; `.env` refresh remains due | Verify a provider credential after propagation; do not confuse file equality with provider validity |
+| 2026-09-21 | Blackboard heartbeats from `i7-thinkpad-jhr` returned HTTP 401 | Reconciled the three Windows heartbeat projections with the Fracta authority and removed duplicate token declarations | Keep one declaration per key per env file; validate the effective runtime files after a credential change |
 | TBD | Example placeholder | N/A | N/A |
 
 ## Risks

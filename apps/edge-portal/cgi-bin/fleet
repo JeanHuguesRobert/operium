@@ -63,6 +63,7 @@ probe_one() {
 }
 
 probe_one "fracta" "resource://fracta" "Fracta"
+probe_one "fracta2" "resource://fracta2" "Fracta 2"
 probe_one "i7-thinkpad-jhr" "resource://i7-thinkpad-jhr" "Workstation"
 probe_one "rpi3-view" "resource://rpi3-view" "This Pi"
 probe_one "poco-jhr" "resource://poco-jhr" "Phone"

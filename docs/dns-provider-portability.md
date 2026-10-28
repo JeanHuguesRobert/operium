@@ -1,18 +1,35 @@
 ---
-title: "DNS Provider Portability and Reversible Migration"
-description: "A provider-neutral operational model for authoritative DNS, controlled migration, and verified return paths."
+title: DNS Provider Portability and Reversible Migration
+description: A provider-neutral operational model for authoritative DNS, controlled migration, and verified return paths.
 document_role: operational
 document_kind: architecture-note
 visibility: public
 lifecycle_state: working
 update_policy: UP-INFRASTRUCTURE-HEALTH
 language: en
-date: "2026-08-29"
-last_modified_at: "2026-08-30"
+date: '2026-08-29'
+last_modified_at: '2026-08-30'
 related:
-  - "fractavolta-dns.md"
-  - "fractanet-mesh.md"
+  - fractavolta-dns.md
+  - fractanet-mesh.md
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: medium
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+status: working-paper
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # DNS Provider Portability and Reversible Migration
 
@@ -197,15 +214,26 @@ Writing or refreshing this snapshot stays outside La Nasa. It follows the
 read-only export/normalize/diff workflow, preserving the distinction between
 observed provider state and intended evolution.
 
-## Next implementation increment
+## Read-only public reconciliation
 
-Implement read-only provider adapters first:
+The first implementation is deliberately credential-free and cannot mutate a
+provider. `profiles/dns-reconciliation.v1.json` is the public, dated control
+record for the four initial domains. It retains no mailbox destinations,
+provider identifiers, tokens, or record contents.
 
-```text
-operium dns export --provider gandi --domain <domain>
-operium dns export --provider cloudflare --domain <domain>
-operium dns diff --domain <domain>
+```bash
+operium dns reconcile --manifest profiles/dns-reconciliation.v1.json
 ```
 
-Write/apply commands require a separate, explicit authorization and must
-retain a dated export before making a change.
+It queries the public nameserver delegation through Cloudflare and Google
+resolvers, checks the expected provider suffix, and makes HTTPS `HEAD` checks
+for the declared public surfaces. Its structured result separates observed
+answers, detected drift, and resolver uncertainty. It does not prove private
+provider configuration, forwarding-rule contents, Cloudflare-zone readiness,
+or mail delivery; those remain dated operator evidence.
+
+Public resolver and HTTPS checks, together with dated operator evidence for
+private mail and pending-zone state, are sufficient for this capability.
+Provider-API read adapters are intentionally out of scope: they add convenience,
+not an operational capability needed for a safe DNS change.
+Write/apply commands remain separate, explicitly human-authorized actions.

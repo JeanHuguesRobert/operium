@@ -1,0 +1,159 @@
+{
+  "schema": "operium.mail.role-profile.v1",
+  "updated_at": "2026-10-07",
+  "purpose": "Reusable explicit inbound role-address profile for domain migrations. No catch-all by default; no physical destination mailbox stored here.",
+  "policy": {
+    "catch_all": "disabled",
+    "destination_secrets": "out-of-band",
+    "compose": "existing_aliases + enabled_profile_roles + domain_specific",
+    "ai_roles_status": "experimental"
+  },
+  "tiers": {
+    "core_internet": [
+      {
+        "local_part": "postmaster",
+        "status": "standard/convention",
+        "reference": "RFC 2142",
+        "enabled": true
+      },
+      {
+        "local_part": "hostmaster",
+        "status": "standard/convention",
+        "reference": "RFC 2142",
+        "enabled": true
+      },
+      {
+        "local_part": "webmaster",
+        "status": "standard/convention",
+        "reference": "RFC 2142",
+        "enabled": true
+      },
+      {
+        "local_part": "abuse",
+        "status": "standard/convention",
+        "reference": "RFC 2142",
+        "enabled": true
+      },
+      {
+        "local_part": "security",
+        "status": "standard/convention",
+        "reference": "RFC 2142; RFC 9116 contact target",
+        "enabled": true
+      },
+      {
+        "local_part": "noc",
+        "status": "standard/convention",
+        "reference": "RFC 2142",
+        "enabled": true
+      },
+      {
+        "local_part": "info",
+        "status": "standard/convention",
+        "reference": "RFC 2142 when function exists",
+        "enabled": true
+      },
+      {
+        "local_part": "support",
+        "status": "convention",
+        "reference": "RFC 2142 when function exists",
+        "enabled": true
+      }
+    ],
+    "trust_compliance": [
+      {
+        "local_part": "contact",
+        "status": "convention",
+        "enabled": true
+      },
+      {
+        "local_part": "hello",
+        "status": "convention",
+        "enabled": true
+      },
+      {
+        "local_part": "privacy",
+        "status": "convention",
+        "enabled": true
+      },
+      {
+        "local_part": "legal",
+        "status": "convention",
+        "enabled": true
+      },
+      {
+        "local_part": "dpo",
+        "status": "conditional",
+        "enabled": false,
+        "enable_when": "A DPO function is actually designated"
+      },
+      {
+        "local_part": "accessibility",
+        "status": "convention",
+        "enabled": true
+      },
+      {
+        "local_part": "copyright",
+        "status": "convention",
+        "enabled": true
+      },
+      {
+        "local_part": "takedown",
+        "status": "convention",
+        "enabled": true
+      },
+      {
+        "local_part": "press",
+        "status": "convention",
+        "enabled": true
+      },
+      {
+        "local_part": "media",
+        "status": "convention",
+        "enabled": true
+      }
+    ],
+    "mail_operations": [
+      {
+        "local_part": "dmarc",
+        "status": "operational-convention",
+        "enabled": true,
+        "notes": "Prefer for automated aggregate reports if used in rua."
+      }
+    ],
+    "ai_agents": [
+      {
+        "local_part": "ai",
+        "status": "experimental",
+        "enabled": true
+      },
+      {
+        "local_part": "ai-safety",
+        "status": "experimental",
+        "enabled": true
+      },
+      {
+        "local_part": "agents",
+        "status": "experimental",
+        "enabled": true
+      }
+    ]
+  },
+  "domain_specific": {
+    "lepp.fr": [
+      "baron",
+      "baronmariani",
+      "jeanhuguesrobert",
+      "jhr"
+    ],
+    "baronsmariani.org": [
+      "archive",
+      "baron",
+      "casamariani",
+      "corsica",
+      "institutmariani",
+      "jeanhuguesrobert",
+      "jhr",
+      "minesteggio"
+    ]
+  }
+}

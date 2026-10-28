@@ -1,21 +1,36 @@
 ---
-title: "Fix Bugs First — Bug/Feature tracking (Operium)"
-date: "2026-07-26"
+title: Fix Bugs First — Bug/Feature tracking (Operium)
+date: '2026-07-26'
 document_role: operational
 document_kind: doctrine
 visibility: public
 lifecycle_state: active
 owner: Operium
 related:
-  - "../doctrine.md"
-  - "operational-health.md"
-  - "operium-wip.md"
-  - "../backlog/README.md"
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "explicit-metadata"
-classification_confidence: "medium"
+  - ../doctrine.md
+  - operational-health.md
+  - operium-wip.md
+  - ../backlog/README.md
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: medium
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+update_policy: UP-DEFAULT-REVIEWED
+status: working-paper
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # Fix Bugs First
 
@@ -24,6 +39,19 @@ features and **restore control through a Bug/Feature tracking system**.
 
 This is an old operator doctrine, restated for Operium and interactive
 multi-agent development.
+
+## Attention reminder and engagement gate
+
+Fix Bugs First can remind the Principal once about relevant pending priority
+work; after that, the agent follows the Principal's present request. The
+subsystem `gate` is self-discipline for agent-initiated feature work. The
+Principal retains authority to direct or override priorities without incident
+or waiver rituals.
+
+This attention reminder is separate from the Engagement Gatekeeper, which
+governs human approval for acts that engage others. The backlog is an
+operational memory and prioritization aid; it is not a measure of the
+Principal.
 
 ## One-line rule
 
@@ -235,6 +263,8 @@ When an agent or human starts work in Operium (or ops-touching corpus work):
 - Renaming bugs to “debt” or “enhancement” to skip the gate
 - Feature PRs that “include a small fix later”
 - GitHub Issues with no kind / no subsystem / no next_action
+- Using the backlog or dashboard to score or surveil the Principal
+- Treating a Principal direction as an incident or missing-waiver case
 - Parallel freestyle ops scripts that bypass the register
 - Waivers without `reason`, `owner`, and `expires_at`
 

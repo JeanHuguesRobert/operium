@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout operium
+        uses: actions/checkout@v4
+        with:
+          path: operium
+
+      - name: Checkout cogentia (workspace sibling)
+        uses: actions/checkout@v4
+        with:
+          repository: JeanHuguesRobert/cogentia
+          path: cogentia
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "npm"
+          cache-dependency-path: operium/package-lock.json
+
+      - name: Install dependencies
+        working-directory: operium
+        run: npm ci
+
+      - name: Run tests
+        working-directory: operium
+        run: npm test

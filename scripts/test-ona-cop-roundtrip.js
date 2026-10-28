@@ -94,13 +94,22 @@ assert.ok(calendarQuery.body.response_envelope.payload.calendar.items.some(
   item => item.kind === "observation.dns.delegation",
 ));
 
-const eventResult = await handleCopHttpRequest({
+const eventEnvelope = {
   id: "cop:event-1",
   packet_type: COP_NODE_PACKETS.EVENT,
   sender: { node_id: "resource://i7-thinkpad-jhr" },
   payload: { kind: "peer.test", detail: { ok: true } },
-}, deps);
+};
+const eventResult = await handleCopHttpRequest(eventEnvelope, deps);
 assert.equal(eventResult.status, 202);
+
+// Receiver-side replay is idempotent by envelope id: the handler must not run
+// twice when store-and-forward retries after an ambiguous delivery outcome.
+const duplicateEvent = await handleCopHttpRequest(eventEnvelope, deps);
+assert.equal(duplicateEvent.status, 200);
+assert.equal(duplicateEvent.body.duplicate, true);
+const peerTestEvents = db.prepare("SELECT COUNT(*) AS count FROM event_log WHERE kind = ?").get("peer.test");
+assert.equal(Number(peerTestEvents.count), 1);
 
 const snapshotResult = await handleCopHttpRequest({
   id: "cop:snapshot-1",
@@ -175,6 +184,50 @@ assert.equal(delivery.ok, true);
 assert.equal(delivery.delivered, 1);
 assert.equal(deliveredBody.packet_type, COP_NODE_PACKETS.EVENT);
 
+// Store-and-forward failure stays durable and retryable. Simulate a network
+// outage without touching the real mesh, then make the row immediately due and
+// prove the same envelope is delivered after recovery.
+const retryEnvelope = {
+  id: "out:event-retry-1",
+  packet_type: COP_NODE_PACKETS.EVENT,
+  sender: { node_id: "resource://fracta" },
+  recipient: { node_id: "resource://i7-thinkpad-jhr" },
+  payload: { kind: "delivery.retry.test" },
+};
+assert.equal(enqueueCopOutbox(db, retryEnvelope, {
+  targetNodeId: "resource://i7-thinkpad-jhr",
+}).ok, true);
+
+const failedDelivery = await deliverCopOutbox(db, {
+  token: "peer-token",
+  fetch: async () => { throw new Error("simulated_blackboard_independent_network_loss"); },
+  timeoutMs: 100,
+});
+assert.equal(failedDelivery.ok, true);
+assert.equal(failedDelivery.failed, 1);
+const pendingRetry = db.prepare("SELECT state, attempts, envelope_json FROM cop_outbox WHERE id = ?")
+  .get(retryEnvelope.id);
+assert.equal(pendingRetry.state, "pending");
+assert.equal(Number(pendingRetry.attempts), 1);
+assert.equal(JSON.parse(pendingRetry.envelope_json).id, retryEnvelope.id);
+
+db.prepare("UPDATE cop_outbox SET next_attempt_at = ? WHERE id = ?")
+  .run(new Date(Date.now() - 1000).toISOString(), retryEnvelope.id);
+
+deliveredBody = null;
+const recoveredDelivery = await deliverCopOutbox(db, {
+  token: "peer-token",
+  fetch: globalThis.fetch,
+  timeoutMs: 5000,
+});
+assert.equal(recoveredDelivery.ok, true);
+assert.equal(recoveredDelivery.delivered, 1);
+assert.equal(deliveredBody.id, retryEnvelope.id);
+const deliveredRetry = db.prepare("SELECT state, attempts FROM cop_outbox WHERE id = ?")
+  .get(retryEnvelope.id);
+assert.equal(deliveredRetry.state, "delivered");
+assert.equal(Number(deliveredRetry.attempts), 1);
+
 const apiServer = createOnaHttpServer({
   config,
   db,
@@ -221,9 +274,11 @@ console.log(JSON.stringify({
     "cop_query_handler",
     "cop_wake_and_calendar_query",
     "cop_event_handler",
+    "cop_duplicate_envelope_idempotent",
     "cop_snapshot_handler",
     "cop_unknown_400",
     "cop_outbox_delivery",
+    "cop_outbox_failure_retry_recovery",
     "cop_http_route",
     "cop_resolve_requires_admin",
   ],

@@ -1,0 +1,8 @@
+[Unit]
+Description=Hosted Browser KasmVNC listener health check for %i
+After=network-online.target hosted-browser@%i.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/operium/bin/check-hosted-browser-health.sh %i

@@ -1,0 +1,79 @@
+{
+  "schema": "cop.compute-result/v1",
+  "computation_id": "inseme-141-mobile-diagnostic-v1",
+  "ok": true,
+  "simulation": false,
+  "attempted": true,
+  "route": "via-fracta",
+  "source": {
+    "operium_commit": "3f05d1b0795359fa30bc401d8398c1ffd44825e0",
+    "inseme_commit": "b8f04a00f5f23bb9e00923188b5aaca6bf0d85a9",
+    "implementation_sha256": "8b244f77c43f9cfb8040c7d394d645e0ec65b88b2f3fcf799027963c0dc67efb",
+    "files": {
+      "lib/node-agent/mobile-diagnostic.js": "fa7e2a595ac7cdbf9c2f896ec6dc26b1ad1e63c0530f29ce755b3371367af101",
+      "lib/node-agent/cop-events.js": "0b5da51064fbf47e94994f98b5aedf4cb6cc421ba2f96c1130051bdd6f2ec245",
+      "scripts/mobile-termux-diagnostic.js": "81b86dd4e21e78f389ba74dee592a8dfcb0de9172d55d40be448eb30df53e4f2",
+      "../inseme/packages/cop-core/src/github-ingress.js": "c316370c65605cd9cfafc1f50f5c84ed60272ce27f1f49fd12f37f0e17b83853",
+      "../inseme/packages/magistral/src/execution.js": "6f2b0c14fe6883b1a972a4ef0107ada8e4df629108468a950a5113f00b143a35"
+    }
+  },
+  "provenance": {
+    "issue": "https://github.com/JeanHuguesRobert/inseme/issues/141",
+    "issue_updated_at": "2026-10-10T09:27:16Z",
+    "body_sha256": "e67e5a612a2faef68dce12f53d24b264c5af6c5c3af55344b41db4534cb62759",
+    "transport": "github-api-reconciliation"
+  },
+  "authorization": {
+    "issue": "https://github.com/JeanHuguesRobert/inseme/issues/141",
+    "operation": "mobile.termux.diagnostic/v1",
+    "principal": "JeanHuguesRobert",
+    "execution": true,
+    "request_sha256": "b066d444df01852b7eac9cbb9f748aeb73b5a905fac2adf3f38e4037382bd84c",
+    "basis": "Issue #141 controlling handoff, resumed by Principal; explicit local --execute-authorized"
+  },
+  "started_at": "2026-10-10T09:36:00.939Z",
+  "finished_at": "2026-10-10T09:36:05.120Z",
+  "result": {
+    "operation": "mobile.termux.diagnostic/v1",
+    "target": "poco-jhr",
+    "exit_code": 0,
+    "signal": null,
+    "valid": true,
+    "stdout": "u0_a393\ngit version 2.56.0\n",
+    "stderr": ""
+  },
+  "execution_binding": {
+    "schema": "magistral.execution-binding/v1",
+    "requirement_ref": "requirement:compute-request:inseme-141-mobile-diagnostic-v1",
+    "offer_id": "offer:ona:mobile-termux-diagnostic-v1",
+    "runtime_id": "runtime:ona:localhost",
+    "handler_instance_ref": "handler:ona:53b2e619-6133-4732-b6ce-da97fffa9c33",
+    "execution_surface": "batch",
+    "provider_ref": "provider:ssh:fracta",
+    "provider_execution_id": "53b2e619-6133-4732-b6ce-da97fffa9c33"
+  },
+  "execution_receipt": {
+    "schema": "magistral.execution-receipt/v1",
+    "binding": {
+      "schema": "magistral.execution-binding/v1",
+      "requirement_ref": "requirement:compute-request:inseme-141-mobile-diagnostic-v1",
+      "offer_id": "offer:ona:mobile-termux-diagnostic-v1",
+      "runtime_id": "runtime:ona:localhost",
+      "handler_instance_ref": "handler:ona:53b2e619-6133-4732-b6ce-da97fffa9c33",
+      "execution_surface": "batch",
+      "provider_ref": "provider:ssh:fracta",
+      "provider_execution_id": "53b2e619-6133-4732-b6ce-da97fffa9c33"
+    },
+    "status": "completed",
+    "terminal": true,
+    "artifact_refs": [],
+    "result_refs": [
+      "cop-event:mobile:inseme-141-mobile-diagnostic-v1:result"
+    ],
+    "log_refs": [
+      "cop-event:mobile:inseme-141-mobile-diagnostic-v1:result"
+    ],
+    "error": null
+  },
+  "delivery": "pending"
+}

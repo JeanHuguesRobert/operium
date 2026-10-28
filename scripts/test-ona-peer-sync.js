@@ -112,6 +112,27 @@ const sync = await syncPeersFromBlackboard(db, {
 assert.equal(sync.ok, true);
 assert.equal(sync.peer_count, 1);
 
+// RT-1 / cogentia#255: losing the aggregator must not erase the last locally
+// learned peer projection. A failed sync returns an explicit failure while
+// existing peer rows remain available until their normal TTL expires.
+const unavailableSync = await syncPeersFromBlackboard(db, {
+  blackboardUrl: "http://127.0.0.1:1",
+  nodeId: "resource://fracta",
+  selfAttractorId: "attractor:fracta:operium-node",
+  fresh: true,
+  timeoutMs: 100,
+  now,
+});
+assert.equal(unavailableSync.ok, false);
+const peersAfterBlackboardLoss = buildNodePeers({
+  config: { nodeId: "resource://fracta" },
+  db,
+  nodeId: "resource://fracta",
+  fresh: true,
+});
+assert.equal(peersAfterBlackboardLoss.count, 1);
+assert.equal(peersAfterBlackboardLoss.peers[0].node_id, "resource://i7-thinkpad-jhr");
+
 const local = db.prepare("SELECT last_blackboard_sync_at FROM local_state WHERE node_id = ?")
   .get("resource://fracta");
 assert.ok(local?.last_blackboard_sync_at);
@@ -168,6 +189,7 @@ console.log(JSON.stringify({
     "endpoint_filter",
     "selectPeerAttractors",
     "syncPeersFromBlackboard",
+    "blackboard_failure_preserves_cached_peers",
     "buildNodePeers",
     "ttlSweeper",
     "node_peers_http",

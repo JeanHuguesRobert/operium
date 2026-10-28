@@ -12,15 +12,14 @@ const legacy = {
   guide: {
     ok: true,
     context: {
-      retrieval_backend: "inox-session",
-      inox_retrieval: { configured: true, url: "http://100.0.0.1:8792", transport: "inox.session.v1" },
+      retrieval_backend: "supabase",
     },
   },
   blackboard: { attractor_count: 1, fresh_attractor_count: 1, attractors: [], recent_events: [] },
 };
 
 const mapped = mapRemoteStatus(legacy);
-assert.equal(mapped.layers.retrieval.backend, "inox-session");
+assert.equal(mapped.layers.retrieval.backend, "supabase");
 assert.equal(mapped.layers.retrieval.phase2_wired, false);
 assert.equal(mapped.layers.action.phase2_wired, true);
 
@@ -49,6 +48,21 @@ const drift = computeDrift({
   local: {},
 });
 assert.ok(drift.some(item => item.kind === "catalogue_vs_live"));
+
+const identityDrift = computeDrift({
+  catalogue: { nodes: [
+    { hostname: "i7-thinkpad-jhr" },
+    { hostname: "poco-jhr", device: "POCO X6 5G", intermittent: true },
+  ], planned_nodes: [] },
+  mesh: {
+    available: true,
+    hostname: "i7-thinkpad-jhr",
+    peers: [{ hostname: "POCO X6 5G", online: false }],
+  },
+  runtime: mapped,
+  local: {},
+});
+assert.equal(identityDrift.some(item => item.kind === "catalogue_vs_live"), false);
 
 const result = await buildOperiumUp({ probe: false });
 assert.equal(result.schema, "operium.up.v1");

@@ -1,20 +1,43 @@
 ---
 shared_instructions: https://github.com/JeanHuguesRobert/cogentia/blob/main/instructions/AGENTS.shared.md
-document_role: "operational"
-document_kind: "agent-mandate"
-visibility: "public"
-lifecycle_state: "active"
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "agent-mandate"
-classification_confidence: "strong"
+document_role: operational
+document_kind: agent-mandate
+visibility: public
+lifecycle_state: active
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: agent-mandate
+classification_confidence: strong
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+date: '2026-09-15'
+update_policy: UP-DEFAULT-REVIEWED
+status: working-paper
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # AGENTS.md — Operium agent mandate
 
 This file gives operational instructions to AI agents and human assistants working in the `JeanHuguesRobert/operium` repository.
 
 It is not the full doctrine. It is the compact local mandate for maintaining a versioned operational environment registry.
+
+## Instruction order
+
+Read Cogentia's shared operational layer
+[`instructions/AGENTS.shared.md`](https://github.com/JeanHuguesRobert/cogentia/blob/main/instructions/AGENTS.shared.md)
+first, then apply this local mandate and any more specific instruction. Local
+rules may strengthen constraints but must not weaken the shared layer.
 
 Operium is the infrastructure-health evidence layer for the wider corpus. Cogentia defines the
 corpus-level mandate and traceability invariant; Operium records service health, deployment state,
@@ -81,15 +104,21 @@ scope:
 - Prefer terminology that remains meaningful outside the current deployment,
   while keeping concrete Fracta/Fractanet evidence in examples and runbooks.
 
-## Fix Bugs First (mandatory for interactive work)
+## Fix Bugs First (attention reminder and agent self-discipline)
 
 When Operium (or an ops-touching session) feels **out of control**, apply
 [`docs/fix-bugs-first.md`](docs/fix-bugs-first.md):
 
 1. `operium backlog list --kind bug --status openish --human`
-2. `operium backlog gate --subsystem <slug>` before feature work in that slug
-3. Prefer fixing or waiving **bugs** over opening new features
+2. `operium backlog gate --subsystem <slug>` before agent-initiated feature
+   work in that slug
+3. Prefer fixing or waiving **bugs** over inventing new features
 4. Update `backlog/items.yaml` (authority); GitHub Issues are the discussion mirror
+
+Mention relevant pending priority work to the Principal once, then follow the
+Principal's present request. The subsystem gate is agent self-discipline for
+agent-initiated feature work; it does not constrain the Principal. A Principal
+override is neither an incident nor a missing-waiver case.
 
 Do not invent a parallel ops path that bypasses the backlog.
 

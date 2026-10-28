@@ -1,16 +1,29 @@
 ---
 title: "Fractanet mesh — Tailscale and SSH (July 2026)"
 description: "Operational record of the virteal tailnet, bidirectional SSH mesh, capable-host wiring, and Packet Attractor Phase 1 on fracta."
+author: unknown
+affiliation: unknown
 layout: default
 date: 2026-07-04
-last_modified_at: 2026-07-26
+last_modified_at: 2026-10-27
 license: Apache-2.0
+language: en
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/docs/fractanet-mesh.md
+status: working-paper
 document_role: "operational"
 document_kind: "method"
 visibility: "public"
 lifecycle_state: "active"
-status: "mesh live (4 nodes)"
+update_policy: UP-DEFAULT-REVIEWED
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
+review:
+  status: unreviewed
+  reviewed_by: []
 classification_source: "cogentia.js"
 classification_version: "1"
 classification_rule: "explicit-metadata"
@@ -23,7 +36,7 @@ This note records **observed operational state** after resuming [Fractanet resum
 
 Companion notes:
 
-- [Fracta trust perimeter and secrets](fracta-trust-perimeter.md) — `guide.env`, Phase 4 retrieval
+- [Fracta trust perimeter and secrets](fracta-trust-perimeter.md) — current Guide backend and secret boundaries
 - [Fractanet resumption handoff](../research/fractanet-resumption-2026-07.md) — north star and open decisions
 - [Public / private split](public-private-split.md) — secret references, not values
 - Cogentia scripts: `cogentia/scripts/ops/` (bootstrap, heartbeat, Windows SSH install)
@@ -170,8 +183,8 @@ Default permissive tailnet (solo operator). No `funnel` node attribute. Device a
 
 | Hostname | OS | Tailnet role | WAN | SSH mesh | Other services |
 |----------|-----|--------------|-----|----------|----------------|
-| `fracta` | Ubuntu VPS (OCI) | always-on public face | **own** public WAN | inbound + outbound :22 | Cogentia Guide MCP, blackboard aggregator |
-| `fracta2` | Ubuntu VPS (OCI) | hosted-browser & automation | **own** public WAN | inbound + outbound :22 | KasmVNC :8444, Chrome CDP :9223, ONA :8794, Caddy :80 |
+| `fracta` | Ubuntu VPS (OCI) | always-on public TLS/DNS edge | **own** public WAN | inbound + outbound :22 | Caddy edge only (proxies `cogentia.fractavolta.com` to fracta2); blackboard aggregator |
+| `fracta2` | Ubuntu VPS (OCI) | hosted-browser & automation + Cogentia Guide/Magistral compute (since 2026-09-23, [issue #55](https://github.com/JeanHuguesRobert/operium/issues/55)) | **own** public WAN | inbound + outbound :22 | KasmVNC :8444, Chrome CDP :9223, ONA :8794, Caddy :80; `cogentia`, `mcp-cogentia`, `magistral`, `agent-gateway`, `agent-john-whatsapp` |
 | `i7-thinkpad-jhr` | Windows 11 | intermittent capable host | **via phone** (typical) | inbound + outbound :22 | `inox-serve` :8792, attractor heartbeat |
 | `rpi3-view` | Raspberry Pi OS (Pi 3) | **site edge / kiosk** | **via phone** or Paoli LAN | inbound + outbound :22 | Local 1 cours Paoli — sole always-on node on LAN; see [Linux node roles](#linux-node-roles-corpus--paoli) |
 | `poco-jhr` | Android Termux (POCO X6 5G) | **capable-mobile + WAN hub** | **cellular 5G → shared to mesh** | inbound + outbound :8022 | Corpus mirror, coding agents; layout `~/srv/cogentia` |
@@ -244,12 +257,20 @@ When the phone is offline or Termux is killed, **ThinkPad and Pi lose WAN** unle
 | **WAN** | Independent public IP; Caddy + `fractavolta.com` |
 | **Corpus** | Publisher: `/srv/cogentia/repos` ~3.1 G, 17 repos; build index, sync `cogentia-public` |
 | **SSH mesh** | Ubuntu `sshd` :22; `fractanet-mesh` inbound + outbound; survives reboot |
-| **Cogentia services** | Guide MCP :8791, Phase 1 blackboard (`/ops/blackboard`), ops dashboard |
-| **Retrieval** | Static `guide.env` → ThinkPad `inox-serve` over Tailscale (Phase 4 bootstrap) |
+| **Cogentia services** | Public Guide/MCP no longer runs locally: since 2026-09-23 `mcp-cogentia.service` is disabled/inactive here; `fracta` remains the public Caddy edge and proxies Guide/MCP traffic to `fracta2`:8791. |
+| **Retrieval** | No live public Guide retrieval path runs on `fracta`; the production Guide runtime and its retrieval path are on `fracta2`. |
 | **Coding agents** | Server-side Node tooling only; not an operator dev workstation |
 | **Limits** | No `inox-serve` locally; Supabase keys may remain as transitional fallback; not a capable retrieval host |
 
-### `fracta2` — hosted-browser-automation
+### `fracta2` — hosted-browser-automation + Cogentia Guide/Magistral compute
+
+Since 2026-09-23 ([issue #55](https://github.com/JeanHuguesRobert/operium/issues/55)),
+`fracta2` also runs the production `cogentia`, `mcp-cogentia`, `magistral`,
+`agent-gateway`, and `agent-john-whatsapp` services — public traffic still
+enters through `fracta`'s Caddy edge, which reverse-proxies to
+`http://100.84.109.87:8791` (this host's Tailscale IP). See
+[Magistral coding-agent routing](magistral-coding-agent-routing.md) for the
+full request path.
 
 Hardware and service observations refreshed on 2026-09-10 over SSH through
 `fracta`; see [dated evidence and limits](hosted-browser-kasmvnc-cdp.md).
@@ -273,7 +294,7 @@ Those session tools are not established Fracta2 host capabilities. The observed
 SSH route allows a phone-side agent to use Fracta2's server/browser facilities
 within mandate, without moving the assistant session itself.
 
-### `i7-thinkpad-jhr` — capable-retrieval-host
+### `i7-thinkpad-jhr` — capable-runtime-host
 
 | Dimension | Observed capability |
 |-----------|---------------------|
@@ -282,10 +303,10 @@ within mandate, without moving the assistant session itself.
 | **Corpus** | Dev working copies; not a full fracta mirror |
 | **SSH mesh** | Windows OpenSSH `sshd` :22; `fractanet-mesh`; firewall `OpenSSH-Server-In-TCP` |
 | **Cogentia services** | `inox-serve` :8792 (`InoxServeCapableHost` task); attractor heartbeat every 3 min |
-| **Retrieval profile** | `inox.session.v1` — embeddings, Supabase RPC inline |
+| **Service roles** | Remote `.nox` execution, stateful sessions and continuations; optional `/retrieval/batch` route |
 | **Blackboard** | `attractor:i7-thinkpad-jhr:retrieval-inline` |
 | **Coding agents** | Full operator stack (Grok, Codex, Claude Code, etc.) on Windows |
-| **Limits** | Offline → fracta Guide needs fallback policy A/B/C; disk space tight |
+| **Limits** | Offline → remote Inox execution and session calls are unavailable; the Guide remains on Supabase; disk space tight |
 
 ### `rpi3-view` — edge-kiosk (Paoli)
 
@@ -325,7 +346,7 @@ within mandate, without moving the assistant session itself.
 | `rsync` baseline | required | required | required | required |
 | `inox-serve` / inline retrieval | — | ✓ | — | — |
 | Blackboard heartbeat | aggregate | ✓ | planned | — |
-| Public Guide / Caddy | ✓ | — | — | — |
+| Public Caddy edge (Guide proxied to `fracta2`) | ✓ | — | — | — |
 | Paoli degraded anchor | — | — | ✓ | — |
 | Coding agents (Grok/Codex/Claude) | — | ✓ | — | ✓ |
 | Domotics (local) | — | — | planned | — |
@@ -411,6 +432,30 @@ Post-reboot local-only (sshd + firewall, no remote hops):
 pwsh -File cogentia/scripts/ops/verify-fractanet-ssh-mesh.ps1 -SkipConnectivity
 ```
 
+### Additional SSH observation (operator-reported, 2026-10-27)
+
+The operator reports successful SSH authentication from `fracta2` to
+`i7-thinkpad-jhr` over Tailscale with strict host-key checking after an
+authorized configuration update. This establishes connectivity and
+authentication at that observation only; reboot persistence and inbound
+firewall scope were not re-tested. Account names, key placement and ACLs,
+fingerprints, and local aliases remain in private operational records. This
+observation was not independently re-run during the present cleanup.
+
+### Fleet SSH alias convergence (observed, 2026-10-28)
+
+The workstation's effective SSH configuration resolves all five canonical
+FractaNode names to their intended accounts and ports, using the existing mesh
+identity. The operator-reported checks on `fracta2` and `poco-jhr` also found
+the five aliases configured. Fleet-wide convergence is still unconfirmed:
+`fracta` was active in Tailscale but its SSH connection was refused, and
+`rpi3-view` could not be reached for a configuration readback. The operator
+reports that the Pi is running; its absence from the current tailnet connection
+state is not evidence that the device itself is powered off. Node-specific
+addresses, identity placement, and ACL details remain in private operational
+records. No remote configuration change is claimed for either inaccessible
+node.
+
 ---
 
 ## Node setup procedures (implemented scripts)
@@ -434,7 +479,7 @@ pwsh -File cogentia/scripts/ops/verify-fractanet-ssh-mesh.ps1 -SkipConnectivity
 | Mesh private key | `~/.ssh/fractanet-mesh` (outbound to other nodes) |
 | SSH client config | `~/.ssh/config` — hosts `thinkpad`, `rpi3-view`, `fracta` |
 | Tailscale | joined via bootstrap auth key (revoked 2026-07-05) |
-| Blackboard routes | Caddy + Guide MCP `/ops/blackboard` (Phase 1) |
+| Blackboard routes | Caddy edge proxies `/ops/blackboard` and related `/ops/*` routes to `mcp-cogentia.service` on `fracta2` (Phase 1 surface). |
 
 ## Linux node roles (corpus + Paoli)
 
@@ -448,7 +493,7 @@ Symmetric **layout**, asymmetric **capabilities**. Script: `cogentia/scripts/ops
 | Role | Node | Corpus | When Internet down |
 |------|------|--------|-------------------|
 | **publisher** | `fracta` | build index, sync `cogentia-public`, public Guide | N/A (remote VPS) |
-| **capable host** | `i7-thinkpad-jhr` | `inox-serve` inline retrieval | intermittent — not site anchor |
+| **capable host** | `i7-thinkpad-jhr` | remote Inox runtime; optional retrieval endpoint | intermittent — not site anchor |
 | **edge-kiosk** | `rpi3-view` | **consumer** + local cache | **anchor** for Local 1 cours Paoli |
 
 ### Local 1 cours Paoli (`rpi3-view`)
@@ -615,31 +660,29 @@ bash ~/fractanet-sync-repos-from-fracta.sh
 
 ## Cogentia / Fractanet services wired over mesh
 
-### Phase 1 — Packet Attractor blackboard (deployed on fracta)
+### Phase 1 — Packet Attractor blackboard (public edge on fracta; live hub on fracta2)
 
 | Item | State |
 |------|-------|
 | Store | `cogentia/scripts/lib/packet-attractor-blackboard.js` |
 | Guide routes | `GET /ops/blackboard`, `POST /ops/blackboard/upsert` |
-| fracta `guide.env` | `COGENTIA_BLACKBOARD_UPSERT_TOKEN`, `COGENTIA_OPS_STATE_DIR` set on node |
+| Runtime authority | Public blackboard routes are served by `mcp-cogentia.service` on `fracta2`; secret values remain node-local and are not recorded here. |
 | Laptop heartbeat | `scripts/ops/attractor-heartbeat.js` → POST upsert every 3 min |
 | Attractor id | `attractor:i7-thinkpad-jhr:retrieval-inline` |
 
 Tests: `pnpm test:blackboard` in cogentia repo.
 
-### Phase 4 bootstrap — inox-serve over Tailscale (deployed)
+### ThinkPad Inox runtime — separate from the Guide
 
 | Item | State |
 |------|-------|
 | Capable host | `i7-thinkpad-jhr`, `inox-serve` on `0.0.0.0:8792` |
-| fracta `guide.env` | `COGENTIA_INOX_RETRIEVAL_URL=http://<thinkpad-tailscale-ip>:8792`, `COGENTIA_INOX_SERVE_TOKEN` set |
-| Reachability | fracta → laptop health OK over tailnet |
+| Service role | Remote Inox execution (`/run`), stateful session and continuation routes, and an optional retrieval batch endpoint. |
+| Guide status | Live Guide reports `backend=supabase` and `inox_configured=false` (2026-10-27). It does not select this runtime. |
+| Blackboard | Refreshed 2026-10-27. The live advertisement now lists `owner-cli` only for `retrieval.inline` (snapshot observed at 21:22:50 UTC). |
+| Health evidence | The ThinkPad `/health` endpoint returned healthy during the 2026-10-27 audit; this proves route availability, not client invocation. |
 
-**Not yet done:** Guide **dynamic** routing from blackboard snapshot before `session/turn` (Phase 2). Startup still uses static `resolveGuideRetrievalBackend()`.
-
-### Fallback policy when laptop offline
-
-Still **open** — see [resumption handoff](../research/fractanet-resumption-2026-07.md). Supabase keys may still be present on fracta as transitional fallback (option A).
+Guide retrieval remains on its Supabase backend when the ThinkPad is offline; the Inox runtime is not a Guide dependency.
 
 ---
 
@@ -659,7 +702,7 @@ See [operium-cli.md](operium-cli.md) for `operium.up.v1` schema and exit codes.
 
 ## Ops dashboard
 
-Browser UI on the fracta Guide MCP (public HTTPS):
+Browser UI on the public Guide surface (HTTPS enters through `fracta` Caddy and is served by `mcp-cogentia.service` on `fracta2`):
 
 | URL | Role |
 |-----|------|
@@ -691,11 +734,11 @@ curl -fsS https://cogentia.fractavolta.com/ops/status | jq .
 # Blackboard (raw)
 curl -fsS https://cogentia.fractavolta.com/ops/blackboard | jq .
 
-# inox-serve from fracta (Tailscale IP from private registry)
-ssh fracta 'curl -fsS http://<thinkpad-ts-ip>:8792/health | jq .'
+# Inox runtime reachability from a trusted Fractanet node (Tailscale IP from private registry)
+ssh fracta2 'curl -fsS http://<thinkpad-ts-ip>:8792/health | jq .'
 
-# fracta stack
-ssh fracta 'sudo /srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stack.sh healthcheck'
+# live Guide hub
+ssh fracta2 'curl -fsS http://127.0.0.1:8791/health | jq .'
 ```
 
 ---
@@ -757,3 +800,4 @@ ssh fracta 'sudo /srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stack.sh 
 | 2026-07-05 | `poco-jhr` corpus mirror ~3.1 G (17 repos); sync script `fractanet-sync-repos-from-fracta.sh` |
 | 2026-07-05 | `poco-jhr` mobile dev: Grok native, Codex + Claude in Ubuntu proot; `bootstrap-poco-jhr-dev.ps1` |
 | 2026-07-26 | Troubleshooting: `ssh fracta` / proot HOME split; proot agents script installs mesh SSH into `/root/.ssh` |
+| 2026-10-28 | Rechecked SSH alias convergence: workstation verified; Fracta SSH refused and Pi readback unavailable |

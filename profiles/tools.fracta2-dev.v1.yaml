@@ -2,7 +2,7 @@ profile_id: tools.fracta2-dev.v1
 node_id: fracta2
 node_class: ubuntu-arm64-development
 ssh_alias: fracta2
-updated: "2026-09-10"
+updated: "2026-10-27"
 policy:
   install_mode: user-npm-and-system-apt
   forbid_sudo_npm_global: true
@@ -12,6 +12,8 @@ policy:
   build_concurrency: 1
 bootstrap: scripts/ops/bootstrap-fracta2-dev.sh
 evidence: docs/fracta2-development.md
+shell_profile: profiles/shell/fracta-vps.profile.sh
+shell_install: profiles/shell/install-fracta-vps-shell-profile.sh
 
 tools:
   - id: node

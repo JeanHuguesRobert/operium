@@ -4,14 +4,16 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { loadOnaConfig } from "../lib/node-agent/config.js";
 import { openNodeMemoryDb } from "../lib/node-agent/db.js";
-import { loadEnvFiles } from "../lib/node-agent/job-env.js";
+import { findDuplicateEnvKeys, loadEnvFiles } from "../lib/node-agent/job-env.js";
 import { resolveNodeJobs, resolveScriptPath } from "../lib/node-agent/job-registry.js";
 import { runScheduledJob } from "../lib/node-agent/job-runner.js";
 import {
   createJobScheduler,
   listScheduledJobs,
+  summarizeJobFailure,
   syncScheduledJobs,
 } from "../lib/node-agent/job-scheduler.js";
 import { LATEST_SCHEMA_VERSION } from "../lib/node-agent/migrate.js";
@@ -19,6 +21,8 @@ import { buildNodeStatus } from "../lib/node-agent/status.js";
 
 const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "operium-ona-jobs-"));
 const dbPath = path.join(tmpDir, "node_memory.sqlite");
+const cogentiaRoot = findWorkspaceCogentia(path.dirname(fileURLToPath(import.meta.url)));
+assert.ok(cogentiaRoot, "ONA jobs integration requires the workspace Cogentia checkout");
 
 const mockNode = {
   hostname: "i7-thinkpad-jhr",
@@ -55,6 +59,7 @@ const config = loadOnaConfig({
   ONA_JOBS: "1",
   ONA_JOB_INTERVAL_MS: "60000",
   COGENTIA_BLACKBOARD_URL: "https://example.test/ops/blackboard",
+  OPERIUM_COGENTIA_ROOT: cogentiaRoot,
   HOME: tmpDir,
   USERPROFILE: tmpDir,
 });
@@ -79,6 +84,16 @@ const rotatedEnv = loadEnvFiles(
   { COGENTIA_BLACKBOARD_URL: "https://stale.example.test" },
 );
 assert.equal(rotatedEnv.COGENTIA_BLACKBOARD_URL, "https://example.test/ops/blackboard");
+assert.deepEqual(
+  findDuplicateEnvKeys("TOKEN=first\nexport TOKEN=second\nOTHER=value\n"),
+  ["TOKEN"],
+);
+assert.deepEqual(findDuplicateEnvKeys("TOKEN=single\nOTHER=value\n"), []);
+assert.equal(
+  summarizeJobFailure({ error: "blackboard_upsert_failed", detail: "blackboard_http_401" }),
+  "blackboard_upsert_failed: blackboard_http_401",
+);
+assert.equal(summarizeJobFailure({ detail: "missing_blackboard_upsert_token" }), "missing_blackboard_upsert_token");
 
 const { db, migration } = openNodeMemoryDb({
   dbPath,
@@ -137,3 +152,14 @@ console.log(JSON.stringify({
   migration: LATEST_SCHEMA_VERSION,
   resolved_job_kinds: jobs.map(job => job.job_id),
 }, null, 2));
+
+function findWorkspaceCogentia(start) {
+  let cursor = path.resolve(start);
+  while (true) {
+    const candidate = path.join(cursor, "cogentia");
+    if (fs.existsSync(path.join(candidate, "scripts", "ops", "attractor-heartbeat.js"))) return candidate;
+    const parent = path.dirname(cursor);
+    if (parent === cursor) return null;
+    cursor = parent;
+  }
+}

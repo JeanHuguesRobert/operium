@@ -1,21 +1,47 @@
 ---
-title: "Magistral → coding-agent routing (Guide synthesis)"
-date: "2026-08-24"
+title: Magistral → coding-agent routing (Guide synthesis)
+date: '2026-08-24'
 document_role: operational
 document_kind: method
 visibility: public
 lifecycle_state: active
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "explicit-metadata"
-classification_confidence: "medium"
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: medium
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+update_policy: UP-DEFAULT-REVIEWED
+status: working-paper
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # Magistral → coding-agent routing (Guide synthesis)
 
 **Owner:** Operium (operational state, apply, health).  
 **App code:** Cogentia Guide / MCP, Inseme Magistral, Agent CLI Gateway.  
 **Decision:** [`decisions/magistral-coding-agent-routing.md`](../decisions/magistral-coding-agent-routing.md).
+
+**Topology (since 2026-09-23):** `fracta` is the public TLS/DNS edge only
+(Caddy `cogentia.fractavolta.com` reverse-proxies `@mcp` paths to
+`http://100.84.109.87:8791`, fracta2's Tailscale IP — same pattern already
+used for `browser.fractavolta.com`). `fracta2` (11 GiB RAM / 2 OCPU,
+aarch64) runs the actual `cogentia`, `mcp-cogentia`, `magistral`,
+`agent-gateway`, and `agent-john-whatsapp` services and the Codex ACP
+session. Fracta's own copies of those services are stopped and disabled
+(no automatic failover exists; Caddy's proxy target is static). See
+[Operium issue #55](https://github.com/JeanHuguesRobert/operium/issues/55)
+for the migration record.
 
 ## Observed path (product, until ACP promotion)
 
@@ -36,15 +62,17 @@ Server turns are **stateless**. Conversation continuity is client `history`.
 
 Keep **`COGENTIA_GUIDE_AGENT_GATEWAY=0`** so Guide does not bypass Magistral.
 
-## Fracta local Codex ACP promotion
+## Local Codex ACP promotion (now on fracta2)
 
-When the shared integration test has passed on Fracta, Magistral can directly
+When the shared integration test has passed, Magistral can directly
 mobilize the locally authenticated Codex through ACP. This replaces the
 historical remote Agent CLI Gateway hop for the `fractavolta-guide` tier while
-preserving the same loopback OpenAI-compatible boundary for Cogentia:
+preserving the same loopback OpenAI-compatible boundary for Cogentia. This
+is live on `fracta2` as of 2026-09-23 (previously on `fracta`, before the
+migration recorded in issue #55):
 
 ```text
-Guide → Cogentia daemon → Magistral :8880 → ACP stdio → Codex (Fracta)
+Guide → Cogentia daemon → Magistral :8880 → ACP stdio → Codex (fracta2)
 ```
 
 The service uses an isolated public workspace and an ACP read-only permission
@@ -62,7 +90,29 @@ while Codex is reserved for the synthesis turn. This prevents a short-lived
 planner call from racing the longer synthesis session. Re-enable LLM planning
 only once Magistral has a queue or an independent planning capacity.
 
-Apply from the Fracta checkout after pulling Operium, Inseme and Cogentia:
+### Keep the ACP model catalog aligned
+
+`codex-acp` bundles its own Codex CLI and model catalog. Updating the separate
+`codex` executable does not update that bundle. On 2026-10-27, the installed
+ACP 1.6.2 bundled Codex 0.148.0 and rejected the configured `gpt-6-luna` model
+with `model_not_found`, while the host Codex 0.164.0 catalog included it. The
+Guide was returning a success-shaped response despite that provider failure.
+
+The verified repair installed `@agentclientprotocol/codex-acp` 2.3.0 at the
+helper's pinned path `/usr/local/node-v26.5.0/bin/codex-acp`; its declared
+fallback dependency is Codex 0.164.0. The service explicitly sets
+`CODEX_PATH=/home/ubuntu/.local/bin/codex`, so ACP runs the same Codex 0.164.0
+binary as the host CLI rather than its bundled copy. Keep the active CLI current
+during upgrades. The promotion helper checks only changes to Inseme's Magistral
+runtime files, so unrelated local research edits do not block deployment. It
+also locates Deno under `/home/ubuntu/.local/bin` on the verified Fracta2 host.
+
+After promotion, verify `/service-info` advertises `acp_stdio`, both systemd
+units are active, and a unique Guide SSE turn emits
+`provider.acp.session_update` followed by `synthesis.completed` with
+`model=codex-local`. A cached answer does not verify the provider path.
+
+Apply from the fracta2 checkout after pulling Operium, Inseme and Cogentia:
 
 ```bash
 cd /srv/cogentia/repos/operium
@@ -91,7 +141,7 @@ Canonical template (no secrets):
 | coding-codex-strong | codex | strong | 50 | Strong tier |
 | openai-* | gpt-* | **fallback** | low | Optional; 401 if key bad |
 
-Live file on fracta (not in git):
+Live file on fracta2 (not in git):
 
 ```text
 /etc/cogentia/magistral-openai-map.json
@@ -106,7 +156,7 @@ When **quality over cost** for public Guide synthesis (label remains `fractavolt
 | [`profiles/magistral-map.guide-quality-first.v1.json`](../profiles/magistral-map.guide-quality-first.v1.json) | Primary fast/strong → **`gpt-5.6-sol`**; nano demoted to fallback |
 
 ```bash
-# On fracta
+# On fracta2
 sudo cp /etc/cogentia/magistral-openai-map.json \
   /etc/cogentia/magistral-openai-map.json.bak.$(date -u +%Y%m%dT%H%M%SZ)
 sudo cp /srv/cogentia/repos/operium/profiles/magistral-map.guide-quality-first.v1.json \
@@ -124,7 +174,7 @@ Cost optimization later: re-promote nano / coding nodes to `fast` with higher we
 ### Secret authority (copies vs overrides)
 
 **Operium owns** the operational secret registry and rotation procedures
-([secrets-management.md](secrets-management.md)). Summary for this path:
+(private operator note `docs/secrets-management.md`, not linked from public views). Summary for this path:
 
 | Location | Role |
 |----------|------|
@@ -163,7 +213,16 @@ see [agent-gateway-windows-lifetime.md](agent-gateway-windows-lifetime.md)
 
 ## Apply (operator — via trust perimeter)
 
-Use trusted workstation: `ssh fracta` (see [fracta-trust-perimeter](fracta-trust-perimeter.md)).
+**Since the 2026-09-23 migration ([issue #55](https://github.com/JeanHuguesRobert/operium/issues/55)),
+`magistral.service` and `mcp-cogentia.service` run on `fracta2`, not
+`fracta` — the commands and helper scripts below (still named `*-fracta.sh`,
+not yet renamed) must be run on `fracta2` via
+`ssh fracta2` (Tailscale alias) rather than `ssh fracta`.** `fracta` itself
+now only owns the public Caddy edge and its own local vhosts (Views Store,
+Rhuma, SimpliWiki, mail); see the topology note above.
+
+Use trusted workstation: `ssh fracta` (see [fracta-trust-perimeter](fracta-trust-perimeter.md)),
+then `ssh fracta2` for the actual apply.
 
 ```bash
 # After operium + cogentia repos are current on the node (or scp map from operium)
@@ -181,7 +240,7 @@ sudo /srv/cogentia/repos/cogentia/scripts/ops/fracta-guide-stack.sh restart
 ```
 
 Helper on fracta (after pull): `operium/scripts/ops/apply-magistral-coding-map-fracta.sh`  
-Rotate system bearer: see [secrets-management.md — Rotating COGENTIA_API_KEY](secrets-management.md).
+Rotate system bearer: private operator note `docs/secrets-management.md` (section on rotating `COGENTIA_API_KEY`).
 
 ### Apply + verify (OP-FEAT-001 / issue #10)
 

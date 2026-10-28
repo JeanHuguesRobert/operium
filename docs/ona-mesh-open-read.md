@@ -1,16 +1,32 @@
 ---
-title: "ONA mesh-open read (P1)"
-description: "Unauthenticated GET status/SOMA on Tailscale for La Nasa MIB-lite v0."
+title: ONA mesh-open read (P1)
+description: Unauthenticated GET status/SOMA on Tailscale for La Nasa MIB-lite v0.
 document_role: operational
 document_kind: runbook
 visibility: public
 lifecycle_state: active
-updated: "2026-07-30"
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "explicit-metadata"
-classification_confidence: "medium"
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: medium
+last_modified_at: '2026-07-30'
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+date: '2026-09-15'
+update_policy: UP-DEFAULT-REVIEWED
+status: working-paper
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # ONA mesh-open read (P1)
 

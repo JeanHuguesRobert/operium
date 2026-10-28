@@ -1,17 +1,42 @@
 ---
-document_role: "operational"
-document_kind: "documentation"
-visibility: "public"
-lifecycle_state: "active"
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "documentation"
-classification_confidence: "medium"
+document_role: operational
+document_kind: documentation
+visibility: public
+lifecycle_state: active
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: documentation
+classification_confidence: medium
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+date: '2026-09-15'
+update_policy: UP-DEFAULT-REVIEWED
+status: working-paper
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # Operational health
 
 Operium tracks operational health before it tries to automate monitoring.
+
+### 2026-10-18 — bounded multi-packet consumer test
+
+The Fracta resident ONA test for [Inseme #165](https://github.com/JeanHuguesRobert/inseme/issues/165)
+rejected an invalid grant, executed one authorized fixed mobile diagnostic,
+verified its GitHub receipt and cold-replayed without duplicate execution or
+delivery. The test policy is disabled; ONA remains active after one authorized
+restart. Existing #141 state and unrelated working changes were preserved.
+See the [operator record and recovery](github-packet-consumer.md#verified-resident-reality-test--2026-10-18).
 
 The goal is to make fragility visible, discussable and actionable.
 
@@ -63,3 +88,15 @@ An Operium registry may track health for:
 A low health score is not a failure.
 
 It is a visible operational fact that can be stabilized.
+
+## Fracta mobile diagnostic — observed 2026-10-10
+
+The existing ONA service successfully ran the bounded #141 mobile diagnostic
+and automatically delivered its receipt to GitHub. Status: operational for the
+single admitted packet. ONA active; no automatic restarts observed after the
+planned activation restart. Live repository edits and SSH trust were preserved.
+
+Deployment: Operium `e1d26b4a29d2aa3c88628f9fb3ab3fc4383a6590` in an isolated
+checkout; one script-job opt-in. The one-hour grant expires at 11:06:25.899 UTC
+on 2026-10-10. Expiry prevents further work while retaining claims and receipts.
+[Runbook, evidence and rollback](mobile-termux-diagnostic.md).

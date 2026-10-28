@@ -3,10 +3,188 @@
 # Do not store secret values here.
 
 schema: operium.backlog.v1
-updated_at: "2026-09-01"
+updated_at: "2026-10-28"
 owner: Operium
 
 items:
+  - id: OP-BUG-SERVICE-SELF-PROBE-172
+    kind: bug
+    title: In-process service consumer blocks the parent ONA health endpoint
+    subsystem: ona
+    severity: high
+    status: done
+    evidence: >
+      The first live service172-ona-1 receipt exposed event-loop blocking and
+      remains retained as a spent timeout. Commit 6a4660e isolates the probe in
+      a bounded child process; subsequent ONA and Guide checks returned verified
+      HTTP 200 health receipts. ONA remained active; no further fix is pending.
+    next_action: Preserve the failed receipt and regression test.
+    opened_at: "2026-10-19"
+    closed_at: "2026-10-19"
+    notes: |
+      Issue: https://github.com/JeanHuguesRobert/inseme/issues/172
+  - id: OP-FEAT-SERVICE-CHECK-172
+    kind: feature
+    title: Check named services on demand under reusable bounded grants
+    subsystem: ona
+    priority: p2
+    status: done
+    evidence: >
+      Typed health checks and reusable service-only grants are implemented with
+      catalogue/source pinning, expiry, durable shared budgets and rate limits.
+      The selected seven-day scope checks ONA on Fracta and the public Guide on
+      Fracta2, with twenty total checks and a sixty-second minimum interval.
+      One timeout and two healthy results are retained; 17 checks remain.
+      Cold replay recovered the Guide receipt without a new provider execution.
+      Grant expires 2026-10-25T22:02:04.136Z.
+    next_action: Keep the grant and request issue available through expiry; request a new mandate for any extension.
+    opened_at: "2026-10-18"
+    closed_at: "2026-10-19"
+    notes: |
+      Resume: https://github.com/JeanHuguesRobert/inseme/issues/172
+      Health declarations are not functional or deployed-revision proof.
+      Requests and verified receipts: https://github.com/JeanHuguesRobert/inseme/issues/173
+      Live evidence: docs/evidence/service-check-172.md
+  - id: OP-FEAT-PACKET-165
+    kind: feature
+    title: Consume multiple typed GitHub packets through independent signed grants
+    subsystem: ona
+    priority: p2
+    status: done
+    evidence: >
+      Experimental branch adds an opt-in script adapter to the existing ONA
+      scheduler and COP event store. Local tests cover two provider types,
+      signed admission, concurrent claims, cold recovery and verified callback
+      semantics. The authorized 2026-10-18 resident Reality Test rejected an
+      invalid signature, executed once, verified its GitHub callback and cold
+      replayed without another effect. The test policy is now disabled.
+    next_action: >
+      Acceptance criteria are evidenced; preserve the retained store and disabled
+      policy. Optional authenticated push wake is tracked separately in Inseme #166.
+    opened_at: "2026-10-18"
+    closed_at: "2026-10-18"
+    notes: |
+      Parent packet: https://github.com/JeanHuguesRobert/inseme/issues/165
+      Principal authorized redeployment and main convergence on 2026-10-18.
+      The inherited #141 grant remains expired and was not reused.
+      Acceptance audit: https://github.com/JeanHuguesRobert/inseme/issues/165
+  - id: OP-FEAT-PACKET-WAKE-166
+    kind: feature
+    title: Connect authenticated GitHub ingress to the existing packet job
+    subsystem: ona
+    priority: p2
+    status: open
+    evidence: >
+      The #165 API consumer passed its bounded live acceptance. The existing
+      signed ingress is not connected to scheduled_jobs. COP wake currently
+      creates calendar obligations, not an existing script-job wake.
+    next_action: >
+      Inspect authenticated ingress-to-ONA reachability, then implement durable
+      deduplication and scheduling hints without losing wakes during execution.
+      Preserve independent grants and polling repair; obtain scoped live authority.
+    opened_at: "2026-10-18"
+    closed_at: null
+    notes: |
+      Resume: https://github.com/JeanHuguesRobert/inseme/issues/166
+      Preferred push optimization, not an unfulfilled #165 acceptance criterion.
+  - id: OP-BUG-010
+    kind: bug
+    title: Hosted Browser listener health does not establish functional HTTPS or RFB recovery
+    subsystem: hosted-browser
+    severity: high
+    status: open
+    evidence: >
+      Cogentia issue 263 reports an RFB connect failure despite a listening
+      x11vnc process on 2026-10-18. At 16:17 UTC, RFB accept queue was 33/32
+      and 14 TCP connections were established; local and forwarded RFB probes
+      timed out. One authorized RFB-only restart at 21:20 UTC restored local
+      and forwarded protocol banners and emptied the accept queue. HTTPS local
+      and public returned 401. Authenticated VNC handshake was rejected;
+      framebuffer usability remains unverified.
+      Source inspection of Operium commit 6076f0b confirms that the local
+      health script checks only HTTP status and restarts without a functional
+      postcondition. Its SHA-256 matches the deployed script exactly;
+      it remains absent from main at 22695ff. See the recovery contract receipt.
+    next_action: >
+      Follow docs/hosted-browser-recovery-contract.md: inspect authorized
+      credential provisioning and deployed RFB process arguments; prepare a
+      minimal correction and obtain fresh authority before another production
+      mutation. One restart was used. Require authenticated framebuffer and
+      parent-session postconditions before closing this bug.
+    blocks_features: true
+    opened_at: "2026-10-18"
+    closed_at: null
+    notes: |
+      Parent packet: https://github.com/JeanHuguesRobert/cogentia/issues/263
+      Probe/eligibility corrections delivered. One authorized RFB-only restart
+      restored protocol responsiveness; authenticated VNC validation failed.
+      No deployment was performed. Existing observe nodes remains service-only.
+
+  - id: OP-BUG-011
+    kind: bug
+    title: Magistral ACP bundle rejects the active Codex model catalog
+    subsystem: magistral
+    severity: high
+    status: done
+    evidence: >
+      On 2026-10-27, Guide synthesis reached local ACP but codex-acp 1.6.2
+      (bundled Codex 0.148.0) rejected gpt-6-luna with model_not_found although
+      the host Codex 0.164.0 catalog included it. Installed codex-acp 2.3.0,
+      set CODEX_PATH to the sole active host CLI (0.164.0), corrected the helper's
+      Deno path and narrowed its dirty-check to runtime files. Magistral and
+      mcp-cogentia are active; a unique public Guide SSE turn emitted
+      provider.acp.session_update and synthesis.completed with model=codex-local.
+    next_action: Keep the active host Codex CLI current and verify an uncached Guide SSE turn after upgrades.
+    blocks_features: false
+    opened_at: "2026-10-27"
+    closed_at: "2026-10-27"
+    notes: |
+      The independent Guide response-contract correction is tracked as OP-BUG-012.
+
+  - id: OP-BUG-012
+    kind: bug
+    title: Guide presents provider diagnostic content as a successful synthesis
+    subsystem: magistral
+    severity: high
+    status: done
+    evidence: >
+      Cogentia commit 2cdde83 validates successful HTTP completions, rejects
+      empty/error-bearing responses and the observed Codex model_not_found
+      diagnostic, suppresses that diagnostic from streamed deltas, and aligns
+      the SSE terminal event with the actual fallback result. The focused
+      check-guide-http.js regression check passed for JSON and SSE paths. The
+      updated mcp-cogentia service is active and local /guide/health returned
+      HTTP 200 with chat available on 2026-10-27.
+    next_action: Keep the JSON/SSE provider-diagnostic regression case in the focused Guide check.
+    blocks_features: false
+    opened_at: "2026-10-27"
+    closed_at: "2026-10-27"
+    notes: |
+      Invalid provider output now enters the existing explicit fallback path;
+      a fallback answer is tagged as such and does not masquerade as a normal
+      conversational synthesis.
+
+  - id: OP-DEBT-001
+    kind: debt
+    title: Cogentia R1 Level-2 evidence residue awaits integration
+    subsystem: docs
+    status: open
+    evidence: >
+      Cogentia PR #149 remains open with the R1 Level-2 residue note. That note
+      records the 2026-09-02 re-run at commit 6a3cc79: the resumption test passed
+      while orientation ran a second time, and step_budget was classified as
+      exhausted. Cogentia issue #150 remains open and bounds this work to
+      integrating the evidence note, not reopening the scheduler project.
+    next_action: >
+      Review and integrate Cogentia PR #149; then reassess this item against
+      the integrated note and current source evidence.
+    opened_at: "2026-10-28"
+    closed_at: null
+    notes: |
+      Cogentia follow-up: https://github.com/JeanHuguesRobert/cogentia/pull/149
+      Resume handle: https://github.com/JeanHuguesRobert/cogentia/issues/150
+      Do not treat this historical re-run as a current runtime observation.
+
   # ── Bugs (fix first) ─────────────────────────────────────────────
 
   - id: OP-BUG-001
@@ -185,26 +363,56 @@ items:
     title: Public Cogentia Guide and aggregator reachability is broken
     subsystem: magistral-routing
     severity: critical
-    status: open
+    status: closed
     evidence: >
       2026-09-01 operium up --json observed the critical Cogentia path as
-      broken: https://cogentia.fractavolta.com/ops/status was unreachable and
-      the remote MCP and Guide probes failed. The local tailnet observer was
-      unavailable to the execution context, so this evidence does not yet
-      localize the fault to public ingress, the fracta Guide/MCP process, or
-      aggregator routing.
+      broken from an observer without usable tailnet or HTTPS socket access.
+      2026-09-21 direct Fracta checks observed mcp-cogentia.service active,
+      local /ops/status HTTP 200, public /ops/status HTTP 200, and public
+      /guide/health HTTP 200. The original signal therefore localized to the
+      Windows execution context, not to public ingress or the Fracta service.
     next_action: >
-      Establish the failing plane, restore the existing public baseline with
-      operation receipts and public smoke checks, then perform the separately
-      governed Agent John V2 feature-flag rollout and rollback observation.
+      Reopen only on direct Fracta or independent public smoke-check failure.
+      Agent John V2 feature-flag rollout remains separately governed.
     github_issue: 42
-    blocks_features: true
+    blocks_features: false
     opened_at: "2026-09-01"
+    closed_at: "2026-09-21"
+    notes: |
+      Related Cogentia #123 / PR #143 and Inseme PR #60 establish only the
+      tested contract and reversible surface bridge; they are not live V2
+      deployment evidence.
+  - id: OP-INC-001
+    kind: incident
+    title: Insider feature updates blocked by legacy printer driver packages
+    subsystem: tooling
+    severity: medium
+    status: in_progress
+    evidence: >
+      2026-09-10 workstation evidence: Windows Update repeatedly failed Insider
+      feature updates (26340.9233, then 28020.2207). Panther compatibility
+      output marked Microsoft printer packages oem66.inf (prnms009.inf) and
+      oem67.inf (prnms001.inf) as BlockMigration=True with unsigned binaries.
+      Earlier outcomes included 0xC1900101, 0xC0000005, and 0x800704C7.
+      oem67.inf was associated with the unused Microsoft XPS Document Writer;
+      its queue and visible PnP instance were removed, but the driver-store
+      deletion still reported a remaining device reference. A full hidden-device
+      query returned no current oem67.inf binding.
+    next_action: >
+      Restart Windows to release stale Plug-and-Play state; retry deletion of
+      oem67.inf without /force and verify the driver store. Then identify the
+      current binding of oem66.inf before changing it, and retry the Insider
+      update only after both migration blockers are resolved or consciously
+      retained.
+    github_issue: null
+    blocks_features: false
+    opened_at: "2026-09-10"
     closed_at: null
     notes: |
-      Blocks live activation of COGENTIA_REASONING_LOOP_V2. Related Cogentia
-      #123 / PR #143 and Inseme PR #60 establish only the tested contract and
-      reversible surface bridge; they are not live deployment evidence.
+      Do not force-delete driver packages. No printer credential or other secret
+      is recorded. A clean Windows Update download cache and free-space recovery
+      preceded this investigation; the compatibility scan is the present lead,
+      not proof that every later update failure has the same cause.
 
   # ── Features (blocked by subsystem bugs when severity high+) ─────
 
@@ -382,3 +590,15 @@ items:
     github_issue: 40
     opened_at: "2026-08-31"
     closed_at: "2026-08-31"
+
+  - id: OP-FEAT-MOBILE-141
+    kind: feature
+    title: Typed mobile diagnostic through existing ONA and Fracta SSH
+    subsystem: ona
+    priority: p2
+    status: done
+    evidence: "https://github.com/JeanHuguesRobert/inseme/issues/141"
+    next_action: "Resident execution and automatic GitHub receipt verified. Future requests require a separate pinned grant."
+    opened_at: "2026-10-10"
+    closed_at: "2026-10-10"
+    notes: "Authorized isolated Fracta deployment; ONA restarted once. Receipt issuecomment-6096412473. No SSH trust changes. One-hour grant."

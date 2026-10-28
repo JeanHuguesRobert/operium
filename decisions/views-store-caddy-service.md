@@ -1,5 +1,5 @@
 ---
-title: "Views Store — Cogentia published views served via Caddy"
+title: Views Store — Cogentia published views served via Caddy
 author: jhrobert
 date: '2026-07-21'
 document_role: source
@@ -18,7 +18,11 @@ review:
   reviewed_by: []
 decision_type: operational
 status: accepted
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
 ---
+
 
 # Views Store — Cogentia Published Views
 

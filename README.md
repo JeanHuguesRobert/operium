@@ -16,7 +16,16 @@ provenance:
 review:
   status: unreviewed
   reviewed_by: []
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: explicit-metadata
+classification_confidence: strong
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+status: working-paper
 ---
+
 
 # Operium
 
@@ -73,6 +82,20 @@ decisions/    Architecture Decision Records
 - [`docs/cogentia-agent-indexing-roadmap.md`](docs/cogentia-agent-indexing-roadmap.md) defines the agile roadmap for stable indexes, branch overlays and agent-facing retrieval.
 - [`docs/operia.md`](docs/operia.md) defines the future AI-assisted layer.
 - [`decisions/ADR-0001-operium-scope.md`](decisions/ADR-0001-operium-scope.md) records the initial scope decision.
+
+## Run the CLI locally
+
+After a fresh checkout, install the locked root dependencies once before
+running the CLI directly with Node:
+
+```bash
+npm ci
+node bin/operium.js backlog gate --subsystem ona
+```
+
+The dependency directory is intentionally ignored by Git. If a direct Node
+command reports `ERR_MODULE_NOT_FOUND` for a package such as `yaml`, rerun
+`npm ci` from the repository root; do not install the dependency globally.
 
 ## Operia
 

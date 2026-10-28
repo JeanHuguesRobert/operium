@@ -1,13 +1,29 @@
 ---
-document_role: "operational"
-document_kind: "documentation"
-visibility: "public"
-lifecycle_state: "active"
-classification_source: "cogentia.js"
-classification_version: "1"
-classification_rule: "documentation"
-classification_confidence: "medium"
+document_role: operational
+document_kind: documentation
+visibility: public
+lifecycle_state: active
+classification_source: cogentia.js
+classification_version: '1'
+classification_rule: documentation
+classification_confidence: medium
+license: CC BY-SA 4.0
+affiliation: Institut Mariani / C.O.R.S.I.C.A., 1 cours Paoli, F-20250 Corte, Corsica
+language: en
+date: '2026-09-15'
+update_policy: UP-DEFAULT-REVIEWED
+status: working-paper
+review:
+  status: unreviewed
+  reviewed_by: []
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
 ---
+
 
 # Operium Node Agent — fleet install
 
@@ -202,7 +218,7 @@ sudo tee /srv/cogentia/secrets/ona-heartbeat.env <<'EOF'
 COGENTIA_BLACKBOARD_UPSERT_TOKEN=<shared-token>
 COGENTIA_OPS_STATE_DIR=/var/lib/cogentia/.ops
 COGENTIA_BLACKBOARD_URL=http://100.91.12.74:8791
-ONA_ATTRACTOR_TAILSCALE_IP=100.108.221.96
+ONA_ATTRACTOR_TAILSCALE_IP=100.84.109.87
 ONA_HOSTNAME=fracta2
 EOF
 sudo chmod 600 /srv/cogentia/secrets/ona-heartbeat.env
@@ -221,6 +237,23 @@ Mirrors fracta `operium-node-agent.service` — **node.exe via NSSM**, no PowerS
 **Why not PowerShell for the daemon?** On this host, `pwsh` with profile loads miniconda (`Documents\PowerShell\profile.ps1`) and adds ~30s per invocation; `pwsh -NoProfile` is ~3s vs **node ~2s**. The service therefore runs `node bin/operium-node-agent.js` directly; env vars come from `ona.env` via NSSM `AppEnvironmentExtra`.
 
 1. **Secrets** — `C:\Users\admin\.cogentia\secrets\ona.env` and `ona-blackboard.env` (see catalogue `operium_node_agent` stanza). Ensure `COGENTIA_OPS_STATE_DIR` is set in `ona.env` (required when service runs as LocalSystem).
+
+   Blackboard authority remains the Fracta runtime projection of `inseme/.env`;
+   Windows heartbeat projections are `ona-blackboard.env`,
+   `agent-gateway-blackboard.env`, and `attractor-i7-thinkpad-jhr.env`. Keep
+   exactly one `COGENTIA_BLACKBOARD_UPSERT_TOKEN` declaration in each file.
+   The job runner reloads those files for every three-minute heartbeat, so a
+   content-only correction does not require restarting NSSM. Validate their
+   structure without printing values:
+
+   ```powershell
+   node C:\tweesic\operium\scripts\validate-env-keys.js `
+     --file $env:USERPROFILE\.cogentia\secrets\ona-blackboard.env `
+     --file $env:USERPROFILE\.cogentia\secrets\agent-gateway-blackboard.env `
+     --file $env:USERPROFILE\.cogentia\secrets\attractor-i7-thinkpad-jhr.env
+   ```
+
+   The NSSM installer runs this validation before it replaces the service.
 
 2. **ONA daemon** — install Windows Service (elevated pwsh):
 

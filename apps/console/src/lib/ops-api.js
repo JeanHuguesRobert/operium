@@ -3,6 +3,11 @@ const OPS_BASE = String(viteEnv.VITE_COGENTIA_OPS_BASE_URL || "").replace(/\/$/,
 const VIEWS_BASE = String(viteEnv.VITE_COGENTIA_VIEWS_BASE_URL || "").replace(/\/$/, "");
 const TOKEN_STORAGE_KEY = "operium.ops.token";
 export const FIX_BUGS_FIRST_DASHBOARD_PATH = "/views/fix-bugs-first-dashboard.json?raw";
+export const FIX_BUGS_FIRST_DASHBOARD_HTML_PATH = "/views/fix-bugs-first-dashboard.html?raw";
+
+export function fixBugsFirstHtmlUrl() {
+  return `${VIEWS_BASE}${FIX_BUGS_FIRST_DASHBOARD_HTML_PATH}`;
+}
 
 function runtimeOpsToken() {
   try {
