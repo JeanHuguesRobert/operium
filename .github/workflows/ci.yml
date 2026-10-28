@@ -47,7 +47,7 @@ jobs:
         continue-on-error: true
         working-directory: operium
         run: |
-          node ../inseme/scripts/ops/supervise-result.js --out ci-evidence/operium-install --phase install -- npm ci
+          node scripts/ops/supervise-ci-result.js --out ci-evidence/operium-install --phase install -- npm ci
           node -e 'const r=require("./ci-evidence/operium-install/result.json");process.exit(r.passed?0:1)'
 
       - name: Install Cogentia runtime dependencies (supervised)
@@ -56,7 +56,7 @@ jobs:
         working-directory: operium
         if: steps.operium-install.outcome == 'success'
         run: |
-          node ../inseme/scripts/ops/supervise-result.js --out ci-evidence/cogentia-install --phase install -- pnpm --dir ../cogentia install --prod --frozen-lockfile --ignore-scripts
+          node scripts/ops/supervise-ci-result.js --out ci-evidence/cogentia-install --phase install -- pnpm --dir ../cogentia install --prod --frozen-lockfile --ignore-scripts
           node -e 'const r=require("./ci-evidence/cogentia-install/result.json");process.exit(r.passed?0:1)'
 
       - name: Run tests (supervised)
@@ -65,7 +65,7 @@ jobs:
         if: steps.operium-install.outcome == 'success' && steps.cogentia-install.outcome == 'success'
         id: tests
         run: |
-          node ../inseme/scripts/ops/supervise-result.js --out ci-evidence/tests --phase test -- npm test
+          node scripts/ops/supervise-ci-result.js --out ci-evidence/tests --phase test -- npm test
           node -e 'const r=require("./ci-evidence/tests/result.json");process.exit(r.passed?0:1)'
 
       - name: Preserve install and test outcomes
