@@ -2,6 +2,7 @@ name: Remote validation worker conformance
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     branches: [main]
     paths:
       - 'scripts/ops/remote-validation-worker.py'
@@ -24,6 +25,8 @@ permissions:
 
 jobs:
   conformance:
+    # Draft pull requests are unstable; manual runs and main pushes still run.
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft != true
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout Operium

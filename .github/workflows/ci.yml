@@ -4,11 +4,14 @@ on:
   push:
     branches: [main]
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     branches: [main]
   workflow_dispatch: {}
 
 jobs:
   test:
+    # Draft pull requests are unstable; manual runs and main pushes still run.
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft != true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout operium
