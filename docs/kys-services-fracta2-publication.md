@@ -134,7 +134,8 @@ node apps/platform/scripts/promote-cloudflare-dns-to-jhn-vault.js
 node apps/platform/scripts/promote-cloudflare-dns-to-jhn-vault.js --apply
 ```
 
-The first operation is read-only. The second promotes **only** `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_API_KEY` and optional `CLOUDFLARE_EMAIL` if present. It ensures target JHN project ref, checks for value conflicts before any mutation, writes `is_secret=true, is_public=false`, and never prints credentials. This deliberately avoids syncing the entire workstation environment or clearing unrelated secrets. Fetch the latest Inseme code before executing on ThinkPad.
+The first operation is read-only. The second now promotes **all nonempty `CLOUDFLARE_*` keys** from the trusted workstation `.env`, rather than only the DNS token. This includes the account ID, DNS API key, and R2 access key ID/secret/endpoint, plus any subsequently introduced Cloudflare-prefixed credentials. Keys are mapped mechanically to lowercase `instance_config` names (e.g. `CLOUDFLARE_S3_SECRET_ACCESS_KEY` → `cloudflare_s3_secret_access_key`). It checks the JHN project, detects all conflicts before writing, sets `is_secret=true, is_public=false` for every promoted key and verifies each write without printing values. **It does not synchronize any non-Cloudflare provider or erase old keys.** If existing values differ, it refuses overwriting until reconciled. Fetch latest Inseme `main` before running on ThinkPad.
+
 
 Then, from an **authorized environment** with JHN Vault service-role access, run Operium's DNS provisioner in dry-run and `--apply`, followed by DNS verification. The first delegated Fracta2 shell has no Cloudflare DNS key and no JHN service-role access; no DNS creation has occurred in this session.
 
