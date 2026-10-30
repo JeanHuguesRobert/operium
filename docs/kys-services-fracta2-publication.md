@@ -106,6 +106,20 @@ services.acorsica.org {
 
 Reuse the edge's current TLS/certificate/ACME policy and routing conventions. Do not open 443 on Fracta2. Do not make `tls_insecure_skip_verify` a new dependency for a static site.
 
+## Repeatable Cloudflare credential resolution (2026-10-30)
+
+The Agent JHN application vault is **JHN Supabase `public.instance_config`**, distinct from the empty native `vault.secrets` extension. The canonical code is in Inseme's configuration/vault tooling; operational policy belongs in `operium/docs/secrets-management.md`.
+
+Authenticated metadata checks found 156 JHN `instance_config` rows, but **no Cloudflare credential entry**. Thus the previous assumption that the DNS credential is already stored in that vault is not supported by the current database. Historical DNS updates used an existing credential in the trusted operator workstation's `inseme/.env`; Fracta2's delegated runtime did not expose that credential.
+
+The script `scripts/provision-kys-services-dns.mjs` now supports two non-disclosing credential sources:
+1. An authorized process environment with a Cloudflare API token, including the historical credential name.
+2. A fallback direct lookup in JHN `instance_config`, authenticated by JHN's Supabase service-role configuration. It requires an existing Cloudflare key row.
+
+For future agents: first check **credential presence by key name only**, never print secret values. If absent, synchronize the **specific** credential from the existing workstation source through Inseme's authorized vault synchronization, rather than copying an entire environment or creating another uncontrolled secret. Then dry-run the idempotent provisioner, apply, and verify Cloudflare and DNS responses. A DNS record does not by itself activate HTTPS; the Fracta edge and Fracta2 origin remain separate steps.
+
+**Current state: credential unresolved, CNAME not created.** See Operium issue #76.
+
 ## DNS (not applied)
 
 In the existing `acorsica.org` DNS zone (documented as Cloudflare DNS-only), provision only after authorized controls and edge readiness:
