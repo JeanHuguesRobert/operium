@@ -42,6 +42,18 @@ Read-only inspection on 2026-10-30:
 - Caddy's current configuration on Fracta2 validated successfully. The local origin returned 200 for the existing Capable/PrivAI/Commons vhosts.
 - Read-only tool access to Fracta2 is available, but the delegated shell has no `sudo` privileges (no_new_privileges). Production writes, Caddy reload, DNS and certificates must go through the existing **Operium** control plane or the appropriate authorized operator.
 
+## Apex versus subdomain: verified routing decision (2026-10-30)
+
+The Principal offered `https://acorsica.org/services` as a possible simpler alternative. Live probes disprove that it is simpler **for a direct Fracta2 publication**:
+
+- `acorsica.org` resolves to GitHub Pages addresses (sample `185.199.108.153`); `https://acorsica.org/` responds 200 with `Server: GitHub.com`.
+- `https://acorsica.org/services` returns 404 from GitHub Pages.
+- `www.acorsica.org` is also GitHub Pages and redirects to the apex.
+- Fracta2's origin Caddy has no apex host route; probing the apex against origin port 80 did not deliver the apex site.
+- By contrast, `privai.acorsica.org` is served through the established Fracta→Fracta2 Caddy topology.
+
+**Decision:** retain `services.acorsica.org` as the direct Fracta2 deployment target. An optional discovery link or HTTP redirect at `acorsica.org/services` can be published through the **existing GitHub Pages website source**, but that is a separate change to the apex site, not an ingress for Fracta2. Do not replace apex DNS, move the entire main website, or assume path-based routing on the Fracta edge without deliberate migration.
+
 ## Target request path
 
 ```text
