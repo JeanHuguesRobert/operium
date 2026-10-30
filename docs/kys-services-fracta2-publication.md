@@ -118,7 +118,7 @@ The script `scripts/provision-kys-services-dns.mjs` now supports two non-disclos
 
 For future agents: first check **credential presence by key name only**, never print secret values. If absent, synchronize the **specific** credential from the existing workstation source through Inseme's authorized vault synchronization, rather than copying an entire environment or creating another uncontrolled secret. Then dry-run the idempotent provisioner, apply, and verify Cloudflare and DNS responses. A DNS record does not by itself activate HTTPS; the Fracta edge and Fracta2 origin remain separate steps.
 
-**Current state: credential unresolved, CNAME not created.** See Operium issue #76.
+**Current state updated 2026-10-30: credentials populated in JHN Vault; CNAME created and publicly resolving; HTTPS and site deployment pending.** See Operium issue #76.
 
 ## Targeted ThinkPad → JHN vault promotion (2026-10-30)
 
@@ -137,9 +137,26 @@ node apps/platform/scripts/promote-cloudflare-dns-to-jhn-vault.js --apply
 The first operation is read-only. The second now promotes **all nonempty `CLOUDFLARE_*` keys** from the trusted workstation `.env`, rather than only the DNS token. This includes the account ID, DNS API key, and R2 access key ID/secret/endpoint, plus any subsequently introduced Cloudflare-prefixed credentials. Keys are mapped mechanically to lowercase `instance_config` names (e.g. `CLOUDFLARE_S3_SECRET_ACCESS_KEY` → `cloudflare_s3_secret_access_key`). It checks the JHN project, detects all conflicts before writing, sets `is_secret=true, is_public=false` for every promoted key and verifies each write without printing values. **It does not synchronize any non-Cloudflare provider or erase old keys.** If existing values differ, it refuses overwriting until reconciled. Fetch latest Inseme `main` before running on ThinkPad.
 
 
-Then, from an **authorized environment** with JHN Vault service-role access, run Operium's DNS provisioner in dry-run and `--apply`, followed by DNS verification. The first delegated Fracta2 shell has no Cloudflare DNS key and no JHN service-role access; no DNS creation has occurred in this session.
+Then, from an **authorized environment** with JHN Vault service-role access, run Operium's DNS provisioner in dry-run and `--apply`, followed by DNS verification. The delegated Fracta2 shell lacks direct key/service-role access; the DNS record was created instead through an authenticated, secret-safe Supabase SQL/HTTP operation as described below.
 
-## DNS (not applied)
+## Deployment receipt: Cloudflare DNS created (2026-10-30)
+
+**DNS completed; HTTPS application not yet deployed.** The five `CLOUDFLARE_*` keys were synced from the trusted ThinkPad into JHN Supabase `public.instance_config` and verified by a read-only metadata query: all present, `is_secret=true`, `is_public=false`. No secret values were printed.
+
+**Reusable secure provider-call method:** The JHN Supabase database has the `extensions.http` extension. An authorized Supabase SQL session can construct the Cloudflare `Authorization: Bearer` header **inside the SQL executor** from `instance_config.value`, and call Cloudflare's HTTPS API with `extensions.http(row(method,uri,headers,content_type,body)::extensions.http_request)`. Neither SQL text nor returned result need to contain the secret. Use a narrowly scoped SQL query that:
+1. Validates the presence and privacy classification of `cloudflare_api_key` in `public.instance_config`.
+2. GETs active zone `acorsica.org` and requires exactly one match.
+3. GETs the exact DNS name `services.acorsica.org`, aborting on an existing conflicting record.
+4. POSTs only `{"type":"CNAME","name":"services.acorsica.org","content":"fracta.fractavolta.com","proxied":false,"ttl":1}`.
+5. Returns only HTTP code, provider `success` flag and public DNS record fields; never `value`, request headers or a full provider response.
+
+**Observed:** zone GET HTTP 200, one active zone; name GET HTTP 200, zero preexisting entries; POST HTTP 200, `success=true`, returned CNAME `services.acorsica.org -> fracta.fractavolta.com`, `proxied=false`. Public Cloudflare and Google DNS-over-HTTPS resolvers both returned the CNAME, TTL 300; local resolver gave `82.70.234.207`.
+
+**Important:** direct `https://services.acorsica.org/` returned a TLS alert (handshake failed), as the Fracta public Caddy HTTPS vhost and/or certificate is **not yet configured**. Fracta2 Caddy virtual host and static release have not been provisioned. No regression/production readiness claim follows from DNS success.
+
+The script `scripts/provision-kys-services-dns.mjs` remains a valid alternative when credentials are available inside an operator process. Supabase `extensions.http` provided a secure alternative to copying credentials into a remote shell invocation. This path requires a privileged, specifically authorized Supabase session; it must not be exposed as an unauthenticated RPC or broad public API.
+
+## DNS (completed; HTTPS not yet configured)
 
 In the existing `acorsica.org` DNS zone (documented as Cloudflare DNS-only), provision only after authorized controls and edge readiness:
 
