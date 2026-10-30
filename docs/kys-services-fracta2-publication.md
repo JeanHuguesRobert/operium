@@ -189,6 +189,43 @@ The KYS/SERENIA public entry paths are static, with **no Netlify dependency** fo
 
 The existing waitlist optionally uses `VITE_SUPABASE_*` and environment-gated `VITE_WAITLIST_MODE`; it remains intentionally **closed** if not fully configured. Never include service-role keys or private secrets in a Vite public build. The issue of email consent/double opt-in is separately deferred at Cogentia #297. No live lead submission belongs in this deployment check without specific authorization.
 
+## Build staged and validated on Fracta2 (2026-10-30)
+
+**New verified progress:** Cogentia PR #296 at `25b5e99c631ea9e86a28e90afa6134b80dd8476c`, last GitHub Actions run `41117587638` success. Fracta2 fetched the branch into an isolated worktree and successfully ran `pnpm install --frozen-lockfile --offline`, `node scripts/check-kys-services.mjs` (PASS), and `pnpm --filter @cogentia/personal build` (PASS). Chromium exercised `/services` and `/rights` at desktop and mobile widths, 4/4 PASS. Dist bundle is roughly 629 kB and resides on Fracta2 at:
+
+```text
+/srv/cogentia/kys-services-staging/source/apps/personal/dist
+```
+
+The test preview server was stopped. **This is a staging build, not a public deployment**. The installed Caddy service remains active; `/srv/www/kys-services` does not exist yet and public HTTPS still returns a TLS handshake alert.
+
+Versioned, dry-run-first rollout scripts have been added in Operium:
+
+- `scripts/deploy-kys-services-origin-fracta2.sh` — **run on Fracta2**, uses staged dist, creates `/srv/www/kys-services/releases/<SHA>` and atomic `current` symlink, isolated Caddy vhost in `Caddyfile.d`, validates the combined config, reloads Caddy, checks SPA and manifest URLs, requires authorized root privileges and explicit `--apply`.
+- `scripts/deploy-kys-services-edge-fracta.sh` — **run on Fracta**, preflights the origin before adding a new public HTTPS virtual host to its Caddyfile, validates candidate, preserves the previous config for rollback and reloads; requires authorized root and explicit `--apply`.
+
+Both scripts passed `bash -n` when retrieved from GitHub. The **origin script also passed its dry-run on Fracta2**, resolving the exact staged commit/path. No live routing was altered.
+
+**Control boundary:** the delegated Fracta2 shell runs as user `ubuntu` with `no_new_privileges` preventing sudo; `/srv/www` and `/etc/caddy/Caddyfile.d` are root-owned and not writable. Outbound SSH to Fracta via ports 22 and 1022 is unavailable. Thus **neither production `--apply` was executable through this delegated tool**. Do not attempt permission escalation or claim a public site deployment. Execution requires the existing privileged Operium/operator control plane on the relevant host.
+
+Authorized operator sequence, after fetching Operium main:
+```bash
+# Fracta2 — staged build verified above
+bash scripts/deploy-kys-services-origin-fracta2.sh
+sudo bash scripts/deploy-kys-services-origin-fracta2.sh --apply
+
+# Fracta — only after origin HTTP Host checks PASS
+bash scripts/deploy-kys-services-edge-fracta.sh
+sudo bash scripts/deploy-kys-services-edge-fracta.sh --apply
+
+# Final user-visible acceptance
+curl -I https://services.acorsica.org/services
+curl -I https://services.acorsica.org/rights
+curl -I https://services.acorsica.org/kys-services.json
+```
+
+Check unrelated `privai`, `commons`, and `capable` hosts after applying. Do not read this block as an assertion that `sudo` is available from this session.
+
 ## Go/no-go criteria
 
 1. Reviewed source SHA + green CI, origin Caddy syntax validation and manifest tests; browser desktop/mobile emulation and copy operation.
