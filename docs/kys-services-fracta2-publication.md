@@ -120,6 +120,24 @@ For future agents: first check **credential presence by key name only**, never p
 
 **Current state: credential unresolved, CNAME not created.** See Operium issue #76.
 
+## Targeted ThinkPad → JHN vault promotion (2026-10-30)
+
+**Root cause found:** Inseme's existing `sync-secrets.js` mapping includes `CLOUDFLARE_TUNNEL_TOKEN`, but not the *Cloudflare DNS API credential*. Consequently the documented broad `--apply --vault` sync does not promote this DNS key. The JHN vault currently has no Cloudflare DNS slot.
+
+Use the narrowly scoped, reviewed script in Inseme:
+`apps/platform/scripts/promote-cloudflare-dns-to-jhn-vault.js`.
+
+On the **trusted ThinkPad**, with its original `inseme/.env` and an authorized JHN Supabase service-role credential:
+
+```sh
+node apps/platform/scripts/promote-cloudflare-dns-to-jhn-vault.js
+node apps/platform/scripts/promote-cloudflare-dns-to-jhn-vault.js --apply
+```
+
+The first operation is read-only. The second promotes **only** `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_API_KEY` and optional `CLOUDFLARE_EMAIL` if present. It ensures target JHN project ref, checks for value conflicts before any mutation, writes `is_secret=true, is_public=false`, and never prints credentials. This deliberately avoids syncing the entire workstation environment or clearing unrelated secrets. Fetch the latest Inseme code before executing on ThinkPad.
+
+Then, from an **authorized environment** with JHN Vault service-role access, run Operium's DNS provisioner in dry-run and `--apply`, followed by DNS verification. The first delegated Fracta2 shell has no Cloudflare DNS key and no JHN service-role access; no DNS creation has occurred in this session.
+
 ## DNS (not applied)
 
 In the existing `acorsica.org` DNS zone (documented as Cloudflare DNS-only), provision only after authorized controls and edge readiness:
