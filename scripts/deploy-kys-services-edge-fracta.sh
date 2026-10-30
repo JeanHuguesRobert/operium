@@ -49,7 +49,7 @@ services.acorsica.org {
     reverse_proxy http://100.84.109.87:80
 }
 EOF
-caddy validate --config "$candidate" || { echo "BLOCKED: candidate config invalid"; exit 2; }
+caddy validate --config "$candidate" --adapter caddyfile || { echo "BLOCKED: candidate config invalid"; exit 2; }
 cp -p "$CADDYFILE" "$backup"
 cp "$candidate" "$CADDYFILE"
 if ! systemctl reload caddy; then
