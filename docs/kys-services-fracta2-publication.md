@@ -27,6 +27,10 @@ review:
 
 # KYS Services — Fracta2 publication plan
 
+> **ARCHITECTURE SUPERSEDED — 2026-10-30.** The Principal decided to retire broken Fracta and move the **public HTTPS edge to Fracta2**. The historical two-tier Fracta→Fracta2 routing plan below is retained as provenance, **not as the current procedure**. Do **not** execute `scripts/deploy-kys-services-edge-fracta.sh`. The migration authority is [Operium #77](https://github.com/JeanHuguesRobert/operium/issues/77). Fracta2's OCI VNIC currently reports `publicIp: null`; first provision/verify public ingress, then configure its own Caddy for HTTPS and migrate DNS as a coordinated batch. The validated KYS build staged on Fracta2 remains reusable. No active site cutover has happened.
+
+
+
 ## Deployment decision and current observations
 
 **Intent:** publish Cogentia Personal's KYS Services and Serenia/RSA routes on the noncommercial public-interest hostname `services.acorsica.org`, without Netlify. The application is a React/Vite static SPA for these paths. **This document is a plan, not a deployment receipt.**
