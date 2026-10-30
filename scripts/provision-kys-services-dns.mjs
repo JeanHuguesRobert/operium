@@ -15,15 +15,52 @@ const apply = process.argv.includes('--apply')
 const token = process.env.CLOUDFLARE_API_TOKEN || process.env.CF_API_TOKEN
 const legacyKey = process.env.CLOUDFLARE_API_KEY
 const legacyEmail = process.env.CLOUDFLARE_EMAIL
-const headers = token
+
+// The Agent JHN "Vault" is public.instance_config, NOT Supabase vault.secrets.
+// Retrieval and the Cloudflare mutation happen in the same operator process;
+// no decrypted secret is printed, written to disk, or passed to the assistant.
+async function fromJhnVault() {
+  const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !key) return { available: false }
+  if (new URL(url).hostname !== 'ndiysuhzmztatpxbkezn.supabase.co') {
+    throw Error('Refusing vault access: SUPABASE_URL does not identify JHN project')
+  }
+  const response = await fetch(`${url}/rest/v1/instance_config?select=key,value&key=in.(cloudflare_api_token,cloudflare_api_key,cloudflare_email)`, {
+    headers: { apikey: key, Authorization: `Bearer ${key}` },
+    signal: AbortSignal.timeout(12000),
+  })
+  if (!response.ok) throw Error(`JHN instance_config metadata lookup failed: HTTP ${response.status}`)
+  const rows = await response.json()
+  const values = Object.fromEntries(rows.map(row => [row.key, row.value]))
+  const bearer = values.cloudflare_api_token
+  if (bearer) return { available: true, headers: { Authorization: `Bearer ${bearer}` } }
+  if (values.cloudflare_api_key && values.cloudflare_email) {
+    return { available: true, headers: { 'X-Auth-Key': values.cloudflare_api_key, 'X-Auth-Email': values.cloudflare_email } }
+  }
+  return { available: true, headers: null }
+}
+
+let headers = token
   ? { Authorization: `Bearer ${token}` }
   : legacyKey && legacyEmail
     ? { 'X-Auth-Key': legacyKey, 'X-Auth-Email': legacyEmail }
     : null
 
 if (!headers) {
-  console.error('BLOCKED: configure CLOUDFLARE_API_TOKEN (recommended) or CLOUDFLARE_API_KEY with CLOUDFLARE_EMAIL')
-  process.exit(2)
+  try {
+    const vault = await fromJhnVault()
+    headers = vault.headers
+    if (!headers) {
+      console.error(vault.available
+        ? 'BLOCKED: JHN instance_config has no complete Cloudflare credential; sync it from the workstation SoT.'
+        : 'BLOCKED: no Cloudflare credential in environment, and JHN vault cannot be accessed without service-role configuration.')
+      process.exit(2)
+    }
+  } catch (error) {
+    console.error('BLOCKED:', error.message)
+    process.exit(2)
+  }
 }
 
 async function cf(path, options = {}) {
