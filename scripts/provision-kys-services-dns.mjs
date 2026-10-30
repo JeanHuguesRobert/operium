@@ -35,16 +35,21 @@ async function fromJhnVault() {
   const values = Object.fromEntries(rows.map(row => [row.key, row.value]))
   const bearer = values.cloudflare_api_token
   if (bearer) return { available: true, headers: { Authorization: `Bearer ${bearer}` } }
-  if (values.cloudflare_api_key && values.cloudflare_email) {
-    return { available: true, headers: { 'X-Auth-Key': values.cloudflare_api_key, 'X-Auth-Email': values.cloudflare_email } }
+  if (values.cloudflare_api_key) {
+    // Historical workstation CLOUDFLARE_API_KEY may contain a Bearer API token.
+    return { available: true, headers: values.cloudflare_email
+      ? { 'X-Auth-Key': values.cloudflare_api_key, 'X-Auth-Email': values.cloudflare_email }
+      : { Authorization: `Bearer ${values.cloudflare_api_key}` } }
   }
   return { available: true, headers: null }
 }
 
 let headers = token
   ? { Authorization: `Bearer ${token}` }
-  : legacyKey && legacyEmail
-    ? { 'X-Auth-Key': legacyKey, 'X-Auth-Email': legacyEmail }
+  : legacyKey
+    ? legacyEmail
+      ? { 'X-Auth-Key': legacyKey, 'X-Auth-Email': legacyEmail }
+      : { Authorization: `Bearer ${legacyKey}` }
     : null
 
 if (!headers) {
