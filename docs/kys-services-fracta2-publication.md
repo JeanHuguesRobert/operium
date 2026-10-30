@@ -1,0 +1,139 @@
+---
+title: "KYS Services — Fracta2 publication behind Fracta HTTPS edge"
+description: "Observed two-tier routing and proposed safe publication of the Cogentia Personal static application"
+author: "Cogentia / Operium"
+date: "2026-10-30"
+last_modified_at: "2026-10-30"
+version: "0.1"
+status: "working-paper — predeployment plan, not applied"
+license: "CC BY-SA 4.0"
+language: en
+document_role: operational
+document_kind: deployment-plan
+visibility: public
+lifecycle_state: working
+update_policy: UP-INFRASTRUCTURE-HEALTH
+provenance:
+  origin_type: observation
+  origin_repository: JeanHuguesRobert/operium
+  origin_ref: "https://github.com/JeanHuguesRobert/cogentia/pull/296"
+  origin_date: "2026-10-30"
+  derived_from:
+    - docs/living-books-deployment.md
+review:
+  status: unreviewed
+  reviewed_by: []
+---
+
+# KYS Services — Fracta2 publication plan
+
+## Deployment decision and current observations
+
+**Intent:** publish Cogentia Personal's KYS Services and Serenia/RSA routes on the noncommercial public-interest hostname `services.acorsica.org`, without Netlify. The application is a React/Vite static SPA for these paths. **This document is a plan, not a deployment receipt.**
+
+Read-only inspection on 2026-10-30:
+
+- `fracta2`: Caddy active (`/usr/bin/caddy run --config /etc/caddy/Caddyfile`). Its Caddyfile imports `/etc/caddy/Caddyfile.d/*.caddy`, including `privai.caddy`, `commons.caddy`, `capable.caddy`, etc. Listener on `:80`, **no listener on `:443`**.
+- Existing origin vhosts use `http://HOST { root * /srv/www/NAME/current; encode zstd gzip; file_server }`. `/srv/www/NAME/current` points to a versioned directory under `releases/`, providing a low-cost rollback.
+- Existing public HTTPS vhosts `privai.acorsica.org` and `commons.acorsica.org` resolve to `82.70.234.207`, respond `HTTP/2 200`, expose `server: Caddy`, `via: 1.1 Caddy`, and present Let's Encrypt certificates.
+- `operium/docs/living-books-deployment.md` identifies `fracta` as the **TLS-terminating public edge** and `fracta2` as the **HTTP origin** over Tailscale at `100.84.109.87:80`.
+- `services.acorsica.org` **did not resolve** on the origin at observation time.
+- Direct SSH from `fracta2` to `fracta` was **unavailable** on ports 22 (connection refused) and 1022 (connection reset). The edge's current running configuration **was not inspected**, so any new edge route requires a separate verification before apply.
+- Caddy's current configuration on Fracta2 validated successfully. The local origin returned 200 for the existing Capable/PrivAI/Commons vhosts.
+- Read-only tool access to Fracta2 is available, but the delegated shell has no `sudo` privileges (no_new_privileges). Production writes, Caddy reload, DNS and certificates must go through the existing **Operium** control plane or the appropriate authorized operator.
+
+## Target request path
+
+```text
+visitor -> https://services.acorsica.org:443
+        -> DNS-only CNAME services -> fracta.fractavolta.com (proposed)
+        -> Fracta edge Caddy: HTTPS/TLS, ACME, Host preservation
+        -> http://100.84.109.87:80 (Tailscale)
+        -> Fracta2 Caddy: host services.acorsica.org
+        -> /srv/www/kys-services/current (versioned Vite dist)
+        -> index.html, /assets/*, /kys-services.json, /services/*.json
+```
+
+**No new external TCP port, new daemon, or second TLS endpoint on Fracta2 is required.** Do not reuse `:8444` (existing browser proxy) or interfere with the catch-all `:80` browser routing. SNI routing belongs at Fracta's existing HTTPS gateway; hostname routing at Fracta2.
+
+## Proposed origin Caddy fragment (not applied)
+
+Path: `/etc/caddy/Caddyfile.d/kys-services.caddy`
+
+```caddyfile
+http://services.acorsica.org {
+    root * /srv/www/kys-services/current
+    encode zstd gzip
+
+    # Strict static-file handling: a missing manifest or JS bundle should not
+    # silently return index.html with HTTP 200.
+    @kys_static path /assets/* /services/*.json /kys-services.json
+    handle @kys_static {
+        file_server
+    }
+
+    # BrowserRouter direct links: /services, /rights, /snapshot, /waitlist.
+    handle {
+        try_files {path} /index.html
+        file_server
+    }
+}
+```
+
+Run `caddy validate --config /etc/caddy/Caddyfile` before reloading through Operium. Preserve all existing site blocks. Verify `curl -I -H 'Host: services.acorsica.org' http://127.0.0.1:80/services` (SPA) and JSON routes; a missing `/assets/x.js` must return 404, not HTML.
+
+## Proposed Fracta edge Caddy vhost (not applied)
+
+Actual edge configuration must be inspected via its authorized control plane first, to avoid duplicating a wildcard or existing site route. If none exists, the conceptual addition is:
+
+```caddyfile
+services.acorsica.org {
+    reverse_proxy http://100.84.109.87:80
+}
+```
+
+Reuse the edge's current TLS/certificate/ACME policy and routing conventions. Do not open 443 on Fracta2. Do not make `tls_insecure_skip_verify` a new dependency for a static site.
+
+## DNS (not applied)
+
+In the existing `acorsica.org` DNS zone (documented as Cloudflare DNS-only), provision only after authorized controls and edge readiness:
+
+```text
+CNAME  services  fracta.fractavolta.com  DNS-only  Auto
+```
+
+Verify authoritative DNS, certificate, public HTTPS, security headers and correct Host routing. If another record occupies `services`, inspect ownership before changing anything. DNS changes alone will not create the edge vhost.
+
+## Build and release
+
+Source: `JeanHuguesRobert/cogentia`, PR #296 `feat/personal-serenia-rsa-first-step-20261030`. The latest known local browser-recipe SHA was `38fdf31`, which had green GitHub CI on 2026-10-30. Resolve the exact release SHA at apply time, from reviewed mainline state.
+
+Build the existing static frontend with pnpm from the Cogentia workspace, without Netlify:
+
+```sh
+pnpm install --frozen-lockfile
+pnpm --filter @cogentia/personal build
+node scripts/check-kys-services.mjs
+# Test the Vite preview and Chromium smoke before staging
+```
+
+The site root should be the **contents of `apps/personal/dist/`**, not the entire monorepo. Transfer built files to a new immutable `/srv/www/kys-services/releases/<commit-sha>/` under the same ownership model used for other sites, verify contents and ownership, then atomically repoint `current`. Never build inside an already-live release tree. Use Operium-controlled deployment steps and record receipts/health.
+
+Retain the previous `current` target and release as the rollback point. A symlink switch is sufficient for static code rollback; DNS and edge changes have separate rollback procedures. Verify before and after: host routing, `/`, `/services`, `/rights`, `/snapshot`, `/kys-services.json`, `/services/kys-snapshot.json`, `/services/serenia-rsa.json`, `/assets/*`, and browser refresh on deep links. Check unrelated vhosts (`privai`, `commons`, `capable`) after reload.
+
+## Important application boundary
+
+The KYS/SERENIA public entry paths are static, with **no Netlify dependency** for rendering or prompt copying. However, `apps/personal/src/pages/Submit.jsx` (legacy advanced route) calls `/api/process-analysis`, implemented only in `apps/personal/netlify/functions/process-analysis.js`. **A static-only Fracta2 publication does not supply this API.** Before production, decide whether to hide/disable advanced routes explicitly, or move the function behind a separate authorized service on Fracta2. Do not advertise the legacy functionality as working until implemented and tested.
+
+The existing waitlist optionally uses `VITE_SUPABASE_*` and environment-gated `VITE_WAITLIST_MODE`; it remains intentionally **closed** if not fully configured. Never include service-role keys or private secrets in a Vite public build. The issue of email consent/double opt-in is separately deferred at Cogentia #297. No live lead submission belongs in this deployment check without specific authorization.
+
+## Go/no-go criteria
+
+1. Reviewed source SHA + green CI, origin Caddy syntax validation and manifest tests; browser desktop/mobile emulation and copy operation.
+2. Confirm hostname governance and nonpartisan KYS Services public presentation. No production-only personal dossier requirements.
+3. Authoritative DNS and Fracta edge verified before changes, no conflicting host routes; certificate acquisition observable and functioning.
+4. Origin static tree served correctly via Host header; SPA fallback correct while missing files return 404.
+5. End-to-end HTTPS tests and unrelated vhost regression probes.
+6. Receipt in Operium, current SHA/link, edge/origin config revisions, rollback marker and any caveats.
+
+**No deployment performed by this plan.**
