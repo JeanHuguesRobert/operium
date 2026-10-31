@@ -294,6 +294,19 @@ Automated suite: `/usr/local/sbin/stalwart-phase2-tests.py` (source in Operium `
 
 ---
 
+## 2026-10-31 — Principal decision: bounded agent-to-owner Gmail delivery
+
+**Intended Fracta2 target; not yet enforced in the deployed Stalwart configuration.**
+
+- Agents may exchange messages within the Stalwart internal mail domain and may send notifications **only to the Principal's address** `jeanhuguesrobert@gmail.com` through an approved relay.
+- No other externally routed SMTP envelope recipient is authorized, regardless of To/Cc/Bcc header, forwarding, alias expansion, mailing list, DSN/bounce, or automated rule. Fail closed for mixed-recipient transactions; reject before queueing. Test envelope recipients and post-expansion delivery destinations, not just visible headers.
+- Agent JHN alone accesses the Principal's Gmail account and may create/update drafts for external correspondence. No agent, including JHN, may send external correspondence on the Principal's behalf; only the Principal sends such messages.
+- The sole owner-notification exception is **not** permission to send arbitrary third-party mail; the Gmail smarthost credentials must be available only to the constrained Stalwart transport, never to individual agents.
+- Existing script `scripts/ops/stalwart-gmail-forward-setup.sh` documents a general `else -> gmail-relay` route. That route by itself **does not enforce** the recipient allowlist. Do not reuse or deploy it on Fracta2 as-is. Install a fail-closed policy with negative tests for direct, Cc, Bcc, alias, Sieve forward, relay and envelope-recipient bypasses before enabling delivery.
+- Migration may treat Stalwart as noncritical experimental infrastructure, but preserve any data identified as worth retaining. It does not gate the public IP move if public mail reception is intentionally retired/deferred and that decision is recorded.
+
+---
+
 ## Gmail smarthost + forward (human inbox)
 
 **Goal:** mail that lands in `jhn@mail.fractavolta.com` (Twin) is **copied** to `jeanhuguesrobert@gmail.com` (Gmail UI). Public SMTP/MX on the `mail.fractavolta.com` subdomain also permits the Gmail → Twin return path; the apex remains served by Gandi.
