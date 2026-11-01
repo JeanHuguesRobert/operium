@@ -56,12 +56,24 @@ References:
 
 **Historical incident — fracta, 26 October 2026:** after the Ubuntu 26.04.1
 migration, the OCI serial console **was reachable** and displayed
-`fracta login:`. The `ubuntu` account requested an unavailable local password,
-so no administrator shell was obtained. Separately, SSH port 22 refused
+`fracta login:`. The Ubuntu image relied on SSH public-key access and the `ubuntu`
+account had **no configured local password**. The serial login therefore
+could not authenticate, and no administrator shell was obtained. Separately, SSH port 22 refused
 connections and alternate SSH port 1022 reset before authentication. OCI
 Run Command was not operational on that instance. Thus the earlier claim
 that its Oracle serial console was *not enabled* was inaccurate: **console
 transport worked; repair access did not**.
+
+**Operational disposition of the legacy node:** the Principal chose to
+abandon restoration of `fracta`, not because repair was proved impossible,
+but because its initial Ubuntu image / provisioning was a poor fit for the
+available Oracle Always Free resources, and keeping a second, historically
+inherited node added architecture and maintenance complexity without a
+corresponding immediate benefit. The intended architecture consolidates
+current work on `fracta2`. This is a **decision to retire**, not evidence
+that the instance, boot volume, cloud resources, DNS, or service dependencies
+have already been deprovisioned or fully migrated. Verify those separately
+before any deletion or final teardown.
 
 Oracle documents a second Ubuntu-specific issue: the GRUB boot menu can be
 hidden on instance serial consoles, preventing maintenance/recovery-mode
@@ -72,8 +84,10 @@ Reference: https://community.oracle.com/customerconnect/discussion/650872/oci-ho
 **Acceptance criterion:** demonstrate a viable administrative repair path
 from OCI without normal SSH or a running MCP, either through a deliberately
 tested GRUB/recovery interaction or a separately controlled local console
-login. Prefer a tested recovery path over setting a permanent shared local
-password merely for convenience. Do not cause a production reboot solely
+login. A dedicated, controlled local console-login credential is one valid
+recovery option if deliberately maintained; a proven GRUB/recovery procedure
+is another. Prefer whichever has the least ongoing burden and is demonstrably
+usable. Never rely on SSH-only authentication to unlock a serial login. Do not cause a production reboot solely
 for this check without an operator-approved maintenance window. A serial
 login prompt alone is **insufficient**.
 
