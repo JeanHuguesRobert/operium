@@ -91,6 +91,31 @@ usable. Never rely on SSH-only authentication to unlock a serial login. Do not c
 for this check without an operator-approved maintenance window. A serial
 login prompt alone is **insufficient**.
 
+## Principal decision: simple password-based console recovery (2026-11-01)
+
+The Principal deliberately accepts a **single, simple recovery arrangement**
+under uncertainty, rather than multiplying preventive security layers. Each
+Oracle VPS should have a known, tested way to log into its local Linux console
+when SSH and both MCP interfaces are unavailable, followed by a working
+`sudo` path for administrator repairs. This local console account is an
+availability mechanism, **not** a second COP mandate authority.
+
+The Principal currently relies on Gmail as a practical root-of-recovery for
+his digital access and does not request a new password-management
+infrastructure. **Do not put the actual Gmail account password into a VPS's
+Linux password database.** A distinct strong Linux-console password can be
+kept in the Principal's existing secure recovery records without creating
+another account or service. Reusing the *same secret* for Gmail and a VPS
+would make compromise of the VPS a direct Gmail compromise; this is an
+avoidable coupling, not a demand for an infinite security program. Do not
+record password values in Git, logs, tickets or conversation transcripts.
+
+Provisioning test: confirm that the chosen local account can authenticate
+through the **OCI serial console** and run `sudo -v` (or a harmless
+`sudo -n id -u` where passwordless sudo is already configured), without
+requiring SSH. The existence of the password, and the success of this test,
+are two separate facts. Do not mark the node recoverable until tested.
+
 ## Provisioning acceptance procedure
 
 1. Check OCI console access and the instance's compartment. The operator needs IAM permissions to `manage instance-console-connection` and `read instance` in the applicable scope. Do not copy private account IDs or keys to public Operium.
