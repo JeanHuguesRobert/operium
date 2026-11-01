@@ -45,6 +45,20 @@ provenance:
     curl git chromium-browser caddy libx11-6 x11-xserver-utils xauth
   ```
 
+## 1a. Oracle Cloud recovery gate (before services or upgrades)
+
+For an Oracle OCI VPS, run the read-only local check:
+
+```bash
+bash scripts/ops/check-oci-recovery-readiness.sh
+```
+
+Then test a **real** OCI Cloud Shell serial-console session independently of
+SSH, and OCI Run Command if the platform supports it. Agent status alone is
+not proof of recovery. See the generic [Oracle VPS recovery readiness
+runbook](oracle-vps-recovery-readiness.md) and the current Fracta2 observations.
+Keep the bootstrap MCP until independent provider recovery is proven.
+
 ## 2. Install KasmVNC
 
 Historical x86_64 recipe only: the `amd64` artifact below is not an ARM64

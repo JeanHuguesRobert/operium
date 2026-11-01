@@ -51,7 +51,11 @@ This directory contains Operium documentation.
 - [Cogentia Agent Indexing Roadmap](cogentia-agent-indexing-roadmap.md)
 - [Workstation tooling debt and tool profiles](workstation-tooling-debt-and-profiles.md) — admin-install debt, user-space policy, PC vs fracta
 
+- [Oracle VPS recovery readiness](oracle-vps-recovery-readiness.md) — independent recovery gates for Oracle FractaNodes, agent/serial checks, and OCI acceptance tests.
+
 Operational scripts:
+
+- `scripts/ops/check-oci-recovery-readiness.sh` — read-only local Oracle Cloud Agent and ARM serial-console readiness probe.
 
 - `scripts/ops/ensure-fractanet-rsync.ps1` — install or verify `rsync` on the
   Fractanet node set through Tailscale SSH aliases.
