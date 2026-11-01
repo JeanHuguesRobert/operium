@@ -52,11 +52,36 @@ References:
 - https://docs.oracle.com/en-us/iaas/Content/Compute/Tasks/runningcommands.htm
 - https://docs.oracle.com/en-us/iaas/Content/Block/Tasks/recoveringlinuxbootvolume.htm
 
+## Critical distinction: serial output is not recovery access
+
+**Historical incident — fracta, 26 October 2026:** after the Ubuntu 26.04.1
+migration, the OCI serial console **was reachable** and displayed
+`fracta login:`. The `ubuntu` account requested an unavailable local password,
+so no administrator shell was obtained. Separately, SSH port 22 refused
+connections and alternate SSH port 1022 reset before authentication. OCI
+Run Command was not operational on that instance. Thus the earlier claim
+that its Oracle serial console was *not enabled* was inaccurate: **console
+transport worked; repair access did not**.
+
+Oracle documents a second Ubuntu-specific issue: the GRUB boot menu can be
+hidden on instance serial consoles, preventing maintenance/recovery-mode
+access without preparation. This must be addressed **while SSH works**;
+seeing a login prompt is not proof that the GRUB recovery path works.
+Reference: https://community.oracle.com/customerconnect/discussion/650872/oci-how-to-configure-ubuntu-instances-to-display-grub-menu
+
+**Acceptance criterion:** demonstrate a viable administrative repair path
+from OCI without normal SSH or a running MCP, either through a deliberately
+tested GRUB/recovery interaction or a separately controlled local console
+login. Prefer a tested recovery path over setting a permanent shared local
+password merely for convenience. Do not cause a production reboot solely
+for this check without an operator-approved maintenance window. A serial
+login prompt alone is **insufficient**.
+
 ## Provisioning acceptance procedure
 
 1. Check OCI console access and the instance's compartment. The operator needs IAM permissions to `manage instance-console-connection` and `read instance` in the applicable scope. Do not copy private account IDs or keys to public Operium.
 2. On the VPS, run `bash scripts/ops/check-oci-recovery-readiness.sh`. On ARM, the console is `ttyAMA0`, not `ttyS0`. Verify kernel output and active `serial-getty@ttyAMA0`. `enabled-runtime` can be normal when systemd generates getty from the kernel console setting.
-3. In **Oracle Console**, Compute → Instances → [node] → Console connection → **Launch Cloud Shell connection**. Press Enter and verify actual terminal interaction independently of node SSH. Confirm the GRUB/recovery path or another managed way to log in. A cloud account without an OS password does not automatically provide interactive serial login; do not enable a permanent shared password by default.
+3. In **Oracle Console**, Compute → Instances → [node] → Console connection → **Launch Cloud Shell connection**. Press Enter and verify actual terminal interaction independently of node SSH. A visible `login:` prompt is **not a passing result**: demonstrate a usable repair login or a tested GRUB/recovery path. A cloud account without an OS password does not automatically provide interactive serial login; do not enable a permanent shared password by default.
 4. In Oracle Console, capture and view **Console history**, separately from a live serial-console session.
 5. In Compute → Instances → [node] → **Oracle Cloud Agent**, verify the **OCI-side** plugin state. If Run Command is supported and IAM configured, use Run command to execute the harmless probe `id -u; uname -m`. A `running` plugin in a guest log is insufficient. OCI documents IAM policies including a user group for `instance-agent-command-family` and a dynamic group for `instance-agent-command-execution-family`: https://docs.oracle.com/en-us/iaas/Content/Compute/Tasks/instances.htm
 6. Verify recent OCI monitoring and instance-health metrics. Do not actually reboot or detach boot volumes during a routine readiness test.
