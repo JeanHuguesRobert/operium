@@ -55,7 +55,7 @@ In accordance with Cogentia/Operium doctrine:
 | 4 | `commons` | `commons.acorsica.org` | `acorsica.org` | `CNAME commons -> fracta.fractavolta.com` | `fracta2:/srv/www/commons/current` | **LIVE (Active)** |
 | 5 | `privai` | `privai.acorsica.org` | `acorsica.org` | `CNAME privai -> fracta.fractavolta.com` | `fracta2:/srv/www/privai/current` | **LIVE (Active)** |
 | 6 | `1755` | `1755.acorsica.org` | `acorsica.org` | `CNAME 1755 -> fracta.fractavolta.com` | `fracta2:/srv/www/1755/current` | **LIVE (Active)** |
-| 7 | `capable` | `capable.lepp.fr` *(alias `capable.acorsica.org`)* | `lepp.fr` *(and `acorsica.org`)* | `CNAME capable -> fracta.fractavolta.com` | `fracta2:/srv/www/capable/current` | **LIVE (Active)** |
+| 7 | `capable` | `capable.acorsica.org` *(canonical decision 2026-10-29; old `capable.lepp.fr`)* | `acorsica.org` *(legacy `lepp.fr`)* | `CNAME capable -> fracta.fractavolta.com` | `fracta2:/srv/www/capable/current` | **PUBLIC BLOCKED** — edge HTTP 301 to legacy host (verified 2026-11-05); origin serves HTTP 200 |
 | 8 | `napoleon` | `napoleon.acorsica.org` | `acorsica.org` | `CNAME napoleon -> fracta.fractavolta.com` | `fracta2:/srv/www/napoleon/current` | **LIVE (Active)** |
 | 9 | `diaspora` | `diaspora.acorsica.org` | `acorsica.org` | `CNAME diaspora -> fracta.fractavolta.com` | `fracta2:/srv/www/diaspora/current` | **LIVE (Active)** |
 | 10 | `suicide-corse` | `suicidecorse.baronsmariani.org` | `baronsmariani.org` | `CNAME suicidecorse -> fracta.fractavolta.com` | `fracta2:/srv/www/suicidecorse/current` | **LIVE (Active)** |
@@ -82,7 +82,7 @@ CNAME  institut   fracta.fractavolta.com    DNS only       Auto
 CNAME  commons    fracta.fractavolta.com    DNS only       Auto
 CNAME  privai     fracta.fractavolta.com    DNS only       Auto
 CNAME  1755       fracta.fractavolta.com    DNS only       Auto
-CNAME  capable    fracta.fractavolta.com    DNS only       Auto (redirects 301 to capable.lepp.fr)
+CNAME  capable    fracta.fractavolta.com    DNS only       Auto (edge still redirects 301 to legacy capable.lepp.fr; must be corrected)
 CNAME  napoleon   fracta.fractavolta.com    DNS only       Auto
 ```
 
@@ -106,3 +106,14 @@ Once a CNAME record is configured in Cloudflare:
    curl -sI https://village.acorsica.org/book.pdf
    curl -sI https://village.acorsica.org/book.epub
    ```
+
+
+## 2026-11-05 — Capable domain migration verification
+
+**Observed, not inferred from the deployment matrix:** From the `fracta2` node, HTTPS HEAD requests to `https://capable.acorsica.org/`, `/en-preparation.html`, and `/guide.html` returned `HTTP/2 301` with `Location: https://capable.lepp.fr/...`. The existing `village.acorsica.org` vhost served HTTP 200, confirming that the public edge was not globally unavailable. The Capable origin responds locally via Fracta2's Caddy host routing (HTTP 200, previously verified).
+
+The documented editorial/hosting decision dated 2026-10-29 makes `capable.acorsica.org` canonical. The original 2026-10-05 matrix describes an older configuration and is not proof of present availability. **Current assessment: public endpoint blocked by stale edge redirect, not yet migrated.** The originating Caddy redirect rule on `fracta` has **not** been inspected in this verification.
+
+**Administration boundary:** From Fracta2, the Fracta Tailscale node remains online, but SSH port 22 refuses connections; TCP 1022 accepts a connection yet SSH negotiation resets; Tailscale SSH reports a failure reaching port 22. No edge configuration changes have been applied. Restore a legitimate administrative route, inspect the live edge virtual host and reload mechanism, change only Capable's redirect behavior, then verify TLS and HTTP for all three paths and regression-test other hosted domains.
+
+**References:** [Capable site publication contract](https://github.com/JeanHuguesRobert/barons-Mariani/blob/main/projects/capable/site/README.md); [Capable #98](https://github.com/JeanHuguesRobert/barons-Mariani/issues/98). A future HTTP 200 and content review must precede any `LIVE` claim.
