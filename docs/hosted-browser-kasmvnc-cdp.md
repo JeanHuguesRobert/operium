@@ -113,6 +113,41 @@ client compatibility, and verified absence of session cross-talk. No
 credentials or identifying information about pilot participants belongs in
 this public document.
 
+### 2026-11-05 — Two isolated browsers on one public hostname (live)
+
+The earlier read-only inventory and pending pilot acceptance above were
+**superseded later on 2026-11-05**. Two isolated Unix users and KasmVNC
+instances now run concurrently on Fracta2: displays `:1` and `:2`, local-only
+KasmVNC TLS ports `8444` and `8445`, local-only browser CDP ports `9223`
+and `9224`. Each has its own home, Chromium/Brave profile and KasmVNC
+password database; no profile sharing was configured. The second workspace
+uses kiosk mode, independently of the first desktop workspace.
+
+**One canonical entry point:** `https://browser.fractavolta.com/` serves
+both users. Caddy's Basic authentication establishes the username and then
+routes all HTTP and WebSocket traffic to the corresponding KasmVNC upstream.
+The upstream KasmVNC independently validates that account's credentials;
+username switching does **not** share sessions. An earlier experimental
+`/frederic/` path route was removed. The existing `/.well-known/soma` and
+`/soma/*` reverse-proxy paths are preserved separately.
+
+**Observed:** each account returned HTTP `200` through the *same public URL*
+with its own credentials; incorrect or unknown credentials returned `401`;
+both systemd session units and the Caddy proxy remained active. A direct
+KasmVNC WebSocket upgrade with the expected `Origin` returned `101`.
+A complete, authenticated public WebSocket handshake and interactive client
+session require an additional client-side Reality Test, not inferred from
+HTTP success alone.
+
+**Operational caveat:** the current Caddy Basic-auth password hashes and the
+individual KasmVNC password files must be changed **together** for each user;
+independent password rotation would otherwise produce two different login
+checks. Never commit passwords, private KasmVNC password databases, or
+private TLS credentials. The existing lab assurance policy for public
+workspaces has not been upgraded by this routing change. Production access
+controls should eventually move to a stronger identity provider while
+preserving per-user routing and Unix isolation. Related: #25 and #49.
+
 ## 3. Checkpoints & Verification Criteria
 
 | Checkpoint | Target Property | Verification Method |
