@@ -117,3 +117,12 @@ The documented editorial/hosting decision dated 2026-10-29 makes `capable.acorsi
 **Administration boundary:** From Fracta2, the Fracta Tailscale node remains online, but SSH port 22 refuses connections; TCP 1022 accepts a connection yet SSH negotiation resets; Tailscale SSH reports a failure reaching port 22. No edge configuration changes have been applied. Restore a legitimate administrative route, inspect the live edge virtual host and reload mechanism, change only Capable's redirect behavior, then verify TLS and HTTP for all three paths and regression-test other hosted domains.
 
 **References:** [Capable site publication contract](https://github.com/JeanHuguesRobert/barons-Mariani/blob/main/projects/capable/site/README.md); [Capable #98](https://github.com/JeanHuguesRobert/barons-Mariani/issues/98). A future HTTP 200 and content review must precede any `LIVE` claim.
+
+
+## 2026-11-05 — Migration strategy correction (Operium #77)
+
+The operational objective is **not** to restore old Fracta merely to edit its legacy Caddy redirect. The Principal decided on 2026-10-30 to **retire Fracta and consolidate the public HTTPS edge onto Fracta2**, transferring the existing **reserved IPv4** `82.70.234.207` rather than allocating an extra address. See [Operium #77](https://github.com/JeanHuguesRobert/operium/issues/77) and the [public-IP cutover runbook](fracta2-public-ip-cutover.md).
+
+Read-only verification from Fracta2 on 2026-11-05: OCI IMDS VNIC `10.0.0.2` still reports `publicIp: null`; Caddy listens on `:80` only, not `:443`. The previously staged candidate `/tmp/fracta2-https-stage-20261031-v4/Caddyfile` is present and passes `caddy validate`, but remains **not active / not security- or TLS-end-to-end-tested**. The existing public `https://capable.acorsica.org/` still receives HTTP 301 to the legacy hostname. `fracta` is reachable by Tailscale ICMP, but SSH on port 22 refuses and port 1022 resets during negotiation. These observations do not contradict the intended single-node end state.
+
+**Correct dependency:** validate privileged OCI subnet ingress, target HTTPS/routing and operator recovery; then the **authorized, reversible reserved-IP reassignment** from the trusted operator's OCI control plane; then external HTTPS checks for all domains and Capable. Do not change DNS to an unaddressable Fracta2, activate the staging Caddyfile blindly, or destroy old Fracta before cutover acceptance. This is a cross-site production change requiring a separate go/no-go and rollback evidence.
