@@ -4,7 +4,7 @@ description: "Architecture, isolation model, multi-user separation, and dual hum
 layout: default
 nav_order: 15
 date: 2026-08-26T00:00:00.000Z
-last_modified_at: 2026-09-10T00:00:00.000Z
+last_modified_at: 2026-11-05T00:00:00.000Z
 language: en
 license: CC BY-SA 4.0
 canonical_url: https://github.com/JeanHuguesRobert/operium/blob/main/docs/hosted-browser-kasmvnc-cdp.md
@@ -13,6 +13,17 @@ document_kind: architecture-note
 visibility: public
 lifecycle_state: active
 author: "Jean Hugues Noël Robert, baron Mariani"
+affiliation: "Institut Mariani / C.O.R.S.I.C.A."
+status: working-paper
+provenance:
+  origin_type: repository
+  origin_repository: JeanHuguesRobert/operium
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
+review:
+  status: unreviewed
+  reviewed_by: []
 update_policy: UP-DEFAULT-REVIEWED
 classification_source: "cogentia.js"
 classification_version: "1"
@@ -65,6 +76,42 @@ graph TD
 * **Exclusion of Kasm Workspaces**: The deployment intentionally uses only standalone **KasmVNC (GPL-2.0)** without proprietary Kasm Workspaces or heavy Docker/OCI layers.
 
 ---
+
+### 2026-11-05 — Multi-user provisioning reality check (Fracta2)
+
+Read-only observation confirms only one configured hosted-browser instance,
+with its dedicated Unix account, and a running `hosted-browser@` service.
+The public HTTPS endpoint `browser.fractavolta.com` replies with HTTP 401
+(authentication challenge); this is **reachability**, not a successful user
+session or authorization/security audit.
+
+The canonical provisioner is
+[`scripts/ops/provision-hosted-browser-user.sh`](../scripts/ops/provision-hosted-browser-user.sh).
+It derives the Unix account name from the canonical Gmail **local part**
+(remove dots and prefix `hosted-`), so a descriptive person's name is not
+necessarily the account key. It also requires a unique X display and **two
+private pre-created password files** (KasmVNC and RFB), and root privileges.
+Do not treat `--dry-run` as an operational preflight: it skips root,
+password-file and group prerequisites. In the 2026-11-05 read-only probe,
+`getent group kasmvnc-cert` returned no entry; the canonical script currently
+requires that group. Reconcile that prerequisite before deployment rather
+than silently weakening isolation.
+
+A separately installed `cogentia-super.service` and its root-owned socket
+were observed active on Fracta2, but **the deployed MCP super path has not
+been proven end-to-end**. The service and socket alone do not authorize a
+privileged command; the COP grant must bind target, script and
+`execution_mode: super`, and the privileged broker must verify it. The
+connected `cogentia_host_process_prepare` tool observed on 2026-11-05
+exposes no `execution_mode` input, so its default `normal` EXPOSE cannot
+be promoted to a root operation without a newly prepared and approved
+`super` payload. See the [Cogentia MCP status](https://github.com/JeanHuguesRobert/cogentia/blob/main/docs/cogentia-mcp.md).
+
+**Pilot acceptance remains pending:** a distinct private profile,
+independent credentials, separate VNC/CDP ports, protected network routing,
+client compatibility, and verified absence of session cross-talk. No
+credentials or identifying information about pilot participants belongs in
+this public document.
 
 ## 3. Checkpoints & Verification Criteria
 
