@@ -2,12 +2,15 @@
 import corsicaContext from '../../../inseme/packages/brique-oleole/src/edge/corsica-context-api.js';
 import principalConsentProxy from '../../../inseme/apps/platform/netlify/edge-functions/principal-consent-proxy.js';
 import jhnChatStream from '../../../inseme/packages/brique-ophelia/edge/jhn-chat-stream.js';
+import {nasaReadonly,interactionsReadonly} from './jhn-protected-edge.ts';
 import {createDenoServerlessHandler,serveDenoServerless} from './deno-host.ts';
 const origin='https://jhn.baronsmariani.org';
 // principal-consent-proxy retained only for compatibility testing; NOT
 // forwarded from the public JHN facade, which targets canonical COP directly.
 export const routes=[
  {path:'/api/corsica/context',handler:corsicaContext},
+ {path:'/api/nasa/control',handler:nasaReadonly},
+ {path:'/api/interactions/desk',handler:interactionsReadonly},
  {path:'/api/chat-stream',handler:async(request:Request)=>{
    // Healthcheck uses the existing function. Runtime secrets are deliberately
    // absent; POST remains unavailable until COP event and vault parity.

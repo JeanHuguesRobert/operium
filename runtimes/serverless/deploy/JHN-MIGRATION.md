@@ -45,7 +45,7 @@ and canonical origin; no COP grant is implied by the preview.
 1. Confirm the correct versioned SPA and manifest are actually installed.
 2. Inventory and migrate or explicitly disable all public JHN API routes not
    yet provided here. **Current manifest covers only the canonical COP consent
-   relay, PDF and territorial context.** `nasa-control`, `interactions-desk`,
+   relay, PDF and territorial context.** `nasa-control` and `interactions-desk` (authenticated reads not yet proven),
    `chat-stream`, `/api/jhn-cop-events`, GitHub webhook, `/api/oleole/*`,
    `artifact-access/*` are **not production migrated**. Their API paths must
    fail closed; silent SPA fallback is prohibited.
@@ -79,8 +79,8 @@ DNS route.
 | `/cc/requete-conseil-constitutionnel-haute-corse-2026.pdf` | Existing Node handler, POST 405 | GET upstream PDF bytes, cache and correct content type |
 | `/api/corsica/context` | Existing Deno handler, invalid parameters 400 | Valid coordinate Open-Meteo fetch, rate limits and attribution |
 | `/api/chat-stream` | Existing Deno handler health 200; POST 503 **by design** | Secret vault, COP event ingress, provider and streaming semantics |
-| `/api/nasa/control` | Explicit 503 not migrated | Principal/delegate auth and audit, no unauthorized actions |
-| `/api/interactions/desk` | Explicit 503 not migrated | Supabase owner/delegate auth and scoped reads |
+| `/api/nasa/control` | Existing Deno source handler, unauthenticated 401; writes blocked 405 | Principal/delegate Vault configuration and authenticated read end-to-end |
+| `/api/interactions/desk` | Existing Deno source handler, unauthenticated 401; writes blocked 405 | Supabase owner/delegate Vault configuration and scoped authenticated reads |
 | `/api/jhn-cop-events` | Explicit 503 not migrated | Instance vault, capability checks and append-only events |
 | `/api/webhooks/github` | Explicit 503 not migrated | GitHub HMAC signature, delivery dedupe and durable events |
 | `/api/oleole/*` | Explicit 503 not migrated | Presence actor identity, state and storage privileges |
@@ -96,3 +96,23 @@ instance Vault adapters** under already scoped authorities; it must never
 create fake keys, transfer service-role secrets into a generic environment,
 or silently enable consequential APIs. Preserve the separate authority between
 COP capabilities, the technical transport and user consent.
+
+## 2026-11-10 protected-read and streaming continuation
+
+NASA Control and Interactions Desk are now routed to their **original Deno
+source handlers**, through an explicit **GET-only** guard. Their anonymous
+GET requests return 401 and POST/PATCH requests are rejected 405, before any
+Vault or Supabase interaction. These guards do not claim valid-bearer access
+works: the runtime still has no configured JHN instance Vault or service-role
+client. If either is unavailable, the underlying handler is expected to fail
+closed. The effects/mutations remain unavailable.
+
+The shared Node facade now uses streaming response forwarding instead of
+buffering all response bytes before sending them. The test suite includes
+a synthetic `text/event-stream` response. Production chat POST remains
+explicitly disabled; the streaming fix is a prerequisite, not evidence of
+chat availability.
+
+Verified using a real Node-to-Deno HTTP integration: anonymous NASA/Desk
+GET=401, both POST=405, chat health GET=200, territorial context invalid
+GET=400. No public DNS, Caddy or canonical COP decision was changed.

@@ -31,10 +31,29 @@ test('canonical COP relay direct live preflight fails closed without Supabase be
 test('all remaining legacy JHN API surfaces fail closed with named pending status',async()=>{
  const site=createJhnPreview({port:0});const a=await site.listen();const base=`http://127.0.0.1:${a.port}`;
  try{
-  for(const path of ['/api/nasa/control','/api/interactions/desk','/api/jhn-cop-events',
+  for(const path of ['/api/jhn-cop-events',
     '/api/webhooks/github','/api/oleole/health','/artifact-access/a/testtoken']){
     const r=await fetch(base+path);assert.equal(r.status,503,path);
     assert.equal((await r.json()).error,'jhn_route_not_migrated',path);
   }
+ }finally{await site.close()}
+});
+test('NASA and Interactions protected edge routes do not grant rights without bearer',async()=>{
+ const site=createJhnPreview({port:0});const a=await site.listen();const base=`http://127.0.0.1:${a.port}`;
+ try{
+   // When Deno worker is not started, protected functions stay unavailable.
+   for(const path of ['/api/nasa/control','/api/interactions/desk']){
+     const r=await fetch(base+path);assert.equal(r.status,503,path);
+   }
+ }finally{await site.close()}
+});
+test('streaming facade forwards SSE chunks without rewriting provider headers',async()=>{
+ const site=createJhnPreview({port:0,routes:[{path:'/api/stream-test',runtime:'test',invoke:()=>new Response(new ReadableStream({
+  start(controller){controller.enqueue(new TextEncoder().encode('data: one\n\n'));controller.enqueue(new TextEncoder().encode('data: two\n\n'));controller.close();}
+ }),{headers:{'content-type':'text/event-stream','cache-control':'no-cache'}})}]});
+ const a=await site.listen();try{
+  const r=await fetch(`http://127.0.0.1:${a.port}/api/stream-test`);
+  assert.equal(r.status,200);assert.equal(r.headers.get('content-type'),'text/event-stream');
+  assert.equal(await r.text(),'data: one\n\ndata: two\n\n');
  }finally{await site.close()}
 });

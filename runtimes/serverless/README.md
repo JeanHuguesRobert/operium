@@ -125,3 +125,11 @@ append-event contracts are migrated and verified. Other non-migrated legacy
 JHN routes are explicitly refused with `503` (see `deploy/JHN-MIGRATION.md`),
 never silently routed to the SPA. A successful healthcheck does not attest
 production feature availability.
+
+As of the protected-read continuation, JHN NASA Control and Interactions
+Desk reuse the original Deno handlers behind GET-only guards. Anonymous
+requests reject with 401 and write methods reject with 405. **Authenticated
+reads are not yet validated and the instance Vault has not been configured**.
+The Node facade forwards streaming responses directly; this enables a real
+SSE transport when chat provider and COP ingress dependencies are later met,
+but POST chat stays unavailable for now.

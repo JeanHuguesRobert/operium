@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 /** Preview JHN SPA and local function manifest, no public listener, no DNS. */
 import {createServer} from 'node:http';
+import {Readable} from 'node:stream';
+import {pipeline} from 'node:stream/promises';
 import {readFile,stat} from 'node:fs/promises';
 import {resolve,sep,extname} from 'node:path';
 import {JHN_ROUTES,PUBLIC_ORIGIN} from './jhn-functions-manifest.js';
@@ -25,7 +27,12 @@ export function createJhnPreview({dist=DIST,port=8795,host='127.0.0.1',routes=JH
     const request=new Request(url,{method:req.method,headers,...(!['GET','HEAD'].includes(req.method)?{body:Buffer.concat(parts)}:{})});
     const response=await registered.invoke(request);
     const out={};for(const [k,v]of response.headers)if(!['content-length','connection','transfer-encoding'].includes(k))out[k]=v;
-    res.writeHead(response.status,out);res.end(Buffer.from(await response.arrayBuffer()));return;
+    res.writeHead(response.status,out);
+    if(!response.body||req.method==='HEAD'){res.end();return;}
+    // Stream provider responses instead of buffering entire SSE/PDF payloads.
+    // Transport termination is not interpreted as a successful business effect.
+    try{await pipeline(Readable.fromWeb(response.body),res);}catch{res.destroy();}
+    return;
    }
    if(JHN_PENDING_ROUTES.some(route=>routeMatches(route.path,pathname))){
      res.writeHead(503,{'content-type':'application/json','cache-control':'no-store'});

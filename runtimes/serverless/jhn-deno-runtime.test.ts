@@ -13,3 +13,14 @@ Deno.test('chat healthcheck uses original Deno handler, POST fails closed',async
  assertEquals(post.status,503);
  assertEquals((await post.json()).error,'jhn_chat_runtime_not_configured');
 });
+Deno.test('NASA and interactions source functions: read-only and no bearer fail closed',async()=>{
+ for(const path of ['/api/nasa/control','/api/interactions/desk']){
+   const anonymous=await handler(new Request('http://127.0.0.1:8797'+path));
+   assertEquals(anonymous.status,401);
+   assertEquals((await anonymous.json()).error,'missing_bearer_token');
+   for(const method of ['POST','PATCH']){
+     const refused=await handler(new Request('http://127.0.0.1:8797'+path,{method,body:'{}'}));
+     assertEquals(refused.status,405);
+   }
+ }
+});
