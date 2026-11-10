@@ -212,3 +212,43 @@ never fabricate a principal UUID, delegate or grant for staging.
 
 The diagnostic `probe-jhn-vault.ts` now returns only key-presence and
 nonempty-result booleans for root, `jhn` and `john`. It does not reveal values.
+
+## Public DNS cutover target: explicit Principal request, 2026-11-10
+
+The Principal explicitly prioritizes removing the public JHN DNS alias to
+Netlify. Cloudflare is already the authoritative provider of
+`baronsmariani.org` (nameservers `josephine` and `viddy`); its existing
+`jhn.baronsmariani.org` record is a DNS-only CNAME to
+`jhn-baronsmariani-org.netlify.app` (TTL 10800). The Fracta2 public reserved
+IPv4 is `82.70.234.207`, already serving other HTTPS sites.
+
+Read-only access to the Cloudflare API using the **existing instance Vault**
+was verified on 2026-11-10. No token was printed or copied. Operium now owns
+purpose-specific, tightly bounded change artifacts:
+
+- `cloudflare-jhn-cutover.ts`: exact zone/name/type/state audit; only replaces
+  that exact CNAME with a DNS-only A record (`82.70.234.207`, TTL 300), or
+  restores the original CNAME. Refuses unexpected records and multiple matches.
+- `cloudflare-jhn-launch.js`: existing Supabase bootstrap to Vault, no separate
+  Cloudflare token file or shell interpolation of secret values.
+- `publish-jhn-fracta2.py`: owner-executed systemd install, Caddy TLS vhost,
+  local health probe, Cloudflare change, authoritative DNS resolution and HTTPS
+  certificate verification, with best-effort rollback of DNS/Caddy/services.
+
+**Risk accepted by prioritizing this cutover:** the SPA and approved local
+function routes will be served from Fracta2, but the routes still marked
+`jhn_route_not_migrated` (webhook, Olé Olé, artifact access) or intentionally
+`503` (chat POST, event writes) will remain unavailable. The cutover must not
+claim full feature parity with Netlify. No COP decision, issue/event append,
+mail send, webhook effects or new grant is enabled by DNS.
+
+Owner command (requires ordinary pre-existing SSH/sudo owner access):
+
+```powershell
+ssh -tt fracta2 'sudo python3 /srv/cogentia/repos/operium/runtimes/serverless/deploy/publish-jhn-fracta2.py --apply'
+```
+
+The agent coding shell has `NoNewPrivs` and cannot perform this root-owned
+systemd/Caddy change. Do not first change Cloudflare DNS and leave the public
+hostname broken: **service readiness must precede DNS mutation**. A success
+receipt must report the authoritative A answer and valid HTTPS response.
