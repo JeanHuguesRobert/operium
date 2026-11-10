@@ -145,3 +145,9 @@ reports **only key-presence booleans**. On Fracta2, the original loader read
 123 rows; anonymous and invalid-session GET checks behaved correctly.
 See the detailed restricted-access evidence and still-missing owner mappings in
 [`deploy/JHN-MIGRATION.md`](deploy/JHN-MIGRATION.md).
+
+The original JHN COP-event Deno handler is also connected through
+`jhn-cop-event-guard.ts`, but POST writes remain disabled by default (`503`).
+The verified alias-aware Vault diagnostic found the JHN NASA principal key
+present but effectively empty; it must not be replaced with a guessed identity.
+See the JHN migration ledger for verification and activation prerequisites.

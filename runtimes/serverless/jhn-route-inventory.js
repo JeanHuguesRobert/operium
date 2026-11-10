@@ -3,7 +3,6 @@
  * reject with an unambiguous status, never an HTML SPA fallback.
  */
 export const JHN_PENDING_ROUTES=Object.freeze([
-  {path:'/api/jhn-cop-events',reason:'cop_event_ingress_requires_protected_vault'},
   {path:'/api/webhooks/github',reason:'webhook_signature_and_delivery_not_integrated'},
   {path:'/api/oleole/*',reason:'presence_auth_and_storage_not_integrated'},
   {path:'/artifact-access/*',reason:'artifact_token_service_role_not_integrated'},

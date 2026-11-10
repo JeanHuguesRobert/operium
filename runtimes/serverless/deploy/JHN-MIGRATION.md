@@ -178,3 +178,37 @@ for the owner-private routes and secrets.
 **Cutover remains blocked** pending authenticated owner/delegate reads,
 review of the owner subject configuration, COP event ingress migration and
 full public API parity.
+
+## 2026-11-10 COP-event route and instance-alias verification
+
+The existing `inseme/apps/platform/netlify/edge-functions/jhn-cop-events.js`
+handler can now be dispatched by the Deno host on `/api/jhn-cop-events`.
+FractaFunction wraps it with an **off-by-default event-write gate**:
+
+- `GET` responds `405 method_not_allowed`.
+- `POST` responds `503 cop_event_ingress_not_activated` unless the *operator*
+  deliberately provisions `FRACTAFUNCTION_COP_EVENT_WRITES=enabled` together
+  with the corresponding runtime environment permission. That operator setting
+  is not installed or authorized by this change.
+- When activated in a future migration, the original handler must independently
+  verify the Vault capability, payload shape and Supabase append RPC. This
+  source-level gate does not confer COP authority or validate a real write.
+- The original chat POST remains disabled. Do **not** enable chat merely
+  because the event route exists; the replay/idempotency, provider effects and
+  owner-approved ingress semantics must first be reviewed.
+
+Actual Fracta2 HTTP integration returned `405` on GET, `503` on a test POST,
+with **no COP event written**. Both test processes were stopped afterwards.
+
+The JHN instance alias hierarchy was also inspected **without printing values**:
+`jhn` and `john` resolve to existing instance aliases. In the instance-level
+key inventory, `nasa_principal_subject` is present, but its effective value
+resolved by `getConfig(..., 'jhn')` is empty. The `nasa_operator_subjects` and
+`interactions_desk_principal_subject` keys are absent. Thus the NASA principal
+read blocker is **not just a root-table lookup limitation**. Any future
+configuration change must use the canonical instance config editing workflow,
+with an actual owner identity established through Supabase authentication;
+never fabricate a principal UUID, delegate or grant for staging.
+
+The diagnostic `probe-jhn-vault.ts` now returns only key-presence and
+nonempty-result booleans for root, `jhn` and `john`. It does not reveal values.

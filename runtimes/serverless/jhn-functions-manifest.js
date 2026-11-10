@@ -11,6 +11,7 @@ export const JHN_ROUTES=Object.freeze([
  {path:'/api/corsica/context',runtime:'deno',invoke:createDenoLoopback()},
  {path:'/api/nasa/control',runtime:'deno-protected',invoke:createDenoLoopback()},
  {path:'/api/interactions/desk',runtime:'deno-protected',invoke:createDenoLoopback()},
+ {path:'/api/jhn-cop-events',runtime:'deno-protected',invoke:createDenoLoopback()},
  {path:'/api/chat-stream',runtime:'deno',invoke:createDenoLoopback()},
 ]);
 export const jhnRoutes=JHN_ROUTES.map(route=>({

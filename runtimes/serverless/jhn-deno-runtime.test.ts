@@ -24,3 +24,11 @@ Deno.test('NASA and interactions source functions: read-only and no bearer fail 
    }
  }
 });
+
+Deno.test('COP append ingress remains explicitly disabled by default',async()=>{
+ const get=await handler(new Request('http://127.0.0.1:8797/api/jhn-cop-events'));
+ assertEquals(get.status,405);
+ const post=await handler(new Request('http://127.0.0.1:8797/api/jhn-cop-events',{method:'POST',body:'{}'}));
+ assertEquals(post.status,503);
+ assertEquals((await post.json()).error,'cop_event_ingress_not_activated');
+});
