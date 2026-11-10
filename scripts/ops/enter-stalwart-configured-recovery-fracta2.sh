@@ -2,12 +2,12 @@
 # Finish Stalwart 1.1 bootstrap safely: keep existing SQLite, enter recovery mode
 # on :8080 only to configure private NetworkListeners BEFORE a normal restart.
 # Must be run as owner-root; no passwords printed, no external mail or public ports.
+# Fresh-install reset: no snapshots, backups or archival state.
 set -Eeuo pipefail
 service=stalwart.service
 dropin=/etc/systemd/system/stalwart.service.d/10-private-bootstrap.conf
 config=/etc/stalwart/config.json
 db=/var/lib/stalwart/stalwart.db
-backup_dir=/var/lib/stalwart/ops-backups
 [[ $(id -u) -eq 0 ]] || { echo 'REFUSE: root required'; exit 2; }
 [[ $(/usr/local/bin/stalwart --version 2>&1) == '1.1.0' ]] || { echo 'REFUSE: unexpected Stalwart version'; exit 2; }
 [[ $(systemctl is-enabled "$service") == disabled ]] || { echo 'REFUSE: Stalwart is not disabled at boot'; exit 2; }
@@ -24,22 +24,8 @@ if [[ ${1:-} != --apply ]]; then
   echo 'PREFLIGHT_OK: existing configuration and SQLite ready; service can enter bounded recovery mode'; exit 0
 fi
 [[ $# -eq 1 ]] || { echo 'USAGE: sudo bash enter-stalwart-configured-recovery-fracta2.sh --apply'; exit 2; }
-# Stop before database backup to prevent torn SQLite copies. Do not overwrite old files.
+# Fresh setup: no backup or snapshot (Principal explicitly requested no safety net).
 systemctl stop "$service"
-install -d -m 0700 -o stalwart -g stalwart "$backup_dir"
-backup="$backup_dir/stalwart-pre-recovery-$(date -u +%Y%m%dT%H%M%SZ).db"
-python3 - "$db" "$backup" <<'PY'
-import sqlite3,sys,os
-src,dst=sys.argv[1:]
-a=sqlite3.connect('file:'+src+'?mode=ro',uri=True)
-b=sqlite3.connect(dst)
-a.backup(b)
-res=b.execute('PRAGMA quick_check').fetchone()[0]
-b.close();a.close()
-assert res=='ok','SQLite backup integrity error'
-os.chmod(dst,0o600)
-print('SQLITE_SNAPSHOT_OK (private; contents not displayed)')
-PY
 # Preserve the same guard position, but make this configured-only and recovery-only.
 cat > "$dropin" <<'CONF'
 [Service]

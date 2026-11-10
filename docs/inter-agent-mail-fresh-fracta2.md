@@ -88,3 +88,7 @@ The Principal recalls possibly selecting an initial wizard option about TLS/cert
 Sources: https://stalw.art/docs/server/listener/ ; https://stalw.art/docs/domains/tls-certificates/ ; https://stalw.art/docs/server/tls/acme/configuration/ ; https://stalw.art/docs/configuration/recovery-mode/ ; https://stalw.art/docs/install/security/ .
 
 **No production settings have been changed by writing these instructions**: private Stalwart configuration lives in the root-protected SQLite store and must be inspected via authorized management access. Never directly edit the opaque database tables to guess an undocumented schema. Avoid unnecessary certificate issuance and preserve Caddy on 443.
+
+## Fresh restart after clean installation (2026-11-10)
+
+Owner completed the **fresh wizard** and it requested a restart. Observed Stalwart bootstrap active on 8080, disabled at boot, old `ExecStartPre=test ! -e /etc/stalwart/config.json` guard, and Caddy on 443. Next action: `enter-stalwart-configured-recovery-fracta2.sh --apply`, **without any SQLite snapshot**, consistent with the Principal’s fresh-install/no-safety-net instruction. Recovery leaves normal SMTP/IMAP and Stalwart 443 closed while inspecting saved private settings.
