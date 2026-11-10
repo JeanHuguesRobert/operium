@@ -62,3 +62,13 @@ Short path:
 5. Restore/start any deferred services only after checking their specific credentials and persistent data; do not automatically start WhatsApp. Retire the old VPS in a distinct later step after verification of residual unique state.
 
 No requirement to preserve public uptime during 1–4. Remaining hard safeguards are avoiding permanent loss of the reserved IP and maintaining an independent administrative recovery route.
+
+## 2026-11-10 — Priority P0: restore browser.fractavolta.com after IP reassignment
+
+Principal reports **RESERVED IPv4 `82.70.234.207` successfully ASSIGNED to Fracta2's primary private IP `10.0.0.2`**, and assigns priority to hosted Unix/X11/Chromium sessions at `browser.fractavolta.com`; WhatsApp stays stopped.
+
+**Root cause verified**: the local OCI Ubuntu guest firewall has `iptables` `INPUT` allowing only established traffic, ICMP, loopback and TCP destination 22, followed by unconditional `REJECT --reject-with icmp-host-prohibited`. Caddy is active and listens on `:80` and `:443`; the local browser route returns HTTP 401 without credentials; both KasmVNC backends `127.0.0.1:8444` and `:8445` return 401 (their own authentication); `hosted-browser@hosted-jeanhuguesrobert.service` and `hosted-browser@hosted-fred2b20250.service` are active. DNS `browser.fractavolta.com` resolves to `82.70.234.207`. ACME failures in Caddy explicitly show connection timeout to `82.70.234.207:80/443`. From Fracta2 the public-IP loopback test fails `No route to host`; **this is not a substitute for independent external verification**.
+
+**Fix prepared, not yet applied**: `scripts/ops/enable-fracta2-public-web-iptables.sh` preflight PASS; owner-run `sudo bash .../enable-fracta2-public-web-iptables.sh --apply` inserts only NEW TCP destination 80/443 ACCEPT rules, preserves SSH and the existing OCI `InstanceServices` chain, atomically persists the complete IPv4 ruleset to `/etc/iptables/rules.v4`, then checks Caddy :80/:443 and browser unauthenticated 401. This is specifically preferable to opening RFB ports 5900/5901 publicly. Requires independent owner SSH/sudo due to tool `NoNewPrivs=1`; agent has not modified firewall.
+
+**Next acceptance gates after apply**: `curl` from an *external workstation* must reach `http://browser.fractavolta.com` with HTTP 401 (no redirect) and HTTPS with a valid certificate after Caddy ACME succeeds. Test login separately with both principals' own credentials and verify each account opens its own KasmVNC session and Chromium; no credentials or cookies in issue/logs. If Caddy ACME remains in exponential retry after firewall fix, owner `sudo systemctl reload caddy` and inspect redacted `journalctl -u caddy` for issuance. Keep WhatsApp stopped.
