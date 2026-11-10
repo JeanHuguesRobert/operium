@@ -116,3 +116,12 @@ are not yet proven.
 Operational preflight, systemd unit templates, and a deliberate future Caddy
 cutover template are in [`deploy/JHN-MIGRATION.md`](deploy/JHN-MIGRATION.md).
 **This source commit does not install or activate systemd or change DNS/Caddy.**
+
+Additional JHN route accounting lives in `jhn-route-inventory.js`. The
+existing JHN chat Edge Function is invoked by Deno only for its no-effect
+healthcheck (`GET /api/chat-stream?healthcheck=true`). Actual chat `POST`
+is explicitly refused with `503` until its secret Vault, provider and COP
+append-event contracts are migrated and verified. Other non-migrated legacy
+JHN routes are explicitly refused with `503` (see `deploy/JHN-MIGRATION.md`),
+never silently routed to the SPA. A successful healthcheck does not attest
+production feature availability.

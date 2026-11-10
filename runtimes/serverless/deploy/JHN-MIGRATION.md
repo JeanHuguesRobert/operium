@@ -65,3 +65,34 @@ and canonical origin; no COP grant is implied by the preview.
 The Caddy cutover fragment is deliberately **not installed** or loaded.
 Promoting the site before migrating its remaining APIs would break existing
 features, even though the specific COP static page works locally.
+
+## 2026-11-10 route migration ledger (post-pilot)
+
+The deployed Netlify profile still owns the public hostname; the following
+statuses refer to the **local FractaFunction JHN preview**, not the production
+DNS route.
+
+| Route | Local preview | Required before public cutover |
+|---|---|---|
+| `/cop/consent/:id` SPA | Static frontend 200 | Real Supabase browser login on canonical HTTPS origin |
+| `/api/cop/principal-consent/*` | Canonical local COP relay, anonymous 401, bad bearer 403 | Valid authenticated read, origin/CORS and explicit decision authorization |
+| `/cc/requete-conseil-constitutionnel-haute-corse-2026.pdf` | Existing Node handler, POST 405 | GET upstream PDF bytes, cache and correct content type |
+| `/api/corsica/context` | Existing Deno handler, invalid parameters 400 | Valid coordinate Open-Meteo fetch, rate limits and attribution |
+| `/api/chat-stream` | Existing Deno handler health 200; POST 503 **by design** | Secret vault, COP event ingress, provider and streaming semantics |
+| `/api/nasa/control` | Explicit 503 not migrated | Principal/delegate auth and audit, no unauthorized actions |
+| `/api/interactions/desk` | Explicit 503 not migrated | Supabase owner/delegate auth and scoped reads |
+| `/api/jhn-cop-events` | Explicit 503 not migrated | Instance vault, capability checks and append-only events |
+| `/api/webhooks/github` | Explicit 503 not migrated | GitHub HMAC signature, delivery dedupe and durable events |
+| `/api/oleole/*` | Explicit 503 not migrated | Presence actor identity, state and storage privileges |
+| `/artifact-access/*` | Explicit 503 not migrated | Bounded token access and service-role RPCs |
+
+The `GET /api/chat-stream?healthcheck=true` response only demonstrates that
+the original handler was invoked. It is **not** evidence that POST chat
+or the COP event pipeline can execute. The service's explicit 503 is the
+intentional authorization/dependency boundary until required validation.
+
+The next engineering package should focus on **Node/Deno configuration and
+instance Vault adapters** under already scoped authorities; it must never
+create fake keys, transfer service-role secrets into a generic environment,
+or silently enable consequential APIs. Preserve the separate authority between
+COP capabilities, the technical transport and user consent.

@@ -9,6 +9,7 @@ export const JHN_ROUTES=Object.freeze([
  {path:'/api/cop/principal-consent/*',runtime:'canonical-cop',invoke:createLocalConsentProxy()},
  {path:'/cc/requete-conseil-constitutionnel-haute-corse-2026.pdf',runtime:'node',invoke:r=>invokeNodeFunction(ccPdf,r)},
  {path:'/api/corsica/context',runtime:'deno',invoke:createDenoLoopback()},
+ {path:'/api/chat-stream',runtime:'deno',invoke:createDenoLoopback()},
 ]);
 export const jhnRoutes=JHN_ROUTES.map(route=>({
   match:path=>routeMatches(route.path,path),invoke:route.invoke

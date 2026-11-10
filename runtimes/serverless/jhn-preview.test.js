@@ -28,3 +28,13 @@ test('canonical COP relay direct live preflight fails closed without Supabase be
  const f=createLocalConsentProxy();const response=await f(new Request('https://jhn.baronsmariani.org/api/cop/principal-consent/'+UUID));
  assert.equal(response.status,401);
 });
+test('all remaining legacy JHN API surfaces fail closed with named pending status',async()=>{
+ const site=createJhnPreview({port:0});const a=await site.listen();const base=`http://127.0.0.1:${a.port}`;
+ try{
+  for(const path of ['/api/nasa/control','/api/interactions/desk','/api/jhn-cop-events',
+    '/api/webhooks/github','/api/oleole/health','/artifact-access/a/testtoken']){
+    const r=await fetch(base+path);assert.equal(r.status,503,path);
+    assert.equal((await r.json()).error,'jhn_route_not_migrated',path);
+  }
+ }finally{await site.close()}
+});

@@ -5,6 +5,7 @@ import {readFile,stat} from 'node:fs/promises';
 import {resolve,sep,extname} from 'node:path';
 import {JHN_ROUTES,PUBLIC_ORIGIN} from './jhn-functions-manifest.js';
 import {routeMatches} from './contract.js';
+import {JHN_PENDING_ROUTES} from './jhn-route-inventory.js';
 const DIST='/srv/cogentia/repos/inseme/apps/platform/dist';
 const TYPES={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8',
  '.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.ico':'image/x-icon','.png':'image/png',
@@ -25,6 +26,10 @@ export function createJhnPreview({dist=DIST,port=8795,host='127.0.0.1',routes=JH
     const response=await registered.invoke(request);
     const out={};for(const [k,v]of response.headers)if(!['content-length','connection','transfer-encoding'].includes(k))out[k]=v;
     res.writeHead(response.status,out);res.end(Buffer.from(await response.arrayBuffer()));return;
+   }
+   if(JHN_PENDING_ROUTES.some(route=>routeMatches(route.path,pathname))){
+     res.writeHead(503,{'content-type':'application/json','cache-control':'no-store'});
+     res.end(JSON.stringify({ok:false,error:'jhn_route_not_migrated'}));return;
    }
    if(BLOCKED_PREFIXES.some(p=>pathname.startsWith(p)))return text(404,'API route not configured');
    if(!['GET','HEAD'].includes(req.method))return text(405,'Method not allowed');
