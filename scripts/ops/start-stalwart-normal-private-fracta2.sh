@@ -52,11 +52,24 @@ if [[ $(systemctl is-active "$unit") != active ]]; then
  exit 4
 fi
 # Independently reject any Stalwart public/mail socket or non-loopback 8080.
-if ss -ltnH | awk '{print $4}' | grep -Eq '(^|:)(25|465|587|993|995|4190|2525)$'; then
- echo 'FAILED: unexpected mail socket, stopping Stalwart' >&2;systemctl stop "$unit";exit 5
-fi
-if ss -ltnH | awk '{print $4}' | grep -Eq '^([^1]|127\\.0\\.0\\.[^1]).*:8080$|^\\*:8080$|^\\[::\\]:8080$'; then
- echo 'FAILED: non-loopback admin bind, stopping Stalwart' >&2;systemctl stop "$unit";exit 5
+if ! python3 - <<'PYPORT'
+import subprocess
+lines=subprocess.check_output(['ss','-ltnH'],text=True).splitlines()
+ports=[]
+for line in lines:
+ parts=line.split()
+ if len(parts)>=4:
+  local=parts[3]
+  try: port=int(local.rsplit(':',1)[1])
+  except (ValueError,IndexError): continue
+  if port in {25,465,587,993,995,4190,2525}:
+   raise SystemExit('unexpected mail protocol listener: '+str(port))
+  if port==8080:
+   ports.append(local)
+assert ports==['127.0.0.1:8080'], 'nonprivate or missing HTTP listener: '+str(ports)
+PYPORT
+then
+ echo 'FAILED: unexpected port binding, stopping Stalwart' >&2;systemctl stop "$unit";exit 5
 fi
 [[ $(systemctl is-enabled "$unit") == disabled ]] || { echo 'FAILED: unit unexpectedly enabled';systemctl disable --now "$unit";exit 5; }
 code=$(curl -sS -m 6 -o /dev/null -w '%{http_code}' http://127.0.0.1:8080/admin/ 2>/dev/null || :)
