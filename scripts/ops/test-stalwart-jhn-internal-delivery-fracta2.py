@@ -40,16 +40,23 @@ def http(address: str, secret: str, path: str, payload: dict | None = None) -> d
 
 
 def calls(address: str, secret: str, methods: list) -> dict:
+    # RFC 8621 §7.5: onSuccessDestroyEmail triggers an *implicit* Email/set
+    # response with the SAME client call ID as EmailSubmission/set. A map of
+    # cid -> one response loses the actual EmailSubmission/set result.
     obj = http(address,secret,'/jmap',{'using':USING,'methodCalls':methods})
-    return {cid:(name,body) for name,body,cid in obj.get('methodResponses',[])}
+    grouped = {}
+    for name, body, cid in obj.get('methodResponses',[]):
+        grouped.setdefault(cid, []).append((name, body))
+    return grouped
 
 
 def get(resp:dict, id:str, expected:str) -> dict:
-    method,body = resp.get(id,('missing',{}))
-    if method!=expected:
-        raise RuntimeError(f'JMAP call {id}: expected {expected}, got {method}')
-    return body
-
+    entries = resp.get(id, [])
+    matches = [body for method,body in entries if method == expected]
+    if len(matches) != 1:
+        found = [method for method,body in entries]
+        raise RuntimeError(f'JMAP call {id}: expected one {expected}, got {found}')
+    return matches[0]
 
 def session(address:str,secret:str)->str:
     obj=http(address,secret,'/jmap/session')
@@ -137,6 +144,37 @@ def received(secret:str,account:str,inbox:str,subject:str,body:str)->bool:
     return False
 
 
+def prior_receipt(secret: str, account: str, inbox: str) -> bool:
+    """Reconcile a possibly delivered earlier run before allowing any retry.
+
+    Query by the fixed test subject prefix. Inspect only a bounded recent set,
+    and verify sender/recipient/body marker, never printing message contents.
+    """
+    prefix = 'Cogentia inter-agent delivery check'
+    r = calls(RECIPIENT,secret,[['Email/query',{
+        'accountId':account,'filter':{'inMailbox':inbox,'subject':prefix},
+        'sort':[{'property':'receivedAt','isAscending':False}], 'limit':100
+    },'prior']])
+    ids = get(r,'prior','Email/query').get('ids',[])
+    for offset in range(0,len(ids),20):
+        batch = ids[offset:offset+20]
+        result = calls(RECIPIENT,secret,[['Email/get',{
+          'accountId':account,'ids':batch,
+          'properties':['id','subject','from','to','textBody','bodyValues'],
+          'fetchTextBodyValues':True},'past']])
+        messages=get(result,'past','Email/get').get('list',[])
+        for message in messages:
+            subject=message.get('subject','')
+            if not subject.startswith(prefix+' '):continue
+            marker=subject[len(prefix)+1:]
+            if len(marker)!=32 or not all(c in '0123456789abcdef' for c in marker):continue
+            if SENDER not in [a.get('email') for a in message.get('from',[])]:continue
+            if RECIPIENT not in [a.get('email') for a in message.get('to',[])]:continue
+            body='Private intra-Twin message from John to John Worker. Receipt token: '+marker
+            if any(body in (v.get('value') or '') for v in (message.get('bodyValues') or {}).values()):
+                return True
+    return False
+
 def main():
     p=argparse.ArgumentParser()
     p.add_argument('--apply',action='store_true',help='send one strictly internal message and verify receipt')
@@ -154,8 +192,14 @@ def main():
     inbox=role_id(recipient_boxes,'inbox')
     sending_identity=identity(SENDER,creds[SENDER],sender_id)
     print('PREFLIGHT_OK: both agents authenticated via localhost JMAP; sender identity, Drafts staging and recipient Inbox present')
+    # A previous attempt may have submitted successfully and only failed
+    # while parsing the second implicit JMAP response. Never send blindly.
+    if prior_receipt(creds[RECIPIENT],recipient_id,inbox):
+        print('PASS: earlier intra-Twin test message is present and its sender/recipient/body verified in recipient Inbox')
+        print('RECONCILED: no new message submitted')
+        return
     if not args.apply:
-        print('READ_ONLY: no messages created or submitted; run with --apply for the internal delivery recipe')
+        print('READ_ONLY: no prior matching receipt found; no messages created or submitted')
         return
     correlation=uuid.uuid4().hex
     subject='Cogentia inter-agent delivery check '+correlation
