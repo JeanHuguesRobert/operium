@@ -116,3 +116,65 @@ chat availability.
 Verified using a real Node-to-Deno HTTP integration: anonymous NASA/Desk
 GET=401, both POST=405, chat health GET=200, territorial context invalid
 GET=400. No public DNS, Caddy or canonical COP decision was changed.
+
+## 2026-11-10 Supabase bootstrap / instance Vault connection
+
+The **existing** Inseme instance configuration machinery is now reachable
+from FractaFunction Deno on Fracta2, without a second Vault implementation.
+The canonical code is:
+
+- `inseme/packages/cop-host/src/config/instanceConfig.edge.js` — Netlify.env
+  first, Deno.env fallback; client factory and `loadInstanceConfig()`;
+- `inseme/packages/cop-host/src/config/instanceConfig.core.js` —
+  `instance_config`, `instances`, `instance_aliases`, instance cache;
+- `inseme/packages/cop-host/src/config/instanceConfig.backend.js` — Node
+  `process.env` provider with equivalent initialization;
+- `inseme/.env` — existing local bootstrap, private mode 0600.
+
+`bootstrap-jhn-deno.js` uses existing Inseme dotenv parsing to read exactly
+`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `SUPABASE_ANON_KEY` from that
+private file, checks the HTTPS endpoint, and launches the Deno worker using
+an allowlisted environment. It passes no OpenAI, COP or GitHub secret directly
+from the `.env` file. The original Deno module resolves Vault values itself.
+The source file is *not copied* and the bootstrap variables never enter
+GitHub or standard application logs. The wrapper restricts network access to
+the configured Supabase endpoint, its module CDNs, the local listener and the
+Open-Meteo API. All unknown routes still fail closed.
+
+`deno.json` maps `@inseme/cop-host/` onto the already checked-out, canonical
+Inseme package, so the unchanged Edge code can import its config provider.
+The worker's systemd unit starts through this wrapper; it uses a private
+runtime cache directory. Remote Deno module downloads may recur after
+restarts until the module cache is provisioned persistently.
+
+**Read-only evidence on Fracta2:**
+
+- Original loader successfully fetched **123** config rows from the actual
+  Supabase instance (no values emitted in the probe receipt).
+- `jhn_cop_capability` and `openai_api_key`: present in Vault.
+- `nasa_principal_subject`, `nasa_operator_subjects`, and
+  `interactions_desk_principal_subject`: absent under these names.
+- `jhn_cop_event_url`: absent; its original chat code falls back to the
+  public `/api/jhn-cop-events`, which is not migrated.
+- Running the real Deno worker with this bootstrap, both protected NASA and
+  Interactions GETs return `401 invalid_session` with a deliberately invalid
+  bearer, and `401 missing_bearer_token` without a bearer. **No authorized
+  user read or write has been tested.**
+
+The probe may be repeated from an already authorized operator shell:
+
+```sh
+cd /srv/cogentia/repos/operium
+node runtimes/serverless/bootstrap-jhn-deno.js --probe
+```
+
+It prints only configuration row counts and booleans for selected key
+presence. Its output is *not* an authority grant and cannot prove the presence
+of principal/delegate mapping when a key is missing. The service-role bootstrap
+key is powerful: do not use the Deno worker as a general multi-tenant function
+execution host. Dedicated workers and restricted ingress will remain required
+for the owner-private routes and secrets.
+
+**Cutover remains blocked** pending authenticated owner/delegate reads,
+review of the owner subject configuration, COP event ingress migration and
+full public API parity.

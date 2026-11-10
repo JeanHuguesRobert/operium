@@ -133,3 +133,15 @@ reads are not yet validated and the instance Vault has not been configured**.
 The Node facade forwards streaming responses directly; this enables a real
 SSE transport when chat provider and COP ingress dependencies are later met,
 but POST chat stays unavailable for now.
+
+### Existing JHN instance Vault (not a new secret store)
+
+`bootstrap-jhn-deno.js` launches the existing Deno Edge configuration loader
+with only the three Supabase bootstrap variables read from the already-present
+private `inseme/.env` (0600). `deno.json` resolves the established
+`@inseme/cop-host` import alias. No new persisted secret file is generated.
+`probe-jhn-vault.ts` verifies actual read-only `instance_config` access and
+reports **only key-presence booleans**. On Fracta2, the original loader read
+123 rows; anonymous and invalid-session GET checks behaved correctly.
+See the detailed restricted-access evidence and still-missing owner mappings in
+[`deploy/JHN-MIGRATION.md`](deploy/JHN-MIGRATION.md).

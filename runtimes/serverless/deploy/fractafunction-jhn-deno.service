@@ -8,7 +8,7 @@ Type=simple
 User=ubuntu
 WorkingDirectory=/srv/cogentia/repos/operium
 Environment=FRACTAFUNCTION_DENO_PORT=8797
-ExecStart=/home/ubuntu/.local/lib/node_modules/deno/deno run --no-check --allow-net=127.0.0.1:8797,api.open-meteo.com:443 --allow-env=FRACTAFUNCTION_DENO_PORT /srv/cogentia/repos/operium/runtimes/serverless/jhn-deno-runtime.ts
+ExecStart=/usr/local/node-v26.5.0/bin/node /srv/cogentia/repos/operium/runtimes/serverless/bootstrap-jhn-deno.js
 Restart=on-failure
 RestartSec=3
 NoNewPrivileges=true
