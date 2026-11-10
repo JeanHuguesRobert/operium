@@ -67,3 +67,19 @@ assert 'cogentia_agent_mail_send' in body and 'cogentia_agent_mail_receive' in b
 print('PASS: live MCP catalogue includes agent_mail_send and agent_mail_receive')
 PYAPI
 printf '%s\n' 'PASS: private JMAP runtime bound, service active, no mail listeners; COP permission unchanged; no message sent'
+# Owner is activating a protected *exact* internal-mail mandate extension,
+# never a generic mandate-issuance endpoint. The decision is verified by live
+# Supabase authentication; the issuer applies only that precise mail scope.
+python3 "$repo/scripts/ops/consent-deploy/enable-jhn-consent-decisions.py" --apply
+consentOverride=/etc/systemd/system/cogentia-jhn-consent.service.d/60-agent-mail-exact-apply.conf
+printf '[Service]\nEnvironment=COGENTIA_JHN_CONSENT_ENABLE_AGENT_MAIL_APPLY=1\n' > "$consentOverride"
+chmod 644 "$consentOverride"
+systemctl daemon-reload
+systemctl restart cogentia-jhn-consent.service
+[[ $(systemctl is-active cogentia-jhn-consent.service) == active ]] || { echo 'FAIL: consent service inactive'; exit 6; }
+[[ $(systemctl show cogentia-jhn-consent.service -p Environment --value) == *COGENTIA_JHN_CONSENT_ENABLE_AGENT_MAIL_APPLY=1* ]] || { echo 'FAIL: exact consent apply not activated'; exit 6; }
+# A pending challenge is not a grant. The owner must still explicitly approve
+# in their independently authenticated browser. The challenge expires after
+# ten minutes; the --request command can be reissued without restart.
+runuser -u ubuntu -- env SSH_CONNECTION=owner-invoked-bootstrap \
+  /usr/local/node-v26.5.0/bin/node "$repo/scripts/ops/jhn-agent-mail-consent-cli.js" --request
