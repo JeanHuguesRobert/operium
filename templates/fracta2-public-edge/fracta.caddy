@@ -1,0 +1,13 @@
+# New public role on Fracta2. Preserve the Streamlit app's /simulateur base path.
+https://fracta.fractavolta.com, https://www.fractavolta.com {
+    @sim path /simulateur /simulateur/*
+    handle @sim {
+        reverse_proxy 100.84.109.87:8502
+    }
+    handle / {
+        respond "Fracta2 public gateway operational" 200
+    }
+    handle {
+        respond "Route not deployed on this gateway" 404
+    }
+}

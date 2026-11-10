@@ -1,0 +1,13 @@
+# Public MCP/Guide/COP facade, not a proxy to the privileged daemon or Magistral.
+https://cogentia.fractavolta.com, https://cop.fractavolta.com {
+    @guide_and_ops path /mcp /mcp/* /sse /sse/* /tools /tools/* /guide /guide/* /cop /cop/* /ops/blackboard /ops/blackboard/* /ops/status /ops/dashboard /ops/dashboard/* /ops/route/* /ops/edge/* /ops/node/* /ops/console/* /service-info
+    handle @guide_and_ops {
+        reverse_proxy 127.0.0.1:8791
+    }
+    handle / {
+        redir https://cogentia.fractavolta.com/guide/ 302
+    }
+    handle {
+        respond "Route unavailable on public edge" 404
+    }
+}

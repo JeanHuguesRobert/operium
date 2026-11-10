@@ -1,0 +1,17 @@
+# Static KYS/Serenia app. Never route missing assets to index.html.
+https://services.acorsica.org {
+    root * /srv/www/kys-services/current
+    encode zstd gzip
+    @api path /api/*
+    handle @api {
+        respond "No backend API configured" 404
+    }
+    @static path /assets/* /services/*.json /kys-services.json
+    handle @static {
+        file_server
+    }
+    handle {
+        try_files {path} /index.html
+        file_server
+    }
+}
