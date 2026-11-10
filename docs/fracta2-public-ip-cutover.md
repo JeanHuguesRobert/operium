@@ -32,3 +32,19 @@ Internal Stalwart agent messages are allowed. Only explicitly permitted SMTP not
 ## Evidence rule
 
 Record OCI attachment, host listeners, per-host probes, auth, accepted outages, recovery and receipts in issue #77. An active service is not end-to-end proof. Distinguish current facts, candidate configs and completed acts.
+
+## 2026-11-10 — storage recovered; WhatsApp deferred; HTTPS staged safely
+
+- Confirmed Fracta2 root filesystem at **80% used, 9.1 GiB available** (after eliminating the abandoned multi-file Baileys authentication state and earlier temporary-build caches). WhatsApp intentionally **stopped**, its new private SQLite credentials unpaired. **Do not start or re-pair WhatsApp as a prerequisite for #77**.
+- Caddy still serves :80 and does not yet listen on :443. Real HTTP hostname checks: `capable.lepp.fr` 200, `suicidecorse.baronsmariani.org` 200, `privai.acorsica.org` 200, unauthenticated `browser.fractavolta.com` 401. Tailscale independent admin address `100.84.109.87` remains present.
+- HTTPS candidate `/tmp/fracta2-https-stage-20261109-resume77/Caddyfile` passes `caddy adapt` and contains 12 HTTPS site blocks, retaining the two hosted-browser Basic Auth upstreams on :8444/:8445. HTTP virtual hosts remain in `/etc/caddy/Caddyfile.d/*.caddy`.
+- New helper `scripts/ops/install-fracta2-caddy-https-stage.sh` preflights vhosts + browser authorization and has an explicit owner-sudo `--apply` mode. It builds `/etc/caddy/fracta2-edge-https/*.caddy`, adds HTTPS route import while **disabling premature automatic HTTP redirects**, validates Caddy syntax, reloads, checks :443 and probes HTTP/browser 401. It stores the prior root file and attempts rollback on failure. **This helper is prepared, not yet applied.** After apply, expect automated TLS certificate issuance to fail until the reserved IPv4 has reached Fracta2 and OCI ingress 80/443 is open; do not misreport this as a successful end-to-end HTTPS test.
+- OCI public-IP metadata on Fracta2 still reports private IP `10.0.0.2` with `publicIp:null`. The reserved 82.70.234.207 is still intended for transfer, **not yet transferred**. The local `sudo` route in the agent tool is explicitly `NoNewPrivs`; the owner's independent SSH/serial-console administration remains the route for the Caddy installer.
+- `/etc/stalwart` and `/var/lib/stalwart` are still absent on Fracta2. **Mail continuity must be decided or separately restored before the public IP cutover**, even though WhatsApp can remain stopped; low criticality of WhatsApp does not imply a grant to lose external mail. Do not tear down old Fracta until its mail/state dependencies have been reviewed.
+
+### Remaining go/no-go
+
+1. Owner installs HTTPS Caddy stage (without redirect), inspect service and secure browser routes.
+2. Using authenticated ThinkPad OCI CLI, inspect/repair ingress TCP destination **80,443** in the effective Security List / NSG without clobbering other rules. Existing list formerly had mistaken source-port 80/443 rules; it must be corrected. Verify default route through Internet Gateway and recovery on Tailscale/serial console.
+3. Preserve/restore or explicitly accept mail outage for `mail.fractavolta.com` / Stalwart. No automatic outbound-mail tests.
+4. Prepare `oci network public-ip update` only when gates 1–3 satisfied; delete currently attached ephemeral IP if necessary by verified OCI procedure, then reassign existing RESERVED IP with exact OCIDs and poll. Have original private-IP object for rollback. Verify all public domains and authenticated browser **before** retirement of the old node.
