@@ -107,3 +107,14 @@ ssh -tt fracta2 'sudo python3 /srv/cogentia/repos/operium/scripts/ops/provision-
 ```
 
 **Next phase:** provision a private-only SMTP transport (localhost :2525) or use authenticated JMAP email submission with an explicit internal-recipient guard and verify real sender-to-recipient mailbox delivery. No real delivery has yet been observed, even internally. Keep Principal boundaries and semantic COP checks orthogonal to the transport capability.
+
+## 2026-11-10 — Internal mail is immediate; Gmail drafts rule does NOT apply
+
+**Correction by the Principal:** the draft-before-send rule applies to the Principal's ordinary Gmail correspondence with third parties, **not** to internal communications between agents in the same Twin Trust Perimeter. Intra-Twin agent messages are autonomous by default within the relevant COP actor/semantic mandate and budgets, with no per-message human approval or draft-review queue. This does **not** grant agents authority to contact other Principals via their external mailboxes; inter-Twin communication remains a separate external correspondence boundary.
+
+For JMAP, `Email/set` can create a technical transient Email object and `EmailSubmission/set` submits it; the protocol may internally call this object a *draft*. That storage primitive must not be confused with the **normative Gmail draft-before-send workflow**. `scripts/ops/test-stalwart-jhn-internal-delivery-fracta2.py` chains the two methods in **one automatic request** and uses `onSuccessDestroyEmail=['#s']` so the staging object is not retained after successful submission. The script hardcodes `john@mail.fractavolta.com` as sender and `john-worker@mail.fractavolta.com` as recipient, uses only JMAP on `127.0.0.1:8080`, checks sender identity and receiver Inbox, and proves delivery only when the exact subject, addresses and body appear in the receiving account. Syntax checked, **not yet executed** on live JHN credentials; first test the read-only default, then `--apply` for one internal message. Do not infer production COP enforcement from this owner-operated bootstrap recipe.
+
+```powershell
+ssh -tt fracta2 'sudo python3 /srv/cogentia/repos/operium/scripts/ops/test-stalwart-jhn-internal-delivery-fracta2.py'
+ssh -tt fracta2 'sudo python3 /srv/cogentia/repos/operium/scripts/ops/test-stalwart-jhn-internal-delivery-fracta2.py --apply'
+```
