@@ -42,6 +42,17 @@ def run(*args: str) -> str:
     return subprocess.check_output(args, text=True, stderr=subprocess.STDOUT).strip()
 
 
+def service_status(verb: str) -> str:
+    """systemctl is-enabled returns exit 1 for the valid 'disabled' state."""
+    if verb not in ("is-active", "is-enabled"):
+        raise ValueError("unsupported status query")
+    result = subprocess.run(("systemctl", verb, SERVICE), capture_output=True, text=True, check=False)
+    status = result.stdout.strip()
+    if status not in ("active", "inactive", "failed", "activating", "deactivating", "disabled", "enabled", "static", "masked"):
+        raise RuntimeError(f"Unexpected systemctl {verb} status (rc={result.returncode}): {status or result.stderr.strip()}")
+    return status
+
+
 def assert_ports(private: bool) -> None:
     sockets = run("ss", "-ltnH").splitlines()
     admin = []
@@ -146,7 +157,7 @@ def main() -> int:
         raise RuntimeError("Owner-root required for reading private local recovery credential")
     if run("/usr/local/bin/stalwart", "--version") != "1.1.0":
         raise RuntimeError("Unexpected Stalwart version")
-    if run("systemctl", "is-active", SERVICE) != "active" or run("systemctl", "is-enabled", SERVICE) != "disabled":
+    if service_status("is-active") != "active" or service_status("is-enabled") != "disabled":
         raise RuntimeError("Unexpected service state")
     if "STALWART_RECOVERY_MODE=true" in run("systemctl", "show", "-p", "Environment", "--value", SERVICE):
         raise RuntimeError("Server must start in normal mode, not already in recovery")
@@ -182,7 +193,7 @@ def main() -> int:
         run("systemctl", "daemon-reload")
         run("systemctl", "start", SERVICE)
     assert_ports(private=True)
-    if run("systemctl", "is-active", SERVICE) != "active" or run("systemctl", "is-enabled", SERVICE) != "disabled":
+    if service_status("is-active") != "active" or service_status("is-enabled") != "disabled":
         raise RuntimeError("Normal service status mismatch after restoring")
     print("PASS: provisioned/reconciled private mailboxes; NORMAL MODE restored; no SMTP listeners; service disabled at boot.")
     print("LOCAL_CREDENTIAL_FILE=/etc/stalwart/jhn-agent-mailboxes.json (root-only; never paste contents)")
