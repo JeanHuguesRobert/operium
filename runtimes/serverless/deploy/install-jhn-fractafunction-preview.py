@@ -25,6 +25,7 @@ def probe(path,expected,headers=None):
     try:
         with urllib.request.urlopen(req,timeout=6) as r:return r.status==expected
     except urllib.error.HTTPError as e:return e.code==expected
+    except urllib.error.URLError:return False
 
 def main():
     p=argparse.ArgumentParser()
@@ -43,6 +44,7 @@ def main():
         return
     if os.geteuid()!=0:raise RuntimeError('root_required')
     created=[]
+    originally_active={name: subprocess.run(['systemctl','is-active','--quiet',name]).returncode==0 for name in UNITS}
     try:
         for name in UNITS:
             target=DEST/name
@@ -58,7 +60,8 @@ def main():
         raise RuntimeError('staging_healthcheck_failed')
     except Exception:
         for name in reversed(UNITS):
-            subprocess.run(['systemctl','disable','--now',name],capture_output=True)
+            if not originally_active[name]:
+                subprocess.run(['systemctl','disable','--now',name],capture_output=True)
         for name in created:(DEST/name).unlink(missing_ok=True)
         subprocess.run(['systemctl','daemon-reload'],capture_output=True)
         raise
