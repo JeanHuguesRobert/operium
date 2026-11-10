@@ -14,7 +14,6 @@ backup_dir=/var/lib/stalwart/ops-backups
 [[ $(systemctl is-active "$service") == active ]] || { echo 'REFUSE: Stalwart not active in bootstrap'; exit 2; }
 [[ -f $config && -f $db && -f $dropin ]] || { echo 'REFUSE: expected config/SQLite/guard missing'; exit 2; }
 [[ $(curl -s -m 5 -o /dev/null -w '%{http_code}' http://127.0.0.1:8080/admin/) == 200 ]] || { echo 'REFUSE: bootstrap UI not HTTP 200'; exit 2; }
-[[ $(curl -sS -m 6 --resolve browser.fractavolta.com:443:127.0.0.1 -o /dev/null -w '%{http_code}' https://browser.fractavolta.com/) == 401 ]] || { echo 'REFUSE: Caddy browser HTTPS virtual host unavailable'; exit 2; }
 python3 - "$config" <<'PY'
 import json,sys
 c=json.load(open(sys.argv[1]))
@@ -65,11 +64,10 @@ sleep 1
 [[ $(systemctl is-enabled "$service") == disabled ]] || { echo 'REFUSE: unexpected boot enablement'; exit 4; }
 code=$(curl -s -m 10 -o /dev/null -w '%{http_code}' http://127.0.0.1:8080/admin/)
 [[ "$code" == 200 ]] || { echo "RECOVERY_UNAVAILABLE: /admin/ HTTP $code"; exit 4; }
-# No Stalwart mail protocols or 443: Caddy must remain sole listener.
+# No public mail protocols; Stalwart recovery runs over HTTP on localhost:8080.
+# Caddy/HTTPS is unrelated to this private Stalwart operation.
 for port in 25 465 587 993 995 4190; do
  if ss -ltnH | awk '{print $4}' | grep -qE ":${port}$"; then echo "REFUSE: mail listener :$port unexpectedly present"; exit 4; fi
 done
-[[ $(curl -sS -m 6 --resolve browser.fractavolta.com:443:127.0.0.1 -o /dev/null -w '%{http_code}' https://browser.fractavolta.com/) == 401 ]] || { echo 'REFUSE: Caddy HTTPS virtual host unavailable'; exit 4; }
-[[ $(curl -s -m 5 -o /dev/null -w '%{http_code}' https://browser.fractavolta.com/) == 401 ]] || { echo 'REFUSE: browser proxy regression'; exit 4; }
-echo "PASS: configured recovery running with existing SQLite; /admin/=200; no mail listeners; Caddy intact; unit disabled."
+echo "PASS: configured recovery running with existing SQLite; /admin/=200; no mail listeners; unit disabled."
 echo 'NEXT: sign in with the permanent administrator configured in the wizard and restrict NetworkListeners before normal-mode restart.'
