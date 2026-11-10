@@ -92,3 +92,18 @@ Sources: https://stalw.art/docs/server/listener/ ; https://stalw.art/docs/domain
 ## Fresh restart after clean installation (2026-11-10)
 
 Owner completed the **fresh wizard** and it requested a restart. Observed Stalwart bootstrap active on 8080, disabled at boot, old `ExecStartPre=test ! -e /etc/stalwart/config.json` guard, and Caddy on 443. Next action: `enter-stalwart-configured-recovery-fracta2.sh --apply`, **without any SQLite snapshot**, consistent with the Principal’s fresh-install/no-safety-net instruction. Recovery leaves normal SMTP/IMAP and Stalwart 443 closed while inspecting saved private settings.
+
+## 2026-11-10 — First automated internal account provisioning
+
+`start-stalwart-normal-private-fracta2.sh --apply` completed successfully by owner: verified persisted `http-private` on `127.0.0.1:8080` with TLS off and no SMTP/IMAP listeners; Stalwart normal mode active and **disabled at boot**. On first normal start, the upstream default roles were populated. WebUI OAuth login over plain HTTP still gives `Unknown client id`; use API/CLI rather than restoring unnecessary Caddy/ACME coupling.
+
+New provisioner: `scripts/ops/provision-stalwart-jhn-private-fracta2.py` (Python stdlib only). `sudo python3 ...` verifies preconditions without effects; `sudo python3 ... --apply` temporarily transitions normal Stalwart to *recovery* mode, uses locally protected `STALWART_RECOVERY_ADMIN` with Basic auth on `http://127.0.0.1:8080/jmap`, resolves the exact `mail.fractavolta.com` domain, verifies roles, creates/retains only `john` and `john-worker` as ordinary `User` mailboxes (`256 MiB` each, no Admin), and returns to private normal mode in a `finally` block. Separate random credentials are persisted locally as `/etc/stalwart/jhn-agent-mailboxes.json` (`0600`, root), never sent to chat, journal or Git. Idempotent wrt already present accounts; does not overwrite credentials of existing accounts. A failure mid-provisioning may leave a generated but unused credential entry for retry; never assume a rejected `set` created an account. No backups/snapshots as explicitly requested. No external SMTP, recipient forwarding, DNS, ACME, TLS, third-party delivery or boot auto-enable.
+
+**Execution boundary:** connected ordinary coding shell is nonroot (`NoNewPrivs=1`) and cannot read Stalwart's root-only recovery password or modify `systemd`. Source staged and Python syntax checked; no live mailbox creation yet. The next owner-root execution can be run directly from their existing SSH session:
+
+```powershell
+ssh -tt fracta2 'sudo python3 /srv/cogentia/repos/operium/scripts/ops/provision-stalwart-jhn-private-fracta2.py'
+ssh -tt fracta2 'sudo python3 /srv/cogentia/repos/operium/scripts/ops/provision-stalwart-jhn-private-fracta2.py --apply'
+```
+
+**Next phase:** provision a private-only SMTP transport (localhost :2525) or use authenticated JMAP email submission with an explicit internal-recipient guard and verify real sender-to-recipient mailbox delivery. No real delivery has yet been observed, even internally. Keep Principal boundaries and semantic COP checks orthogonal to the transport capability.
