@@ -118,3 +118,9 @@ For JMAP, `Email/set` can create a technical transient Email object and `EmailSu
 ssh -tt fracta2 'sudo python3 /srv/cogentia/repos/operium/scripts/ops/test-stalwart-jhn-internal-delivery-fracta2.py'
 ssh -tt fracta2 'sudo python3 /srv/cogentia/repos/operium/scripts/ops/test-stalwart-jhn-internal-delivery-fracta2.py --apply'
 ```
+
+## 2026-11-10 — JMAP implicit response ID collision: first live internal delivery attempt
+
+Owner confirmed read-only preflight success (John and John Worker authenticated by JMAP; sending Identity, sender Drafts staging and receiver Inbox all present). The first `--apply` returned `FAILED: JMAP call send: expected EmailSubmission/set, got Email/set` **after** the HTTP request had completed. This is a **client response-handling defect**, not evidence of failed submission. RFC 8621 §7.5 requires `onSuccessDestroyEmail` to produce an *implicit* `Email/set` response **after** `EmailSubmission/set`, using the **same client call id**. The test client had flattened JMAP responses into a dictionary keyed only by call id and discarded the first response. The submission could have succeeded; the initial script did not inspect delivery due to the parsing failure. Source: https://www.rfc-editor.org/rfc/rfc8621.html#section-7.5 .
+
+Corrected `scripts/ops/test-stalwart-jhn-internal-delivery-fracta2.py`: maintain the list of responses per call id, select by requested JMAP method, and run a read-only recipient Inbox reconciliation **before any new send**. Search by fixed recipe subject prefix, verify sender, recipient, exact content marker. If the previous test was already delivered, report `PASS` and **do not send again**. Otherwise the default invocation is read-only; `--apply` can attempt exactly one new internal message. A local mocked JMAP regression reproducing duplicate response ids passes. **Actual receipt has not been verified by an authorized root execution yet**. No real mail ports enabled.
