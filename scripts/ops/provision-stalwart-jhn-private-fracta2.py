@@ -142,7 +142,14 @@ def load_credential_file() -> dict:
 
 def persist_credentials(data: dict) -> None:
     with tempfile.NamedTemporaryFile("w", dir=str(CREDS.parent), prefix=".jhn-mailbox-", delete=False) as f:
-        os.fchmod(f.fileno(), 0o600)
+        if CREDS.exists():
+            # Preserve the existing group/permissions when the node operator
+            # granted the non-root Cogentia MCP service read-only access.
+            prior = CREDS.stat()
+            os.fchown(f.fileno(), prior.st_uid, prior.st_gid)
+            os.fchmod(f.fileno(), prior.st_mode & 0o777)
+        else:
+            os.fchmod(f.fileno(), 0o600)
         json.dump(data, f, indent=2)
         f.write("\n")
         temp = f.name
