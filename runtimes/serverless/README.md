@@ -46,3 +46,45 @@ Tests :
 node --test runtimes/serverless/*.test.js
 /home/ubuntu/.local/lib/node_modules/deno/deno test --no-check runtimes/serverless/*.test.ts
 ```
+
+## Recette de 2026-11-10 : deux fonctions JHN réelles, sans exposition publique
+
+Les pilotes de Fracta2 n'inventent aucune fonction métier :
+
+- `jhn-node-pilot.js` importe `cc-petition-pdf.js` d'Inseme et monte exactement
+  le chemin PDF JHN sur `127.0.0.1:8799` ; un `POST` produit le `405` attendu,
+  sans téléchargement externe ni modification de données. Un `GET` effectif
+  peut télécharger le PDF depuis GitHub ; il est donc à vérifier séparément.
+- `jhn-deno-pilot.ts` importe l'Edge Function existante
+  `principal-consent-proxy.js` sur `127.0.0.1:8797`. Sans jeton Supabase,
+  son `GET` est refusé avec `401` ; aucune décision COP n'est inscrite.
+  **Ce relais retourne par conception un `503` pour un `401` en provenance de
+  l'upstream** ; avant de l'exposer en production, examiner son traitement
+  des réponses d'authentification et ne pas supposer une validation bout en
+  bout sur la seule base des tests anonymes.
+
+Ces pilotes sont des **adaptateurs de transition** pour du code conçu pour
+Netlify. Le contrat métier désiré reste une FractaFunction Web native.
+
+Recette de démarrage sans privilèges :
+
+```sh
+cd /srv/cogentia/repos/operium
+node runtimes/serverless/jhn-node-pilot.js
+# terminal séparé :
+FRACTAFUNCTION_DENO_PILOT_PORT=8797 \
+  /home/ubuntu/.local/lib/node_modules/deno/deno run --no-check \
+  --allow-net=127.0.0.1:8797 \
+  --allow-env=FRACTAFUNCTION_DENO_PILOT_PORT \
+  runtimes/serverless/jhn-deno-pilot.ts
+```
+
+Deux unités systemd exemples sont fournies. **Elles ne sont ni installées, ni
+activées.** Aucun Caddy ni DNS n'est modifié. Le service Node pilote ne
+reçoit pas de clés d'administration. Le service Deno n'a aucune permission
+`--allow-read`, `--allow-write`, `--allow-run` ou `--allow-env` générale.
+
+L'activation ultérieure doit s'effectuer après une revue des chemins, du
+contrat de réponse, des secrets strictement nécessaires, du comportement
+sur méthodes GET/POST et de l'authentification réelle. Il faut distinguer
+**compatibilité de signature** et **parité fonctionnelle de production**.

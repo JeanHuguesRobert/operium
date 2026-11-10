@@ -1,0 +1,21 @@
+[Unit]
+Description=FractaFunction JHN pilot (Node.js legacy functions, loopback only)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/srv/cogentia/repos/operium
+Environment=FRACTAFUNCTION_PILOT_PORT=8799
+ExecStart=/usr/local/node-v26.5.0/bin/node /srv/cogentia/repos/operium/runtimes/serverless/jhn-node-pilot.js
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

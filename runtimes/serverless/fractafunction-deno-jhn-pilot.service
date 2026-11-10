@@ -1,0 +1,21 @@
+[Unit]
+Description=FractaFunction JHN pilot (Deno Edge functions, loopback only)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/srv/cogentia/repos/operium
+Environment=FRACTAFUNCTION_DENO_PILOT_PORT=8797
+ExecStart=/home/ubuntu/.local/lib/node_modules/deno/deno run --no-check --allow-net=127.0.0.1:8797 --allow-env=FRACTAFUNCTION_DENO_PILOT_PORT /srv/cogentia/repos/operium/runtimes/serverless/jhn-deno-pilot.ts
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target
