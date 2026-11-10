@@ -1,0 +1,21 @@
+[Unit]
+Description=FractaFunction JHN preview and Node router (loopback, no public DNS)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/srv/cogentia/repos/operium
+ExecStart=/usr/local/node-v26.5.0/bin/node /srv/cogentia/repos/operium/runtimes/serverless/jhn-preview.js
+Environment=JHN_PREVIEW_PORT=8795
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

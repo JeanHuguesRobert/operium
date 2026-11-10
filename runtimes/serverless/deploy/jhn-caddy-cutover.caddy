@@ -1,0 +1,6 @@
+# NOT ACTIVE. Requires DNS control, TLS validation and authenticated canary.
+# DO NOT import before staging acceptance and deliberate public cutover.
+https://jhn.baronsmariani.org {
+    encode zstd gzip
+    reverse_proxy 127.0.0.1:8795
+}

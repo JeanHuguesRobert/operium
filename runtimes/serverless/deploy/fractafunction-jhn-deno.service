@@ -1,0 +1,24 @@
+[Unit]
+Description=FractaFunction JHN Deno worker (loopback, allow-listed external weather source)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/srv/cogentia/repos/operium
+Environment=FRACTAFUNCTION_DENO_PORT=8797
+ExecStart=/home/ubuntu/.local/lib/node_modules/deno/deno run --no-check --allow-net=127.0.0.1:8797,api.open-meteo.com:443 --allow-env=FRACTAFUNCTION_DENO_PORT /srv/cogentia/repos/operium/runtimes/serverless/jhn-deno-runtime.ts
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+RuntimeDirectory=fractafunction-jhn-deno
+Environment=DENO_DIR=/run/fractafunction-jhn-deno
+ReadWritePaths=/run/fractafunction-jhn-deno
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

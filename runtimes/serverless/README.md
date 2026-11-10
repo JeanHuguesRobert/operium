@@ -88,3 +88,31 @@ L'activation ultérieure doit s'effectuer après une revue des chemins, du
 contrat de réponse, des secrets strictement nécessaires, du comportement
 sur méthodes GET/POST et de l'authentification réelle. Il faut distinguer
 **compatibilité de signature** et **parité fonctionnelle de production**.
+
+## JHN shared preview (2026-11-10)
+
+The real JHN facade is `jhn-preview.js`: one loopback-only Node HTTP entry
+point that serves the already-built SPA and uses the explicit
+`jhn-functions-manifest.js` to dispatch to:
+
+- the canonical COP Principal listener at `127.0.0.1:8796` (authenticated;
+  no new issuer or mandate authority);
+- the legacy Netlify Node PDF function (through the Node adapter);
+- a persistent Deno worker at `127.0.0.1:8797` executing the real Corsica
+  context function (through the Deno Web Request/Response adapter).
+
+The Deno worker also includes the legacy Principal-consent Netlify proxy for
+compatibility checks, but **the JHN facade never uses that proxy** for consent:
+the canonical COP listener is addressed directly, preserving its real 401/403
+responses and fixed `Host` header. In particular, the HTTP adapter uses
+`node:http` because a generic `fetch()` may rewrite the canonical Host on
+loopback.
+
+All unconfigured `/api/*` and `/.netlify/*` paths return 404 rather than an
+HTML SPA fallback. The preview listens only on loopback; its browser origin is
+not the production HTTPS origin, so production Supabase login and ratification
+are not yet proven.
+
+Operational preflight, systemd unit templates, and a deliberate future Caddy
+cutover template are in [`deploy/JHN-MIGRATION.md`](deploy/JHN-MIGRATION.md).
+**This source commit does not install or activate systemd or change DNS/Caddy.**
