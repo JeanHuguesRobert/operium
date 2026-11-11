@@ -193,6 +193,12 @@ The KYS/SERENIA public entry paths are static, with **no Netlify dependency** fo
 
 The existing waitlist optionally uses `VITE_SUPABASE_*` and environment-gated `VITE_WAITLIST_MODE`; it remains intentionally **closed** if not fully configured. Never include service-role keys or private secrets in a Vite public build. The issue of email consent/double opt-in is separately deferred at Cogentia #297. No live lead submission belongs in this deployment check without specific authorization.
 
+## Operational source consolidation (2026-11-11)
+
+The October staging worktree was an historical build environment, **not** the canonical source of the deployed application. Eleven of the twelve files introduced in the closed, unmerged Cogentia PR #296 are **byte-identical** on current Cogentia `main`; the remaining CI workflow was superseded by the typed FBF runner. The current canonical Vite distribution at `/srv/cogentia/repos/cogentia/apps/personal/dist` is **byte-identical** to both the historical staging distribution and the existing immutable public release `/srv/www/kys-services/current` (seven files). The separate staging worktree is therefore not required for the application or future deployments.
+
+The maintained origin installer now obtains its sources and Git revision from `/srv/cogentia/repos/cogentia`. This changes only the **future deployment source**: it does not install a release, modify Caddy/DNS or relabel the existing immutable release from commit `25b5e99`. The installer remains dry-run-first and refuses replacing an already published site through the original one-shot `--apply` path. For later updates, use the versioned upgrade procedure, not this initial-install path. Historical paths and checks below are retained as dated evidence, not current instructions.
+
 ## Build staged and validated on Fracta2 (2026-10-30)
 
 **New verified progress:** Cogentia PR #296 at `25b5e99c631ea9e86a28e90afa6134b80dd8476c`, last GitHub Actions run `41117587638` success. Fracta2 fetched the branch into an isolated worktree and successfully ran `pnpm install --frozen-lockfile --offline`, `node scripts/check-kys-services.mjs` (PASS), and `pnpm --filter @cogentia/personal build` (PASS). Chromium exercised `/services` and `/rights` at desktop and mobile widths, 4/4 PASS. Dist bundle is roughly 629 kB and resides on Fracta2 at:

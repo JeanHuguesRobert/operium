@@ -4,8 +4,9 @@
 set -euo pipefail
 
 SITE=services.acorsica.org
-SRC=/srv/cogentia/kys-services-staging/source/apps/personal/dist
-REPO=/srv/cogentia/kys-services-staging/source
+# One canonical checkout: the former staging worktree contains no unique application sources.
+REPO=/srv/cogentia/repos/cogentia
+SRC="$REPO/apps/personal/dist"
 ROOT=/srv/www/kys-services
 CADDY_SITE=/etc/caddy/Caddyfile.d/kys-services.caddy
 APPLY=0
