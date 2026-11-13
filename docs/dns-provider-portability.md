@@ -8,7 +8,7 @@ lifecycle_state: working
 update_policy: UP-INFRASTRUCTURE-HEALTH
 language: en
 date: '2026-08-29'
-last_modified_at: '2026-08-30'
+last_modified_at: '2026-11-13'
 related:
   - fractavolta-dns.md
   - fractanet-mesh.md
@@ -32,6 +32,20 @@ provenance:
 
 
 # DNS Provider Portability and Reversible Migration
+
+## Current implementation checkpoint — 2026-11-13
+
+**Do not execute a nameserver cutover based on the dated 2026-08-30 evidence below.** The authoritative, sanitized operational checkpoint is [Operium #37 (2026-11-13)](https://github.com/JeanHuguesRobert/operium/issues/37#issuecomment-6840908382); the structured public status is [dns-reconciliation.v1.json](../profiles/dns-reconciliation.v1.json).
+
+As verified using the owner's authorized provider APIs on 2026-11-13:
+
+- Gandi remains the live DNS provider and registrar for `fractavolta.com`; the current export has **43 RRsets / 47 DNS values**.
+- Gandi forwards **10** explicit addresses to the same external operator-controlled recipient. The recipient is already verified in Cloudflare; its physical address remains outside the public Corpus.
+- A **new Cloudflare zone, pending**, has been created with the same Cloudflare-assigned nameservers as `acorsica.org` and `baronsmariani.org`. **40 eligible DNS records were staged**, with exact key/value parity (40/40), no proxies. The two old root Gandi MX records and five legacy Gandi client-discovery SRV records were intentionally excluded; the independent `mail.fractavolta.com` MX was retained.
+- Exactly **one of ten** explicit Cloudflare forwarding rules is present; Email Routing is **disabled / unconfigured**, and its root MX/SPF/DKIM transition is not finished. A batch attempt for the remaining rules was blocked and an independent check confirmed that no additional rules had been created.
+- **No live Gandi nameserver change, apex MX change, registrar transfer or external mail send occurred.** Preserve the live working configuration until all ten rules, Email Routing activation, DNS parity and subsequent delivery/HTTPS verification have passed their own gates.
+
+The August evidence below is retained as **historical evidence**, not a current readiness certificate. Cold resumes must re-read live provider state before any new effect; no blocked operation may be retried blindly.
 
 ## Purpose
 
