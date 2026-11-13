@@ -1,12 +1,13 @@
 {
   "schema": "operium.mail.role-profile.v1",
-  "updated_at": "2026-10-07",
+  "updated_at": "2026-11-13",
   "purpose": "Reusable explicit inbound role-address profile for domain migrations. No catch-all by default; no physical destination mailbox stored here.",
   "policy": {
     "catch_all": "disabled",
     "destination_secrets": "out-of-band",
     "compose": "existing_aliases + enabled_profile_roles + domain_specific",
-    "ai_roles_status": "experimental"
+    "ai_roles_status": "experimental",
+    "abandoned_domain_policy": "Never provision retired lepp.fr addresses. Web replacement lepp.baronsmariani.org does not imply any mail migration to @lepp.baronsmariani.org."
   },
   "tiers": {
     "core_internet": [
@@ -139,12 +140,6 @@
     ]
   },
   "domain_specific": {
-    "lepp.fr": [
-      "baron",
-      "baronmariani",
-      "jeanhuguesrobert",
-      "jhr"
-    ],
     "baronsmariani.org": [
       "archive",
       "baron",
@@ -154,6 +149,14 @@
       "jeanhuguesrobert",
       "jhr",
       "minesteggio"
+    ]
+  },
+  "historical_domain_specific": {
+    "lepp.fr": [
+      "baron",
+      "baronmariani",
+      "jeanhuguesrobert",
+      "jhr"
     ]
   }
 }
