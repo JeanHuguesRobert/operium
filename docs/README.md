@@ -44,6 +44,7 @@ This directory contains Operium documentation.
 - [Edge trap-directed polling (SNMP pattern)](https://github.com/JeanHuguesRobert/cogentia/blob/main/docs/edge-trap-directed-polling.md) — Pi 3 store-and-forward + fracta manager
 - [fractavolta.com DNS zone](fractavolta-dns.md)
 - [DNS provider portability and reversible migration](dns-provider-portability.md)
+- [Historical inbound forwarding verification contract](inbound-mail-forwarding-verification.md) — unverified WIP; sending always requires explicit authorization
 - [fracta Caddy vhost contract](fractavolta-caddy-contract.md)
 - [Stalwart mail on fracta](stalwart-private-mail.md) — governed bidirectional Gmail ↔ Twin JHN channel
 - [Operium CLI](operium-cli.md)

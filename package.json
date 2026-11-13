@@ -50,6 +50,7 @@
     "test:calendar": "node scripts/test-operium-calendar.js",
     "test:calendar-events": "node scripts/test-operium-calendar-events.js",
     "dns:reconcile": "node bin/operium.js dns reconcile --manifest profiles/dns-reconciliation.v1.json",
+    "test:cloudflare-nameserver-cutover": "node scripts/test-cloudflare-nameserver-cutover.js",
     "test:ona-heartbeat": "node scripts/test-ona-heartbeat.js",
     "test:fractanet-observation": "node scripts/test-fractanet-observation.js",
     "test:hosted-browser-health": "node scripts/test-hosted-browser-functional-probe.js && node scripts/test-hosted-browser-recovery-contract.js && node scripts/test-hosted-browser-observe.js",

@@ -70,6 +70,7 @@ Versioned **Bug/Feature register** for Fix Bugs First.
 | `console` | Operator console / dashboard |
 | `cli` | `operium` CLI itself |
 | `docs` | Registry docs / research drift |
+| `email` | Governed inbound mail, explicit sending mandate, forwarding verification and receipts ([#28](https://github.com/JeanHuguesRobert/operium/issues/28)) |
 | `tooling` | Workstation install profiles |
 | `replication` | Corpus replication / graph |
 | `meta` | Tracking hygiene, labels, process |
