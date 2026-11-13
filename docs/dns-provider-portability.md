@@ -1,5 +1,6 @@
 ---
 title: DNS Provider Portability and Reversible Migration
+author: unknown
 description: A provider-neutral operational model for authoritative DNS, controlled migration, and verified return paths.
 document_role: operational
 document_kind: architecture-note
