@@ -59,6 +59,9 @@ not proof of recovery. See the generic [Oracle VPS recovery readiness
 runbook](oracle-vps-recovery-readiness.md) and the current Fracta2 observations.
 Keep the bootstrap MCP until independent provider recovery is proven.
 
+Before provisioning is accepted, use the **OCI-authenticated** control workstation/Cloud Shell to run `scripts/ops/ensure-oci-console-connection.sh --instance-id "$OCI_INSTANCE_ID" --ssh-public-key-file "$HOME/.ssh/id_ed25519.pub"` (then `--apply` only if a connection is missing). The guest-side check and the real interactive OCI recovery login are separate acceptance tests. Deploy and exercise the independent outbound Bootstrap MCP even when SSH and the public IPv4 work. See [Oracle VPS recovery readiness](oracle-vps-recovery-readiness.md) and [Bootstrap MCP architecture](https://github.com/JeanHuguesRobert/cogentia/blob/main/docs/bootstrap-mcp-recovery-channel.md).
+
+
 ## 2. Install KasmVNC
 
 Historical x86_64 recipe only: the `amd64` artifact below is not an ARM64
