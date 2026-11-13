@@ -116,6 +116,30 @@ through the **OCI serial console** and run `sudo -v` (or a harmless
 requiring SSH. The existence of the password, and the success of this test,
 are two separate facts. Do not mark the node recoverable until tested.
 
+## Standard OCI provisioning: ensure the rescue connection
+
+Operium owns this acceptance gate. The requirement applies to **every new OCI FractaNode**, whether or not it has a public IPv4 address, and also to migration and major OS upgrade preflights.
+
+On an **OCI-authenticated control workstation or OCI Cloud Shell** (not inside an uncredentialed VPS), provision or discover the console connection:
+
+```bash
+bash scripts/ops/ensure-oci-console-connection.sh \
+  --instance-id "$OCI_INSTANCE_ID" \
+  --ssh-public-key-file "$HOME/.ssh/id_ed25519.pub"
+# After reviewing the plan, create only if missing:
+bash scripts/ops/ensure-oci-console-connection.sh \
+  --instance-id "$OCI_INSTANCE_ID" \
+  --ssh-public-key-file "$HOME/.ssh/id_ed25519.pub" --apply
+```
+
+The helper discovers the instance compartment using OCI, checks existing ACTIVE/CREATING connections and is **idempotent**. Default mode is read-only; `--apply` performs one OCI-side creation only if missing. Oracle IAM must authorize reading the instance and managing console connections. This creates a *transport credential*, not a guest `root` account or a Linux console password. No secret or private key is placed in Git.
+
+Follow with `bash scripts/ops/check-oci-recovery-readiness.sh` **on the guest** and a real independent OCI console session. Verify an actual guest login capable of `sudo` or a tested GRUB recovery path. Do not mark provisioning accepted based only on the successful OCI API call, an ACTIVE connection, `login:` on screen, or a locally active `serial-getty`. For ARM OCI instances the relevant device is normally `ttyAMA0`, not `ttyS0`.
+
+Record the four separate states in the provisioning receipt: `console_connection_created`, `guest_serial_getty_available`, `interactive_recovery_tested`, `sudo_or_grub_repair_tested`. Use `true`, `false` or `unknown` with test date and evidence reference; only the final two establish usable recovery. Do not persist credentials, private OCIDs or a recovery password in published receipts.
+
+The **outbound Bootstrap MCP is independently required** as an SSH-free, public-IP-free operational recovery path. It must start at boot, reconnect after an outage and be tested without depending on SSH or normal Cogentia MCP. Neither route replaces the other; see [Cogentia Bootstrap MCP architecture](https://github.com/JeanHuguesRobert/cogentia/blob/main/docs/bootstrap-mcp-recovery-channel.md).
+
 ## Provisioning acceptance procedure
 
 1. Check OCI console access and the instance's compartment. The operator needs IAM permissions to `manage instance-console-connection` and `read instance` in the applicable scope. Do not copy private account IDs or keys to public Operium.
