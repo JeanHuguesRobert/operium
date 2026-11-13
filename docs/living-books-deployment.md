@@ -67,7 +67,10 @@ In accordance with Cogentia/Operium doctrine:
 
 The authoritative DNS records are hosted on Cloudflare with proxy mode disabled (DNS-only / grey cloud) to allow direct ACME challenge resolution by `fracta`:
 
-### Zone `lepp.fr`
+### Historical zone `lepp.fr` — abandoned (2026-11-13)
+
+The records below document the former deployment and must not be treated as current DNS or a target to restore. The Principal has abandoned `lepp.fr`. **LePP / U Pertitellu** has a different intended public site at `lepp.baronsmariani.org` (under the `baronsmariani.org` Cloudflare zone), owned by [Inseme #59](https://github.com/JeanHuguesRobert/inseme/issues/59); DNS, TLS and application availability for that host were *not* verified on 2026-11-13. **Capable** stays at `capable.acorsica.org`; do not substitute the LePP host for Capable. A web hostname change does not imply moving the historic `@lepp.fr` mail aliases to a new subdomain.
+
 ```text
 Type   Name       Target                    Proxy Status   TTL
 CNAME  capable    fracta.fractavolta.com    DNS only       Auto
