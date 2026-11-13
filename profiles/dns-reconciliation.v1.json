@@ -1,9 +1,9 @@
 {
   "schema": "operium.dns.reconciliation.v1",
-  "observed_at": "2026-10-07",
+  "observed_at": "2026-11-13",
   "source": {
-    "kind": "incremental-reconciliation",
-    "reference": "Operium issue #37; lepp.fr Cloudflare Email Routing cutover completed 2026-10-07"
+    "kind": "incremental-reconciliation-and-principal-decision",
+    "reference": "Operium #37 and Inseme #59; 2026-11-13 explicit abandonment of lepp.fr in favor of web host lepp.baronsmariani.org"
   },
   "domains": [
     {
@@ -37,26 +37,18 @@
       ],
       "observed_at": "2026-10-06",
       "registrar_expiry": "2027-10-28T10:27:21Z",
-      "notes": "Registrar transfer Gandi -> Cloudflare completed 2026-10-06. Cloudflare Email Routing active with 16 forwarding rules; external Yahoo -> jhr@baronsmariani.org delivery test succeeded. Authoritative nameservers remain Cloudflare."
-    },
-    {
-      "domain": "lepp.fr",
-      "registrar": "Gandi",
-      "expected_authoritative_dns": "Cloudflare",
-      "expected_nameserver_suffix": "cloudflare.com",
-      "migration_state": "active",
-      "dnssec_state": "not_observed",
-      "mail": {
-        "mode": "cloudflare-email-routing",
-        "forwarding_address_count": 25
-      },
-      "https_hosts": [
-        "lepp.fr"
-      ],
-      "observed_at": "2026-10-07",
-      "notes": "DNS authoritative on Cloudflare and Cloudflare Email Routing fully validated (25 explicit aliases, catch-all disabled, external Yahoo -> jhr@lepp.fr delivery confirmed). Registrar remains Gandi because Cloudflare Registrar transfer-check returned transferable=false with reason extension_not_supported for .fr on 2026-10-07.",
-      "registrar_transfer_state": "blocked-provider-tld",
-      "registrar_transfer_reason": "extension_not_supported"
+      "notes": "Registrar transfer Gandi -> Cloudflare completed 2026-10-06. Cloudflare Email Routing active with 16 forwarding rules; external Yahoo -> jhr@baronsmariani.org delivery test succeeded. Authoritative nameservers remain Cloudflare.",
+      "planned_subdomains": [
+        {
+          "host": "lepp.baronsmariani.org",
+          "project": "LePP / U Pertitellu — instance pertitellu-corte (distinct from Capable)",
+          "use": "public web",
+          "status": "not_publicly_resolving",
+          "observed_at": "2026-11-13",
+          "owner_packet": "https://github.com/JeanHuguesRobert/inseme/issues/59",
+          "notes": "Declared target by Principal. No public A/CNAME answer or HTTPS on 2026-11-13; DNS/TLS/application publication not yet performed. Does not imply mail aliases under this subdomain."
+        }
+      ]
     },
     {
       "domain": "fractavolta.com",
@@ -75,6 +67,31 @@
       ],
       "notes": "Read-only public authority: Gandi DNS remains active. On 2026-11-13, the owner's operator session created a new Cloudflare DNS zone (pending) and staged 40/40 eligible source records with exact type/FQDN/priority/content parity; all DNS-only. Gandi's current 43 RRsets / 47 DNS values include 2 apex Gandi MX and 5 legacy SRV excluded from the target zone. The Gandi forwarding inventory is 10 aliases to one external operator destination, verified on the existing Cloudflare account. Exactly 1 of the 10 explicit Cloudflare forwarding rules is created; Cloudflare Email Routing remains disabled/unconfigured and root Cloudflare MX/SPF/DKIM are not onboarded. An attempted remaining-rule batch was blocked; independent read-back confirmed no further rules. NO NS delegation change, NO apex MX cutover, NO email sent. Do not declare complete; follow Operium #37 checkpoint 2026-11-13.",
       "observed_at": "2026-11-13"
+    }
+  ],
+  "retired_domains": [
+    {
+      "domain": "lepp.fr",
+      "registrar": "Gandi",
+      "expected_authoritative_dns": "Cloudflare",
+      "expected_nameserver_suffix": "cloudflare.com",
+      "migration_state": "abandoned",
+      "dnssec_state": "not_observed",
+      "mail": {
+        "mode": "cloudflare-email-routing",
+        "forwarding_address_count": 25
+      },
+      "https_hosts": [
+        "lepp.fr"
+      ],
+      "observed_at": "2026-10-07",
+      "notes": "DNS authoritative on Cloudflare and Cloudflare Email Routing fully validated (25 explicit aliases, catch-all disabled, external Yahoo -> jhr@lepp.fr delivery confirmed). Registrar remains Gandi because Cloudflare Registrar transfer-check returned transferable=false with reason extension_not_supported for .fr on 2026-10-07. Historical snapshot only. On 2026-11-13, public .fr delegation absent / Gandi clientHold, but no recovery requested. Replacement web host is not yet configured or live; mail forwarding under replacement is not implied.",
+      "registrar_transfer_state": "blocked-provider-tld",
+      "registrar_transfer_reason": "extension_not_supported",
+      "retired_at": "2026-11-13",
+      "retirement_reason": "Principal abandoned lepp.fr; no Gandi renewal or DNS/email restoration intended. Historic 2026-10-07 Cloudflare routing verification retained as archaeology; not a live health expectation.",
+      "replacement_web_host": "lepp.baronsmariani.org",
+      "replacement_zone": "baronsmariani.org"
     }
   ]
 }
