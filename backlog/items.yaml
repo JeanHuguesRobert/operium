@@ -166,24 +166,30 @@ items:
 
   - id: OP-DEBT-001
     kind: debt
-    title: Cogentia R1 Level-2 evidence residue awaits integration
+    title: Preserve the Cogentia R1 Level-2 evidence residue in the canonical Corpus
     subsystem: docs
-    status: open
+    status: done
     evidence: >
-      Cogentia PR #149 remains open with the R1 Level-2 residue note. That note
-      records the 2026-09-02 re-run at commit 6a3cc79: the resumption test passed
-      while orientation ran a second time, and step_budget was classified as
-      exhausted. Cogentia issue #150 remains open and bounds this work to
-      integrating the evidence note, not reopening the scheduler project.
+      The R1 residue note is already present on Cogentia main as
+      research/r1_level2_evidence_residue.md (commit 1eb8021, 2026-09-13),
+      despite PR #149 having been closed without merger. The original
+      2026-09-02 re-run showed a passing resumption test while orientation
+      re-fired, and classified step_budget as exhausted. The source note
+      explicitly preserves both overclaims, discriminants, and proposed
+      Reality Tests. Operium no longer needs an unmerged PR to retain this
+      documentation. Cogentia #150 remains open for follow-up and is not
+      silently declared implemented or accepted.
     next_action: >
-      Review and integrate Cogentia PR #149; then reassess this item against
-      the integrated note and current source evidence.
+      Preserve the integrated source note and resume any unresolved R1
+      behavioral tests in Cogentia #150; do not reopen this documentation
+      debt without evidence of lost or materially altered source content.
     opened_at: "2026-10-28"
-    closed_at: null
+    closed_at: "2026-11-13"
     notes: |
-      Cogentia follow-up: https://github.com/JeanHuguesRobert/cogentia/pull/149
-      Resume handle: https://github.com/JeanHuguesRobert/cogentia/issues/150
-      Do not treat this historical re-run as a current runtime observation.
+      Historical closed PR: https://github.com/JeanHuguesRobert/cogentia/pull/149
+      Canonical note: https://github.com/JeanHuguesRobert/cogentia/blob/main/research/r1_level2_evidence_residue.md
+      Behavioral residue owner: https://github.com/JeanHuguesRobert/cogentia/issues/150
+      The historical re-run is not a current runtime observation.
 
   # ── Bugs (fix first) ─────────────────────────────────────────────
 
