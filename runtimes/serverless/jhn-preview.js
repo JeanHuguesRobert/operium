@@ -8,7 +8,7 @@ import {resolve,sep,extname} from 'node:path';
 import {JHN_ROUTES,PUBLIC_ORIGIN} from './jhn-functions-manifest.js';
 import {routeMatches} from './contract.js';
 import {JHN_PENDING_ROUTES} from './jhn-route-inventory.js';
-const DIST='/srv/cogentia/repos/inseme/apps/platform/dist';
+const DIST='/srv/cogentia/repos/inseme/apps/platform/dist-jhn';
 const TYPES={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8',
  '.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.ico':'image/x-icon','.png':'image/png',
  '.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.woff2':'font/woff2','.webmanifest':'application/manifest+json'};
