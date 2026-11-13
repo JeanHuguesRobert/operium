@@ -25,7 +25,10 @@ export function createLocalConsentProxy({fetchImpl=canonicalHttpFetch,upstream='
  return async function canonicalConsentProxy(request){
   const url=new URL(request.url);
   const m=url.pathname.match(/^\/api\/cop\/principal-consent\/([a-f0-9-]{36})$/i);
-  if(url.origin!==ORIGIN||!m||!UUID.test(m[1])||url.search)return json(404,'consent_route_not_found');
+  const continuationRequest=url.pathname==='/api/cop/principal-consent/continuation-request';
+  if(url.origin!==ORIGIN||(!continuationRequest&&(!m||!UUID.test(m[1])))||url.search)
+    return json(404,'consent_route_not_found');
+  if(continuationRequest&&request.method!=='POST')return json(405,'method_not_allowed');
   if(!['GET','POST'].includes(request.method))return json(405,'method_not_allowed');
   if(request.method==='POST'&&request.headers.get('origin')!==ORIGIN)return json(403,'foreign_origin_denied');
   const bearer=request.headers.get('authorization');
