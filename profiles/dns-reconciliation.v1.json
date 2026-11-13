@@ -73,7 +73,8 @@
         "fractavolta.com",
         "www.fractavolta.com"
       ],
-      "notes": "Cloudflare zone and Email Routing are prepared but are not public until an explicitly authorized nameserver change."
+      "notes": "Read-only public authority: Gandi DNS remains active. On 2026-11-13, the owner's operator session created a new Cloudflare DNS zone (pending) and staged 40/40 eligible source records with exact type/FQDN/priority/content parity; all DNS-only. Gandi's current 43 RRsets / 47 DNS values include 2 apex Gandi MX and 5 legacy SRV excluded from the target zone. The Gandi forwarding inventory is 10 aliases to one external operator destination, verified on the existing Cloudflare account. Exactly 1 of the 10 explicit Cloudflare forwarding rules is created; Cloudflare Email Routing remains disabled/unconfigured and root Cloudflare MX/SPF/DKIM are not onboarded. An attempted remaining-rule batch was blocked; independent read-back confirmed no further rules. NO NS delegation change, NO apex MX cutover, NO email sent. Do not declare complete; follow Operium #37 checkpoint 2026-11-13.",
+      "observed_at": "2026-11-13"
     }
   ]
 }
