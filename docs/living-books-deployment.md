@@ -60,7 +60,7 @@ In accordance with Cogentia/Operium doctrine:
 | 9 | `diaspora` | `diaspora.acorsica.org` | `acorsica.org` | `CNAME diaspora -> fracta.fractavolta.com` | `fracta2:/srv/www/diaspora/current` | **LIVE (Active)** |
 | 10 | `suicide-corse` | `suicidecorse.baronsmariani.org` | `baronsmariani.org` | `CNAME suicidecorse -> fracta.fractavolta.com` | `fracta2:/srv/www/suicidecorse/current` | **LIVE (Active)** |
 | 11 | `rise-and-fall` | `riseandfall.baronsmariani.org` | `baronsmariani.org` | `CNAME riseandfall -> fracta.fractavolta.com` | `fracta2:/srv/www/riseandfall/current` | **LIVE (Active)** |
-| 12 | `musee` | `museum.baronsmariani.org` | `baronsmariani.org` | **VERIFIED:** `CNAME museum -> fracta.fractavolta.com`, DNS-only, TTL Auto | `fracta2:/srv/www/musee/current` **(not yet deployed)** | **DNS ACTIVE; HTTPS / RELEASE NOT LIVE** (2026-11-15) |
+| 12 | `musee` | `museum.baronsmariani.org` | `baronsmariani.org` | **VERIFIED:** `CNAME museum -> fracta.fractavolta.com`, DNS-only, TTL Auto | `fracta2:/srv/www/musee/current` → release `3487f3d4e3c5` | **LIVE: HTTPS 200 + Boutique 200** (2026-11-15) |
 
 ---
 
@@ -182,3 +182,22 @@ The Principal reiterated the **standing Optimistic Locking delegation** for boun
 **Authorization provenance must be distinguished:** effect was performed under the Principal's explicit standing user delegation via the existing authenticated operator execution channel, **not via a successful canonical COP `host.process.run` mission grant**. The previously diagnosed MCP `authorization_missing` / missing `missionAuthorityResolver` issue remains an implementation defect tracked by [Cogentia #299](https://github.com/JeanHuguesRobert/cogentia/issues/299). A successful narrow provider effect does not imply a signed COP mandate has been added or that the current MCP runtime can execute it. The user's latest instruction rejects per-act ceremony; correct the reusable standing mandate adapter instead of replacing it with serial one-off signatures.
 
 **HTTPS still BLOCKED:** the public `https://museum.baronsmariani.org/` test returned TLS alert `internal error` before serving content. This is consistent with missing Caddy routing/certificate/site release, not a DNS failure. Next stage: deploy the static Museum pages (including Boutique), configure the Caddy vhost, then check certificate and `/boutique.html`; avoid touching other books or DNS records.
+
+
+### 2026-11-15 — Museum public HTTPS deployment completed and checked
+
+The Principal's previously documented standing delegation also covered routine deployment of the already approved public Museum Living Book. A **pinned, bounded, recoverable** script was added to Operium: [`scripts/ops/publish-museum-static.sh`](../scripts/ops/publish-museum-static.sh) (commit `550a1a90660806775adb81c2ca8f552520e740fc`). It provisions **only** the canonical `museum.baronsmariani.org` host. The source revision is fixed to `JeanHuguesRobert/barons-Mariani@3487f3d4e3c504d5044355dc39bd75323e3bb0ec`.
+
+**Preflight** on Fracta2 in unprivileged mode: Bash syntax PASS, authoritative DNS correct, eight projected site files fetched and checked, no competing Museum Caddy fragments, `PREFLIGHT=PASS`.
+
+**Privileged apply** from the already authenticated operator ThinkPad via its existing SSH and passwordless `sudo` admin route: the first transport attempt failed on cross-shell quoting **before writing any destination** (checked absent Museum release and Caddy fragments, active Caddy). A retry used a locally staged script whose exact SHA-256 `ab69a1ee443a29436c30d04b0ce69d31ec408e402fe1a439af16266a072a386a` was checked before dispatch. The nested SSH command ran `sudo -n bash publish.sh --apply`. The SSH client timed out before returning a final application receipt, so **no success was inferred from that tool call**; independent read-back established a completed release and live edge configuration. Staging file and directory were then removed after checking their SHA-256.
+
+**Observed postconditions (independent from the timed-out tool):**
+- root-owned `/srv/www/musee/releases/3487f3d4e3c504d5044355dc39bd75323e3bb0ec/`; `current` symlink points to that release;
+- Caddy files `/etc/caddy/Caddyfile.d/museum.caddy` and `/etc/caddy/fracta2-edge-https/museum-tls.caddy` present; `caddy.service=active`;
+- Museum local HTTP host response **200** and public HTTPS **200**, certificate validation `ssl_verify_result=0`;
+- public `/`, `/book.html`, `/magazine.html`, `/boutique.html`, `/annexes.html`, `/contribuer.html`, `/mentions.html` and `/styles.css` each **HTTP 200** with valid TLS and expected content types;
+- regression probes `suicidecorse.baronsmariani.org`, `riseandfall.baronsmariani.org`, `capable.acorsica.org` each **200 / TLS valid**; protected `browser.fractavolta.com` remains **401 / TLS valid**;
+- authoritative `musee.baronsmariani.org` CNAME lookup empty, as required by Occam's one-name decision.
+
+**Status:** Museum website and Boutique public, **edition `n1` still "en préparation"** (not editorially frozen, no product ordering). The standing mandate/COP technical integration issue remains tracked separately by Cogentia #299; do not conflate this successful operator-channel deployment with a canonical COP admission receipt. A subsequent site release should preserve immutable versions, conflict detection and the one-host Caddy guard.
