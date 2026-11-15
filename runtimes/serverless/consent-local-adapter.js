@@ -24,11 +24,13 @@ export function canonicalHttpFetch(target,{method,headers,body,signal}={}){
 export function createLocalConsentProxy({fetchImpl=canonicalHttpFetch,upstream='http://127.0.0.1:8796'}={}){
  return async function canonicalConsentProxy(request){
   const url=new URL(request.url);
-  const m=url.pathname.match(/^\/api\/cop\/principal-consent\/([a-f0-9-]{36})$/i);
-  const continuationRequest=url.pathname==='/api/cop/principal-consent/continuation-request';
-  if(url.origin!==ORIGIN||(!continuationRequest&&(!m||!UUID.test(m[1])))||url.search)
+  // This is a transport, NOT an authorization/route registry. The canonical
+  // JHN consent service owns action selection and validates all named paths.
+  const m=url.pathname.match(/^\/api\/cop\/principal-consent\/([a-z0-9-]{1,80})$/i);
+  if(url.origin!==ORIGIN||!m||url.search)
     return json(404,'consent_route_not_found');
-  if(continuationRequest&&request.method!=='POST')return json(405,'method_not_allowed');
+  if(!UUID.test(m[1])&&request.method!=='POST')
+    return json(405,'method_not_allowed');
   if(!['GET','POST'].includes(request.method))return json(405,'method_not_allowed');
   if(request.method==='POST'&&request.headers.get('origin')!==ORIGIN)return json(403,'foreign_origin_denied');
   const bearer=request.headers.get('authorization');

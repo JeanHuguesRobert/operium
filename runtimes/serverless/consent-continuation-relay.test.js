@@ -24,3 +24,30 @@ test('continuation request rejects GET and query suffix',async()=>{
  assert.equal((await handler(new Request(origin+path))).status,405);
  assert.equal((await handler(new Request(origin+path+'?x=1',{method:'POST',headers:{origin,authorization:'Bearer long-token-123'},body:'{}'}))).status,404);
 });
+
+
+test('direct standing activation uses the generic consent relay, without an additional route allowlist',async()=>{
+ const path='/api/cop/principal-consent/standing-apply';
+ let dispatched=0;
+ const handler=createLocalConsentProxy({fetchImpl:async(url,opts)=>{
+   dispatched++;
+   assert.equal(url,'http://127.0.0.1:8796'+path);
+   assert.equal(opts.headers.host,'jhn.baronsmariani.org');
+   assert.equal(opts.headers.origin,origin);
+   assert.equal(opts.body,'{}');
+   return Response.json({ok:true,mandate_amendment_applied:true,
+     mandate_version:'v5'}, {status:200});
+ }});
+ assert.equal((await handler(new Request(origin+path))).status,405);
+ assert.equal((await handler(new Request(origin+path,{method:'POST',
+   headers:{origin},body:'{}'}))).status,401);
+ assert.equal((await handler(new Request(origin+path,{method:'POST',
+   headers:{origin:'https://evil.invalid',authorization:'Bearer owner-long-token'},
+   body:'{}'}))).status,403);
+ const reply=await handler(new Request(origin+path,{method:'POST',
+   headers:{origin,authorization:'Bearer owner-long-token'},
+   body:'{}'}));
+ assert.equal(reply.status,200);
+ assert.equal((await reply.json()).mandate_version,'v5');
+ assert.equal(dispatched,1);
+});
