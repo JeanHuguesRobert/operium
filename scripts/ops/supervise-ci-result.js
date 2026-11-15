@@ -2,7 +2,7 @@
 /**
  * GitHub Actions task supervisor. Work outcomes are durable data; this process
  * exits successfully after recording them so runner status remains separate.
- * Usage: node scripts/ops/supervise-ci-result.js --out DIR --phase NAME -- CMD [args...]
+ * Usage: node scripts/ops/supervise-ci-result.js --out DIR --phase NAME [--timeout-ms N] -- CMD [args...]
  */
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
@@ -20,6 +20,11 @@ function main(argv) {
   const phase = value("--phase") || "execute";
   if (!outputDir || !command[0]) throw new TypeError("--out, --phase and a command are required");
 
+  const timeoutArg = value("--timeout-ms");
+  const timeoutMs = timeoutArg === null ? 30 * 60 * 1000 : Number(timeoutArg);
+  if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 30 * 60 * 1000) {
+    throw new RangeError("--timeout-ms must be an integer from 1 to 1800000");
+  }
   const startedAt = new Date().toISOString();
   let status = null;
   let signal = null;
@@ -28,13 +33,14 @@ function main(argv) {
   try {
     const result = spawnSync(command[0], command.slice(1), {
       encoding: "utf8",
-      timeout: 30 * 60 * 1000,
+      timeout: timeoutMs,
       maxBuffer: 32 * 1024 * 1024,
       windowsHide: true,
     });
     status = Number.isInteger(result.status) ? result.status : null;
     signal = result.signal || null;
     error = result.error ? String(result.error.message || result.error) : null;
+    if (result.error?.code === "ETIMEDOUT") error = "task_timeout";
     log = String(result.stdout || "") + String(result.stderr || "");
   } catch (cause) {
     error = String(cause?.stack || cause);

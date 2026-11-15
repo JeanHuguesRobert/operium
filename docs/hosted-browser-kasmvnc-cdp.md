@@ -68,6 +68,12 @@ graph TD
 
 ---
 
+### Historical #49 workspace policy recovered (15 November 2026)
+
+The read-only hosted-workspace-policy.sh check command validates the legacy policy vocabulary and refuses host-administration requests. Unlike the #50 prototype, the checker does not accept caller-provided principal-lab, future-idp or mesh labels as proof of authority; desktop requests are denied until network authentication and Principal waiver are independently verified at a real enforcement boundary. A kiosk advisory is not proof of login or permission.
+
+This checker is not wired into the systemd launcher or provisioner yet. It can detect invalid plans but cannot enforce access by itself. The old laboratory sesame, Caddy templates and sessions have not been restored into production. Regression: node scripts/test-hosted-workspace-policy.js.
+
 ## 2. Multi-User Isolation & Security Constraints
 
 * **Strict Unix Account Separation**: Each user operates under a dedicated Unix UID (e.g. `hosted-jhr`, `hosted-pilot`).

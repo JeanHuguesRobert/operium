@@ -121,3 +121,10 @@ verify child cleanup; the Inox teardown itself was not changed here.
 Sign-in, paid agent calls, reboot recovery, browser visual interaction, and
 full Inseme/Cogentia builds were not validated. Maintenance restart scheduling
 and agent sign-in require operator involvement.
+
+
+## Historical remote-validation supervisor reconciliation (2026-11-15)
+
+The 2026-10 experimental PR #74 provided separate Python supervision of remote validation. Operium's current CI already uses the canonical Node supervisor in scripts/ops/supervise-ci-result.js. The useful historical invariants have been recovered **in that current supervisor**, not through a second worker: configurable bounded --timeout-ms (default remains 30 minutes for existing CI), a stable task_timeout error indicator, and synthetic pass / exit 17 / timeout tests in scripts/test-supervise-ci-result.js.
+
+A supervised task result is operational evidence, **not a security sandbox**. The original remote worker's archive transfer, SSH execution, privileged host constraints and installation are not restored by these tests. Their use, if needed, requires separate version/host authorization and review of the exact remote command. The historical PR #74 remains open until that semantic comparison is complete.
