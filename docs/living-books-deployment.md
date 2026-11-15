@@ -60,7 +60,7 @@ In accordance with Cogentia/Operium doctrine:
 | 9 | `diaspora` | `diaspora.acorsica.org` | `acorsica.org` | `CNAME diaspora -> fracta.fractavolta.com` | `fracta2:/srv/www/diaspora/current` | **LIVE (Active)** |
 | 10 | `suicide-corse` | `suicidecorse.baronsmariani.org` | `baronsmariani.org` | `CNAME suicidecorse -> fracta.fractavolta.com` | `fracta2:/srv/www/suicidecorse/current` | **LIVE (Active)** |
 | 11 | `rise-and-fall` | `riseandfall.baronsmariani.org` | `baronsmariani.org` | `CNAME riseandfall -> fracta.fractavolta.com` | `fracta2:/srv/www/riseandfall/current` | **LIVE (Active)** |
-| 12 | `musee` | `museum.baronsmariani.org` | `baronsmariani.org` | **VERIFIED:** `CNAME museum -> fracta.fractavolta.com`, DNS-only, TTL Auto | `fracta2:/srv/www/musee/current` → release `3487f3d4e3c5` | **LIVE: HTTPS 200 + Boutique 200** (2026-11-15) |
+| 12 | `musee` | `museum.baronsmariani.org` | `baronsmariani.org` | **VERIFIED:** `CNAME museum -> fracta.fractavolta.com`, DNS-only, TTL Auto | `fracta2:/srv/www/musee/current` → release `f7f8ef131b5f` | **LIVE: HTTPS 200 + Boutique 200** (2026-11-15) |
 
 ---
 
@@ -201,3 +201,8 @@ The Principal's previously documented standing delegation also covered routine d
 - authoritative `musee.baronsmariani.org` CNAME lookup empty, as required by Occam's one-name decision.
 
 **Status:** Museum website and Boutique public, **edition `n1` still "en préparation"** (not editorially frozen, no product ordering). The standing mandate/COP technical integration issue remains tracked separately by Cogentia #299; do not conflate this successful operator-channel deployment with a canonical COP admission receipt. A subsequent site release should preserve immutable versions, conflict detection and the one-host Caddy guard.
+
+
+**Editorial FBF correction — later on 2026-11-15:** source inspection found the initially released HTML still stating that the Museum public domain had not been verified as published. These claims were obsolete *because the first deployment had succeeded*. The six affected HTML pages and corresponding source indexes were corrected on `barons-Mariani/main` commit `f7f8ef131b5fc81d5a68e11cb404e886ad865861` without changing the n1 working/frozen status or Boutique ordering state. Operium publication script was repinned to that exact source revision ([commit `6de3e8e`](https://github.com/JeanHuguesRobert/operium/commit/6de3e8e1b6903bb7573eb0451f02a0dd58f20f43)); its real `--check` again PASSED.
+
+**Second immutable release independently verified:** `/srv/www/musee/current -> releases/f7f8ef131b5fc81d5a68e11cb404e886ad865861`; `index.html` no longer contains obsolete offline wording and now states publication since 2026-11-15; `magazine.html` likewise acknowledges live projection. HTTPS public `/`, `/magazine.html` and `/boutique.html` all return **200, TLS verify 0**, Caddy remains active. Peer checks still **200** (Suicide Corse, Rise & Fall, Capable) and **401** (private Browser), TLS verify 0 for each. The second remote SSH call again timed out from the client perspective; no success was claimed until filesystem, live HTTPS and Caddy were independently observed. Script staging cleaned afterwards. The earlier release remains available as an immutable rollback target; no data from unrelated sites was removed.
