@@ -28,6 +28,40 @@ command -v curl >/dev/null && command -v caddy >/dev/null && command -v dig >/de
 dns_target="$(dig +short @viddy.ns.cloudflare.com "$HOST" CNAME | sed -n '1p' | sed 's/[.]$//')"
 [[ "$dns_target" == "$ORIGIN" ]] || { echo "BLOCKED: authoritative DNS conflict or absent target ($dns_target)" >&2; exit 2; }
 
+# FBF: an already-published immutable revision must be an O(1) no-op,
+# not eight GitHub downloads + an unnecessary public Caddy reload.
+# Verify root-owned release, exact Caddy configuration and actual HTTPS.
+if [[ "$MODE" == 'apply' ]]; then
+  [[ "$(id -u)" == 0 ]] || { echo 'BLOCKED: root required for publish' >&2; exit 3; }
+  if [[ -L "$SITE/current" && "$(readlink "$SITE/current")" == "releases/$REV" &&
+        -f "$HTTP_FILE" && -f "$HTTPS_FILE" &&
+        -d "$SITE/releases/$REV" &&
+        "$(stat -c '%U' "$SITE/releases/$REV")" == 'root' ]]; then
+    exact_http="$(printf 'http://%s {\n    root * %s/current\n    encode zstd gzip\n    file_server\n}' "$HOST" "$SITE")"
+    exact_https="$(printf 'https://%s {\n    root * %s/current\n    encode zstd gzip\n    file_server\n}' "$HOST" "$SITE")"
+    if [[ "$(cat "$HTTP_FILE")" == "$exact_http" &&
+          "$(cat "$HTTPS_FILE")" == "$exact_https" ]]; then
+      complete=1
+      for item in "${FILES[@]}"; do
+        f="$SITE/releases/$REV/$item"
+        if [[ ! -f "$f" || -L "$f" || ! -s "$f" ||
+              "$(stat -c '%U' "$f")" != 'root' ]]; then complete=0; break; fi
+      done
+      if [[ "$complete" == 1 ]]; then
+        local_status="$(curl -sS --max-time 9 -H "Host: $HOST" \
+          -o /dev/null -w '%{http_code}' http://127.0.0.1/boutique.html || true)"
+        https_status="$(curl -sS --max-time 9 -o /dev/null \
+          -w '%{http_code}|%{ssl_verify_result}' \
+          "https://$HOST/boutique.html" || true)"
+        if [[ "$local_status" == '200' && "$https_status" == '200|0' ]]; then
+          echo "UNCHANGED=PASS HOST=$HOST REV=$REV LOCAL=200 HTTPS=200 CERT=VALID CADDY_NOT_RELOADED"
+          exit 0
+        fi
+      fi
+    fi
+  fi
+fi
+
 tmp="$(mktemp -d /tmp/museum-publish.XXXXXXXX)"
 trap 'rm -rf "$tmp"' EXIT
 
