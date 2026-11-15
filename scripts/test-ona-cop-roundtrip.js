@@ -129,18 +129,7 @@ const unknownResult = await handleCopHttpRequest({
 assert.equal(unknownResult.status, 400);
 assert.equal(unknownResult.body.error, "unknown_packet_type");
 
-upsertPeerNodes(db, [{
-  attractor_id: "attractor:i7-thinkpad-jhr:operium-node",
-  node_id: "resource://i7-thinkpad-jhr",
-  hostname: "i7-thinkpad-jhr",
-  endpoint: "http://127.0.0.1:8795",
-  capabilities: "[]",
-  status: "online",
-  last_seen: new Date().toISOString(),
-  ttl_seconds: 300,
-  fresh: 1,
-  updated_at: new Date().toISOString(),
-}]);
+
 
 let deliveredBody = null;
 const peerServer = http.createServer(async (req, res) => {
@@ -155,7 +144,22 @@ const peerServer = http.createServer(async (req, res) => {
   res.writeHead(404);
   res.end();
 });
-await new Promise((resolve) => peerServer.listen(8795, "127.0.0.1", resolve));
+// Use an OS-assigned loopback port: CI runners and ONA services may already
+// bind a fixed port, which must not invalidate this isolated test.
+await new Promise((resolve) => peerServer.listen(0, "127.0.0.1", resolve));
+const peerPort = peerServer.address().port;
+upsertPeerNodes(db, [{
+  attractor_id: "attractor:i7-thinkpad-jhr:operium-node",
+  node_id: "resource://i7-thinkpad-jhr",
+  hostname: "i7-thinkpad-jhr",
+  endpoint: `http://127.0.0.1:${peerPort}`,
+  capabilities: "[]",
+  status: "online",
+  last_seen: new Date().toISOString(),
+  ttl_seconds: 300,
+  fresh: 1,
+  updated_at: new Date().toISOString(),
+}]);
 
 const queued = enqueueCopOutbox(db, {
   id: "out:event-1",
