@@ -55,6 +55,7 @@
     "test:fractanet-observation": "node scripts/test-fractanet-observation.js",
     "test:supervised-result": "node scripts/test-supervise-ci-result.js",
     "test:hosted-workspace-inventory": "node scripts/test-list-hosted-browser-workspaces.js",
+    "test:hosted-workspace-config": "node scripts/test-configure-hosted-browser-workspace.js",
     "test:hosted-browser-health-menu": "node scripts/test-hosted-browser-health-menu.js",
     "test:hosted-browser-launcher-source": "node scripts/test-hosted-browser-launcher-source.js",
     "test:hosted-browser-supervisor": "node scripts/test-hosted-browser-supervisor.js",

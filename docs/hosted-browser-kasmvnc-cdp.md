@@ -68,6 +68,10 @@ graph TD
 
 ---
 
+### Workspace configurator recovery (15 November 2026)
+
+scripts/ops/configure-hosted-browser-workspace.sh is recovered from the deployed Fracta2 helper, with the canonical advisory policy applied and an FBF correction: unlike the historical writer, the reconciled script preserves unrelated environment-file keys without evaluating or printing them. Its dry-run accepts kiosk settings, rejects unverified desktop waiver labels, and does not restart services or rewrite files. Test: node scripts/test-configure-hosted-browser-workspace.js. Actual writes still require host administrator rights, and the new source has not been installed over the live helper. The policy gate remains advisory unless independently verified authority is bound to the effect.
+
 ### Openbox desktop health menu provenance (15 November 2026)
 
 The desktop menu already installed on Fracta2 refers to an external health-pipe helper. The corresponding historical script and the FractaNode menu are recovered as canonical templates. A read-only smoke test generates the health menu using an isolated home and parses its XML; it does not open a desktop, reload Caddy or restart any browser. Run node scripts/test-hosted-browser-health-menu.js. The health output is a local workspace diagnostic, not a publicly published operational report.
