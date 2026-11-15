@@ -68,6 +68,10 @@ graph TD
 
 ---
 
+### Historical #25/#48 inventory recovered without credentials (15 November 2026)
+
+The older draft branch includes a list-hosted-browser-workspaces shell tool. Its useful observational contract has been reimplemented in the canonical main as scripts/ops/list-hosted-browser-workspaces.js. It reads only regular workspace .env configuration files, without executing their contents, and emits only the workspace key, display, and declared session/assurance values. It omits URLs, credentials, arbitrary env keys and file paths. The optional --env-dir permits fixture testing; default is /etc/operium/hosted-browser. It does not inspect or certify systemd status, network authentication or Principal rights; an unknown field is explicitly unknown. Test: node scripts/test-list-hosted-browser-workspaces.js.
+
 ### Historical #49 workspace policy recovered (15 November 2026)
 
 The read-only hosted-workspace-policy.sh check command validates the legacy policy vocabulary and refuses host-administration requests. Unlike the #50 prototype, the checker does not accept caller-provided principal-lab, future-idp or mesh labels as proof of authority; desktop requests are denied until network authentication and Principal waiver are independently verified at a real enforcement boundary. A kiosk advisory is not proof of login or permission.
