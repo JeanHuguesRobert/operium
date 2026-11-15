@@ -68,6 +68,10 @@ graph TD
 
 ---
 
+### Openbox desktop health menu provenance (15 November 2026)
+
+The desktop menu already installed on Fracta2 refers to an external health-pipe helper. The corresponding historical script and the FractaNode menu are recovered as canonical templates. A read-only smoke test generates the health menu using an isolated home and parses its XML; it does not open a desktop, reload Caddy or restart any browser. Run node scripts/test-hosted-browser-health-menu.js. The health output is a local workspace diagnostic, not a publicly published operational report.
+
 ### Hosted Browser canonical source versus deployed executable (15 November 2026)
 
 Direct SHA-256 comparison found that the Fracta2 installed launcher and supervisor match the two scripts from the historical PR #50 branch, not the previously committed canonical launcher. The deployed launcher contains the option SecurityTypes None in its vncserver command while independently passing a PasswordFile. This leaves the VNC-protocol authentication semantics unproven by the Caddy HTTP checks; the prior assertion of independent KasmVNC credential enforcement must not be treated as an established security fact. The two VNC and CDP ports examined remain bound to 127.0.0.1, and the public Caddy gateway still has its own challenge, but localhost-only does not alone prevent one local Unix user from attempting to access another session.
