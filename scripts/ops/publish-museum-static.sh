@@ -9,7 +9,7 @@ SITE='/srv/www/musee'
 HTTP_FILE='/etc/caddy/Caddyfile.d/museum.caddy'
 HTTPS_FILE='/etc/caddy/fracta2-edge-https/museum-tls.caddy'
 CADDY='/etc/caddy/Caddyfile'
-REV='3487f3d4e3c504d5044355dc39bd75323e3bb0ec'
+REV='f7f8ef131b5fc81d5a68e11cb404e886ad865861'
 MODE='check'
 FILES=(index.html book.html magazine.html boutique.html annexes.html contribuer.html mentions.html styles.css)
 
