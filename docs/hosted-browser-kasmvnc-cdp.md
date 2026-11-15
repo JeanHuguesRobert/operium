@@ -68,6 +68,16 @@ graph TD
 
 ---
 
+### Hosted Browser canonical source versus deployed executable (15 November 2026)
+
+Direct SHA-256 comparison found that the Fracta2 installed launcher and supervisor match the two scripts from the historical PR #50 branch, not the previously committed canonical launcher. The deployed launcher contains the option SecurityTypes None in its vncserver command while independently passing a PasswordFile. This leaves the VNC-protocol authentication semantics unproven by the Caddy HTTP checks; the prior assertion of independent KasmVNC credential enforcement must not be treated as an established security fact. The two VNC and CDP ports examined remain bound to 127.0.0.1, and the public Caddy gateway still has its own challenge, but localhost-only does not alone prevent one local Unix user from attempting to access another session.
+
+The reconciled launcher in main preserves the historical kiosk/desktop Openbox and supervisor model but removes SecurityTypes None, keeps PasswordFile, validates workspace key/display, and shell-quotes all inherited variables written into the generated runner. Synthetic tests exercise the shell quoting with a hostile URL and ensure no generated command runs. No privileged replacement of the deployed launcher nor session restart has happened as part of the source reconciliation. The installed executable therefore requires a separately verified copy and authentication probe before claiming the defect corrected in production. Do not replace the live executable with an untested copy or restart active workspaces blindly.
+
+### Recovered bounded browser supervisor from #49/#50 (15 November 2026)
+
+The historical kiosk restart supervisor is now preserved in the canonical source at templates/hosted-browser/supervise-hosted-browser.sh. It supervises only the Chromium/Brave child, records exit codes, bounds the crash streak and applies a cooldown/backoff; its synthetic test uses an isolated fake browser and temporary profile, with no KasmVNC/Caddy/systemd invocation. Run node scripts/test-hosted-browser-supervisor.js to verify repeated failure terminates predictably and restart-off propagates the exit code. Read-only inspection on Fracta2 established that the historical supervisor from PR #50 is already installed and used by the deployed launcher, with byte-identical source SHA-256 values. The earlier statement that the supervisor had never been installed is superseded. The canonical repository is now being reconciled with that deployed reality, while retaining the newer source-level authentication protections.
+
 ### Historical #25/#48 inventory recovered without credentials (15 November 2026)
 
 The older draft branch includes a list-hosted-browser-workspaces shell tool. Its useful observational contract has been reimplemented in the canonical main as scripts/ops/list-hosted-browser-workspaces.js. It reads only regular workspace .env configuration files, without executing their contents, and emits only the workspace key, display, and declared session/assurance values. It omits URLs, credentials, arbitrary env keys and file paths. The optional --env-dir permits fixture testing; default is /etc/operium/hosted-browser. It does not inspect or certify systemd status, network authentication or Principal rights; an unknown field is explicitly unknown. If a private environment file cannot be read as the current user, the output is explicitly incomplete and reports an unreadable count without disclosing its name. Do not escalate privileges just to make this inventory green. Test: node scripts/test-list-hosted-browser-workspaces.js.
@@ -136,7 +146,7 @@ uses kiosk mode, independently of the first desktop workspace.
 **One canonical entry point:** `https://browser.fractavolta.com/` serves
 both users. Caddy's Basic authentication establishes the username and then
 routes all HTTP and WebSocket traffic to the corresponding KasmVNC upstream.
-The upstream KasmVNC independently validates that account's credentials;
+The upstream KasmVNC was previously assumed to independently validate that account's credentials;
 username switching does **not** share sessions. An earlier experimental
 `/frederic/` path route was removed. The existing `/.well-known/soma` and
 `/soma/*` reverse-proxy paths are preserved separately.
