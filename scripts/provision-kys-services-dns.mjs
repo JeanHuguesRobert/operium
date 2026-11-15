@@ -1,17 +1,34 @@
 #!/usr/bin/env node
 /**
- * Idempotent Cloudflare DNS-only CNAME provisioning for a single named public
- * service. No secret is printed. Default is read-only; --apply is explicit.
+ * Idempotent Cloudflare DNS-only CNAME provisioning for a FIXED allowlist.
+ * No secret is printed. Default is read-only; --apply is explicit.
+ * --site=services (default; backward-compatible) or --site=museum.
  * Run on the authorized operator workstation with CLOUDFLARE_API_TOKEN set,
- * or CLOUDFLARE_API_KEY + CLOUDFLARE_EMAIL for legacy global-key auth.
+ * or CLOUDFLARE_API_KEY (with CLOUDFLARE_EMAIL only for legacy global-key auth).
+ * CLI availability and token access do not supply COP effect authorization.
  */
 import process from 'node:process'
 
-const ZONE = 'acorsica.org'
-const NAME = 'services.acorsica.org'
-const TARGET = 'fracta.fractavolta.com'
+const SITES = Object.freeze({
+  services: Object.freeze({ zone: 'acorsica.org', name: 'services.acorsica.org', target: 'fracta.fractavolta.com' }),
+  museum: Object.freeze({ zone: 'baronsmariani.org', name: 'museum.baronsmariani.org', target: 'fracta.fractavolta.com' }),
+})
+const argv = process.argv.slice(2)
+const selectors = argv.filter(arg => arg.startsWith('--site='))
+if (selectors.length > 1 || argv.some(arg => arg !== '--apply' && !arg.startsWith('--site='))) {
+  console.error('Usage: provision-kys-services-dns.mjs [--site=services|--site=museum] [--apply]')
+  process.exit(2)
+}
+const selected = selectors[0]?.slice('--site='.length) || 'services'
+if (!Object.hasOwn(SITES, selected)) {
+  console.error('BLOCKED: unknown DNS site; only fixed allowlist entries are permitted')
+  process.exit(2)
+}
+const ZONE = SITES[selected].zone
+const NAME = SITES[selected].name
+const TARGET = SITES[selected].target
 const API = 'https://api.cloudflare.com/client/v4'
-const apply = process.argv.includes('--apply')
+const apply = argv.includes('--apply')
 const token = process.env.CLOUDFLARE_API_TOKEN || process.env.CF_API_TOKEN
 const legacyKey = process.env.CLOUDFLARE_API_KEY
 const legacyEmail = process.env.CLOUDFLARE_EMAIL
@@ -90,7 +107,7 @@ try {
   const records = (await cf(`/zones/${zone}/dns_records?name=${encodeURIComponent(NAME)}&per_page=100`)).result
   if (records.length) {
     if (records.length === 1 && records[0].type === 'CNAME' &&
-        records[0].content.replace(/\\.$/, '').toLowerCase() === TARGET &&
+        records[0].content.replace(/[.]$/, '').toLowerCase() === TARGET &&
         records[0].proxied === false) {
       console.log('UNCHANGED: existing DNS-only CNAME already matches desired record')
       process.exit(0)
@@ -105,7 +122,7 @@ try {
   const created = (await cf(`/zones/${zone}/dns_records`, {
     method: 'POST', body: JSON.stringify(payload),
   })).result
-  if (created.name !== NAME || created.type !== 'CNAME' || created.proxied !== false) {
+  if (created.name !== NAME || created.type !== 'CNAME' || created.content.replace(/[.]$/, '').toLowerCase() !== TARGET || created.proxied !== false) {
     throw Error('Provider response does not match desired record; inspect zone')
   }
   console.log(`CREATED: ${created.name} CNAME -> ${created.content} (DNS-only), record id ${created.id}`)
