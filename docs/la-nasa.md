@@ -36,6 +36,39 @@ provenance:
 
 # La Nasa — Networked Agency Situational Awareness
 
+## Operational observation (2026-11-16)
+
+This concept is **not a single physical process or central server**. After
+retirement of the former `fracta` VPS, the ONA instance on `fracta2`
+provides a live Tailnet-only observer at `http://fracta2:8794/`
+(`GET /nasa/fleet`, `GET /nasa/node?host=fracta2`). It was
+verified responding HTTP 200 with its own identity and the ThinkPad
+observable. **This does not prove that the wall-mounted Pi display is
+operating.** As of this observation, `rpi3-view` had been unavailable
+on Tailscale for approximately nine days; its local power, LAN, screen
+and session must be checked independently.
+
+The public Cogentia Guide remained reachable on Fracta2, while the
+**legacy Views Store** previously served by `fracta` at port 3423
+was **not deployed on Fracta2** during the 2026-11-10 public-address
+handoff. The old public `/api/views` endpoint returned HTTP 404.
+These are three separate facts: observer availability, source
+projection availability, and local kiosk availability.
+
+La Nasa now probes its five known nodes concurrently with a bounded
+observation deadline. A peer which did not answer in time is
+`unconfirmed`, not automatically declared offline. Separately, a
+time-stamped, sanitized Tailscale control-plane observation identifies
+nodes reported offline by the mesh. **Tailscale presence is not proof
+that ONA works; failed ONA is not proof that a machine is powered off.**
+Retain sources, timestamps and uncertainty in future displays.
+
+Do not re-expose old Views Store files on a public host without an
+explicit destination and visibility review. Regenerated public views,
+private operator views and a physical wall kiosk have different
+access and publication boundaries.
+
+
 ## Canonical expansion
 
 In the FractaNet / Operium vocabulary, **NASA** is the deliberate backronym:
