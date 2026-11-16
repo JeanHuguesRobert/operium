@@ -8,6 +8,6 @@
     "apiKeyEnv": "COGENTIA_API_KEY",
     "no_fallback_on_error": true,
     "host": "fracta2",
-    "note": "Explicit opt-in: canonical JHN browser CPS, result via Cogentia MCP; never automatic fallback on pending/unknown outcome"
+    "note": "Opt-in local ChatGPT browser provider: observed UI response; local SQLite continuation on Magistral host; no recursive fallback; Cogentia MCP/COP only for tool judgment continuations"
   }
 ]
