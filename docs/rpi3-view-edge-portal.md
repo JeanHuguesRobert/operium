@@ -30,6 +30,25 @@ provenance:
 
 # rpi3-view edge portal — control-room display (step 1)
 
+## Current reachability note (2026-11-16)
+
+The historical service checks below describe the Pi when running.
+**The actual `rpi3-view` peer is presently offline on Tailscale**
+(last observed on 2026-11-07); its SSH entry is unreachable from
+Fracta2. This alone does not determine whether the Pi is powered off,
+has lost its LAN, has an unhealthy Tailscale daemon, or has a local
+display failure. Physical or same-LAN diagnosis is required before
+claiming the wall kiosk is restored.
+
+The **Fracta2 ONA La Nasa** observer is independently reachable on
+the Tailnet at `http://fracta2:8794/` and
+`http://fracta2:8794/nasa/fleet`. It can be used from an authorized
+Tailnet client while the Paoli display is disconnected. It does not
+replace the physical kiosk automatically, nor is it the old Views
+Store. The obsolete `fracta` Views Store public `/api/views`
+route is not currently deployed on Fracta2.
+
+
 **Operator nickname:** the small always-on screen is affectionately **“La Nasa”** —
 **Networked Agency Situational Awareness**, the Fractanet control-room concept.
 The name deliberately keeps the NASA mission-control wink, while the architecture
