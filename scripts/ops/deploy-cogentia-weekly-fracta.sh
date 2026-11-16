@@ -38,8 +38,6 @@ owned_paths=(
   "llms.txt" "llms-full.txt"
   ".cogentia/projections/llms.txt" ".cogentia/projections/llms-full.txt"
   "docs/registry.json"
-  ".cogentia/continuations/ctn_weekly_consolidation.json"
-  ".cogentia/continuations/ctn_weekly_consolidation_${next_week}.json"
 )
 while IFS= read -r status_line; do
   dirty_path="${status_line:3}"
@@ -96,15 +94,17 @@ sudo systemctl daemon-reload
 sudo systemctl start cogentia-consolidation.service
 systemctl show cogentia-consolidation.service --property=Result,ExecMainStatus,ExecMainStartTimestamp,User,ExecStart > "$record/service-after.txt"
 test "$(systemctl show cogentia-consolidation.service --property=Result --value)" = success
-(cd "$repo" && /usr/bin/node --input-type=module -e '
+(cd "$repo" && COGENTIA_WEEKLY_RELEASE="$release" /usr/bin/node --input-type=module -e '
 import fs from "node:fs";
-const p = JSON.parse(fs.readFileSync(".cogentia/continuations/ctn_weekly_consolidation.json", "utf8"));
+const {continuationRepository} = await import(process.env.COGENTIA_WEEKLY_RELEASE + "/scripts/lib/continuation-sqlite-repository.mjs");
+let p;
 const date = new Date();
 date.setUTCHours(0, 0, 0, 0);
 date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
 const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
 const sprint = `${date.getUTCFullYear()}-W${String(Math.ceil((((date - yearStart) / 86400000) + 1) / 7)).padStart(2, "0")}`;
-if (p.id !== `ctn_weekly_consolidation_${sprint}` || p.status !== "completed" || p.execution_steps_completed !== 5) throw new Error("Missing current-week completed packet");
+p = continuationRepository(process.cwd()).load(`ctn_weekly_consolidation_${sprint}`);
+if (!p || p.id !== `ctn_weekly_consolidation_${sprint}` || p.status !== "completed" || p.execution_steps_completed !== 5) throw new Error("Missing current-week completed packet");
 for (const view of ["public", "private"]) if (!fs.existsSync(p.privacy_domains[view].digest)) throw new Error(`Missing ${view} digest`);
 console.log(JSON.stringify({id:p.id,status:p.status,updated_at:p.updated_at}));
 ') > "$record/functional-check.json"
