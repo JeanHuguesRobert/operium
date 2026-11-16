@@ -304,14 +304,15 @@
       return;
     }
     fleetEl.innerHTML = nodes.map(function (n) {
-      var cls = n.online ? "ok" : "bad";
+      var uncertain = n.online == null || n.observation_state === "unconfirmed";
+      var cls = uncertain ? "warn" : (n.online ? "ok" : "bad");
       var hs = n.health_score != null ? "h" + n.health_score : "";
       var sel = selectedHost === n.host ? " selected" : "";
       return (
         '<div class="node-row' + sel + '" role="button" tabindex="0" data-host="' + n.host + '">' +
         '<span class="dot ' + cls + '"></span>' +
         '<span class="name">' + (n.label || n.host) + "</span>" +
-        '<span class="meta">' + (n.online ? "online " + hs : "offline") + "</span>" +
+        '<span class="meta">' + (uncertain ? "unconfirmed" : (n.online ? "online " + hs : "unreachable")) + "</span>" +
         "</div>"
       );
     }).join("");
@@ -976,10 +977,12 @@
       if (!r.ok) throw new Error("fleet HTTP " + r.status);
       var data = await r.json();
       renderFleet(data);
-      var online = (data.nodes || []).filter(function (n) { return n.online; }).length;
+      var online = (data.nodes || []).filter(function (n) { return n.online === true; }).length;
+      var unconfirmed = (data.nodes || []).filter(function (n) { return n.online == null; }).length;
       var total = (data.nodes || []).length;
       meta.innerHTML =
-        "Fleet <strong>" + online + "/" + total + "</strong> online · " +
+        "Fleet <strong>" + online + "/" + total + "</strong> online" +
+        (unconfirmed ? " · " + unconfirmed + " unconfirmed" : "") + " · " +
         shortIso(data.generated_at) + " · mesh-pull";
       setFlash("Fleet " + online + "/" + total, "ok");
       if (selectedHost) selectNode(selectedHost);
