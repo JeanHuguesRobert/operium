@@ -1,0 +1,13 @@
+[
+  {
+    "id": "chatgpt-browser",
+    "url": "http://127.0.0.1:8798/v1/chat/completions",
+    "model": "chatgpt-browser",
+    "tier": "chatgpt-browser",
+    "weight": 100,
+    "apiKeyEnv": "COGENTIA_API_KEY",
+    "no_fallback_on_error": true,
+    "host": "fracta2",
+    "note": "Explicit opt-in: canonical JHN browser CPS, result via Cogentia MCP; never automatic fallback on pending/unknown outcome"
+  }
+]
