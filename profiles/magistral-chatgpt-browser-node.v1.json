@@ -1,7 +1,7 @@
 [
   {
     "id": "chatgpt-browser",
-    "url": "http://127.0.0.1:8798/v1/chat/completions",
+    "url": "http://127.0.0.1:8898/v1/chat/completions",
     "model": "chatgpt-browser",
     "tier": "chatgpt-browser",
     "weight": 100,
