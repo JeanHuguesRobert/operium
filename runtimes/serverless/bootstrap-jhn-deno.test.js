@@ -10,6 +10,9 @@ test('reads exactly the existing JHN bootstrap trio, passes no unrelated secrets
   assert.equal(Object.hasOwn(command.env,'OPENAI_API_KEY'),false);
   assert.equal(command.args.at(-1).endsWith('probe-jhn-vault.ts'),true);
   assert.equal(command.args.some(a=>a.includes('test-service-secret')),false);
+  assert.equal(command.env.NASA_OBSERVER_URL,'http://127.0.0.1:8794');
+  assert.ok(command.args.some(a=>a.includes('127.0.0.1:8794')));
+  assert.ok(command.args.some(a=>a.includes('NASA_OBSERVER_URL')));
   chmodSync(f,0o644);assert.throws(()=>readJhnBootstrap(f),/permissions_too_open/);
  }finally{rmSync(d,{recursive:true,force:true})}
 });

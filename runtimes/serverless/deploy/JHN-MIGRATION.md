@@ -252,3 +252,26 @@ The agent coding shell has `NoNewPrivs` and cannot perform this root-owned
 systemd/Caddy change. Do not first change Cloudflare DNS and leave the public
 hostname broken: **service readiness must precede DNS mutation**. A success
 receipt must report the authoritative A answer and valid HTTPS response.
+
+## 2026-11-17 — Principal-only local Fracta2 La Nasa observations
+
+The JHN Deno runtime now permits exactly one additional loopback destination,
+`127.0.0.1:8794`, and one non-secret environment key
+`NASA_OBSERVER_URL=http://127.0.0.1:8794`. The private `/api/nasa/control`
+handler resolves it through Inseme's instance-aware `getConfig`; only the
+Supabase-verified JHN Principal receives the bounded read-only ONA projection.
+Untrusted observer URLs fail closed. The browser never calls peer ONA
+endpoints directly and never receives administrator tokens. Operations remain
+disabled by the existing GET-only guard.
+
+Source/API: Inseme `nasa-observer.js`, `nasa-control.js`,
+`NasaPage.jsx`. Source runtime: this repo's `bootstrap-jhn-deno.js`.
+Reality checks: read-only Deno loopback fetch of Fracta2 node status and
+fleet, Node projection tests, build:JHN, unauthenticated and invalid-bearer
+endpoint refusal. Confirm authenticated Principal rendering from a real JHN
+browser session separately; no auth token is copied into test scripts.
+
+The public link was corrected to the active Fractanet `/ops/dashboard`;
+the legacy static Operium Console `/ops/console/` and Views Store remain
+unrestored after the Fracta2 migration. They are separate work, not an
+implicit prerequisite for this private local view.
