@@ -40,9 +40,13 @@ test('all remaining legacy JHN API surfaces fail closed with named pending statu
 test('NASA and Interactions protected edge routes do not grant rights without bearer',async()=>{
  const site=createJhnPreview({port:0});const a=await site.listen();const base=`http://127.0.0.1:${a.port}`;
  try{
-   // When Deno worker is not started, protected functions stay unavailable.
+   // With a running Deno worker, the route denies anonymous reads with 401.
+   // Without the worker, a 503 also fails closed; no status 200 is acceptable.
    for(const path of ['/api/nasa/control','/api/interactions/desk']){
-     const r=await fetch(base+path);assert.equal(r.status,503,path);
+     const r=await fetch(base+path);
+     assert.ok([401,503].includes(r.status),path + ' unexpectedly returned ' + r.status);
+     const body=await r.json();
+     if(r.status===401)assert.equal(body.error,'missing_bearer_token',path);
    }
  }finally{await site.close()}
 });
