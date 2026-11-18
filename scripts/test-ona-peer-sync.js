@@ -8,6 +8,7 @@ import path from "node:path";
 import { openNodeMemoryDb } from "../lib/node-agent/db.js";
 import {
   buildNodePeers,
+  listPeerNodes,
   isAcceptablePeerEndpoint,
   isAttractorFresh,
   normalizePeerAttractor,
@@ -132,6 +133,18 @@ const peersAfterBlackboardLoss = buildNodePeers({
 });
 assert.equal(peersAfterBlackboardLoss.count, 1);
 assert.equal(peersAfterBlackboardLoss.peers[0].node_id, "resource://i7-thinkpad-jhr");
+// Retention is not freshness. Without a new attractor, no peer may remain
+// a FractaRouting discovery candidate beyond the 300-second TTL, even when
+// the last synchronized SQLite row still has the old fresh=1 flag.
+const afterExpiry = new Date(now.getTime() + 6 * 60_000);
+assert.equal(listPeerNodes(db, { fresh: true, now: afterExpiry }).length, 0);
+const historical = listPeerNodes(db, { fresh: false, now: afterExpiry });
+assert.equal(historical.length, 1);
+assert.equal(historical[0].fresh, false);
+assert.ok(historical[0].expires_at);
+const expiredView = buildNodePeers({ db, nodeId: "resource://fracta", now: afterExpiry });
+assert.equal(expiredView.peers[0].fresh, false);
+
 
 const local = db.prepare("SELECT last_blackboard_sync_at FROM local_state WHERE node_id = ?")
   .get("resource://fracta");

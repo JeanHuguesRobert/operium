@@ -69,6 +69,40 @@ private operator views and a physical wall kiosk have different
 access and publication boundaries.
 
 
+## 2026-11-18 — Node-local compute and route-awareness frontier
+
+The Principal's `https://jhn.baronsmariani.org/nasa` on Fracta2 now projects
+four strictly local ONA reads: node health, legacy fleet probe, node-local
+`/node/peers` registry and SOMA `/soma/object` compute measurements.
+The last two are bounded and redacted in the authenticated JHN API; peer
+endpoint URLs, service credentials and raw node payloads are not published.
+The fixed five-host fleet view is supplementary evidence, **not** a routing
+candidate directory.
+
+ONA attractors only advertise `operium.node.v1` observability today.
+The local peer cache survives a failed blackboard sync until TTL/retention
+cleanup. Attractor freshness is recomputed on read from last_seen + TTL,
+even if the stored `fresh` bit has not yet been updated by the sweeper;
+after expiration, a record is not a fresh neighbor, whether retained or
+deleted. An ONA status or a Tailscale online observation does not establish
+a packet-specific compute capacity or a working multi-hop transport path.
+
+As intended by the [Locality Principle](https://github.com/JeanHuguesRobert/cogentia/blob/main/research/locality_principle.md),
+each node owns its local observations and can build situated views of other
+nodes. It does not own their state or mandates. The intended
+**Mesh Network Learning Computer** extends this to *computation*:
+attractors advertise mobilizable capabilities; recorded packet hops,
+outcomes and returns to Ithaca provide stigmergic evidence about paths.
+A derived projection can influence future FractaRouting decisions without
+becoming a second authority or a central trace registry.
+
+The [Informational Gravity](https://github.com/JeanHuguesRobert/cogentia/blob/main/research/informational_gravity.md)
+research addendum dated 2026-11-18 defines candidate path-trace fields and
+two-/three-node Reality Tests. **Current status:** peer awareness and local
+compute observation are implemented; packet-specific capacity benchmarks,
+multi-hop routing, path-performance receipts, learned path attraction and
+Ithaca assimilation are still unimplemented, and are not claimed by La Nasa.
+
 ## Canonical expansion
 
 In the FractaNet / Operium vocabulary, **NASA** is the deliberate backronym:

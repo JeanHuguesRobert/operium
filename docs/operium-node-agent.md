@@ -412,6 +412,15 @@ Helper: `buildOperiumNodeAttractor()` in `operium/lib/node-agent/attractor.js`, 
 3. Accept only `http://<host-or-ip>:8794` endpoint refs; reject `secret://` for peer-sync (catalogue resolution is heartbeat-only)
 4. Upsert `peer_nodes`; optionally fetch `GET /node/snapshot` from each fresh peer server-side (rate-limited: 1/min/peer)
 
+**Read-time freshness:** `GET /node/peers?fresh=1` and
+`peer_count_fresh` recompute validity against `last_seen + ttl_seconds`,
+not only the stored `fresh` bit. A blackboard failure leaves the local
+cache intact until its normal TTL/retention sweep, but cannot indefinitely
+preserve an expired candidate's fresh status. `?fresh=0` may expose an
+expired record **until** the sweeper removes it; the peer table is not the
+immutable historical COP receipt ledger. See
+`scripts/test-ona-peer-sync.js` for expiry and blackboard-loss checks.
+
 **No Tailscale peer list** is used in this module. Tailscale data may still appear in `operium up` mesh layer for drift detection only.
 
 ### COP control-plane packet types
