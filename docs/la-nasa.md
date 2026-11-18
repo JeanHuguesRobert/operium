@@ -103,6 +103,12 @@ compute observation are implemented; packet-specific capacity benchmarks,
 multi-hop routing, path-performance receipts, learned path attraction and
 Ithaca assimilation are still unimplemented, and are not claimed by La Nasa.
 
+The November 18 reality check also found and repaired a self-probe
+startup race: ONA formerly probed its own /health endpoint before opening
+the HTTP listener, producing a spurious failed health check after a normal
+restart. The bootstrap now starts listening before its first self-probe.
+A healthy HTTP listener is not a substitute for the rest of the health matrix.
+
 ## Canonical expansion
 
 In the FractaNet / Operium vocabulary, **NASA** is the deliberate backronym:

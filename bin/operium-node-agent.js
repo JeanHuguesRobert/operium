@@ -105,6 +105,19 @@ async function main() {
   }
 
   const worker = createProbeWorker({ db, config });
+  const server = createOnaHttpServer({
+    config,
+    db,
+    graphDb,
+    startedAt,
+    getNodeId: () => worker.getIdentity().node_id,
+    runProbe: (options) => worker.runCycle(options),
+    incarnation,
+  });
+  // The first probe includes GET /health of THIS ONA instance. The HTTP
+  // listener must already be accepting connections, or a routine restart
+  // falsely marks an otherwise healthy node as degraded for an entire cycle.
+  const listen = await startOnaHttpServer(server, config);
   const initial = await worker.runCycle();
   syncLocalIdentity(db, initial.identity);
 
@@ -117,17 +130,6 @@ async function main() {
     memory_path: resolveNodeMemoryPath(config.env),
     initial_probe: initial.summary,
   });
-
-  const server = createOnaHttpServer({
-    config,
-    db,
-    graphDb,
-    startedAt,
-    getNodeId: () => worker.getIdentity().node_id,
-    runProbe: (options) => worker.runCycle(options),
-    incarnation,
-  });
-  const listen = await startOnaHttpServer(server, config);
   worker.start();
 
   const navigationGateway = await attachNavigationAssistantGateway({
