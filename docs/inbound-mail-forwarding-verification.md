@@ -1,5 +1,7 @@
 ---
 title: "Inbound Mail Forwarding Verification"
+author: unknown
+affiliation: "Institut Mariani / C.O.R.S.I.C.A."
 description: "A bounded, privacy-preserving receipt test for domain-to-mailbox forwarding."
 document_role: operational
 document_kind: verification-procedure
@@ -8,11 +10,34 @@ lifecycle_state: working
 update_policy: UP-INFRASTRUCTURE-HEALTH
 language: en
 date: "2026-08-30"
+last_modified_at: "2026-11-18"
+license: "CC BY-SA 4.0"
+status: "working-paper — historical verification contract"
+provenance:
+  origin_type: unknown
+  origin_repository: unknown
+  origin_ref: unknown
+  origin_date: unknown
+  derived_from: []
+review:
+  status: unreviewed
+  reviewed_by: []
 ---
 
 # Inbound Mail Forwarding Verification
 
 > **Historical unverified WIP (2026-08-30; recovered 2026-11-13, Operium #37).** This is a test contract, not evidence of successful delivery, currently configured mail routing or authority to send. The abandoned lepp.fr domain is not a migration target. Any live mail test requires specific Principal authorization for that particular send.
+
+> Provider qualification (2026-11-18): This document's
+> john@fractavolta.com verification is a historical Gandi-forwarding test
+> contract, not evidence of current Cloudflare receipt. Authoritative DNS
+> inspection found Cloudflare Email Routing MX on baronsmariani.org, Gandi
+> MX on acorsica.org despite Cloudflare authoritative DNS, and Gandi
+> MX on fractavolta.com. An individual forwarding rule and actual receipt
+> must be tested independently of DNS. For 3Code registration, use a
+> verified dedicated mailbox and the actual receiving provider rather than
+> assuming every owned domain already forwards through Cloudflare.
+> See docs/dns-provider-portability.md (2026-11-18 observation).
 
 ## Purpose
 

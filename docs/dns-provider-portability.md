@@ -9,7 +9,7 @@ lifecycle_state: working
 update_policy: UP-INFRASTRUCTURE-HEALTH
 language: en
 date: '2026-08-29'
-last_modified_at: '2026-11-13'
+last_modified_at: '2026-11-18'
 related:
   - fractavolta-dns.md
   - fractanet-mesh.md
@@ -33,6 +33,54 @@ provenance:
 
 
 # DNS Provider Portability and Reversible Migration
+
+## Email ingress reconciliation — 2026-11-18 (authoritative DNS)
+
+This read-only snapshot corrects any assumption that Cloudflare already
+forwards all inbound mail for every domain. The authoritative nameservers
+and live MX records were queried from Fracta2 and checked directly against
+both authoritative Cloudflare nameservers for the two Cloudflare zones.
+Cloudflare Email Routing requires Cloudflare routing MX records to handle
+incoming mail for a domain.
+
+| Domain | Authoritative DNS | Public apex MX | Observed conclusion |
+| --- | --- | --- | --- |
+| baronsmariani.org | viddy.ns.cloudflare.com and josephine.ns.cloudflare.com | route1.mx.cloudflare.net, route2.mx.cloudflare.net, route3.mx.cloudflare.net | Cloudflare is the current MX receiver. Individual rules and actual onward delivery are not verified by MX alone. |
+| acorsica.org | The same Cloudflare nameservers | spool.mail.gandi.net, fb.mail.gandi.net | Cloudflare manages authoritative DNS, but root-domain incoming MX still targets Gandi, not Cloudflare Email Routing. |
+| fractavolta.com | Gandi nameservers | spool.mail.gandi.net, fb.mail.gandi.net | Gandi remains authoritative DNS and the public mail receiver at this observation. |
+
+Independent public SPF records corroborate the ingress split:
+baronsmariani.org publishes the Cloudflare Email Routing SPF include and
+the Cloudflare routing DKIM selector, while acorsica.org and
+fractavolta.com publish Gandi mail SPF includes. These DNS indicators
+do not themselves prove that every forwarding address or destination works.
+
+The independent MX for mail.fractavolta.com points to itself; this does not
+change the apex mail picture. services.acorsica.org is a web hostname, not
+an independently verified receiving mailbox.
+
+Interpretation: the owner's intended Cloudflare forwarding architecture
+is partially visible at baronsmariani.org, but the assertion that all
+forwarding is already on Cloudflare is not supported for the above domains.
+Cloudflare forwarding rules might exist but cannot receive apex email
+while the public MX still sends mail to Gandi, without some additional
+explicit delivery mechanism.
+
+Not inspected: authenticated Cloudflare Email Routing configuration,
+forwarding rules, catch-all settings, verified destinations, Gandi aliases,
+or actual delivered-mail receipts. Do not assume that 3code@acorsica.org
+exists or that an inbound-mail registration challenge is deliverable;
+first verify the receiving alias, its provider, and the complete path.
+
+No configuration changes were performed: DNS, MX, Cloudflare/Gandi
+settings, identities, destination mailboxes and messages are unchanged.
+This observation is not a completed migration certificate and does not
+supersede the dated 2026-11-13 fractavolta.com migration gate below.
+
+Provider reference:
+https://developers.cloudflare.com/email-service/configuration/domains/
+
+---
 
 ## Current implementation checkpoint — 2026-11-13
 
