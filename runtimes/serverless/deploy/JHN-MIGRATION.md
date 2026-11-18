@@ -275,3 +275,25 @@ The public link was corrected to the active Fractanet `/ops/dashboard`;
 the legacy static Operium Console `/ops/console/` and Views Store remain
 unrestored after the Fracta2 migration. They are separate work, not an
 implicit prerequisite for this private local view.
+
+## 2026-11-18 — Principal Cogentia cockpit, read-only
+
+The deployed Deno JHN worker now also permits `127.0.0.1:8790` and injects
+`NASA_COGENTIA_URL=http://127.0.0.1:8790` as a non-secret configuration
+value. Inseme's `nasa-control` checks the authenticated Supabase Principal
+before reading the canonical Cogentia daemon `/api/views/snapshot`. It uses a
+bounded GET query and an explicit projection whitelist. No public routing,
+credential, browser-side daemon access, mandate authority, action plane,
+journal write, or new corpus registry is added.
+
+The private UI displays source/freshness, workload estimates, the existing
+continuation and issue counts, and a sample of ongoing continuations.
+The raw payload and continuation resume/action data remain server-only.
+The Cogentia daemon's separate mandate/continuation decision paths enforce
+their own authorization and are **not** proxied here.
+
+Verification: Node projection unit tests; a Deno loopback reality probe
+without app secrets; bootstrap allowlist tests; JHN Vite build; negative
+authentication tests on the production same-origin API. Reuse the standing
+Fracta2 maintenance authorization for service restart and verify its effect
+receipt. Principal browser rendering requires a real authenticated session.

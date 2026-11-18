@@ -25,12 +25,12 @@ export function readJhnBootstrap(file=source){
 export function buildJhnDenoCommand({bootstrap,probe=false,deno=runtime}={}){
  if(!bootstrap?.urlHost||!bootstrap?.env)throw Error('bootstrap_required');
  const args=['run','--no-check',`--config=${directory}/deno.json`,
-   `--allow-net=127.0.0.1:8797,127.0.0.1:8794,api.open-meteo.com:443,esm.sh:443,deno.land:443,${bootstrap.urlHost}:443`,
-   '--allow-env=SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY,SUPABASE_ANON_KEY,FRACTAFUNCTION_DENO_PORT,NASA_OBSERVER_URL'];
+   `--allow-net=127.0.0.1:8797,127.0.0.1:8794,127.0.0.1:8790,api.open-meteo.com:443,esm.sh:443,deno.land:443,${bootstrap.urlHost}:443`,
+   '--allow-env=SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY,SUPABASE_ANON_KEY,FRACTAFUNCTION_DENO_PORT,NASA_OBSERVER_URL,NASA_COGENTIA_URL'];
  if(probe)args.push(`${directory}/probe-jhn-vault.ts`);
  else args.push(`${directory}/jhn-deno-runtime.ts`);
  const env={PATH:'/usr/local/bin:/usr/bin:/bin',HOME:'/home/ubuntu',
-  FRACTAFUNCTION_DENO_PORT:'8797',NASA_OBSERVER_URL:'http://127.0.0.1:8794',...bootstrap.env};
+  FRACTAFUNCTION_DENO_PORT:'8797',NASA_OBSERVER_URL:'http://127.0.0.1:8794',NASA_COGENTIA_URL:'http://127.0.0.1:8790',...bootstrap.env};
  // systemd grants one writable runtime cache; no secret source is copied.
  if(process.env.DENO_DIR?.startsWith('/run/fractafunction-jhn-deno'))env.DENO_DIR=process.env.DENO_DIR;
  return {deno,args,env};

@@ -13,6 +13,9 @@ test('reads exactly the existing JHN bootstrap trio, passes no unrelated secrets
   assert.equal(command.env.NASA_OBSERVER_URL,'http://127.0.0.1:8794');
   assert.ok(command.args.some(a=>a.includes('127.0.0.1:8794')));
   assert.ok(command.args.some(a=>a.includes('NASA_OBSERVER_URL')));
+  assert.equal(command.env.NASA_COGENTIA_URL,'http://127.0.0.1:8790');
+  assert.ok(command.args.some(a=>a.includes('127.0.0.1:8790')));
+  assert.ok(command.args.some(a=>a.includes('NASA_COGENTIA_URL')));
   chmodSync(f,0o644);assert.throws(()=>readJhnBootstrap(f),/permissions_too_open/);
  }finally{rmSync(d,{recursive:true,force:true})}
 });
