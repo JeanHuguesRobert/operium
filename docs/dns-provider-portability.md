@@ -9,7 +9,7 @@ lifecycle_state: working
 update_policy: UP-INFRASTRUCTURE-HEALTH
 language: en
 date: '2026-08-29'
-last_modified_at: '2026-11-18'
+last_modified_at: '2026-11-19'
 related:
   - fractavolta-dns.md
   - fractanet-mesh.md
@@ -33,6 +33,78 @@ provenance:
 
 
 # DNS Provider Portability and Reversible Migration
+
+## 3Code-triggered email migration resumption — 2026-11-19
+
+**Principal direction:** create the inbound alias
+`3code@acorsica.org` for the first C.O.R.S.I.C.A. 3Code registrar,
+and take the opportunity to finish moving the *active* Gandi
+inbound forwarding aliases to Cloudflare. This extends the existing
+[Operium #37](https://github.com/JeanHuguesRobert/operium/issues/37)
+Cognitive Packet; it does not authorize renewal or restoration of the
+abandoned `lepp.fr` domain.
+
+**Live evidence (2026-11-19, from Fracta2 public DNS, two
+authoritative nameservers per zone):**
+
+| Domain | Live authoritative nameservers | Live inbound apex MX | Historical provider-side forwarding state, NOT reverified |
+| --- | --- | --- | --- |
+| `acorsica.org` | Cloudflare | Gandi `spool.mail.gandi.net`, `fb.mail.gandi.net` | Eight Gandi aliases in 2026-11-13 profile; exact local parts and destinations require fresh authenticated export. New `3code` alias is **requested, not created**. |
+| `baronsmariani.org` | Cloudflare | Three `route*.mx.cloudflare.net` | Sixteen Cloudflare forwarding rules reported in 2026-10-06 snapshot; fresh authenticated comparison still required. |
+| `fractavolta.com` | Gandi | Gandi `spool.mail.gandi.net`, `fb.mail.gandi.net` | Ten Gandi aliases in 2026-11-13 verified checkpoint, but only one corresponding Cloudflare rule then existed; the zone was `pending` and Email Routing unconfigured. |
+
+Live public DNS and HTTPS reconciliation on 2026-11-19 found expected
+nameserver assignments for all three domains, with HTTPS 200 for
+`acorsica.org`, `fractavolta.com`, `www.fractavolta.com`; the
+`baronsmariani.org` apex HTTPS check still failed. That web issue is
+separate from the verified Cloudflare MX ingress. A public MX query
+**cannot** enumerate per-address routes, verify destinations or prove
+delivery.
+
+**Operator plan, before any DNS or mail write:**
+
+1. Re-read **authenticated** Gandi forwarding aliases and destinations
+   for `acorsica.org` and `fractavolta.com`, Cloudflare enabled
+   forwarding rules and verified destinations for all three zones, and
+   zone DNS record sets. Never reconstruct aliases from the role
+   template alone or expose a physical forwarding destination publicly.
+2. For `acorsica.org`: stage the exact existing Gandi alias mapping,
+   **plus** `3code@acorsica.org`, as Cloudflare rules pointing to
+   verified destination(s). The new 3Code route and all retained legacy
+   routes must be enabled and checked, with catch-all disabled.
+   Because its current Gandi root MX conflict with Cloudflare Email
+   Routing onboarding, the public MX replacement is a separate
+   impact-bearing cutover after a complete rule/destination review.
+   Preserve any legitimate Gandi outbound SPF authorization and DKIM.
+3. For `fractavolta.com`: resume the already staged 40/40 Cloudflare
+   DNS parity checkpoint and nine missing forwards **only through a
+   current authorized provider path**. The previous batch was blocked
+   by safety controls; do not silently retry via an alternate shell.
+   Verify the exact ten routes, Cloudflare Email Routing and root
+   MX/SPF/DKIM before separately reviewing the Gandi **nameserver**
+   cutover. Preserve `mail.fractavolta.com` Stalwart MX untouched.
+4. `baronsmariani.org` is **not** a Gandi mail migration target:
+   reconcile existing Cloudflare rule parity, verified destinations
+   and the independent HTTPS incident instead of re-creating or
+   replacing its working MX.
+5. Keep old Gandi forwarding configurations during MX cache expiry.
+   Test receipt using an independently sent message **only when
+   specifically authorized for that individual send**. Verify original
+   recipient headers and the trusted adapter's interpretation before
+   enabling 3Code `CAMPAIGNS_INBOX`. Without such evidence keep
+   registrar registration email confirmation disabled.
+6. Capture provider-side read-back receipts, updated provider-neutral
+   profiles, and rollback/failure handling under Operium #37. Do not
+   call the migration completed on DNS visibility alone.
+
+**Execution checkpoint:** the present pass had read-only public DNS,
+Cognitive Packet and profile access. It did **not** establish an
+authenticated Gandi/Cloudflare provider session to inspect current
+private rules or destinations. No forwarding rule, MX, NS, SPF, alias
+or mailbox was created, deleted or changed; no email was sent.
+
+---
+
 
 ## Email ingress reconciliation — 2026-11-18 (authoritative DNS)
 

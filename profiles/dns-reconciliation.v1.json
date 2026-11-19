@@ -3,7 +3,7 @@
   "observed_at": "2026-11-13",
   "source": {
     "kind": "incremental-reconciliation-and-principal-decision",
-    "reference": "Operium #37 and Inseme #59; 2026-11-13 explicit abandonment of lepp.fr in favor of web host lepp.baronsmariani.org"
+    "reference": "Operium #37 and Inseme #59; 2026-11-13 abandonment of lepp.fr; provider-side 2026-11-13 checkpoint; 2026-11-19 public authoritative DNS recheck and requested, unprovisioned 3code alias"
   },
   "domains": [
     {
@@ -15,7 +15,13 @@
       "dnssec_state": "not_observed",
       "mail": {
         "mode": "gandi-forwarding",
-        "forwarding_address_count": 8
+        "forwarding_address_count": 8,
+        "desired_mode": "cloudflare-email-routing",
+        "pending_additional_aliases": [
+          "3code"
+        ],
+        "pending_aliases_status": "requested_not_provisioned_2026-11-19",
+        "inventory_state": "last_documented_2026-11-13_requires_authenticated_reread"
       },
       "https_hosts": [
         "acorsica.org"
@@ -30,7 +36,8 @@
       "dnssec_state": "not_observed",
       "mail": {
         "mode": "cloudflare-email-routing",
-        "forwarding_address_count": 16
+        "forwarding_address_count": 16,
+        "inventory_state": "last_documented_2026-10-06_requires_authenticated_reread"
       },
       "https_hosts": [
         "baronsmariani.org"
@@ -59,7 +66,9 @@
       "dnssec_state": "not_observed",
       "mail": {
         "mode": "gandi-forwarding",
-        "forwarding_address_count": 10
+        "forwarding_address_count": 10,
+        "desired_mode": "cloudflare-email-routing",
+        "inventory_state": "last_documented_2026-11-13_requires_authenticated_reread"
       },
       "https_hosts": [
         "fractavolta.com",
@@ -93,5 +102,6 @@
       "replacement_web_host": "lepp.baronsmariani.org",
       "replacement_zone": "baronsmariani.org"
     }
-  ]
+  ],
+  "public_dns_last_checked_at": "2026-11-19"
 }
