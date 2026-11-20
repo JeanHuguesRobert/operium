@@ -63,7 +63,7 @@ class Handler(BaseHTTPRequestHandler):
                 continue
             if not ws and key in HOP:
                 continue
-            if key in {'authorization','content-length', 'content-type','accept', 'accept-encoding','accept-language','cookie', 'origin','sec-websocket-key','sec-websocket-version','sec-websocket-protocol','sec-websocket-extensions','user-agent','referer','cache-control','pragma','range','if-none-match','if-modified-since','connection','upgrade'}:
+            if key in {'authorization','content-length', 'content-type','accept', 'accept-encoding','accept-language','cookie', 'origin','sec-websocket-key','sec-websocket-version','sec-websocket-protocol','sec-websocket-extensions','sec-websocket-origin','user-agent','referer','cache-control','pragma','range','if-none-match','if-modified-since','connection','upgrade'}:
                 headers[k] = v
         headers['Host']='127.0.0.1'
         return headers

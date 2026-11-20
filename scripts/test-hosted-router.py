@@ -78,10 +78,11 @@ class RouterTests(unittest.TestCase):
 
     def test_proxy_forwards_kasm_login_but_not_forged_identity(self):
         class Fake:
-            headers={'Authorization':'Basic abc','X-Forwarded-User':'root','X-Workspace-Id':'private','Connection':'Upgrade','Upgrade':'websocket','Sec-WebSocket-Key':'123','Host':'example.org'}
+            headers={'Authorization':'Basic abc','X-Forwarded-User':'root','X-Workspace-Id':'private','Connection':'Upgrade','Upgrade':'websocket','Sec-WebSocket-Key':'123','Sec-WebSocket-Origin':'https://browser.fractavolta.com','Host':'example.org'}
         headers=Handler.outgoing_headers(Fake(),ws=True)
         self.assertEqual(headers.get('Authorization'),'Basic abc')
         self.assertNotIn('X-Forwarded-User',headers)
         self.assertNotIn('X-Workspace-Id',headers)
         self.assertEqual(headers['Host'],'127.0.0.1')
+        self.assertEqual(headers['Sec-WebSocket-Origin'],'https://browser.fractavolta.com')
 if __name__=='__main__': unittest.main()

@@ -31,6 +31,8 @@ class Backend(BaseHTTPRequestHandler):
         if self.headers.get('Authorization') != 'Basic '+base64.b64encode(b'tester:password').decode():
             self.send_response(401); self.send_header('Content-Length','0'); self.end_headers(); return
         if self.headers.get('Upgrade','').lower() == 'websocket':
+            if self.headers.get('Sec-WebSocket-Origin') != 'https://browser.fractavolta.com':
+                self.send_response(400); self.send_header('Content-Length','0'); self.end_headers(); return
             self.send_response(101)
             self.send_header('Connection','Upgrade')
             self.send_header('Upgrade','websocket')
@@ -82,7 +84,7 @@ class RouterIntegration(unittest.TestCase):
     def test_websocket_upgrade(self):
         sock=socket.create_connection(('127.0.0.1',self.port),timeout=5)
         auth=base64.b64encode(b'tester:password').decode()
-        req=(f'GET /websockify HTTP/1.1\r\nHost: 127.0.0.1\r\nAuthorization: Basic {auth}\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Key: Zml4dHVyZQ==\r\nSec-WebSocket-Version: 13\r\n\r\n')
+        req=(f'GET /websockify HTTP/1.1\r\nHost: 127.0.0.1\r\nAuthorization: Basic {auth}\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Key: Zml4dHVyZQ==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Origin: https://browser.fractavolta.com\r\n\r\n')
         sock.sendall(req.encode())
         response=b''
         while b'fixture-ws-bytes' not in response and len(response)<8192:
