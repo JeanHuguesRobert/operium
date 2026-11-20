@@ -74,3 +74,15 @@ sudo python3 -B scripts/hosted-router/verify-live-registry-lifecycle.py
 A temporary identity absent after the test and an unchanged Caddy file are required success conditions. In a failure or interruption, check the private registry for `h3-fixture-local-20261120` and explicitly remove any leftover test identity before retrying. Note that registry disable/remove **rejects new authentication and WebSocket handshakes**; it does **not** forcibly terminate already-established WebSocket connections. Immediate live-session revocation must stop that user's KasmVNC session or add an authenticated connection revocation facility as a separate capability.
 
 Routine onboarding still requires provisioning the independent Unix/KasmVNC workspace and a credential matching its KasmVNC user before adding the corresponding registry entry. The registry only controls entry and routing; it does not create a browser or UNIX user.
+
+### Operator-only Maguy password rotation (20 November 2026)
+
+A computer-friendly passphrase can be issued **only in the owner's interactive SSH terminal**, without any secret passing through agent logs, Git or chat:
+
+```bash
+ssh -tt fracta2 'sudo python3 -B /srv/cogentia/repos/operium/scripts/hosted-router/rotate-workspace-password.py'
+```
+
+This root-only interactive procedure generates six randomly chosen French words plus three digits, backs up Maguy's KasmVNC credential file, router registry and old initial credential under a private `/root/hosted-browser-credential-rotations/maguy-*` directory, writes the matching KasmVNC bcrypt account and private router registry atomically *per file*, updates the root-only initial-credential location, and checks direct KasmVNC + router HTTP 200. If one of the checks fails, it attempts to restore the original three files. It prints the new passphrase to the operator **only on successful acceptance**. No other account, Caddy fragment, browser profile or browser service is modified.
+
+Important: the three-file procedure is **not a filesystem transaction** (an abrupt power failure could leave an intermediate state). Restore original files from the private backup if needed. The new password is still not published; the owner should convey it privately to Maguy, then have her check her graphical session. Existing browser WebSocket connections are not forcibly terminated. The previous initial-credential value is no longer current after a successful rotation, but is preserved in the private backup.
