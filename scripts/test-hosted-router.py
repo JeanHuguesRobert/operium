@@ -76,6 +76,23 @@ class RouterTests(unittest.TestCase):
         self.assertEqual(authorize(load_registry(self.path),self.auth('person-one','good1'))['id'],'workspace-one')
         self.assertTrue(Path(str(self.path)+'.lock').exists())
 
+    def test_registry_cli_add_disable_enable_remove_isolated(self):
+        cli=Path(__file__).parent/'hosted-router'/'manage.py'
+        private_hash=Path(self.tmp.name)/'temp-hash'
+        private_hash.write_text(bcrypt.hashpw(b'fixture3',bcrypt.gensalt(rounds=4)).decode())
+        private_hash.chmod(0o600)
+        def run(*args):
+            return subprocess.run([sys.executable,str(cli),'--registry',str(self.path),*args],check=True,capture_output=True,text=True)
+        run('add','person-three','--id','workspace-three','--port','8846','--hash-file',str(private_hash))
+        self.assertEqual(authorize(load_registry(self.path),self.auth('person-three','fixture3'))['id'],'workspace-three')
+        run('disable','person-three')
+        self.assertIsNone(authorize(load_registry(self.path),self.auth('person-three','fixture3')))
+        run('enable','person-three')
+        self.assertEqual(authorize(load_registry(self.path),self.auth('person-three','fixture3'))['id'],'workspace-three')
+        run('remove','person-three')
+        self.assertIsNone(authorize(load_registry(self.path),self.auth('person-three','fixture3')))
+        self.assertEqual(len(load_registry(self.path)['workspaces']),2)
+
     def test_proxy_forwards_kasm_login_but_not_forged_identity(self):
         class Fake:
             headers={'Authorization':'Basic abc','X-Forwarded-User':'root','X-Workspace-Id':'private','Connection':'Upgrade','Upgrade':'websocket','Sec-WebSocket-Key':'123','Sec-WebSocket-Origin':'https://browser.fractavolta.com','Host':'example.org'}

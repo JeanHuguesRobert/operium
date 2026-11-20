@@ -38,6 +38,7 @@ def main(argv=None):
     subs.add_parser('list')
     p=subs.add_parser('disable'); p.add_argument('login')
     p=subs.add_parser('enable');p.add_argument('login')
+    p=subs.add_parser('remove');p.add_argument('login')
     p=subs.add_parser('rotate');p.add_argument('login');p.add_argument('--hash-file',required=True)
     p=subs.add_parser('add');p.add_argument('login');p.add_argument('--id',required=True);p.add_argument('--port',required=True,type=int);p.add_argument('--hash-file',required=True)
     args=ap.parse_args(argv)
@@ -70,6 +71,7 @@ def main(argv=None):
             ap.error('port or id already assigned')
         db['workspaces'].append({'id':args.id,'login':args.login,'bcrypt_hash':hash_value,'host':'127.0.0.1','port':args.port,'enabled':True})
     elif args.cmd=='rotate': matching[0]['bcrypt_hash']=hash_value
+    elif args.cmd=='remove': db['workspaces'].remove(matching[0])
     else: matching[0]['enabled']=(args.cmd=='enable')
     # Validate in memory: never write a plaintext or hashed credential to a
     # default-permission validation scratch file in a world-traversable dir.
