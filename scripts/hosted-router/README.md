@@ -38,3 +38,25 @@ ssh -tt fracta2 'python3 /srv/cogentia/repos/operium/scripts/hosted-router/probe
 ```
 
 The probe requests that account's existing password via a terminal prompt; the response is not stored and only HTTP/WebSocket status codes are printed. Repeat for `frederic` **only with that account's authorized credential**, normally entered by Frédéric. Never substitute the Principal's credential for another user's login and never reset another user's password simply to satisfy a probe. A `200` on both HTTP paths and `101` on both WebSocket paths are required for each account prior to public Caddy cutover. The probe validates handshakes, not full graphical desktop interaction; a real browser display check remains part of acceptance. Maguy already passed owner-run HTTP and WebSocket live probes on both paths on 2026-11-20.
+
+### Safeguarded Caddy cutover (not yet applied)
+
+Run read-only preflight as administrator:
+
+```bash
+python3 scripts/hosted-router/caddy-cutover.py
+```
+
+Only **after** authenticated HTTP 200 and WebSocket 101 for all three existing identities, plus confirmation of browser control, the operator may execute:
+
+```bash
+sudo python3 scripts/hosted-router/caddy-cutover.py --apply --accepted-all-users
+```
+
+The script creates an exclusive root-private backup at `/etc/operium/hosted-browser/caddy-pre-dynamic-router.caddy`, atomically replaces the *browser* Caddy fragment, validates the full Caddyfile, reloads Caddy, and checks that unauthenticated public browser access returns 401. On validation, reload, or anonymous-probe failure it attempts to restore the previous fragment and reload. It does **not** itself demonstrate authenticated interactive access and should not be run merely because fixture tests pass. The rollback command after a successful cutover is:
+
+```bash
+sudo python3 scripts/hosted-router/caddy-cutover.py --rollback
+```
+
+The backup is retained. Following cutover, verify actual JHN/Fred/Maguy browser sessions and WebSocket interactivity promptly; if any fails, invoke rollback. The exceptions for COP Principal consent and SOMA must remain untouched. `scripts/test-hosted-router-cutover.py` simulates the whole transaction and failed-probe restoration with an isolated file fixture; it never touches live Caddy.
