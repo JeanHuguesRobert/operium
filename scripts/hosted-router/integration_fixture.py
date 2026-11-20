@@ -1,6 +1,7 @@
 """End-to-end HTTP and WebSocket fixture using an isolated loopback TLS upstream."""
 import base64
 import json
+import importlib.util
 import os
 from pathlib import Path
 import socket
@@ -80,6 +81,16 @@ class RouterIntegration(unittest.TestCase):
         with urlopen(Request(url,headers={'Authorization':auth}),timeout=15) as response:
             self.assertEqual(response.status,200)
             self.assertEqual(len(response.read()),18*1024*1024)
+
+    def test_operator_probe_agrees_direct_and_router(self):
+        spec=importlib.util.spec_from_file_location('probe_operator',DIR/'probe-operator.py')
+        module=importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        auth=base64.b64encode(b'tester:password').decode()
+        self.assertEqual(module.http_probe(self.backend.server_port,auth,True),'200')
+        self.assertEqual(module.ws_probe(self.backend.server_port,auth,True),'101')
+        self.assertEqual(module.http_probe(self.port,auth,False),'200')
+        self.assertEqual(module.ws_probe(self.port,auth,False),'101')
 
     def test_websocket_upgrade(self):
         sock=socket.create_connection(('127.0.0.1',self.port),timeout=5)

@@ -28,3 +28,13 @@ The HTTP relay now uses chunked streaming rather than buffering complete downloa
 ### Live acceptance still pending (20 November 2026)
 
 Live KasmVNC stores are mode 0600, each owned by the corresponding hosted Unix account; production launcher still uses `-SecurityTypes None` alongside `-PasswordFile`. The distinction between public Basic login and local KasmVNC user must be reality-tested per existing account before cutover. A tool-safety refusal prevented an authenticated Maguy probe using the private secret, and is not evidence of router failure. Caddy retains the direct routes until authorized interactive end-to-end verification is possible.
+
+### Manual acceptance of an existing account (interactive SSH, no saved password)
+
+The operator can verify a known existing user by executing on Fracta2:
+
+```bash
+ssh -tt fracta2 'python3 /srv/cogentia/repos/operium/scripts/hosted-router/probe-operator.py jeanhuguesrobert'
+```
+
+The probe requests that account's existing password via a terminal prompt; the response is not stored and only HTTP/WebSocket status codes are printed. Repeat for `frederic` **only with that account's authorized credential**, normally entered by Frédéric. Never substitute the Principal's credential for another user's login and never reset another user's password simply to satisfy a probe. A `200` on both HTTP paths and `101` on both WebSocket paths are required for each account prior to public Caddy cutover. The probe validates handshakes, not full graphical desktop interaction; a real browser display check remains part of acceptance. Maguy already passed owner-run HTTP and WebSocket live probes on both paths on 2026-11-20.
