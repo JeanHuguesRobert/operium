@@ -30,11 +30,11 @@ WORDS = tuple('''abricot amande ancre ardoise argile aube azur baleine bambou ba
 
 
 def candidate():
-    # Six independent words from a fixed vocabulary plus independent 3 digits.
+    # Five independent words from a fixed vocabulary plus independent 3 digits.
     # Lowercase ASCII is deliberately preferred for keyboard portability.
     from unicodedata import normalize
-    words = [normalize('NFKD', secrets.choice(WORDS)).encode('ascii','ignore').decode('ascii') for _ in range(6)]
-    return '-'.join(words)+'-'+str(secrets.randbelow(1000)).zfill(3)
+    words = [normalize('NFKD', secrets.choice(WORDS)).encode('ascii','ignore').decode('ascii') for _ in range(5)]
+    return '-'.join(words)+'-'+str(secrets.randbelow(10000)).zfill(4)
 
 
 def atomically_replace(path, payload):
