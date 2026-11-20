@@ -21,6 +21,13 @@ DIR=Path(__file__).parent
 class Backend(BaseHTTPRequestHandler):
     protocol_version = 'HTTP/1.1'
     def do_GET(self):
+        if self.path == '/large':
+            chunk = b'0' * (1024*1024)
+            self.send_response(200)
+            self.send_header('Content-Length', str(18*len(chunk)))
+            self.end_headers()
+            for _ in range(18): self.wfile.write(chunk)
+            return
         if self.headers.get('Authorization') != 'Basic '+base64.b64encode(b'tester:password').decode():
             self.send_response(401); self.send_header('Content-Length','0'); self.end_headers(); return
         if self.headers.get('Upgrade','').lower() == 'websocket':
@@ -65,6 +72,13 @@ class RouterIntegration(unittest.TestCase):
         self.assertEqual(ctx.exception.code,401)
         good='Basic '+base64.b64encode(b'tester:password').decode()
         self.assertEqual(urlopen(Request(url,headers={'Authorization':good})).read(),b'test-backend')
+    def test_http_streaming_over_old_16mib_ceiling(self):
+        url=f'http://127.0.0.1:{self.port}/large'
+        auth='Basic '+base64.b64encode(b'tester:password').decode()
+        with urlopen(Request(url,headers={'Authorization':auth}),timeout=15) as response:
+            self.assertEqual(response.status,200)
+            self.assertEqual(len(response.read()),18*1024*1024)
+
     def test_websocket_upgrade(self):
         sock=socket.create_connection(('127.0.0.1',self.port),timeout=5)
         auth=base64.b64encode(b'tester:password').decode()

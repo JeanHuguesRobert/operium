@@ -4,6 +4,7 @@ No passwords or bcrypt hashes accepted on the CLI; hashes are read from a
 private file. Never prints or logs hashes or password-file contents.
 """
 import argparse
+import fcntl
 import json
 import os
 from pathlib import Path
@@ -40,6 +41,9 @@ def main(argv=None):
     p=subs.add_parser('rotate');p.add_argument('login');p.add_argument('--hash-file',required=True)
     p=subs.add_parser('add');p.add_argument('login');p.add_argument('--id',required=True);p.add_argument('--port',required=True,type=int);p.add_argument('--hash-file',required=True)
     args=ap.parse_args(argv)
+    if args.cmd!='list':
+        lock_fd=os.open(str(args.registry)+'.lock',os.O_CREAT|os.O_RDWR,0o600)
+        fcntl.flock(lock_fd,fcntl.LOCK_EX)
     db=load_registry(args.registry)
     if args.cmd=='list':
         print(json.dumps([{'id':w['id'],'login':w['login'],'port':w['port'],'enabled':w['enabled']} for w in db['workspaces']]))
@@ -69,5 +73,6 @@ def main(argv=None):
         temp.unlink(missing_ok=True)
     write_atomic(args.registry, db)
     print(f'{args.cmd}: applied for {args.login}')
+    os.close(lock_fd)
 
 if __name__=='__main__':main()

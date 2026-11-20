@@ -69,7 +69,8 @@ class Handler(BaseHTTPRequestHandler):
         return headers
 
     def http_proxy(self, entry):
-        conn = http.client.HTTPSConnection(entry['host'],entry['port'],timeout=15,context=ssl._create_unverified_context())
+        conn = http.client.HTTPSConnection(entry['host'],entry['port'],timeout=30,context=ssl._create_unverified_context())
+        started = False
         try:
             n = self.headers.get('Content-Length')
             if self.headers.get('Transfer-Encoding'):
@@ -79,27 +80,41 @@ class Handler(BaseHTTPRequestHandler):
             body = self.rfile.read(int(n)) if n else None
             conn.request(self.command,self.path,body=body,headers=self.outgoing_headers())
             response=conn.getresponse()
-            data=response.read(16*1024*1024+1)
-            if len(data)>16*1024*1024:
-                return self.reply(502)
+            # Preserve upstream payload semantics, without buffering a browser
+            # download or allocating an attacker-controlled response size.
             self.send_response_only(response.status,response.reason)
             for k,v in response.getheaders():
                 if k.lower() not in HOP and k.lower() not in {'content-length','server','date'}:
                     self.send_header(k,v)
-            self.send_header('Content-Length',str(len(data)))
+            if self.command != 'HEAD' and response.status not in (204,304) and response.status >= 200:
+                self.send_header('Transfer-Encoding','chunked')
+                streaming = True
+            else:
+                self.send_header('Content-Length','0')
+                streaming = False
             self.end_headers()
-            if self.command != 'HEAD': self.wfile.write(data)
+            started = True
+            if streaming:
+                while chunk := response.read(65536):
+                    self.wfile.write(f'{len(chunk):X}\r\n'.encode('ascii'))
+                    self.wfile.write(chunk)
+                    self.wfile.write(b'\r\n')
+                self.wfile.write(b'0\r\n\r\n')
         except (OSError, http.client.HTTPException, ssl.SSLError):
-            self.reply(502)
+            if started:
+                self.close_connection = True
+            else:
+                self.reply(502)
         finally:
             conn.close()
 
     def websocket(self,entry):
         if self.command != 'GET' or self.headers.get('Connection','').lower().find('upgrade')<0:
             return self.reply(400)
-        upstream=socket.create_connection((entry['host'],entry['port']),timeout=12)
-        tls=ssl._create_unverified_context().wrap_socket(upstream,server_hostname='localhost')
+        tls = None
         try:
+            upstream=socket.create_connection((entry['host'],entry['port']),timeout=12)
+            tls=ssl._create_unverified_context().wrap_socket(upstream,server_hostname='localhost')
             tls.settimeout(12)
             headers=self.outgoing_headers(ws=True)
             headers['Connection']='Upgrade'; headers['Upgrade']='websocket'
@@ -132,7 +147,8 @@ class Handler(BaseHTTPRequestHandler):
             if not self.close_connection:
                 self.reply(502)
         finally:
-            tls.close()
+            if tls is not None:
+                tls.close()
 
 if __name__ == '__main__':
     host=os.environ.get('HOSTED_ROUTER_BIND','127.0.0.1')

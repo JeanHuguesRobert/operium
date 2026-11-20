@@ -1,6 +1,8 @@
 """Fixtures for dynamic hosted-router registry and authentication."""
 import base64
 import json
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -47,6 +49,16 @@ class RouterTests(unittest.TestCase):
     def test_reject_malformed_auth(self):
         for header in ('Basic !', 'Basic '+base64.b64encode(b'nocolon').decode(), 'Basic '+base64.b64encode(b'person-one:'+(b'x'*1200)).decode()):
             self.assertIsNone(authorize(load_registry(self.path),header))
+    def test_registry_cli_disable_enable_without_caddy(self):
+        cli=Path(__file__).parent/'hosted-router'/'manage.py'
+        def run(action):
+            subprocess.run([sys.executable,str(cli),'--registry',str(self.path),action,'person-one'],check=True,capture_output=True,text=True)
+        run('disable')
+        self.assertIsNone(authorize(load_registry(self.path),self.auth('person-one','good1')))
+        run('enable')
+        self.assertEqual(authorize(load_registry(self.path),self.auth('person-one','good1'))['id'],'workspace-one')
+        self.assertTrue(Path(str(self.path)+'.lock').exists())
+
     def test_proxy_forwards_kasm_login_but_not_forged_identity(self):
         class Fake:
             headers={'Authorization':'Basic abc','X-Forwarded-User':'root','X-Workspace-Id':'private','Connection':'Upgrade','Upgrade':'websocket','Sec-WebSocket-Key':'123','Host':'example.org'}
