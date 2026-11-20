@@ -9,7 +9,7 @@ import json
 import os
 from pathlib import Path
 import tempfile
-from core import load_registry
+from core import load_registry, validate_registry
 
 
 def write_atomic(path, registry):
@@ -53,8 +53,15 @@ def main(argv=None):
     if args.cmd!='add' and len(matching)!=1: ap.error('unknown or ambiguous login')
     if args.cmd in ('add','rotate'):
         hp=Path(args.hash_file)
-        if hp.stat().st_mode & 0o077: ap.error('hash file must be owner-private')
-        hash_value=hp.read_text().strip()
+        hfd=os.open(hp, os.O_RDONLY | os.O_NOFOLLOW)
+        try:
+            stat=os.fstat(hfd)
+            if stat.st_mode & 0o077: ap.error('hash file must be owner-private')
+            with os.fdopen(hfd,'r') as hf:
+                hash_value=hf.read(256).strip()
+        finally:
+            try: os.close(hfd)
+            except OSError: pass
         if not hash_value.startswith(('$2a$','$2b$','$2y$')) or len(hash_value)!=60:
             ap.error('invalid bcrypt hash')
     if args.cmd=='add':
@@ -64,13 +71,9 @@ def main(argv=None):
         db['workspaces'].append({'id':args.id,'login':args.login,'bcrypt_hash':hash_value,'host':'127.0.0.1','port':args.port,'enabled':True})
     elif args.cmd=='rotate': matching[0]['bcrypt_hash']=hash_value
     else: matching[0]['enabled']=(args.cmd=='enable')
-    # Validate all invariants before durable replacement.
-    temp=Path(args.registry).with_name('.router-validation-'+str(os.getpid()))
-    try:
-        temp.write_text(json.dumps(db))
-        load_registry(temp)
-    finally:
-        temp.unlink(missing_ok=True)
+    # Validate in memory: never write a plaintext or hashed credential to a
+    # default-permission validation scratch file in a world-traversable dir.
+    validate_registry(db)
     write_atomic(args.registry, db)
     print(f'{args.cmd}: applied for {args.login}')
     os.close(lock_fd)

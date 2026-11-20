@@ -6,7 +6,6 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
-import sys
 sys.path.insert(0,str(Path(__file__).parent/'hosted-router'))
 import bcrypt
 from core import load_registry, authorize, RegistryError
@@ -46,6 +45,24 @@ class RouterTests(unittest.TestCase):
         self.record['workspaces'][0]['host']='0.0.0.0'
         self.save()
         with self.assertRaises(RegistryError): load_registry(self.path)
+    def test_no_validation_scratch_file_and_private_registry_mode(self):
+        cli=Path(__file__).parent/'hosted-router'/'manage.py'
+        self.path.chmod(0o640)
+        subprocess.run([sys.executable,str(cli),'--registry',str(self.path),'disable','person-one'],check=True,capture_output=True,text=True)
+        self.assertEqual(self.path.stat().st_mode & 0o777,0o640)
+        self.assertFalse(list(self.path.parent.glob('.router-validation-*')))
+
+    def test_duplicate_workspace_id_and_port_are_rejected(self):
+        item=dict(self.record['workspaces'][1])
+        item['login']='person-three'
+        item['id']='workspace-one'
+        self.record['workspaces'].append(item)
+        self.save()
+        with self.assertRaises(RegistryError):load_registry(self.path)
+        self.record['workspaces'][-1]['id']='workspace-three'
+        self.save()
+        with self.assertRaises(RegistryError):load_registry(self.path)
+
     def test_reject_malformed_auth(self):
         for header in ('Basic !', 'Basic '+base64.b64encode(b'nocolon').decode(), 'Basic '+base64.b64encode(b'person-one:'+(b'x'*1200)).decode()):
             self.assertIsNone(authorize(load_registry(self.path),header))
