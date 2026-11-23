@@ -3,10 +3,60 @@
 # Do not store secret values here.
 
 schema: operium.backlog.v1
-updated_at: "2026-10-28"
+updated_at: "2026-11-23"
 owner: Operium
 
 items:
+  - id: OP-BUG-081-A
+    kind: bug
+    title: Pinned source release can start without its installed runtime imports
+    subsystem: deployment
+    severity: high
+    status: in_progress
+    evidence: >
+      Cogentia CPKT-2026-011 failed at 22:15 UTC on 23 November 2026 with
+      ERR_MODULE_NOT_FOUND for @supabase/supabase-js. Syntax tests passed
+      because the source-only Inseme bundle lacked npm runtime dependencies.
+      Corrected live CPKT011 release uses a versioned isolated install.
+    next_action: >
+      Adopt import-and-lockfile preflight in future Operium release procedures;
+      generic read-only preflight and CLI tested in scripts/test-ops-release-restart.js.
+    github_issue: 81
+    opened_at: "2026-11-23"
+    closed_at: null
+  - id: OP-BUG-081-B
+    kind: bug
+    title: Restarting the current MCP service interrupts its own effect receipt
+    subsystem: deployment
+    severity: high
+    status: in_progress
+    evidence: >
+      Cogentia CPKT-2026-011 service replacement succeeded while its initiating
+      host.process.run lost the reply. A canonical COP reservation had to be
+      settled after independent health and PID verification.
+    next_action: >
+      Use the separately supervised managed-service-restart worker with durable
+      idempotent ticket for next authorized live restart and verify receipt
+      recovery independently. No new live restart is authorized by this item.
+    github_issue: 81
+    opened_at: "2026-11-23"
+    closed_at: null
+  - id: OP-DEBT-081-C
+    kind: debt
+    title: Audit ten old COP standing-budget reservations before reconciliation
+    subsystem: deployment
+    priority: p2
+    status: open
+    evidence: >
+      Read-only COP audit on 23 November 2026 found ten pending single-step
+      reservations from 16-17 November. Their age alone is not a witness
+      of absent or completed external effects.
+    next_action: >
+      Reconcile each reservation against independent effect or callback receipts
+      through the existing COP mechanisms; never release by elapsed time alone.
+    github_issue: 81
+    opened_at: "2026-11-23"
+    closed_at: null
   - id: OP-BUG-SERVICE-SELF-PROBE-172
     kind: bug
     title: In-process service consumer blocks the parent ONA health endpoint
