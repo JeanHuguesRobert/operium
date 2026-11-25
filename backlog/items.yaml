@@ -63,18 +63,23 @@ items:
     title: Make MCP tunnel startup depend on functional server readiness
     subsystem: deployment
     severity: high
-    status: open
+    status: in_progress
     evidence: >
       On 2026-11-25 both private tunnel clients attempted initialization
       before their local MCP servers listened. tunnel-client 0.0.18 disabled
       control-plane polling after startup catalog failure but remained active.
       Restarting only the tunnels restored both remote MCP probes.
       Type=simple and After ordering did not establish protocol readiness.
+      Native MCP_STARTUP_WAIT_TIMEOUT=60s installed in both systemd tunnel
+      drop-ins; both restarted separately and remote calls verified.
+      Local dev proxy tests with isolated MCP stub: unset timeout and 3s
+      delayed listener reproduced polling disabled; timeout 8s with delay
+      0s or 3s passed, delay 10s failed with poll deadline exceeded.
     next_action: >
-      Add bounded protocol-aware readiness checks to canonical deployment
-      sources; preserve authentication; test delayed and unavailable
-      dependencies and remote end-to-end recovery. Track upstream retry
-      behavior separately; do not close on systemd active state alone.
+      Version the installed drop-in and regression test. Verify production
+      recovery after wait expiration using an independent control channel;
+      local dev proxy exit status does not establish daemon exit behavior.
+      Keep authentication unchanged and verify end-to-end availability.
     opened_at: "2026-11-25"
     closed_at: null
   - id: OP-BUG-016
