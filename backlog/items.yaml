@@ -3,10 +3,97 @@
 # Do not store secret values here.
 
 schema: operium.backlog.v1
-updated_at: "2026-11-23"
+updated_at: "2026-11-25"
 owner: Operium
 
 items:
+  - id: OP-INC-002
+    kind: incident
+    title: FractaNode lost administrative availability under memory and storage pressure
+    subsystem: resource-governance
+    severity: critical
+    status: open
+    evidence: >
+      On 2026-11-25, guest telemetry showed swap at 99.71 percent before
+      the incident and effectively full thereafter, anonymous memory rising
+      by over 3 GiB, disk read throughput near 49 MiB/s, I/O wait near
+      90 percent, and up to 216 blocked tasks. OCI infrastructure status
+      remained normal. Guest reboot restored SSH; two MCP tunnels required
+      a separate restart. The initiating process remains unidentified.
+    next_action: >
+      Preserve private raw evidence; reconcile historical service and resource
+      inventory; track causal investigation and independent recovery tests.
+    opened_at: "2026-11-25"
+    closed_at: null
+  - id: OP-BUG-013
+    kind: bug
+    title: Bound aggregate application resource consumption
+    subsystem: resource-governance
+    severity: critical
+    status: open
+    evidence: >
+      Incident OP-INC-002. Hosted browser slice and individual services
+      have unlimited MemoryHigh, MemoryMax and MemorySwapMax; aggregate
+      post-reboot peak exceeded 7 GiB. This establishes missing containment,
+      not attribution of the initiating allocation to a browser.
+    next_action: >
+      Measure anonymous and reclaimable memory, define aggregate and
+      per-workload limits, test reversible runtime settings and verify
+      administrative reachability before versioning the accepted policy.
+    opened_at: "2026-11-25"
+    closed_at: null
+  - id: OP-BUG-014
+    kind: bug
+    title: Protect vital administration from guest resource exhaustion
+    subsystem: resource-governance
+    severity: critical
+    status: open
+    evidence: >
+      Incident OP-INC-002. SSH and mesh services have no explicit memory
+      protection or elevated resource weights; preventive userspace OOM
+      management is absent. Swap was nearly full for multiple days.
+    next_action: >
+      Establish hierarchical memory protection, bounded non-vital workloads
+      and pressure-triggered admission control; test CPU, memory and storage
+      contention independently with a working external recovery channel.
+    opened_at: "2026-11-25"
+    closed_at: null
+  - id: OP-BUG-015
+    kind: bug
+    title: Make MCP tunnel startup depend on functional server readiness
+    subsystem: deployment
+    severity: high
+    status: open
+    evidence: >
+      On 2026-11-25 both private tunnel clients attempted initialization
+      before their local MCP servers listened. tunnel-client 0.0.18 disabled
+      control-plane polling after startup catalog failure but remained active.
+      Restarting only the tunnels restored both remote MCP probes.
+      Type=simple and After ordering did not establish protocol readiness.
+    next_action: >
+      Add bounded protocol-aware readiness checks to canonical deployment
+      sources; preserve authentication; test delayed and unavailable
+      dependencies and remote end-to-end recovery. Track upstream retry
+      behavior separately; do not close on systemd active state alone.
+    opened_at: "2026-11-25"
+    closed_at: null
+  - id: OP-BUG-016
+    kind: bug
+    title: Reconcile deployed node topology and post-boot service inventory
+    subsystem: docs
+    severity: medium
+    status: open
+    evidence: >
+      Incident OP-INC-002 exposed stale topology references after public
+      address migration and missing canonical tunnel deployment definitions.
+      Process presence did not establish functional availability.
+    next_action: >
+      Reconcile existing topology, bootstrap and recovery documentation
+      against observed state; distinguish historical observations,
+      intended configuration and end-to-end service checks.
+    opened_at: "2026-11-25"
+    closed_at: null
+
   - id: OP-BUG-081-A
     kind: bug
     title: Pinned source release can start without its installed runtime imports
