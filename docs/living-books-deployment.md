@@ -35,7 +35,7 @@ provenance:
 
 ## 1. Overview and Invariants
 
-This document records the operational topology, origin layout, edge routing, and public DNS records for the federation of **11 Living Books** across `acorsica.org` and `baronsmariani.org`.
+This document records the operational topology, origin layout, edge routing, and public DNS records for the federation of **12 Living Books with recorded public deployments** across `acorsica.org` and `baronsmariani.org`.
 
 In accordance with Cogentia/Operium doctrine:
 1. **Separation of Corpus and Projection:** The sovereign editorial corpus lives in `barons-Mariani/projects/<book>/`; static projections (`site/`) are compiled and deployed to `/srv/www/<book>/current`.
@@ -55,7 +55,7 @@ In accordance with Cogentia/Operium doctrine:
 | 4 | `commons` | `commons.acorsica.org` | `acorsica.org` | `CNAME commons -> fracta.fractavolta.com` | `fracta2:/srv/www/commons/current` | **LIVE (Active)** |
 | 5 | `privai` | `privai.acorsica.org` | `acorsica.org` | `CNAME privai -> fracta.fractavolta.com` | `fracta2:/srv/www/privai/current` | **LIVE (Active)** |
 | 6 | `1755` | `1755.acorsica.org` | `acorsica.org` | `CNAME 1755 -> fracta.fractavolta.com` | `fracta2:/srv/www/1755/current` | **LIVE (Active)** |
-| 7 | `capable` | `capable.acorsica.org` *(canonical decision 2026-10-29; old `capable.lepp.fr`)* | `acorsica.org` *(legacy `lepp.fr`)* | `CNAME capable -> fracta.fractavolta.com` | `fracta2:/srv/www/capable/current` | **PUBLIC BLOCKED** — edge HTTP 301 to legacy host (verified 2026-11-05); origin serves HTTP 200 |
+| 7 | `capable` | `capable.acorsica.org` *(canonical decision 2026-10-29; old `capable.lepp.fr`)* | `acorsica.org` *(legacy `lepp.fr`)* | `CNAME capable -> fracta.fractavolta.com` | `fracta2:/srv/www/capable/current` | **LIVE (HTTPS 200, canonical host verified 2026-11-26)** |
 | 8 | `napoleon` | `napoleon.acorsica.org` | `acorsica.org` | `CNAME napoleon -> fracta.fractavolta.com` | `fracta2:/srv/www/napoleon/current` | **LIVE (Active)** |
 | 9 | `diaspora` | `diaspora.acorsica.org` | `acorsica.org` | `CNAME diaspora -> fracta.fractavolta.com` | `fracta2:/srv/www/diaspora/current` | **LIVE (Active)** |
 | 10 | `suicide-corse` | `suicidecorse.baronsmariani.org` | `baronsmariani.org` | `CNAME suicidecorse -> fracta.fractavolta.com` | `fracta2:/srv/www/suicidecorse/current` | **LIVE (Active)** |
@@ -86,7 +86,7 @@ CNAME  institut   fracta.fractavolta.com    DNS only       Auto
 CNAME  commons    fracta.fractavolta.com    DNS only       Auto
 CNAME  privai     fracta.fractavolta.com    DNS only       Auto
 CNAME  1755       fracta.fractavolta.com    DNS only       Auto
-CNAME  capable    fracta.fractavolta.com    DNS only       Auto (edge still redirects 301 to legacy capable.lepp.fr; must be corrected)
+CNAME  capable    fracta.fractavolta.com    DNS only       Auto (canonical HTTPS verified 2026-11-26; legacy redirect observation superseded)
 CNAME  napoleon   fracta.fractavolta.com    DNS only       Auto
 ```
 
@@ -206,3 +206,32 @@ The Principal's previously documented standing delegation also covered routine d
 **Editorial FBF correction — later on 2026-11-15:** source inspection found the initially released HTML still stating that the Museum public domain had not been verified as published. These claims were obsolete *because the first deployment had succeeded*. The six affected HTML pages and corresponding source indexes were corrected on `barons-Mariani/main` commit `f7f8ef131b5fc81d5a68e11cb404e886ad865861` without changing the n1 working/frozen status or Boutique ordering state. Operium publication script was repinned to that exact source revision ([commit `6de3e8e`](https://github.com/JeanHuguesRobert/operium/commit/6de3e8e1b6903bb7573eb0451f02a0dd58f20f43)); its real `--check` again PASSED.
 
 **Second immutable release independently verified:** `/srv/www/musee/current -> releases/f7f8ef131b5fc81d5a68e11cb404e886ad865861`; `index.html` no longer contains obsolete offline wording and now states publication since 2026-11-15; `magazine.html` likewise acknowledges live projection. HTTPS public `/`, `/magazine.html` and `/boutique.html` all return **200, TLS verify 0**, Caddy remains active. Peer checks still **200** (Suicide Corse, Rise & Fall, Capable) and **401** (private Browser), TLS verify 0 for each. The second remote SSH call again timed out from the client perspective; no success was claimed until filesystem, live HTTPS and Caddy were independently observed. Script staging cleaned afterwards. The earlier release remains available as an immutable rollback target; no data from unrelated sites was removed.
+
+## 2026-11-26 — Addressable resource releases, RT-LBF-003
+
+This dated operational observation supersedes the prior release pointers
+for the seven books below. It does not change DNS or vhosts. On this date,
+\`capable.acorsica.org\` also returned HTTPS 200 on its canonical host;
+Orta is a project in the Corpus, not yet a verified public deployment.
+
+| Book | Active release identity (full tree SHA-256) | Public resources |
+|---|---|---:|
+| 1755 | \`38f4db7917bf89f34af1ee006f43e589ef151e5829706cae530c7640cbeee4ef\` | [3](https://1755.acorsica.org/ressources/index.html) |
+| rise-and-fall | \`8ef74f608e08fb0b2b61da95a76d6cc3fccd5abb06b28ca6369e8a176517f140\` | [3](https://riseandfall.baronsmariani.org/ressources/index.html) |
+| musee | \`7bea8fbfddb6c75ac258f774a3ee43ba86f66b64f62d4f4a67bab9401bd05ccb\` | [15](https://museum.baronsmariani.org/ressources/index.html) |
+| school | \`3ca0127b0c8d63284f6421311be73b28e7eadfb6456fe62550b2a5cbd60194d0\` | [1](https://school.acorsica.org/ressources/index.html) |
+| commons | \`46f762ec6580c95a716acf6b050e4b13af9b6ceabddb495da2e2a923db471739\` | [8](https://commons.acorsica.org/ressources/index.html) |
+| institut | \`bfe3f505b02d37dd0b237c46273eaf57d3ec962f01e5e074b83635d9b7960048\` | [6](https://institut.acorsica.org/ressources/index.html) |
+| privai | \`ff3b870d4ad5ef354f439b33baf1745f037970c7ffadf74ff21c6ab60767bb6c\` | [12](https://privai.acorsica.org/ressources/index.html) |
+
+All seven releases were activated by the Principal and independently
+verified against their expected HTTPS bytes; 48 document projections
+excluding the seven indexes. The receipts are stored locally on Fracta2
+at \`/var/lib/cogentia/state/living-book-resource-receipts/<release>/receipt.json\`,
+outside public roots. The canonical CI-to-assembly handoff compares the
+complete active tree, prepares only changed releases and preserves frozen
+assets. See [Cogentia #348](https://github.com/JeanHuguesRobert/cogentia/issues/348#issuecomment-7202807961)
+and [Barons #112](https://github.com/JeanHuguesRobert/barons-Mariani/issues/112).
+Activation still requires the operator; do not infer autonomous super
+admission from the observed public state. No new service or DNS operation
+is needed for these seven releases.
