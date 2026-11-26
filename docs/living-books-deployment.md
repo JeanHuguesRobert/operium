@@ -211,23 +211,23 @@ The Principal's previously documented standing delegation also covered routine d
 
 This dated operational observation supersedes the prior release pointers
 for the seven books below. It does not change DNS or vhosts. On this date,
-\`capable.acorsica.org\` also returned HTTPS 200 on its canonical host;
+`capable.acorsica.org` also returned HTTPS 200 on its canonical host;
 Orta is a project in the Corpus, not yet a verified public deployment.
 
 | Book | Active release identity (full tree SHA-256) | Public resources |
 |---|---|---:|
-| 1755 | \`38f4db7917bf89f34af1ee006f43e589ef151e5829706cae530c7640cbeee4ef\` | [3](https://1755.acorsica.org/ressources/index.html) |
-| rise-and-fall | \`8ef74f608e08fb0b2b61da95a76d6cc3fccd5abb06b28ca6369e8a176517f140\` | [3](https://riseandfall.baronsmariani.org/ressources/index.html) |
-| musee | \`7bea8fbfddb6c75ac258f774a3ee43ba86f66b64f62d4f4a67bab9401bd05ccb\` | [15](https://museum.baronsmariani.org/ressources/index.html) |
-| school | \`3ca0127b0c8d63284f6421311be73b28e7eadfb6456fe62550b2a5cbd60194d0\` | [1](https://school.acorsica.org/ressources/index.html) |
-| commons | \`46f762ec6580c95a716acf6b050e4b13af9b6ceabddb495da2e2a923db471739\` | [8](https://commons.acorsica.org/ressources/index.html) |
-| institut | \`bfe3f505b02d37dd0b237c46273eaf57d3ec962f01e5e074b83635d9b7960048\` | [6](https://institut.acorsica.org/ressources/index.html) |
-| privai | \`ff3b870d4ad5ef354f439b33baf1745f037970c7ffadf74ff21c6ab60767bb6c\` | [12](https://privai.acorsica.org/ressources/index.html) |
+| 1755 | `38f4db7917bf89f34af1ee006f43e589ef151e5829706cae530c7640cbeee4ef` | [3](https://1755.acorsica.org/ressources/index.html) |
+| rise-and-fall | `8ef74f608e08fb0b2b61da95a76d6cc3fccd5abb06b28ca6369e8a176517f140` | [3](https://riseandfall.baronsmariani.org/ressources/index.html) |
+| musee | `7bea8fbfddb6c75ac258f774a3ee43ba86f66b64f62d4f4a67bab9401bd05ccb` | [15](https://museum.baronsmariani.org/ressources/index.html) |
+| school | `3ca0127b0c8d63284f6421311be73b28e7eadfb6456fe62550b2a5cbd60194d0` | [1](https://school.acorsica.org/ressources/index.html) |
+| commons | `46f762ec6580c95a716acf6b050e4b13af9b6ceabddb495da2e2a923db471739` | [8](https://commons.acorsica.org/ressources/index.html) |
+| institut | `bfe3f505b02d37dd0b237c46273eaf57d3ec962f01e5e074b83635d9b7960048` | [6](https://institut.acorsica.org/ressources/index.html) |
+| privai | `ff3b870d4ad5ef354f439b33baf1745f037970c7ffadf74ff21c6ab60767bb6c` | [12](https://privai.acorsica.org/ressources/index.html) |
 
 All seven releases were activated by the Principal and independently
 verified against their expected HTTPS bytes; 48 document projections
 excluding the seven indexes. The receipts are stored locally on Fracta2
-at \`/var/lib/cogentia/state/living-book-resource-receipts/<release>/receipt.json\`,
+at `/var/lib/cogentia/state/living-book-resource-receipts/<release>/receipt.json`,
 outside public roots. The canonical CI-to-assembly handoff compares the
 complete active tree, prepares only changed releases and preserves frozen
 assets. See [Cogentia #348](https://github.com/JeanHuguesRobert/cogentia/issues/348#issuecomment-7202807961)
