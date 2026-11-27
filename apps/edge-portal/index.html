@@ -1003,7 +1003,6 @@
           return host === observerHost ? "This node" : label;
         }
         var nodes = [
-          { host: "fracta", resource_id: "resource://fracta", label: fallbackLabel("fracta", "Fracta"), online: !!(s.nodes && s.nodes.fracta), http_status: s.nodes && s.nodes.fracta ? 200 : 0, health_score: null, hostname: null, endpoint: "" },
           { host: "fracta2", resource_id: "resource://fracta2", label: fallbackLabel("fracta2", "Fracta 2"), online: !!(s.nodes && s.nodes.fracta2), http_status: s.nodes && s.nodes.fracta2 ? 200 : 0, health_score: null, hostname: null, endpoint: "" },
           { host: "i7-thinkpad-jhr", resource_id: "resource://i7-thinkpad-jhr", label: fallbackLabel("i7-thinkpad-jhr", "Workstation"), online: !!(s.nodes && s.nodes.workstation), http_status: 0, health_score: null, hostname: null, endpoint: "" },
           { host: "rpi3-view", resource_id: "resource://rpi3-view", label: fallbackLabel("rpi3-view", "Raspberry Pi view"), online: !!(s.nodes && s.nodes.rpi3_view), http_status: s.nodes && s.nodes.rpi3_view ? 200 : 0, health_score: null, hostname: null, endpoint: "" },

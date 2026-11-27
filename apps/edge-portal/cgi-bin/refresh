@@ -22,7 +22,6 @@ else
   VIEWS_STORE=false
 fi
 
-FRACTA="$(probe_host fracta)"
 FRACTA2="$(probe_host fracta2)"
 WORKSTATION="$(probe_host i7-thinkpad-jhr)"
 PHONE="$(probe_host poco-jhr)"
@@ -37,7 +36,6 @@ cat >"$TEMP" <<EOF
     "views_store": $VIEWS_STORE
   },
   "nodes": {
-    "fracta": $FRACTA,
     "fracta2": $FRACTA2,
     "workstation": $WORKSTATION,
     "phone": $PHONE,

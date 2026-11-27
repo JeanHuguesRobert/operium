@@ -23,6 +23,7 @@ try{
   const result=await buildFleet(config);
   const elapsed=Date.now()-start;
   assert.equal(result.nodes.length,FLEET_NODES.length);
+  assert.ok(!result.nodes.some(n=>n.host==='fracta'), 'destroyed node must not be probed');
   assert.ok(elapsed<1200,'fleet read stalled for '+elapsed+'ms');
   const self=result.nodes.find(n=>n.host==='fracta2');
   assert.equal(self.online,true);

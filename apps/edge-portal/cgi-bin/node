@@ -2,7 +2,7 @@
 # Same-origin proxy: ONA status + SOMA object/vocabulary/observations for one mesh host.
 # On success, writes last-known cache under $PORTAL_DIR/cache/nodes/<host>.json (P4).
 # On failure, serves that cache with live=false / stale=true when available.
-# Query: /cgi-bin/node?host=fracta
+# Query: /cgi-bin/node?host=fracta2
 set -eu
 
 PORTAL_DIR="${OPERIUM_EDGE_PORTAL_DIR:-/srv/operium-edge-portal}"
@@ -27,7 +27,7 @@ if [ -z "$host" ]; then
 fi
 
 case "$host" in
-  fracta|fracta2|i7-thinkpad-jhr|rpi3-view|poco-jhr) ;;
+  fracta2|i7-thinkpad-jhr|rpi3-view|poco-jhr) ;;
   *)
     json_headers
     printf '{"ok":false,"error":"unknown_host","host":"%s"}\n' "$host"

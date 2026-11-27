@@ -110,7 +110,7 @@ Operia is not a separate project yet.
 
 ## Operium Node Agent Daemon (ONA) & Autonomous Control Plane
 
-- **Operium Node Agent (`operium-node-agent.service`)**: Active 24/7 on `resource://fracta` and `resource://fracta2` (listening on `0.0.0.0:8794`).
+- **Operium Node Agent (`operium-node-agent.service`)**: Active on `resource://fracta2`, the sole remaining OCI node. Original `resource://fracta` was destroyed (Principal report, 2026-11-27; see [#77](https://github.com/JeanHuguesRobert/operium/issues/77)).
 - **SOMA Endpoints**: Managed node descriptors (`/.well-known/soma`, `/soma/object`, `/soma/vocabulary`, `/soma/actions`).
 - **Autonomous Execution**: Background job scheduling (`heartbeat:operium-node`), Blackboard peer discovery, and remote site worker dispatch.
 

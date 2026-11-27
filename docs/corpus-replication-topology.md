@@ -40,10 +40,11 @@ across cloud, edge, and mobile nodes with strict role separation.
 | Node | Type | Path / Layout | Role & Services |
 |---|---|---|---|
 | **`i7-thinkpad-jhr`** | Workstation (Win 11) | `C:\tweesic\` | Primary write authority, local dev, full repo checkouts |
-| **`fracta`** | Cloud VPS (OCI AMD) | `/srv/cogentia/repos/` | Canonical Internet-facing replica, Guide, MCP Attractor, public Git mirror |
-| **`fracta2`** | Cloud VPS (OCI AMD) | `/srv/cogentia/repos/` | Secondary worker replica, KasmVNC hosted browser, ONA worker node |
+| **`fracta2`** | Cloud VPS (OCI ARM A1 Flex, 2 OCPU, 12 GB RAM) | `/srv/cogentia/repos/` | Sole cloud replica, Guide, MCP, KasmVNC hosted browser, ONA node |
 | **`poco-jhr`** | Mobile (Termux Android) | `~/srv/cogentia/repos/` | Personal digital twin execution node (Agent John), synced via `fractanet-sync-repos-from-fracta.sh` |
 | **`rpi3-view`** | Edge (RPi 3 Model B) | `/srv/cogentia/repos/` | Edge observation & portal node (18 GB free storage), ONA node, synced via `~/sync-repos.sh` |
+
+The original `fracta` node was destroyed, as reported by the Principal on 2026-11-27 ([Operium #77](https://github.com/JeanHuguesRobert/operium/issues/77)). Existing historical references and logical service names are not physical nodes.
 
 ## Workspace root guidance (`AGENTS.md`)
 
@@ -72,7 +73,7 @@ snapshot ID, graph/index hashes, generation time, and schema versions. A target
 accepts a batch only after hash verification and atomic replacement. Repeating a
 batch is a no-op; interrupted batches resume from the manifest.
 
-Replication is directional by default (`local -> fracta -> workers/edge`). Fracta never becomes
+Replication is directional by default (`local -> fracta2 -> workers/edge`). Fracta2 never becomes
 the canonical source and never writes back into the Corpus without an explicit
 mandate and a separate promotion workflow.
 
