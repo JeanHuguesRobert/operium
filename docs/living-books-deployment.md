@@ -263,3 +263,15 @@ After owner installation and the DNS-only record, independently verify
 both authoritative CNAME answers, TLS, all 13 public bytes and store the
 detached receipt in the existing node-local receipt directory. Until
 then status is BOOTSTRAP_PREPARED, not LIVE.
+
+**Origin installed, DNS still absent — 2026-11-27.** The Principal
+executed the pinned owner provisioning script. Independent Fracta2
+observation (invocation 8ddf810a-b8ea-41fb-be70-caf1f2f263f2) confirms
+the exact current release and all 13 origin HTTP 200 response bodies
+against their SHA-256 inventory, both Orta Caddy fragments installed,
+Caddy active. Village, Capable and Museum public HTTPS return 200
+with valid certificates. Both authoritative Cloudflare servers still
+answer NXDOMAIN for Orta. Status ORIGIN_VERIFIED, not LIVE_VERIFIED.
+Only the DNS-only CNAME and subsequent public TLS/content verification
+remain. Retain the detached receipt in the existing receipt directory
+after checking the local inventory; it is not a public HTTPS receipt.
