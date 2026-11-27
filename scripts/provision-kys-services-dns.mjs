@@ -2,7 +2,7 @@
 /**
  * Idempotent Cloudflare DNS-only CNAME provisioning for a FIXED allowlist.
  * No secret is printed. Default is read-only; --apply is explicit.
- * --site=services (default; backward-compatible) or --site=museum.
+ * --site=services (default; backward-compatible), --site=museum or --site=orta.
  * Run on the authorized operator workstation with CLOUDFLARE_API_TOKEN set,
  * or CLOUDFLARE_API_KEY (with CLOUDFLARE_EMAIL only for legacy global-key auth).
  * CLI availability and token access do not supply COP effect authorization.
@@ -11,12 +11,13 @@ import process from 'node:process'
 
 const SITES = Object.freeze({
   services: Object.freeze({ zone: 'acorsica.org', name: 'services.acorsica.org', target: 'fracta.fractavolta.com' }),
+  orta: Object.freeze({ zone: 'acorsica.org', name: 'orta.acorsica.org', target: 'fracta.fractavolta.com' }),
   museum: Object.freeze({ zone: 'baronsmariani.org', name: 'museum.baronsmariani.org', target: 'fracta.fractavolta.com' }),
 })
 const argv = process.argv.slice(2)
 const selectors = argv.filter(arg => arg.startsWith('--site='))
 if (selectors.length > 1 || argv.some(arg => arg !== '--apply' && !arg.startsWith('--site='))) {
-  console.error('Usage: provision-kys-services-dns.mjs [--site=services|--site=museum] [--apply]')
+  console.error('Usage: provision-kys-services-dns.mjs [--site=services|--site=museum|--site=orta] [--apply]')
   process.exit(2)
 }
 const selected = selectors[0]?.slice('--site='.length) || 'services'

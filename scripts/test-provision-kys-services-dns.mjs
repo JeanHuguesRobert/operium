@@ -15,8 +15,8 @@ const mode = process.env.MOCK_CLOUDFLARE_MODE
 
 if (mode) {
   process.env.CLOUDFLARE_API_TOKEN = 'fixture-only-never-a-real-token'
-  const expectZone = mode === 'services' ? 'acorsica.org' : 'baronsmariani.org'
-  const expectName = mode === 'services' ? 'services.acorsica.org' : 'museum.baronsmariani.org'
+  const expectZone = mode === 'services' || mode.startsWith('orta-') ? 'acorsica.org' : 'baronsmariani.org'
+  const expectName = mode === 'services' ? 'services.acorsica.org' : mode.startsWith('orta-') ? 'orta.acorsica.org' : 'museum.baronsmariani.org'
   const expectTarget = 'fracta.fractavolta.com'
   globalThis.fetch = async (url, opts = {}) => {
     const method = opts.method || 'GET'
@@ -38,7 +38,7 @@ if (mode) {
       return Response.json({ success: true, result })
     }
     if (path === '/zones/fixed-fixture-zone/dns_records' && method === 'POST') {
-      assert.equal(mode, 'apply', 'DNS mutation must occur only in apply mode')
+      assert.ok(['apply','orta-apply'].includes(mode), 'DNS mutation must occur only in apply mode')
       const body = JSON.parse(opts.body)
       assert.deepEqual(body, {type:'CNAME',name:expectName,content:expectTarget,proxied:false,ttl:1})
       return Response.json({ success: true, result: { ...body, id: 'fixture-record-id' } })
@@ -70,5 +70,11 @@ if (mode) {
   const invalid = run('dryrun', ['--site=wildcard'])
   assert.equal(invalid.status, 2)
   assert.match(invalid.stderr, /BLOCKED: unknown DNS site/)
-  console.log('PASS: 6 Cloudflare DNS provisioner fixtures; no external API calls')
+  const orta = run('orta-dryrun', ['--site=orta'])
+  assert.equal(orta.status, 0, orta.stderr)
+  assert.match(orta.stdout, /DRY-RUN: would create DNS-only CNAME orta\.acorsica\.org/)
+  const ortaApply = run('orta-apply', ['--site=orta','--apply'])
+  assert.equal(ortaApply.status, 0, ortaApply.stderr)
+  assert.match(ortaApply.stdout, /CREATED: orta\.acorsica\.org/)
+  console.log('PASS: 8 Cloudflare DNS provisioner fixtures; no external API calls')
 }

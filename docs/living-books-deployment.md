@@ -235,3 +235,31 @@ and [Barons #112](https://github.com/JeanHuguesRobert/barons-Mariani/issues/112)
 Activation still requires the operator; do not infer autonomous super
 admission from the observed public state. No new service or DNS operation
 is needed for these seven releases.
+
+### 2026-11-27 — Orta initial provisioning prepared (not live)
+
+Canonical host: orta.acorsica.org; existing Fracta2 public edge, no new
+service. Both Cloudflare authoritative nameservers returned NXDOMAIN.
+The peer Village uses a DNS-only CNAME to fracta.fractavolta.com.
+Desired Orta record: CNAME orta -> fracta.fractavolta.com, DNS-only,
+TTL Auto, no alias or other zone changes. The existing DNS provisioner
+now accepts --site=orta, with mock dry-run and apply regressions.
+
+First immutable release: orta-resources-60446b1e64e01ad375f63e8de9689640f9b868f17d7827580bd6c7ab0dd0d6f1
+(13 files; receipt SHA256 54268813b6a5edfd759fc6bb132add707b6606b626c330de40ee46e82129d553).
+Prepared by the Factory from verified resource CI and committed site tree;
+see [Cogentia #348](https://github.com/JeanHuguesRobert/cogentia/issues/348).
+Origin bootstrap uses [provision-orta-static.py](../scripts/ops/provision-orta-static.py):
+checks pinned bytes, refuses a competing current or vhost, installs only
+/srv/www/orta and the two Orta Caddy fragments using the existing Caddy
+imports, validates complete configuration, checks every origin byte.
+An existing equivalent origin is a no-op; failures are forward-corrected.
+
+Owner apply is required; normal Fracta2 shell has no Cloudflare credential
+and super admission is not executable. The exact candidate is currently
+in /tmp/lbf348-delivery-real.ebrdsd/books/ (re-materialize if lost).
+Preflight passed, no DNS change, no privileged apply, no HTTPS claim.
+After owner installation and the DNS-only record, independently verify
+both authoritative CNAME answers, TLS, all 13 public bytes and store the
+detached receipt in the existing node-local receipt directory. Until
+then status is BOOTSTRAP_PREPARED, not LIVE.
