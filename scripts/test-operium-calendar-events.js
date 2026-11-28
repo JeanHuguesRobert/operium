@@ -9,6 +9,7 @@ import { continuationWakePacket, dnsObservationWakePacket, obligationFromWakePac
 import { listCalendar, resolveCalendar, scheduleCalendar, tickCalendar } from "../lib/calendar-capabilities.js";
 import { openNodeMemoryDb } from "../lib/node-agent/db.js";
 import { LATEST_SCHEMA_VERSION } from "../lib/node-agent/migrate.js";
+import { runDueCalendarObligations } from "../lib/node-agent/calendar-runner.js";
 import { getCalendarObligation, upsertCalendarObligation } from "../lib/node-agent/calendar-store.js";
 import { backfillWakeEventsFromObligations, comparableWakeItems, replayCalendarObligations } from "../lib/node-agent/calendar-replay.js";
 import { COP_CALENDAR_KINDS, listCopEvents } from "../lib/node-agent/cop-events.js";
@@ -101,6 +102,17 @@ const continuationItem = afterTick.items.find(item => item.id === "continuation:
 assert.equal(continuationItem.status, "active");
 assert.equal(continuationItem.authorized, false);
 assert.equal(continuationItem.last_evidence.pending, true);
+// A one-shot wake awaiting judgment has no next execution date. It must
+// remain inspectable but must not be delivered again at each ONA tick.
+assert.equal(continuationItem.next_run_at, null);
+const nextTick = await tickCalendar({ ...deps, now: "2026-08-31T12:01:00.000Z" });
+assert.equal(nextTick.results.some(item => item.id === continuationItem.id), false);
+assert.equal(getCalendarObligation(db, continuationItem.id).run_count, 1);
+replayCalendarObligations(db, { node_id: "resource://fracta", hostname: "fracta" });
+assert.equal(getCalendarObligation(db, continuationItem.id).next_run_at, null);
+assert.equal((await tickCalendar({ ...deps, now: "2026-08-31T12:02:00.000Z" }))
+  .results.some(item => item.id === continuationItem.id), false);
+
 
 const continuationEvents = listCopEvents(db, { obligation_id: "continuation:example-judgment" });
 assert.ok(continuationEvents.some(event => event.kind === COP_CALENDAR_KINDS.WAKE));
@@ -232,6 +244,43 @@ assert.equal(
   false,
 );
 
+// A generic finite observation must not run before due time; the creator
+// may disconnect, and the result remains readable after closing/reopening DB.
+const oneShotDue = "2026-09-01T17:00:00.000Z";
+const oneShotId = "test:one-shot-observation";
+const scheduledOneShot = scheduleCalendar(deps, {
+  id: "cop:wake:" + oneShotId,
+  packet_type: COP_CALENDAR_KINDS.WAKE,
+  payload: {
+    schema: COP_CALENDAR_KINDS.WAKE,
+    due_at: oneShotDue,
+    cadence: {kind: "once"},
+    stop_condition: {type: "always"},
+    authorized: false,
+    packet: {
+      envelope: {packet_kind: "observation", transmission_mode: "copy", status: "active"},
+      payload: {kind: "observation.fixture", id: oneShotId},
+    },
+  },
+});
+assert.equal(scheduledOneShot.authorized, false);
+let observed = 0;
+const fixture = async () => ({ok: true, value: ++observed});
+assert.equal((await tickCalendar({...deps, now: "2026-09-01T16:59:59.000Z"}))
+  .results.some(item => item.id === oneShotId), false);
+const other = openNodeMemoryDb({dbPath, nodeId: deps.nodeId, hostname: deps.hostname}).db;
+try {
+  const dueRun = await runDueCalendarObligations(other, {now: oneShotDue, runCustom: fixture});
+  const actual = dueRun.results.find(item => item.id === oneShotId);
+  assert.equal(actual?.closed, true);
+  assert.equal(actual?.evidence.value, 1);
+} finally { other.close(); }
+assert.equal(getCalendarObligation(db, oneShotId).last_evidence.value, 1);
+assert.equal((await tickCalendar({...deps, now: "2026-09-01T17:01:00.000Z"}))
+  .results.some(item => item.id === oneShotId), false);
+assert.equal(observed, 1);
+assert.equal(listCopEvents(db, {obligation_id: oneShotId, kind: COP_CALENDAR_KINDS.EVIDENCE}).length, 1);
+
 const beforeSweep = listCopEvents(db).length;
 assert.ok(beforeSweep >= 2);
 runTtlSweeper(db, { now: new Date("2030-01-01T00:00:00.000Z") });
@@ -279,6 +328,8 @@ console.log(JSON.stringify({
     "event_append_replay_matches_projection",
     "catalogue_jobs_are_not_wake_packets",
     "continuation_wake_handler_unauthorized",
+    "one_shot_pending_does_not_repeat_after_replay",
+    "one_shot_observation_due_and_persisted_once",
     "cop_events_query",
     "packet_ref_unreadable_fails_closed",
     "packet_ref_wake_from_registered_packet",
