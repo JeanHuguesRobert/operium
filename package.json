@@ -42,6 +42,7 @@
     "test:node-agent-graph": "node scripts/test-node-agent-graph.js",
     "test:replication-roundtrip": "node scripts/test-replication-roundtrip.js",
     "test:ona-db": "node scripts/test-ona-db.js",
+    "test:ona-storage": "node --test scripts/test-ona-storage.js",
     "test:ona-status": "node scripts/test-ona-status.js",
     "test:ona-soma": "node scripts/test-ona-soma.js",
     "test:ona-actions": "node scripts/test-ona-actions.js",

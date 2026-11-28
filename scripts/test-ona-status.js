@@ -164,6 +164,10 @@ try {
   assert.equal(apiStatus.schema, "operium.node.status.v1");
   assert.equal(apiStatus.node_id, "resource://test-thinkpad");
   assert.ok(Array.isArray(apiStatus.probes.items));
+  assert.equal(typeof apiStatus.resources.storage.available, "boolean");
+  assert.ok(apiStatus.resources.storage_trend.state);
+  assert.equal(db.prepare("SELECT COUNT(*) AS count FROM event_log WHERE kind = 'ona.storage_sample'").get().count,
+    apiStatus.resources.storage.available ? 1 : 0);
 
   db.close();
   console.log(JSON.stringify({

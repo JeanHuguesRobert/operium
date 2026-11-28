@@ -1179,3 +1179,25 @@ for local recovery: a stopped node cannot execute its own observer.
 
 The reusable unit templates are `profiles/systemd/operium-ona-healthcheck.*`;
 they deliberately contain no topology, account, token, or host-specific data.
+
+
+### Filesystem pressure and short-term trend (Operium #82)
+
+`GET /node/status` exposes `resources.storage` and `resources.storage_trend`.
+SOMA exposes the primary filesystem capacity, available bytes, occupancy, inode
+occupancy where supported, and pressure. Service liveness remains independent
+of resource pressure. The observation uses the filesystem containing the home
+drive root by default; set `ONA_STORAGE_PATH` to observe another filesystem.
+Only numerical observations are returned, not the configured path.
+`ONA_STORAGE_MIN_FREE_BYTES` optionally sets a workload-specific absolute
+headroom threshold; the default is zero. Occupancy bands start at 70, 80,
+90 and 95 percent (watch, preventive, urgent and critical). Occupancy uses
+the same denominator as GNU df, excluding reserved blocks.
+
+The normal probe cycle records at most one storage sample per UTC hour in
+the existing event log (14-day TTL). The read-only status projection estimates
+the net filling rate over at most 24 hours, requiring at least three
+observations spanning six hours. Material free-space increases reset the
+trend window; capacity changes are not mixed. The estimate is not a deadline
+or an automatic admission/eviction decision. Unsupported readings are
+explicitly unavailable. No automated deletion is introduced by this slice.

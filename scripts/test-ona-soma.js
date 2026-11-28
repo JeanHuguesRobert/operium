@@ -147,6 +147,11 @@ try {
     assert.equal(liveDescriptor.body.schema, "soma.descriptor.v0");
     const liveObject = await fetchJson(`http://127.0.0.1:${port}/soma/object`, { headers });
     assert.equal(liveObject.body.id, "resource://fracta-test");
+    assert.ok(liveObject.body.attributes["system.storage.pressure"]);
+    if (liveObject.body.attributes["system.storage.pressure"].value !== "unknown") {
+      assert.ok(liveObject.body.attributes["system.storage.available"].value >= 0);
+      assert.equal(liveObject.body.attributes["system.storage.used_percent"].unit, "percent");
+    }
     const liveVocabulary = await fetchJson(`http://127.0.0.1:${port}/soma/vocabulary`);
     assert.ok(liveVocabulary.body.attributes["core.user-label"]);
     const liveObservations = await fetchJson(`http://127.0.0.1:${port}/soma/observations`, { headers });
